@@ -1,0 +1,17 @@
+<div
+  class="container d-flex flex-column align-items-center justify-content-center mt-5"
+>
+  <h2 class="mb-4 text-center">Upload File for Analysis (PDF/Excel)</h2>
+
+  <p-fileUpload
+    name="file"
+    [customUpload]="true"
+    (uploadHandler)="uploadAndExtract()"
+    (onSelect)="onFileSelected($event)"
+    chooseLabel="Select File"
+    uploadLabel="Upload"
+    cancelLabel="Cancel"
+    [auto]="false"
+    accept=".xls,.xlsx,.pdf"
+  ></p-fileUpload>
+</div>

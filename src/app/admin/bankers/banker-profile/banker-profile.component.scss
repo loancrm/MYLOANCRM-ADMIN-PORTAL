@@ -1,0 +1,75 @@
+.img-thumbnail {
+  border: none;
+}
+
+.bankname {
+  color: #29415b;
+  // font-weight: bold;
+  font-size: medium;
+  font-size: 30px;
+}
+
+.bankerid {
+  color: grey;
+}
+.value {
+  color: #29415b;
+  font-size: 17px;
+  // font-weight: bold;
+  font-size: medium;
+}
+.label {
+  color: grey;
+  font-size: 17px;
+  flex: 0 0 270px;
+  // font-weight: bold;
+  font-size: medium;
+}
+.bankStatus {
+  color: grey;
+}
+.banker-profile {
+  border: none;
+}
+
+.bg-color {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  // background-image: url("../../../../assets/images/bgs/3.jpg");
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.info-line {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+@media screen and (max-width: 620px) {
+  .info-line {
+    display: block;
+  }
+  .card {
+    margin: 0;
+  }
+}
+.email {
+  text-transform: lowercase;
+}
+
+::ng-deep p-accordionTab .accordion-header {
+  font-size: 20px !important;
+  color: #ee7846 !important;
+  font-weight: bold !important;
+}
+
+.statusdata {
+  padding-top: 3px;
+  padding-bottom: 3px;
+  border-radius: 20px;
+  padding-left: 3px;
+  padding-right: 8px;
+}

@@ -1,0 +1,248 @@
+<div class="bread-crumb m-2">
+  <p-breadcrumb [model]="breadCrumbItems"></p-breadcrumb>
+</div>
+<ng-container *ngFor="let item of displayedItems">
+  <div class="m-2 p-1" *ngIf="item.data">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+
+        <b>
+          <span class="back-btn-text text-capitalize">
+            {{ item.data[item.displayProperty] || "N/A" | capitalizeFirst }}
+          </span>
+        </b>
+      </div>
+    </div>
+  </div>
+</ng-container>
+<div *ngIf="loading">
+  <app-preloader></app-preloader>
+</div>
+<div class="container-fluid" *ngIf="!loading">
+  <div class="row">
+    <div *ngIf="approvalDetails" class="table-responsive">
+      <p-table
+        [value]="approvalDetails"
+        [scrollable]="true"
+        scrollHeight="500px"
+        [styleClass]="'p-datatable-striped'"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="min-width: 150px">LAN</th>
+            <th style="min-width: 100px" *ngIf="shouldDisplayBlock()">
+              Surrogate
+            </th>
+            <th style="min-width: 200px">Lender</th>
+            <th style="min-width: 200px">Sanctioned Amount</th>
+            <th style="min-width: 200px">Disbursed Amount</th>
+            <th style="min-width: 100px">ROI(%)</th>
+            <th style="min-width: 100px">Tenure</th>
+            <th style="min-width: 200px">Process Code</th>
+            <th style="min-width: 200px">Product type</th>
+            <th style="min-width: 250px">Sanction Date</th>
+            <th style="min-width: 250px">Status</th>
+            <th style="min-width: 250px">Disbursed Date</th>
+            <th style="min-width: 250px">Remarks</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-i="index">
+          <tr>
+            <td>
+              <input
+                pInputText
+                type="text"
+                class="rounded-lg"
+                [style]="{ width: '100%' }"
+                autocomplete="off"
+                placeholder="Enter LAN"
+                [(ngModel)]="rowData.lan"
+              />
+            </td>
+            <td *ngIf="shouldDisplayBlock()">{{ rowData.program }}</td>
+            <td>{{ getLenderName(rowData.bankId) | capitalizeFirst }}</td>
+            <td>
+              <input
+                pInputText
+                type="number"
+                class="rounded-lg"
+                [style]="{ width: '100%' }"
+                autocomplete="off"
+                [(ngModel)]="rowData.sanctionedAmount"
+              />
+            </td>
+            <td>
+              <input
+                pInputText
+                type="number"
+                class="rounded-lg"
+                [style]="{ width: '100%' }"
+                autocomplete="off"
+                [(ngModel)]="rowData.disbursedAmount"
+              />
+            </td>
+            <td>
+              <input
+                pInputText
+                type="number"
+                class="rounded-lg"
+                [style]="{ width: '100%' }"
+                autocomplete="off"
+                [(ngModel)]="rowData.roi"
+              />
+            </td>
+            <td>
+              <input
+                pInputText
+                type="text"
+                class="rounded-lg"
+                [style]="{ width: '100%' }"
+                autocomplete="off"
+                [(ngModel)]="rowData.tenure"
+              />
+            </td>
+            <td>
+              <p-dropdown
+                [options]="processcodes"
+                [style]="{ width: '100%' }"
+                optionLabel="displayName"
+                optionValue="name"
+                [showClear]="true"
+                appendTo="body"
+                placeholder="Select Process Code"
+                [dropdownIcon]="'fa fa-caret-down'"
+                [(ngModel)]="rowData.processCode"
+              ></p-dropdown>
+            </td>
+            <td>
+              <p-dropdown
+                [options]="productTypes"
+                [style]="{ width: '100%' }"
+                optionLabel="displayName"
+                optionValue="id"
+                [showClear]="true"
+                appendTo="body"
+                placeholder="Select Product Type"
+                [dropdownIcon]="'fa fa-caret-down'"
+                [(ngModel)]="rowData.productType"
+              ></p-dropdown>
+            </td>
+            <td>
+              <div class="custom-calendar-wrapper w-100 position-relative">
+                <p-calendar
+                  #calendar
+                  [(ngModel)]="rowData.approvalDate"
+                  placeholder="Select Sanction Date"
+                  [showIcon]="false"
+                  appendTo="body"
+                  dateFormat="yy-mm-dd"
+                  [showButtonBar]="true"
+                  [style]="{ width: '100%' }"
+                  (ngModelChange)="onSanctionDateChange()"
+                ></p-calendar>
+                <img
+                  src="../../../../assets/images/icons/calendar.svg"
+                  alt="Calendar Icon"
+                  class="calendar-custom-img"
+                  (click)="calendar.toggle()"
+                />
+              </div>
+            </td>
+            <td>
+              <p-dropdown
+                [options]="statusOptions"
+                [style]="{ width: '100%' }"
+                optionLabel="displayName"
+                optionValue="name"
+                [showClear]="true"
+                appendTo="body"
+                placeholder="Select Status"
+                [dropdownIcon]="'fa fa-caret-down'"
+                [(ngModel)]="rowData.approvedStatus"
+              ></p-dropdown>
+            </td>
+            <td>
+              <div class="custom-calendar-wrapper w-100 position-relative">
+                <p-calendar
+                  #disbursalcalendar
+                  [(ngModel)]="rowData.disbursalDate"
+                  placeholder="Select Disbursed Date"
+                  [showIcon]="false"
+                  appendTo="body"
+                  dateFormat="yy-mm-dd"
+                  [minDate]="rowData.minDisbursalDate"
+                  [showButtonBar]="true"
+                  [style]="{ width: '100%' }"
+                ></p-calendar>
+                <img
+                  src="../../../../assets/images/icons/calendar.svg"
+                  alt="Calendar Icon"
+                  class="calendar-custom-img"
+                  (click)="disbursalcalendar.toggle()"
+                />
+              </div>
+            </td>
+            <td>
+              <textarea
+                pInputTextarea
+                class="rounded-lg"
+                placeholder="Enter Remarks"
+                [style]="{ width: '100%' }"
+                autocomplete="off"
+                [(ngModel)]="rowData.approvedRemarks"
+              ></textarea>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr class="text-center">
+            <td colspan="10" class="text-center fw-bold">
+              <img
+                alt="No Data"
+                src="../../../assets/images/menu/no-data.gif"
+                width="200"
+                height="200"
+              />
+              <p>No Banks Saved</p>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+      <div class="col text-center my-3">
+        <button
+          pButton
+          pRipple
+          type="button"
+          class="p-button-primary me-2"
+          (click)="saveFormData()"
+        >
+          Save Sanctions Info
+        </button>
+        <!-- <button
+            *ngIf="
+              leads &&
+              ((leads[0].loanType === 'personalLoan' &&
+                leads[0].employmentStatus === 'employed') ||
+                (leads[0].loanType === 'homeLoan' &&
+                  leads[0].employmentStatus === 'employed') ||
+                (leads[0].loanType === 'lap' &&
+                  leads[0].employmentStatus === 'employed'))
+            "
+            pButton
+            pRipple
+            type="button"
+            class="p-button-primary me-2"
+            (click)="saveplFormData()"
+          >
+            Save Sanction Info
+          </button> -->
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,323 @@
+<div>
+  <div class="p-1 m-2 fixed-card">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <!-- <span class="me-1">
+          <img
+            src="../../../assets/images/menu/team.png"
+            alt="Default Image"
+            class=""
+            style="height: 35px; width: 40px"
+          />
+        </span> -->
+        <b>
+          <span class="back-btn-text">Users </span>
+        </b>
+        <!-- <span class="back-btn-text text-capitalize">Team </span> -->
+      </div>
+      <div>
+        <button
+          pButton
+          pRipple
+          type="button"
+          class="p-button-primary me-2"
+          icon="pi pi-plus"
+          (click)="createUsers()"
+        >
+          &nbsp;Add User
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- <div class="bread-crumb">
+    <p-breadcrumb [model]="breadCrumbItems"></p-breadcrumb>
+  </div> -->
+  <div class="m-2">
+    <p-table
+      #userTable
+      [value]="users"
+      [lazy]="true"
+      (onLazyLoad)="loadTeam($event)"
+      (onRowSelect)="viewUser($event)"
+      selectionMode="single"
+      dataKey="id"
+      [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [paginator]="true"
+      [rows]="10"
+      [totalRecords]="usersCount"
+      [loading]="apiLoading"
+      class="p-datatable-striped"
+      responsiveLayout="scroll"
+      scrollHeight="flex"
+      [globalFilterFields]="[
+        'referenceNo',
+        'customer.firstName',
+        'partner.partnerName',
+        'status'
+      ]"
+      styleClass="p-datatable-customers "
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Users"
+    >
+      <ng-template pTemplate="caption">
+        <div class="row">
+          <div class="col-md-3 mt-2 no-padding-small">
+            <div class="p-inputgroup">
+              <input
+                type="text"
+                pInputText
+                placeholder="Search User with User Name"
+                [(ngModel)]="userNameToSearch"
+                (ngModelChange)="
+                  inputValueChangeEvent('loanId', userNameToSearch)
+                "
+                (keyup.enter)="filterWithName()"
+              />
+              <!-- <button
+                type="button"
+                pButton
+                icon="pi pi-search"
+                class="p-button-primary"
+                [disabled]="!userNameToSearch"
+                (click)="filterWithName()"
+              ></button> -->
+              <button
+                type="button"
+                pButton
+                class="p-button-primary search-btn"
+                [disabled]="!userNameToSearch"
+                (click)="filterWithName()"
+              >
+                <img
+                  src="assets/images/icons/search.svg"
+                  alt="Search"
+                  width="16"
+                  height="16"
+                  style="vertical-align: middle"
+                />
+              </button>
+            </div>
+          </div>
+
+          <div class="col-md-6 no-padding-small"></div>
+          <div class="col-md-3 no-padding-small text-right">
+            <br class="d-lg-none d-md-none" />
+            <div class="d-flex">
+              <div class="flex-grow-1 me-2">
+                <p-dropdown
+                  styleClass="text-left"
+                  [style]="{ width: '100%' }"
+                  [options]="usersStatus"
+                  (onChange)="statusChange($event)"
+                  [dropdownIcon]="'fa fa-caret-down'"
+                  [(ngModel)]="selectedTeamStatus"
+                  optionLabel="displayName"
+                  dataKey="name"
+                  appendTo="body"
+                >
+                </p-dropdown>
+              </div>
+              <div class="d-flex align-items-center pointer-cursor">
+                <app-filter
+                  [position]="'right'"
+                  [iconColor]="'#33009C'"
+                  [iconSize]="'28px!important'"
+                  (filterEvent)="applyConfigFilters($event)"
+                  [filterConfig]="filterConfig"
+                  [showFilterIndication]="appliedFilter"
+                  pTooltip="Filter"
+                  tooltipPosition="top"
+                >
+                </app-filter>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th class="text-nowrap">Employee Id</th>
+          <th>Name</th>
+          <th>Phone Number</th>
+          <th class="text-nowrap">Email</th>
+          <th class="text-nowrap">Joining Date</th>
+          <th>Designation</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-team>
+        <tr
+          [pSelectableRow]="team"
+          class="text-capitalize"
+          [ngClass]="{ 'disabled-row': team.disabled }"
+        >
+          <td>
+            <span class="table-column-data" *ngIf="team.userId">{{
+              team.userId
+            }}</span>
+          </td>
+          <td>
+            <div class="d-flex align-items-center">
+              <span class="me-2">
+                <ng-container
+                  *ngIf="
+                    team && team.userImage && team.userImage.length > 0;
+                    else defaultImage
+                  "
+                >
+                  <a>
+                    <img
+                      [src]="'//' + team.userImage[0]"
+                      alt="Image"
+                      class="teamImage"
+                      style="height: 35px; width: 40px"
+                    />
+                  </a>
+                </ng-container>
+                <ng-template #defaultImage>
+                  <img
+                    src="../../../../assets/images/profile/profile.png"
+                    alt="Default Image"
+                    class="teamImage"
+                    style="height: 35px; width: 40px"
+                  />
+                </ng-template>
+              </span>
+              <span *ngIf="team.name" class="table-column-data">
+                {{ team.name | capitalizeFirst }}
+              </span>
+            </div>
+          </td>
+          <td>
+            <span class="table-column-data" *ngIf="team.phone">{{
+              team.phone
+            }}</span>
+          </td>
+          <td>
+            <span class="table-column-data text-lowercase" *ngIf="team.email">{{
+              team.email
+            }}</span>
+          </td>
+          <td>
+            <span class="table-column-data" *ngIf="team.joiningDate">{{
+              team.joiningDate | date
+            }}</span>
+          </td>
+          <td>
+            <span class="table-column-data" *ngIf="team.userType">{{
+              getUserRoleName(team.userType)
+            }}</span>
+          </td>
+          <td>
+            <span class="table-column-data" *ngIf="team.addedOn">{{
+              team.addedOn | date
+            }}</span>
+          </td>
+          <td>
+            <span
+              class="table-column-data fw-bold statusdata"
+              *ngIf="team.status"
+              [ngStyle]="{
+                color: getStatusColor(team.status).textColor,
+
+              }"
+            >
+              {{ team.status }}
+            </span>
+          </td>
+          <td>
+            <div class="text-center d-flex">
+              <div class="d-flex">
+                <!-- <button
+                  pButton
+                  pRipple
+                  type="button"
+                  class="p-button-primary me-2 custom-btn"
+                  (click)="viewUser(team.id)"
+                  pTooltip="View User"
+                  icon="fas fa-eye"
+                  tooltipPosition="top"
+                ></button> -->
+
+                <!-- <img
+                  src="../../../assets/images/icons/eye.svg"
+                  width="24px"
+                  height="24px"
+                  class="me-2"
+                  (click)="viewUser(team.id)"
+                  pTooltip="View User"
+                  tooltipPosition="top"
+                /> -->
+                <!-- <button
+                  pButton
+                  pRipple
+                  type="button"
+                  class="p-button-info me-2 custom-btn"
+                  (click)="updateUsers(team.id)"
+                  pTooltip="Update User"
+                  icon="fas fa-pen-to-square"
+                  tooltipPosition="top"
+                ></button> -->
+                <img
+                  alt="Update User"
+                  src="../../../assets/images/icons/edit.svg"
+                  width="24px"
+                  height="24px"
+                  class="me-2"
+                  (click)="updateUsers(team.id)"
+                  pTooltip="Update User"
+                  tooltipPosition="top"
+                />
+              </div>
+              <p-menu
+                appendTo="body"
+                #menu
+                [model]="actionItems(team)"
+                [popup]="true"
+              ></p-menu>
+              <!-- <button
+                pButton
+                type="button"
+                class="custom-btn"
+                (click)="menu.toggle($event)"
+                icon="fas fa-bars"
+                pTooltip="Actions"
+                tooltipPosition="top"
+              ></button> -->
+              <img
+                alt="Actions"
+                src="../../../assets/images/icons/menu.svg"
+                width="24px"
+                height="24px"
+                pTooltip="Actions"
+                tooltipPosition="top"
+                (click)="menu.toggle($event); $event.stopPropagation()"
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr class="text-center">
+          <td colspan="10" class="text-center fw-bold">
+            <img
+              alt="No Data"
+              src="../../../assets/images/menu/no-data.gif"
+              width="200"
+              height="200"
+            />
+            <p>No users Found</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

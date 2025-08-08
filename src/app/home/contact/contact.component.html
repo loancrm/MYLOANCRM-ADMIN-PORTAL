@@ -1,0 +1,84 @@
+<section id="contact">
+  <div class="contact-box">
+    <div class="contact-links">
+      <h2 class="mt-3">Contact Us</h2>
+      <div class="links">
+        <div class="link">
+          <a href=""
+            ><img
+              src="../../../assets/images/Social-links/linkedin.png"
+              alt="linkedin"
+          /></a>
+        </div>
+        <div class="link">
+          <a
+            ><img
+              src="../../../assets/images/Social-links/github.png"
+              alt="github"
+          /></a>
+        </div>
+        <div class="link">
+          <a
+            ><img
+              src="../../../assets/images/Social-links/facebook.png"
+              alt="facebook"
+          /></a>
+        </div>
+        <div class="link">
+          <a
+            ><img
+              src="../../../assets/images/Social-links/email.png"
+              alt="email"
+          /></a>
+        </div>
+        <div class="link">
+          <a
+            ><img
+              src="../../../assets/images/Social-links/website.png"
+              alt="website"
+          /></a>
+        </div>
+      </div>
+    </div>
+    <div class="contact-form-wrapper">
+      <form>
+        <div class="form-item">
+          <input type="text" id="name" #nameInput name="sender" required />
+
+          <label>Name:</label>
+        </div>
+        <div class="form-item">
+          <input type="number" id="number" #numberInput required />
+
+          <label>Mobile No:</label>
+        </div>
+
+        <div class="form-item">
+          <input type="text" name="email" id="email" #emailInput required />
+          <label>Email:</label>
+        </div>
+        <div class="form-item">
+          <textarea
+            class=""
+            name="message"
+            id="message"
+            #messageInput
+            required
+          ></textarea>
+          <label>Message:</label>
+        </div>
+        <div class="text-center">
+          <button
+            pButton
+            pRipple
+            type="button"
+            (click)="sendEmail()"
+            class="p-button-primary"
+          >
+            send
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,459 @@
+<div>
+  <div class="bread-crumb m-2">
+    <p-breadcrumb [model]="breadCrumbItems"></p-breadcrumb>
+  </div>
+  <!-- <ul class="breadcrumb">
+    <li *ngFor="let item of breadCrumbItems">
+      <a
+        *ngIf="item.routerLink"
+        [routerLink]="item.routerLink"
+        [queryParams]="item.queryParams"
+      >
+        <img
+          *ngIf="item.svgIcon"
+          [src]="item.svgIcon"
+          alt="icon"
+          width="16"
+          height="16"
+        />
+        <i *ngIf="item.icon" [class]="item.icon"></i>
+        {{ item.label }}
+      </a>
+      <span *ngIf="!item.routerLink">
+        <img
+          *ngIf="item.svgIcon"
+          [src]="item.svgIcon"
+          alt="icon"
+          width="16"
+          height="16"
+        />
+        <i *ngIf="item.icon" [class]="item.icon"></i>
+        {{ item.label }}
+      </span>
+    </li>
+  </ul> -->
+
+  <div>
+    <div class="p-1 m-2">
+      <div class="d-flex justify-content-between">
+        <div
+          class="d-flex align-items-center justify-content-center pointer-cursor"
+          (click)="goBack()"
+        >
+          <span class="me-2 d-flex align-items-center">
+            <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+          </span>
+          <!-- <span class="me-1">
+            <img
+              src="../../../../assets/images/menu/addcallback.png"
+              alt="Default Image"
+              class=""
+              style="height: 35px; width: 40px"
+            />
+          </span> -->
+          <b>
+            <span class="back-btn-text text-capitalize">{{ heading }}</span>
+          </b>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="!loading">
+  <div class="p-fluid" *ngIf="loanType == 'lap' || loanType == 'homeLoan'">
+    <!-- <div class="container p-3">
+      <div class="row justify-content-center align-items-center mt-2">
+        <div class="col-md-6 col-lg-4">
+          <div class="field-radiobutton form-check">
+            <p-radioButton
+              name="employmentStatus"
+              value="employed"
+              [(ngModel)]="employmentStatus"
+              inputId="employed"
+              class="form-check-input"
+            ></p-radioButton>
+            <label for="employed" class="form-check-label">Employed</label>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="field-radiobutton form-check">
+            <p-radioButton
+              name="employmentStatus"
+              value="self-employed"
+              [(ngModel)]="employmentStatus"
+              inputId="selfEmployed"
+              class="form-check-input"
+            ></p-radioButton>
+            <label for="selfEmployed" class="form-check-label"
+              >Self-Employed</label
+            >
+          </div>
+        </div>
+      </div>
+    </div> -->
+    <div class="employment-selection">
+      <h3>Select Employment Type</h3>
+      <div class="options">
+        <label
+          class="option-card"
+          [class.selected]="employmentStatus === 'employed'"
+        >
+          <input
+            type="radio"
+            name="employment"
+            value="employed"
+            [(ngModel)]="employmentStatus"
+          />
+          <!-- <img src="../../../../assets/images/employed.jpg" alt="Employed" /> -->
+          <span>Employed</span>
+        </label>
+
+        <label
+          class="option-card"
+          [class.selected]="employmentStatus === 'self-employed'"
+        >
+          <input
+            type="radio"
+            name="employment"
+            value="self-employed"
+            [(ngModel)]="employmentStatus"
+          />
+          <!-- <img
+            src="../../../../assets/images/self-employed.png"
+            alt="Self Employed"
+          /> -->
+          <span>Self-Employed</span>
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="!loading">
+  <div
+    class="card callback-form m-2"
+    *ngIf="
+      loanType === 'businessLoan' ||
+      (loanType === 'homeLoan' && employmentStatus === 'self-employed') ||
+      (loanType === 'lap' && employmentStatus === 'self-employed') ||
+      loanType === 'personalLoan' ||
+      (loanType === 'homeLoan' && employmentStatus === 'employed') ||
+      (loanType === 'lap' && employmentStatus === 'employed')
+    "
+  >
+    <form
+      class="login-form"
+      [formGroup]="callBackForm"
+      novalidate
+      (ngSubmit)="onSubmit(callBackForm.value)"
+    >
+      <div class="row">
+        <!-- <div class="col-md-4">
+          <img
+            src="../../../../assets/images/leads/6.jpg"
+            width="400"
+            height="290"
+            class="icon"
+            alt="Callbacks Icon"
+          />
+        </div> -->
+        <div class="col-md-12">
+          <div class="row mt-2">
+            <!-- Business Name (For Self-Employed) -->
+            <div
+              class="col-md-3 mt-2"
+              *ngIf="employmentStatus === 'self-employed'"
+            >
+              <div>
+                <div class="my-1">
+                  <label
+                    >Business Name&nbsp;<span class="text-danger"
+                      >*</span
+                    ></label
+                  >
+                </div>
+                <input
+                  pInputText
+                  class="rounded-lg"
+                  type="text"
+                  formControlName="businessName"
+                  placeholder="Enter Business Name"
+                  autocomplete="off"
+                  minlength="3"
+                />
+              </div>
+              <div
+                *ngIf="submitted && callBackForm.get('businessName')?.invalid"
+              >
+                <small
+                  class="text-danger"
+                  *ngIf="callBackForm.get('businessName')?.errors?.['required']"
+                >
+                  Business Name is Requried
+                </small>
+                <small
+                  class="text-danger"
+                  *ngIf="callBackForm.get('businessName')?.errors?.['minlength']"
+                >
+                  Enter BusinessName minimum 3 characters
+                </small>
+              </div>
+            </div>
+
+            <!-- Person Name (For Employed) -->
+            <div class="col-md-3 mt-2" *ngIf="employmentStatus === 'employed'">
+              <div>
+                <div class="my-1">
+                  <label
+                    >Applicant Name&nbsp;<span class="text-danger">*</span></label
+                  >
+                </div>
+                <input
+                  pInputText
+                  class="rounded-lg"
+                  type="text"
+                  formControlName="businessName"
+                  placeholder="Enter Person Name"
+                  autocomplete="off"
+                />
+              </div>
+              <div
+                *ngIf="submitted && callBackForm.get('businessName')?.invalid"
+              >
+                <small
+                  class="text-danger"
+                  *ngIf="callBackForm.get('businessName')?.errors?.['required']"
+                >
+                  Person Name is Requried
+                </small>
+                <small
+                  class="text-danger"
+                  *ngIf="callBackForm.get('businessName')?.errors?.['minlength']"
+                >
+                  Enter Person Name minimum 3 characters
+                </small>
+              </div>
+            </div>
+            <div class="col-md-3 mt-2">
+              <div>
+                <div class="my-1">
+                  <label>Phone&nbsp;<span class="text-danger">*</span></label>
+                </div>
+                <input
+                  pInputText
+                  class="rounded-lg"
+                  type="text"
+                  placeholder="Enter Phone"
+                  formControlName="phone"
+                  autocomplete="off"
+                  maxlength="10"
+                  minlength="10"
+                />
+              </div>
+              <div *ngIf="submitted && callBackForm.get('phone')?.invalid">
+                <small
+                  class="text-danger"
+                  *ngIf="callBackForm.get('phone')?.errors?.['required']"
+                >
+                  Phone Number is Requried
+                </small>
+                <small
+                  class="text-danger"
+                  *ngIf="callBackForm.get('phone')?.errors?.['pattern']"
+                >
+                  Invalid phone number.Please enter a valid mobile number
+                </small>
+                <small
+                  class="text-danger"
+                  *ngIf="callBackForm.get('phone')?.errors?.['minlength']"
+                >
+                  Please Enter 10 digits mobile number
+                </small>
+              </div>
+            </div>
+            <!-- Callback Date -->
+            <div class="col-md-3 mt-2">
+              <div>
+                <div class="my-1">
+                  <label
+                    >Callback Date&nbsp;<span class="text-danger"
+                      >*</span
+                    ></label
+                  >
+                </div>
+                <!-- <p-calendar
+                  formControlName="date"
+                  dateFormat="yy-mm-dd"
+                  placeholder="Select Callback Date"
+                  [showIcon]="true"
+                  appendTo="body"
+                  [readonlyInput]="true"
+                  [showButtonBar]="true"
+                ></p-calendar> -->
+                <div class="custom-calendar-wrapper w-100 position-relative">
+                  <p-calendar
+                    #callbackdatecalendar
+                    formControlName="date"
+                    placeholder="Select Callback Date"
+                    [showIcon]="false"
+                    appendTo="body"
+                    dateFormat="yy-mm-dd"
+                    [readonlyInput]="true"
+                    [showButtonBar]="true"
+                    styleClass=" w-100"
+                  ></p-calendar>
+
+                  <!-- Custom Calendar Image Icon -->
+                  <img
+                    src="../../../../assets/images/icons/calendar.svg"
+                    alt="Calendar Icon"
+                    class="calendar-custom-img"
+                    (click)="callbackdatecalendar.toggle()"
+                  />
+                </div>
+              </div>
+              <div *ngIf="submitted && callBackForm.get('date')?.invalid">
+                <small
+                  class="text-danger"
+                  *ngIf="callBackForm.get('date')?.errors?.['required']"
+                >
+                  Callback Date is Requried
+                </small>
+              </div>
+            </div>
+
+            <!-- Sourced By (For User Types other than '3') -->
+            <div
+              class="col-md-3 mt-2"
+              *ngIf="userDetails?.userType && userDetails.userType !== '3'"
+            >
+              <div>
+                <div class="my-1">
+                  <label
+                    >Sourced By&nbsp;<span class="text-danger">*</span></label
+                  >
+                </div>
+                <p-dropdown
+                  [options]="leadUsers"
+                  formControlName="sourcedBy"
+                  optionLabel="name"
+                  optionValue="id"
+                  appendTo="body"
+                  [showClear]="true"
+                  [filter]="true"
+                  filterPlaceholder="Search..."
+                  placeholder="Select Sourced By"
+                  [dropdownIcon]="'fa fa-caret-down'"
+                ></p-dropdown>
+              </div>
+              <div *ngIf="submitted && callBackForm.get('sourcedBy')?.invalid">
+                <small
+                  class="text-danger"
+                  *ngIf="callBackForm.get('sourcedBy')?.errors?.['required']"
+                >
+                  Sourced By is Requried
+                </small>
+              </div>
+            </div>
+
+            <!-- Created On (For User Types other than '3') -->
+            <div
+              class="col-md-3 mt-2"
+              *ngIf="userDetails?.userType && userDetails.userType !== '3'"
+            >
+              <div>
+                <div class="my-1">
+                  <label>Created On</label>
+                </div>
+                <!-- <p-calendar
+                  formControlName="createdOn"
+                  placeholder="Select Created On Date"
+                  [showIcon]="true"
+                  appendTo="body"
+                  dateFormat="yy-mm-dd"
+                  [showButtonBar]="true"
+                ></p-calendar> -->
+                <div class="custom-calendar-wrapper w-100 position-relative">
+                  <p-calendar
+                    #calendar
+                    formControlName="createdOn"
+                    placeholder="Select Created On Date"
+                    [showIcon]="false"
+                    appendTo="body"
+                    dateFormat="yy-mm-dd"
+                    [showButtonBar]="true"
+                    styleClass=" w-100"
+                  ></p-calendar>
+
+                  <!-- Custom Calendar Image Icon -->
+                  <img
+                    src="../../../../assets/images/icons/calendar.svg"
+                    alt="Calendar Icon"
+                    class="calendar-custom-img"
+                    (click)="calendar.toggle()"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Remarks -->
+            <div class="col-12">
+              <div class="my-1">
+                <label>Remarks&nbsp;<span class="text-danger">*</span></label>
+              </div>
+              <textarea
+                pInputTextarea
+                class="rounded-lg"
+                placeholder="Enter Remarks"
+                formControlName="remarks"
+                autocomplete="off"
+                [autoResize]="true"
+              ></textarea>
+            </div>
+            <div *ngIf="submitted && callBackForm.get('remarks')?.invalid">
+              <small
+                class="text-danger"
+                *ngIf="callBackForm.get('remarks')?.errors?.['required']"
+              >
+                Remarks is Requried
+              </small>
+              <small
+                class="text-danger"
+                *ngIf="callBackForm.get('remarks')?.errors?.['minlength']"
+              >
+                Enter Remarks minimum 3 characters
+              </small>
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex justify-content-center">
+              <div class="d-flex mt-3 mb-3">
+                <button
+                  pButton
+                  pRipple
+                  type="button"
+                  class="p-button-info me-2"
+                  (click)="goBack()"
+                >
+                  Go Back
+                </button>
+                <button
+                  pButton
+                  pRipple
+                  type="submit"
+                  [disabled]="loading"
+                  class="p-button-primary"
+                >
+                  {{ actionType === "create" ? "Add" : "Update" }} Callback
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<div *ngIf="loading">
+  <app-preloader></app-preloader>
+</div>

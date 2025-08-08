@@ -1,0 +1,2558 @@
+<div>
+  <div class="bread-crumb m-2">
+    <p-breadcrumb [model]="breadCrumbItems"></p-breadcrumb>
+  </div>
+  <!-- <div class="p-1 m-2">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+
+        <div
+          *ngIf="leadData && leadData[0]?.businessName"
+          class="fw-bold back-btn-text text-capitalize"
+        >
+          &nbsp;Credit Assessing for
+          {{ leadData[0]?.businessName | capitalizeFirst }}
+        </div>
+      </div>
+    </div>
+  </div> -->
+
+  <ng-container *ngFor="let item of displayedItems">
+    <div class="m-2 p-1" *ngIf="item.data">
+      <div class="d-flex justify-content-between">
+        <div
+          class="d-flex align-items-center justify-content-center pointer-cursor"
+          (click)="goBack()"
+        >
+          <span class="me-2 d-flex align-items-center">
+            <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+          </span>
+
+          <b>
+            <span class="back-btn-text text-capitalize">
+              {{ item.data[item.displayProperty] || "N/A" | capitalizeFirst }}
+            </span>
+          </b>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+  <div class="lead-data m-2" *ngIf="leadData">
+    <div class="row g-2">
+      <div class="col-md-6">
+        <div class="detail-card">
+          <p-accordion>
+            <p-accordionTab header="Business Information">
+              <!-- <div class="business-details">
+                <div class="info-line" *ngIf="leadData[0]?.natureOfBusiness">
+                  <div class="label d-flex justify-content-between">
+                    Nature of Business <b>:&nbsp;</b>
+                  </div>
+                  <div class="value">{{ leadData[0]?.natureOfBusiness }}</div>
+                </div>
+                <div class="info-line" *ngIf="leadData[0]?.product">
+                  <div class="label d-flex justify-content-between">
+                    Product <b>:&nbsp;</b>
+                  </div>
+                  <div class="value">
+                    {{ leadData[0]?.product | capitalizeFirst }}
+                  </div>
+                </div>
+                <div
+                  class="info-line"
+                  *ngIf="leadData[0]?.businessOperatingSince"
+                >
+                  <div class="label d-flex justify-content-between">
+                    Business Vintage <b>:&nbsp;</b>
+                  </div>
+                  <div class="value">
+                    {{ leadData[0]?.businessOperatingSince }}
+                  </div>
+                </div>
+                <div class="info-line" *ngIf="leadData[0]?.businessEntity">
+                  <div class="label d-flex justify-content-between">
+                    Business Entity <b>:&nbsp;</b>
+                  </div>
+                  <div class="value">{{ leadData[0]?.businessEntity }}</div>
+                </div>
+                <div class="info-line" *ngIf="leadData[0]?.businessTurnover">
+                  <div class="label d-flex justify-content-between">
+                    Business TurnOver <b>:&nbsp;</b>
+                  </div>
+                  <div class="value">
+                    {{ leadData[0]?.businessTurnover | capitalizeFirst }}
+                  </div>
+                </div>
+                <div class="info-line" *ngIf="leadData[0]?.city">
+                  <div class="label d-flex justify-content-between">
+                    City <b>:&nbsp;</b>
+                  </div>
+                  <div class="value">
+                    {{ leadData[0]?.city | capitalizeFirst }}
+                  </div>
+                </div>
+                <div class="info-line" *ngIf="leadData[0]?.createdOn">
+                  <div class="label d-flex justify-content-between">
+                    Created On <b>:&nbsp;</b>
+                  </div>
+                  <div class="value">{{ leadData[0]?.createdOn | date }}</div>
+                </div>
+              </div> -->
+
+              <div class="business-details">
+                <div class="info-line" *ngFor="let field of businessFields">
+                  <div class="label d-flex justify-content-between">
+                    {{ field.label }} <b>:&nbsp;</b>
+                  </div>
+                  <div class="value">
+                    <ng-container
+                      *ngIf="leadData[0]?.[field.key]; else noValue"
+                    >
+                      <span *ngIf="field.pipe === 'capitalize'">
+                        {{ leadData[0][field.key] | capitalizeFirst }}
+                      </span>
+                      <span *ngIf="field.pipe === 'date'">
+                        {{ leadData[0][field.key] | date }}
+                      </span>
+                      <span *ngIf="!field.pipe">
+                        {{ leadData[0][field.key] }}
+                      </span>
+                    </ng-container>
+                    <ng-template #noValue>-</ng-template>
+                  </div>
+                </div>
+              </div>
+            </p-accordionTab>
+          </p-accordion>
+        </div>
+        <div *ngIf="leadData[0]?.businessEntity == 'proprietorship'">
+          <p-accordion>
+            <p-accordionTab header="Business Documents">
+              <div *ngIf="leadDocuments" class="detail-card">
+                <!-- <div class="business-details">
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      GST Certificate<b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <div
+                        *ngIf="
+                          leadDocuments &&
+                          leadDocuments?.gstCertificate &&
+                          leadDocuments?.gstCertificate?.length > 0
+                        "
+                      >
+                        <span
+                          *ngFor="let file of leadDocuments?.gstCertificate"
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank"> View </a>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      Labour / Trade License<b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <div
+                        *ngIf="
+                          leadDocuments &&
+                          leadDocuments?.labourTradeLicense &&
+                          leadDocuments?.labourTradeLicense?.length > 0
+                        "
+                      >
+                        <span
+                          *ngFor="let file of leadDocuments?.labourTradeLicense"
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank"> View </a>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      VAT / Tin / TOT<b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <div
+                        *ngIf="
+                          leadDocuments &&
+                          leadDocuments?.vatTinTot &&
+                          leadDocuments?.vatTinTot?.length > 0
+                        "
+                      >
+                        <span
+                          *ngFor="let file of leadDocuments?.vatTinTot"
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank"> View </a>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      MSME / UDYAM Certificate<b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <div
+                        *ngIf="
+                          leadDocuments &&
+                          leadDocuments?.msmeUdyamCertificate &&
+                          leadDocuments?.msmeUdyamCertificate?.length > 0
+                        "
+                      >
+                        <span
+                          *ngFor="
+                            let file of leadDocuments?.msmeUdyamCertificate
+                          "
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank"> View </a>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div> -->
+
+                <div class="business-details">
+                  <div class="info-line" *ngFor="let doc of documentTypes">
+                    <div class="label d-flex justify-content-between">
+                      {{ doc.label }}<b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <ng-container
+                        *ngIf="leadDocuments?.[doc.key]?.length > 0; else noData"
+                      >
+                        <span
+                          *ngFor="let file of leadDocuments[doc.key]"
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank">View</a>
+                        </span>
+                      </ng-container>
+                      <ng-template #noData>-</ng-template>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </p-accordionTab>
+          </p-accordion>
+        </div>
+
+        <div *ngIf="leadData[0]?.businessEntity == 'partnership'">
+          <div *ngIf="leadDocuments" class="detail-card">
+            <p-accordion>
+              <p-accordionTab header="Firm Documents">
+                <!-- <div class="business-details">
+                  <div class="info-line" *ngIf="leadDocuments?.firmPanCard">
+                    <div class="label d-flex justify-content-between">
+                      Firm PAN <b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      {{ leadDocuments?.firmPanCard[0]?.firmPan }}
+                    </div>
+                  </div>
+                  <div class="info-line" *ngIf="leadDocuments?.firmPanCard">
+                    <div class="label d-flex justify-content-between">
+                      PAN Card <b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <div
+                        *ngIf="
+                          leadDocuments &&
+                          leadDocuments?.firmPanCard[0]?.firmPanCard &&
+                          leadDocuments?.firmPanCard[0]?.firmPanCard.length > 0
+                        "
+                      >
+                        <span
+                          *ngFor="
+                            let file of leadDocuments?.firmPanCard[0]
+                              ?.firmPanCard
+                          "
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank"> View </a>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      Firm Registration Certificate <b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <div
+                        *ngIf="
+                          leadDocuments &&
+                          leadDocuments?.firmRegistrationCertificate &&
+                          leadDocuments?.firmRegistrationCertificate?.length > 0
+                        "
+                      >
+                        <span
+                          *ngFor="
+                            let file of leadDocuments?.firmRegistrationCertificate
+                          "
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank"> View </a>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      Partnership Deed <b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <div
+                        *ngIf="
+                          leadDocuments &&
+                          leadDocuments?.partnershipDeed &&
+                          leadDocuments?.partnershipDeed?.length > 0
+                        "
+                      >
+                        <span
+                          *ngFor="let file of leadDocuments?.partnershipDeed"
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank"> View </a>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      GST Certificate<b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <div
+                        *ngIf="
+                          leadDocuments &&
+                          leadDocuments?.firmGstCertificate &&
+                          leadDocuments?.firmGstCertificate?.length > 0
+                        "
+                      >
+                        <span
+                          *ngFor="let file of leadDocuments?.firmGstCertificate"
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank"> View </a>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      MSME / UDYAM Certificate<b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <div
+                        *ngIf="
+                          leadDocuments &&
+                          leadDocuments?.firmmsmeUdyamCertificate &&
+                          leadDocuments?.firmmsmeUdyamCertificate?.length > 0
+                        "
+                      >
+                        <span
+                          *ngFor="
+                            let file of leadDocuments?.firmmsmeUdyamCertificate
+                          "
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank"> View </a>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div> -->
+
+                <div class="business-details">
+                  <!-- 1. Firm PAN (text) -->
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      Firm PAN <b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <ng-container
+                        *ngIf="leadDocuments?.firmPanCard?.[0]?.firmPan; else noValue"
+                      >
+                        {{ leadDocuments.firmPanCard[0].firmPan }}
+                      </ng-container>
+                    </div>
+                  </div>
+
+                  <!-- 2. PAN Card (files) -->
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      PAN Card <b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <ng-container
+                        *ngIf="leadDocuments?.firmPanCard?.[0]?.firmPanCard?.length > 0; else noValue"
+                      >
+                        <span
+                          *ngFor="
+                            let file of leadDocuments.firmPanCard[0].firmPanCard
+                          "
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank">View</a>
+                        </span>
+                      </ng-container>
+                    </div>
+                  </div>
+
+                  <!-- 3. Remaining fields as loop -->
+                  <div
+                    class="info-line"
+                    *ngFor="let doc of remainingFirmDocuments"
+                  >
+                    <div class="label d-flex justify-content-between">
+                      {{ doc.label }} <b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <ng-container
+                        *ngIf="leadDocuments?.[doc.key]?.length > 0; else noValue"
+                      >
+                        <span
+                          *ngFor="let file of leadDocuments[doc.key]"
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank">View</a>
+                        </span>
+                      </ng-container>
+                    </div>
+                  </div>
+
+                  <!-- Fallback Template -->
+                  <ng-template #noValue>-</ng-template>
+                </div>
+              </p-accordionTab>
+            </p-accordion>
+          </div>
+        </div>
+
+        <div *ngIf="leadData[0]?.businessEntity == 'llp'">
+          <div *ngIf="leadDocuments" class="detail-card">
+            <p-accordion>
+              <p-accordionTab header="Firm Documents">
+                <div class="business-details">
+                  <!-- 1. Firm PAN (text) -->
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      Firm PAN Number <b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <ng-container
+                        *ngIf="leadDocuments?.firmPanCard?.[0]?.firmPan; else noValue"
+                      >
+                        {{ leadDocuments.firmPanCard[0].firmPan }}
+                      </ng-container>
+                    </div>
+                  </div>
+
+                  <!-- 2. PAN Card (files) -->
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      Firm PAN Card <b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <ng-container
+                        *ngIf="leadDocuments?.firmPanCard?.[0]?.firmPanCard?.length > 0; else noValue"
+                      >
+                        <span
+                          *ngFor="
+                            let file of leadDocuments.firmPanCard[0].firmPanCard
+                          "
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank">View</a>
+                        </span>
+                      </ng-container>
+                    </div>
+                  </div>
+
+                  <!-- 3. Remaining fields as loop -->
+                  <div class="info-line" *ngFor="let doc of llpFirmDocuments">
+                    <div class="label d-flex justify-content-between">
+                      {{ doc.label }} <b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <ng-container
+                        *ngIf="leadDocuments?.[doc.key]?.length > 0; else noValue"
+                      >
+                        <span
+                          *ngFor="let file of leadDocuments[doc.key]"
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank">View</a>
+                        </span>
+                      </ng-container>
+                    </div>
+                  </div>
+
+                  <!-- Fallback Template -->
+                  <ng-template #noValue>-</ng-template>
+                </div>
+              </p-accordionTab>
+            </p-accordion>
+          </div>
+        </div>
+        <div *ngIf="leadData[0]?.businessEntity == 'privateLimited'">
+          <div *ngIf="leadDocuments" class="detail-card">
+            <p-accordion>
+              <p-accordionTab header="Company Documents">
+                <!-- <div class="business-details">
+                  <div class="info-line" *ngIf="leadDocuments?.companyPan">
+                    <div class="label d-flex justify-content-between">
+                      Company PAN Number<b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      {{ leadDocuments?.companyPan[0]?.panNumber }}
+                    </div>
+                  </div>
+                  <div class="info-line" *ngIf="leadDocuments?.companyPan">
+                    <div class="label d-flex justify-content-between">
+                      Company PAN Card <b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <div
+                        *ngIf="
+                          leadDocuments &&
+                          leadDocuments?.companyPan[0]?.companyPan &&
+                          leadDocuments?.companyPan[0]?.companyPan?.length > 0
+                        "
+                      >
+                        <span
+                          *ngFor="
+                            let file of leadDocuments?.companyPan[0]?.companyPan
+                          "
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank"> View </a>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      Incorporation Certificate <b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <div
+                        *ngIf="
+                          leadDocuments &&
+                          leadDocuments?.incorporationCertificate &&
+                          leadDocuments?.incorporationCertificate?.length > 0
+                        "
+                      >
+                        <span
+                          *ngFor="
+                            let file of leadDocuments?.incorporationCertificate
+                          "
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank"> View </a>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      MOA and AOA <b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <div
+                        *ngIf="
+                          leadDocuments &&
+                          leadDocuments?.moaandaoa &&
+                          leadDocuments?.moaandaoa?.length > 0
+                        "
+                      >
+                        <span
+                          *ngFor="let file of leadDocuments?.moaandaoa"
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank"> View </a>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      GST Certificate <b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <div
+                        *ngIf="
+                          leadDocuments &&
+                          leadDocuments?.companyGst &&
+                          leadDocuments?.companyGst?.length > 0
+                        "
+                      >
+                        <span
+                          *ngFor="let file of leadDocuments?.companyGst"
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank"> View </a>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      MSME / UDYAM Certificate<b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <div
+                        *ngIf="
+                          leadDocuments &&
+                          leadDocuments?.companyMSMEUdyamCertificate &&
+                          leadDocuments?.companyMSMEUdyamCertificate?.length > 0
+                        "
+                      >
+                        <span
+                          *ngFor="
+                            let file of leadDocuments?.companyMSMEUdyamCertificate
+                          "
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank"> View </a>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      Share Holding Pattern<b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <div
+                        *ngIf="
+                          leadDocuments &&
+                          leadDocuments?.shareHoldingPattern &&
+                          leadDocuments?.shareHoldingPattern?.length > 0
+                        "
+                      >
+                        <span
+                          *ngFor="
+                            let file of leadDocuments?.shareHoldingPattern
+                          "
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank"> View </a>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div> -->
+
+                <div class="business-details">
+                  <!-- 1. Company PAN Number (Text) -->
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      Company PAN Number <b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <ng-container
+                        *ngIf="leadDocuments?.companyPan?.[0]?.panNumber; else noValue"
+                      >
+                        {{ leadDocuments.companyPan[0].panNumber }}
+                      </ng-container>
+                    </div>
+                  </div>
+
+                  <!-- 2. Company PAN Card (Files) -->
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      Company PAN Card <b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <ng-container
+                        *ngIf="leadDocuments?.companyPan?.[0]?.companyPan?.length > 0; else noValue"
+                      >
+                        <span
+                          *ngFor="
+                            let file of leadDocuments.companyPan[0].companyPan
+                          "
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank">View</a>
+                        </span>
+                      </ng-container>
+                    </div>
+                  </div>
+
+                  <!-- 3. Remaining Documents (Loop) -->
+                  <div class="info-line" *ngFor="let doc of companyDocuments">
+                    <div class="label d-flex justify-content-between">
+                      {{ doc.label }} <b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <ng-container
+                        *ngIf="leadDocuments?.[doc.key]?.length > 0; else noValue"
+                      >
+                        <span
+                          *ngFor="let file of leadDocuments[doc.key]"
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank">View</a>
+                        </span>
+                      </ng-container>
+                    </div>
+                  </div>
+
+                  <!-- Fallback Dash -->
+                  <ng-template #noValue>-</ng-template>
+                </div>
+              </p-accordionTab>
+            </p-accordion>
+          </div>
+        </div>
+        <p-accordion>
+          <p-accordionTab header="Existing Loan Details">
+            <div class="">
+              <div class="detail-card">
+                <!-- <div *ngIf="leadDocuments?.existingLoans?.length > 0">
+                <div
+                  *ngFor="
+                    let loan of leadDocuments?.existingLoans;
+                    let i = index
+                  "
+                  class="business-details mt-3"
+                >
+                  <div class="label" style="text-decoration: underline">
+                    <input
+                      type="checkbox"
+                      [value]="loan.emiAmount"
+                      (change)="calculateTotalEmi()"
+                    />
+                    Existing Loan-{{ i + 1 }}
+                  </div>
+
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      Bank Name<b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      {{ loan.bankName | capitalizeFirst }}
+                    </div>
+                  </div>
+
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      Loan Type<b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      {{ loan.loanType | capitalizeFirst }}
+                    </div>
+                  </div>
+
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      Loan EMI<b>:&nbsp;</b>
+                    </div>
+                    <div class="value">{{ loan.emiAmount }}</div>
+                  </div>
+
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      EMI Closing Date<b>:&nbsp;</b>
+                    </div>
+                    <div
+                      *ngIf="isValidDate(loan?.emiClosingDate)"
+                      class="value"
+                    >
+                      {{ loan.emiClosingDate | date }}
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  class="p-3 mt-3 fw-bold"
+                  style="
+                    background-color: #620897;
+                    color: white;
+                    border-radius: 3px;
+                  "
+                >
+                  <div>Total Monthly EMI Payment: {{ totalEmi }}</div>
+                </div>
+              </div> -->
+
+                <div *ngIf="leadDocuments?.existingLoans?.length > 0">
+                  <div
+                    *ngFor="
+                      let loan of leadDocuments.existingLoans;
+                      let i = index
+                    "
+                    class="business-details mt-3"
+                  >
+                    <div class="label" style="text-decoration: underline">
+                      <input
+                        type="checkbox"
+                        [value]="loan.emiAmount"
+                        (change)="calculateTotalEmi()"
+                      />
+                      Existing Loan - {{ i + 1 }}
+                    </div>
+
+                    <!-- Dynamic fields -->
+                    <div
+                      class="info-line"
+                      *ngFor="let field of existingLoanFields"
+                    >
+                      <div class="label d-flex justify-content-between">
+                        {{ field.label }} <b>:&nbsp;</b>
+                      </div>
+                      <div class="value">
+                        <!-- Capitalize pipe -->
+                        <ng-container *ngIf="field.pipe === 'capitalize'">
+                          {{
+                            loan[field.key]
+                              ? (loan[field.key] | capitalizeFirst)
+                              : "-"
+                          }}
+                        </ng-container>
+
+                        <!-- Date pipe with validity check -->
+                        <ng-container *ngIf="field.pipe === 'date'">
+                          <ng-container
+                            *ngIf="isValidDate(loan[field.key]); else noValue"
+                          >
+                            {{ loan[field.key] | date }}
+                          </ng-container>
+                        </ng-container>
+
+                        <!-- Regular field with fallback -->
+                        <ng-container *ngIf="!field.pipe">
+                          {{ loan[field.key] || "-" }}
+                        </ng-container>
+
+                        <ng-template #noValue>-</ng-template>
+                      </div>
+                    </div>
+
+                    <!-- Fallback dash -->
+                    <ng-template #noValue>-</ng-template>
+                  </div>
+
+                  <!-- Total EMI Display -->
+                  <div
+                    class="p-3 mt-3 fw-bold"
+                    style="
+                      background-color: #620897;
+                      color: white;
+                      border-radius: 3px;
+                    "
+                  >
+                    <div>Total Monthly EMI Payment: {{ totalEmi }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="leadDocuments?.existingLoans == null">
+              <div class="text-center">
+                <div colspan="10" class="text-center fw-bold">
+                  <img
+                    alt="No Data"
+                    src="../../../../assets/images/menu/no-data.gif"
+                    width="200"
+                    height="200"
+                  />
+                  <p>No Existing Loans Found</p>
+                </div>
+              </div>
+            </div>
+          </p-accordionTab>
+        </p-accordion>
+      </div>
+      <div class="col-md-6">
+        <div class="detail-card">
+          <div class="card p-4">
+            <div class="business-info card-header text-center mb-3">
+              <h4>Credit Summary Sheet</h4>
+            </div>
+            <div class="card-body">
+              <textarea
+                pInputTextarea
+                class="form-control"
+                placeholder="Credit Summary Sheet "
+                [(ngModel)]="creditSummary"
+                autocomplete="off"
+                [autoResize]="true"
+                name="Enter Credit Summary"
+                style="width: 100%"
+                (blur)="onCreditSummaryChange()"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <ul class="nav nav-tabs justify-content-center mb-4 custom-tabs">
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              [class.active]="activeTab === 'dscr'"
+              (click)="activeTab = 'dscr'"
+              href="javascript:void(0)"
+              >DSCR Ratio</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              [class.active]="activeTab === 'bto'"
+              (click)="activeTab = 'bto'"
+              href="javascript:void(0)"
+              >BTO Program</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              [class.active]="activeTab === 'gst'"
+              (click)="activeTab = 'gst'"
+              href="javascript:void(0)"
+              >GST Program</a
+            >
+          </li>
+        </ul>
+      </div>
+
+      <div *ngIf="activeTab === 'dscr'" class="">
+        <div class="col-md-12">
+          <div class="card">
+            <div class="business-info card-header text-center mb-3">
+              <h4>DSCR Ratio</h4>
+            </div>
+            <div class="row" *ngIf="leadDocuments?.financialReturns">
+              <!-- Past ITR -->
+              <div class="col-md-6">
+                <div class="info-line mb-2">
+                  <div class="label d-flex justify-content-between">
+                    Annual Year of ITR<b>:&nbsp;</b>
+                  </div>
+                  <div class="value">
+                    {{ leadDocuments?.financialReturns[0]?.pastIncomeTax }}
+                  </div>
+                </div>
+                <div class="info-line">
+                  <div class="label d-flex justify-content-between">
+                    Attachment<b>:&nbsp;</b>
+                  </div>
+                  <div class="value">
+                    <ng-container
+                      *ngIf="
+                        leadDocuments?.financialReturns[0]?.pastIncomeReturns
+                          ?.length > 0
+                      "
+                    >
+                      <span
+                        *ngFor="
+                          let file of leadDocuments?.financialReturns[0]
+                            ?.pastIncomeReturns
+                        "
+                        class="me-2"
+                      >
+                        <a [href]="'//' + file" target="_blank">View</a>
+                      </span>
+                    </ng-container>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Present ITR -->
+              <div class="col-md-6">
+                <div class="info-line mb-2">
+                  <div class="label d-flex justify-content-between">
+                    Annual Year of ITR<b>:&nbsp;</b>
+                  </div>
+                  <div class="value">
+                    {{ leadDocuments?.financialReturns[0]?.presentIncomeTax }}
+                  </div>
+                </div>
+                <div class="info-line">
+                  <div class="label d-flex justify-content-between">
+                    Attachment<b>:&nbsp;</b>
+                  </div>
+                  <div class="value">
+                    <ng-container
+                      *ngIf="
+                        leadDocuments?.financialReturns[0]?.presentIncomeReturns
+                          ?.length > 0
+                      "
+                    >
+                      <span
+                        *ngFor="
+                          let file of leadDocuments?.financialReturns[0]
+                            ?.presentIncomeReturns
+                        "
+                        class="me-2"
+                      >
+                        <a [href]="'//' + file" target="_blank">View</a>
+                      </span>
+                    </ng-container>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="leadDocuments?.financialReturns == null">
+              <p>ITR Documents Not Uploaded</p>
+            </div>
+            <div class="label fw-bold mb-4" style="text-decoration: underline">
+              Profit and Loss Statement
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                value=""
+                id="defaultCheck1"
+                [(ngModel)]="isFirstYearSelected"
+              />
+              <label class="form-check-label" for="defaultCheck1">
+                {{ getFinancialYear() }}
+              </label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                value=""
+                id="defaultCheck2"
+                [(ngModel)]="isSecondYearSelected"
+              />
+              <label class="form-check-label" for="defaultCheck2">
+                {{ getFinancialYear(1) }}
+              </label>
+            </div>
+            <div *ngIf="isFirstYearSelected">
+              <div
+                class="label fw-bold mt-3"
+                style="text-decoration: underline"
+              >
+                {{ getFinancialYear() }}
+              </div>
+              <div class="row">
+                <div class="col-md-3 mt-2">
+                  <div class="input-container">
+                    <div class="my-1">
+                      <label>Turnover / Sales :&nbsp;</label>
+                    </div>
+                    <input
+                      pInputText
+                      class="rounded-lg"
+                      type="number"
+                      [(ngModel)]="turnoverAy1"
+                      class="custom-input"
+                      placeholder="Enter Turnover / Sales"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-3 mt-2">
+                  <div class="input-container">
+                    <div class="my-1">
+                      <label>Purchases&nbsp;:</label>
+                    </div>
+                    <input
+                      pInputText
+                      class="rounded-lg"
+                      type="number"
+                      [(ngModel)]="purchasesAy1"
+                      class="custom-input"
+                      placeholder="Enter Purchases"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-3 mt-2">
+                  <div class="input-container">
+                    <div class="my-1">
+                      <label>Profit After Tax&nbsp;:</label>
+                    </div>
+                    <input
+                      pInputText
+                      class="rounded-lg"
+                      type="number"
+                      [(ngModel)]="profitaftertaxAy1"
+                      class="custom-input"
+                      placeholder="Enter Profit After Tax"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-3 mt-2">
+                  <div class="input-container">
+                    <div class="my-1">
+                      <label>Depreciation&nbsp;:</label>
+                    </div>
+                    <input
+                      pInputText
+                      class="rounded-lg"
+                      type="number"
+                      [(ngModel)]="depreciationAy1"
+                      class="custom-input"
+                      placeholder="Enter Depreciation"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-3 mt-2">
+                  <div class="input-container">
+                    <div class="my-1">
+                      <label>Interest on Loans&nbsp;:</label>
+                    </div>
+                    <input
+                      pInputText
+                      class="rounded-lg"
+                      type="number"
+                      [(ngModel)]="interestonLoansAy1"
+                      class="custom-input"
+                      placeholder="Enter Interest on Loans"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-3 mt-2">
+                  <div class="input-container">
+                    <div class="my-1">
+                      <label>Enter No of Months&nbsp;:</label>
+                    </div>
+                    <input
+                      pInputText
+                      class="rounded-lg"
+                      type="number"
+                      [(ngModel)]="monthsAy1"
+                      class="custom-input"
+                      placeholder="Enter no of Months"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+
+                <div
+                  class="col-md-3 mt-2"
+                  *ngIf="leadData[0]?.businessEntity == 'partnership'"
+                >
+                  <div class="input-container">
+                    <div class="my-1">
+                      <label>Partners Remuneration &nbsp;:</label>
+                    </div>
+                    <input
+                      pInputText
+                      class="rounded-lg"
+                      type="number"
+                      [(ngModel)]="partnerRemuAy1"
+                      class="custom-input"
+                      placeholder="Enter Partner Remuneration"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+
+                <div
+                  class="col-md-3 mt-2"
+                  *ngIf="leadData[0]?.businessEntity == 'partnership'"
+                >
+                  <div class="input-container">
+                    <div class="my-1">
+                      <label>Interest On Partners Capital :&nbsp;</label>
+                    </div>
+                    <input
+                      pInputText
+                      class="rounded-lg"
+                      type="number"
+                      [(ngModel)]="partnerInterestAy1"
+                      class="custom-input"
+                      placeholder="Enter Enter Interest on Partners Capital"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+
+                <div
+                  class="col-md-3 mt-2"
+                  *ngIf="leadData[0]?.businessEntity == 'privateLimited'"
+                >
+                  <div class="input-container">
+                    <div class="my-1">
+                      <label>Directors Remuneration :&nbsp;</label>
+                    </div>
+                    <input
+                      pInputText
+                      class="rounded-lg"
+                      type="number"
+                      [(ngModel)]="directorsRemuAy1"
+                      class="custom-input"
+                      placeholder="Enter Directors Remuneration"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="isSecondYearSelected">
+              <div
+                class="label fw-bold mt-3"
+                style="text-decoration: underline"
+              >
+                {{ getFinancialYear(1) }}
+              </div>
+              <div class="row">
+                <div class="col-md-3 mt-2">
+                  <div class="input-container">
+                    <div class="my-1">
+                      <label>Turnover / Sales&nbsp;:</label>
+                    </div>
+                    <input
+                      pInputText
+                      class="rounded-lg"
+                      type="number"
+                      [(ngModel)]="turnoverAy2"
+                      class="custom-input"
+                      placeholder="Enter Turnover / Sales"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-3 mt-2">
+                  <div class="input-container">
+                    <div class="my-1">
+                      <label>Purchases&nbsp;:</label>
+                    </div>
+                    <input
+                      pInputText
+                      class="rounded-lg"
+                      type="number"
+                      [(ngModel)]="purchasesAy2"
+                      class="custom-input"
+                      placeholder="Enter Depreciation"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-3 mt-2">
+                  <div class="input-container">
+                    <div class="my-1">
+                      <label>Profit After Tax&nbsp;:</label>
+                    </div>
+                    <input
+                      pInputText
+                      class="rounded-lg"
+                      type="number"
+                      [(ngModel)]="profitaftertaxAy2"
+                      class="custom-input"
+                      placeholder="Enter Profit After Tax"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-3 mt-2">
+                  <div class="input-container">
+                    <div class="my-1">
+                      <label>Depreciation&nbsp;:</label>
+                    </div>
+                    <input
+                      pInputText
+                      class="rounded-lg"
+                      type="number"
+                      [(ngModel)]="depreciationAy2"
+                      class="custom-input"
+                      placeholder="Enter Depreciation"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-3 mt-2">
+                  <div class="input-container">
+                    <div class="my-1">
+                      <label>Interest On Loans&nbsp;:</label>
+                    </div>
+                    <input
+                      pInputText
+                      class="rounded-lg"
+                      type="number"
+                      [(ngModel)]="interestonLoansAy2"
+                      class="custom-input"
+                      placeholder="Enter Interest on Loans"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+
+                <div
+                  class="col-md-3 mt-2"
+                  *ngIf="leadData[0]?.businessEntity == 'partnership'"
+                >
+                  <div class="input-container">
+                    <div class="my-1">
+                      <label>Partners Remuneration :&nbsp;</label>
+                    </div>
+                    <input
+                      pInputText
+                      class="rounded-lg"
+                      type="number"
+                      [(ngModel)]="partnerRemuAy2"
+                      class="custom-input"
+                      placeholder="Enter Partner Remuneration"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+
+                <div
+                  class="col-md-3 mt-2"
+                  *ngIf="leadData[0]?.businessEntity == 'partnership'"
+                >
+                  <div class="input-container">
+                    <div class="my-1">
+                      <label>Interest On Partners Capital :&nbsp;</label>
+                    </div>
+                    <input
+                      pInputText
+                      class="rounded-lg"
+                      type="number"
+                      [(ngModel)]="partnerInterestAy2"
+                      class="custom-input"
+                      placeholder="Enter Interest on Partners Capital"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+                <div
+                  class="col-md-3 mt-2"
+                  *ngIf="leadData[0]?.businessEntity == 'privateLimited'"
+                >
+                  <div class="input-container">
+                    <div class="my-1">
+                      <label>Directors Remuneration :&nbsp;</label>
+                    </div>
+                    <input
+                      pInputText
+                      class="rounded-lg"
+                      type="number"
+                      [(ngModel)]="directorsRemuAy2"
+                      class="custom-input"
+                      placeholder="Enter Directors Remuneration"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr />
+            <div class="row">
+              <div class="col-md-3">
+                <div class="input-container">
+                  <div class="my-1">
+                    <label>Total EMI&nbsp;:</label>
+                  </div>
+                  <input
+                    pInputText
+                    class="rounded-lg"
+                    type="number"
+                    [(ngModel)]="totalEmi"
+                    class="custom-input"
+                    placeholder="Enter Total Emi"
+                    autocomplete="off"
+                  />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="input-container">
+                  <div class="my-1">
+                    <label>Proposed EMI&nbsp;:</label>
+                  </div>
+                  <input
+                    pInputText
+                    class="rounded-lg"
+                    type="number"
+                    [(ngModel)]="proposedEmi"
+                    class="custom-input"
+                    placeholder="Enter Proposed Emi"
+                    autocomplete="off"
+                  />
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="input-container">
+                  <div class="my-1">
+                    <label>OD/CC Interest&nbsp;:</label>
+                  </div>
+                  <input
+                    pInputText
+                    class="rounded-lg"
+                    type="number"
+                    [(ngModel)]="odCcInterestAy1"
+                    class="custom-input"
+                    placeholder="Enter OD/CC Interest"
+                    autocomplete="off"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-center mt-3">
+              <div class="me-3">
+                <button
+                  pButton
+                  pRipple
+                  type="button"
+                  class="p-button-primary"
+                  (click)="calculateDscrRatio()"
+                >
+                  Calculate
+                </button>
+              </div>
+            </div>
+            <div class="mt-3 fw-bold d-flex justify-content-center mt-3">
+              <h6>
+                Result for {{ getFinancialYear() }} :<span
+                  style="color: rgba(2, 5, 161, 0.91); font-weight: bold"
+                >
+                  {{ resultFirstYear }}</span
+                >
+              </h6>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <div class="card">
+            <div class="business-info card-header text-center mb-3">
+              <h4>Balance Sheet</h4>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                value=""
+                id="defaultCheck1"
+                [(ngModel)]="isFirstYearBalanceSheet"
+              />
+              <label class="form-check-label" for="defaultCheck1">
+                {{ getFinancialYear() }}
+              </label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                value=""
+                id="defaultCheck2"
+                [(ngModel)]="isSecondYearBalanceSheet"
+              />
+              <label class="form-check-label" for="defaultCheck2">
+                {{ getFinancialYear(1) }}
+              </label>
+            </div>
+            <div *ngIf="isFirstYearBalanceSheet">
+              <div
+                class="label fw-bold mt-3"
+                style="text-decoration: underline"
+              >
+                {{ getFinancialYear() }}
+              </div>
+              <div class="row">
+                <div class="col-md-3 mt-2">
+                  <div class="input-container">
+                    <div class="my-1">
+                      <label>Sundry Debtors :&nbsp;</label>
+                    </div>
+                    <input
+                      pInputText
+                      class="rounded-lg"
+                      type="number"
+                      [(ngModel)]="sundryDebtorsAy1"
+                      class="custom-input"
+                      placeholder="Enter Sundry Debtors"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-3 mt-2">
+                  <div class="input-container">
+                    <div class="my-1">
+                      <label>Sundry Creditors :&nbsp;</label>
+                    </div>
+                    <input
+                      pInputText
+                      class="rounded-lg"
+                      type="number"
+                      [(ngModel)]="sundryCreditorsAy1"
+                      class="custom-input"
+                      placeholder="Enter Sundry Creditors"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="isSecondYearBalanceSheet">
+              <div
+                class="label fw-bold mt-3"
+                style="text-decoration: underline"
+              >
+                {{ getFinancialYear(1) }}
+              </div>
+              <div class="row">
+                <div class="col-md-3 mt-2">
+                  <div class="input-container">
+                    <div class="my-1">
+                      <label>Sundry Debtors :&nbsp;</label>
+                    </div>
+                    <input
+                      pInputText
+                      class="rounded-lg"
+                      type="number"
+                      [(ngModel)]="sundryDebtorsAy2"
+                      class="custom-input"
+                      placeholder="Enter Sundry Debtors"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+                <div class="col-md-3 mt-2">
+                  <div class="input-container">
+                    <div class="my-1">
+                      <label>Sundry Creditors:&nbsp;</label>
+                    </div>
+                    <input
+                      pInputText
+                      class="rounded-lg"
+                      type="number"
+                      [(ngModel)]="sundryCreditorsAy2"
+                      class="custom-input"
+                      placeholder="Enter Sundry Creditors"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-center mt-3">
+              <div class="me-3">
+                <button
+                  pButton
+                  pRipple
+                  type="button"
+                  class="p-button-primary"
+                  (click)="calculateBalanceSheet()"
+                >
+                  Calculate
+                </button>
+              </div>
+            </div>
+            <div class="mt-3 fw-bold">
+              <h6 class="d-flex justify-content-center">
+                Debtor Days for {{ getFinancialYear() }} :<span
+                  style="color: rgba(2, 5, 161, 0.91); font-weight: bold"
+                >
+                  &nbsp; {{ debtor_daysFirstYear }}</span
+                >
+              </h6>
+              <h6 class="d-flex justify-content-center">
+                Creditor Days for {{ getFinancialYear() }} :<span
+                  style="color: rgba(2, 5, 161, 0.91); font-weight: bold"
+                >
+                  &nbsp;{{ creditor_daysFirstYear }}</span
+                >
+              </h6>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="activeTab === 'bto'" class="row">
+        <div class="col-md-6">
+          <p-accordion>
+            <p-accordionTab header="Current Account Details">
+              <div class="">
+                <div class="detail-card">
+                  <!-- <div *ngIf="leadDocuments?.currentAccountStatements?.length > 0">
+                <div
+                  *ngFor="
+                    let account of leadDocuments?.currentAccountStatements;
+                    let i = index
+                  "
+                  class="business-details mt-3"
+                >
+                  <div class="label" style="text-decoration: underline">
+                    Current Account-{{ i + 1 }}
+                  </div>
+
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      Bank Name<b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      {{ account.name | capitalizeFirst }}
+                    </div>
+                  </div>
+
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      Statement From<b>:&nbsp;</b>
+                    </div>
+                    <div *ngIf="isValidDate(account.from)" class="value">
+                      {{ account.from | date }}
+                    </div>
+                  </div>
+
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      Statement To<b>:&nbsp;</b>
+                    </div>
+                    <div *ngIf="isValidDate(account.to)" class="value">
+                      {{ account.to | date }}
+                    </div>
+                  </div>
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      Statement Attachement<b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <div
+                        *ngIf="
+                          account?.currentAccountStatements &&
+                          account?.currentAccountStatements.length > 0
+                        "
+                      >
+                        <span
+                          *ngFor="let file of account?.currentAccountStatements"
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank"> View </a>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div> -->
+
+                  <!-- <div class="scrollable-content">
+                  <div
+                    *ngIf="leadDocuments?.currentAccountStatements?.length > 0"
+                  >
+                    <div
+                      *ngFor="
+                        let account of leadDocuments.currentAccountStatements;
+                        let i = index
+                      "
+                      class="business-details mt-3"
+                    >
+                      <div class="label" style="text-decoration: underline">
+                        Current Account - {{ i + 1 }}
+                      </div>
+                      <div
+                        class="info-line"
+                        *ngFor="let field of currentAccountFields"
+                      >
+                        <div class="label d-flex justify-content-between">
+                          {{ field.label }} <b>:&nbsp;</b>
+                        </div>
+                        <div class="value">
+                          <ng-container *ngIf="field.isDate">
+                            <ng-container
+                              *ngIf="
+                                isValidDate(account[field.key]);
+                                else noValue
+                              "
+                            >
+                              {{ account[field.key] | date }}
+                            </ng-container>
+                          </ng-container>
+
+                          <ng-container *ngIf="field.pipe === 'capitalize'">
+                            {{
+                              account[field.key]
+                                ? (account[field.key] | capitalizeFirst)
+                                : "-"
+                            }}
+                          </ng-container>
+
+                          <ng-container
+                            *ngIf="
+                              !field.isDate &&
+                              !field.pipe &&
+                              field.key !== 'currentAccountStatements'
+                            "
+                          >
+                            {{ account[field.key] || "-" }}
+                          </ng-container>
+
+                          <ng-container
+                            *ngIf="field.key === 'currentAccountStatements'"
+                          >
+                            <ng-container
+                              *ngIf="
+                                account?.currentAccountStatements?.length > 0;
+                                else noValue
+                              "
+                            >
+                              <span
+                                *ngFor="
+                                  let file of account.currentAccountStatements
+                                "
+                                class="me-2"
+                              >
+                                <a [href]="'//' + file" target="_blank">View</a>
+                              </span>
+                            </ng-container>
+                          </ng-container>
+                        </div>
+                      </div>
+
+                      <ng-template #noValue>-</ng-template>
+                    </div>
+                  </div>
+                </div> -->
+
+                  <div
+                    *ngIf="leadDocuments?.currentAccountStatements?.length > 0"
+                  >
+                    <p-table
+                      [value]="leadDocuments?.currentAccountStatements"
+                      responsiveLayout="scroll"
+                      class="custom-dark-table"
+                    >
+                      <!-- Header Template -->
+                      <ng-template pTemplate="header">
+                        <tr>
+                          <th>Bank Name</th>
+                          <th>From Date</th>
+                          <th>To Date</th>
+                          <th>Files</th>
+                        </tr>
+                      </ng-template>
+
+                      <!-- Body Template -->
+                      <ng-template let-stmt pTemplate="body">
+                        <tr>
+                          <td>{{ stmt.name }}</td>
+                          <td>
+                            {{
+                              isValidDate(stmt.from)
+                                ? (stmt.from | date : "MMM dd, yyyy")
+                                : "-"
+                            }}
+                          </td>
+                          <td>
+                            {{
+                              isValidDate(stmt.to)
+                                ? (stmt.to | date : "MMM dd, yyyy")
+                                : "-"
+                            }}
+                          </td>
+                          <td>
+                            <div class="p-d-flex p-flex-wrap p-gap-2">
+                              <a
+                                *ngFor="
+                                  let file of stmt.currentAccountStatements
+                                "
+                                [href]="'//' + file"
+                                target="_blank"
+                              >
+                                <i
+                                  [class]="getFileIcon(file.split('.').pop())"
+                                  class="file-icon me-2"
+                                ></i
+                              ></a>
+                            </div>
+                          </td>
+                        </tr>
+                      </ng-template>
+                    </p-table>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="leadDocuments?.currentAccountStatements == null">
+                <div class="text-center">
+                  <div colspan="10" class="text-center fw-bold">
+                    <img
+                      alt="No Data"
+                      src="../../../../assets/images/menu/no-data.gif"
+                      width="200"
+                      height="200"
+                    />
+                    <p>No Current Account Data Found</p>
+                  </div>
+                </div>
+              </div>
+            </p-accordionTab>
+          </p-accordion>
+
+          <p-accordion>
+            <p-accordionTab header="OD Account Details">
+              <div class="">
+                <div class="detail-card">
+                  <!-- <div *ngIf="leadDocuments?.odAccountStatements?.length > 0">
+                <div
+                  *ngFor="
+                    let account of leadDocuments?.odAccountStatements;
+                    let i = index
+                  "
+                  class="business-details mt-3"
+                >
+                  <div class="label" style="text-decoration: underline">
+                    OD Account-{{ i + 1 }}
+                  </div>
+
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      Bank Name<b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      {{ account.name | capitalizeFirst }}
+                    </div>
+                  </div>
+
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      Statement From<b>:&nbsp;</b>
+                    </div>
+                    <div *ngIf="isValidDate(account.from)" class="value">
+                      {{ account.from | date }}
+                    </div>
+                  </div>
+
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      Statement To<b>:&nbsp;</b>
+                    </div>
+                    <div *ngIf="isValidDate(account.to)" class="value">
+                      {{ account.to | date }}
+                    </div>
+                  </div>
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      Statement Attachement<b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <div
+                        *ngIf="
+                          account?.odAccountStatements &&
+                          account?.odAccountStatements.length > 0
+                        "
+                      >
+                        <span
+                          *ngFor="let file of account?.odAccountStatements"
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank"> View </a>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      OD Limit<b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      {{ account.odlimit }}
+                    </div>
+                  </div>
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      OD Sanction Letter<b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <div
+                        *ngIf="
+                          account?.odSactionLetter &&
+                          account?.odSactionLetter.length > 0
+                        "
+                      >
+                        <span
+                          *ngFor="let file of account?.odSactionLetter"
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank"> View </a>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div> -->
+                  <!-- <div *ngIf="leadDocuments?.odAccountStatements?.length > 0">
+                  <div
+                    *ngFor="
+                      let account of leadDocuments.odAccountStatements;
+                      let i = index
+                    "
+                    class="business-details mt-3"
+                  >
+                    <div class="label" style="text-decoration: underline">
+                      OD Account - {{ i + 1 }}
+                    </div>
+
+                    <div
+                      class="info-line"
+                      *ngFor="let field of odAccountFields"
+                    >
+                      <div class="label d-flex justify-content-between">
+                        {{ field.label }} <b>:&nbsp;</b>
+                      </div>
+                      <div class="value">
+                        <ng-container *ngIf="field.isDate">
+                          <ng-container
+                            *ngIf="
+                              isValidDate(account[field.key]);
+                              else noValue
+                            "
+                          >
+                            {{ account[field.key] | date }}
+                          </ng-container>
+                        </ng-container>
+
+                        <ng-container *ngIf="field.isFile">
+                          <ng-container
+                            *ngIf="account[field.key]?.length > 0; else noValue"
+                          >
+                            <span
+                              *ngFor="let file of account[field.key]"
+                              class="me-2"
+                            >
+                              <a [href]="'//' + file" target="_blank">View</a>
+                            </span>
+                          </ng-container>
+                        </ng-container>
+
+                        <ng-container *ngIf="field.pipe === 'capitalize'">
+                          {{
+                            account[field.key]
+                              ? (account[field.key] | capitalizeFirst)
+                              : "-"
+                          }}
+                        </ng-container>
+
+                        <ng-container
+                          *ngIf="!field.isDate && !field.isFile && !field.pipe"
+                        >
+                          {{ account[field.key] || "-" }}
+                        </ng-container>
+                      </div>
+                    </div>
+
+                    <ng-template #noValue>-</ng-template>
+                  </div>
+                </div> -->
+                  <div
+                    class="mt-2"
+                    *ngIf="leadDocuments?.currentAccountStatements?.length > 0"
+                  >
+                    <p-table
+                      [value]="leadDocuments?.odAccountStatements"
+                      responsiveLayout="scroll"
+                      class="custom-dark-table"
+                    >
+                      <!-- Header Template -->
+                      <ng-template pTemplate="header">
+                        <tr>
+                          <th>Bank Name</th>
+                          <th>From Date</th>
+                          <th>To Date</th>
+                          <th>Files</th>
+                          <th>OD Limit</th>
+                          <th>Sanction Letter</th>
+                        </tr>
+                      </ng-template>
+
+                      <!-- Body Template -->
+                      <ng-template let-stmt pTemplate="body">
+                        <tr>
+                          <td>{{ stmt.name || "-" }}</td>
+                          <td>
+                            {{
+                              isValidDate(stmt.from)
+                                ? (stmt.from | date : "MMM dd, yyyy")
+                                : "-"
+                            }}
+                          </td>
+                          <td>
+                            {{
+                              isValidDate(stmt.to)
+                                ? (stmt.to | date : "MMM dd, yyyy")
+                                : "-"
+                            }}
+                          </td>
+                          <td>
+                            <div class="p-d-flex p-flex-wrap p-gap-2">
+                              <a
+                                *ngFor="let file of stmt.odAccountStatements"
+                                [href]="'//' + file"
+                                target="_blank"
+                              >
+                                <i
+                                  [class]="getFileIcon(file.split('.').pop())"
+                                  class="file-icon me-2"
+                                ></i>
+                              </a>
+                            </div>
+                          </td>
+                          <td>{{ stmt.odlimit || "-" }}</td>
+                          <td>
+                            <a
+                              *ngFor="let file of stmt.odSactionLetter"
+                              [href]="'//' + file"
+                              target="_blank"
+                            >
+                              <i
+                                [class]="getFileIcon(file.split('.').pop())"
+                                class="file-icon me-2"
+                              ></i>
+                            </a>
+                          </td>
+                        </tr>
+                      </ng-template>
+                    </p-table>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="leadDocuments?.odAccountStatements == null">
+                <div class="text-center">
+                  <div colspan="10" class="text-center fw-bold">
+                    <img
+                      alt="No Data"
+                      src="../../../../assets/images/menu/no-data.gif"
+                      width="200"
+                      height="200"
+                    />
+                    <p>No OD Account Data Found</p>
+                  </div>
+                </div>
+              </div>
+            </p-accordionTab>
+          </p-accordion>
+        </div>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="business-info card-header text-center mb-3">
+              <h4>Calculation for BTO Program</h4>
+            </div>
+            <div class="row">
+              <div class="col-md-4 mt-2">
+                <div class="input-container">
+                  <div class="my-1">
+                    <label>Banking Turnover:&nbsp;</label>
+                  </div>
+                  <input
+                    pInputText
+                    class="rounded-lg"
+                    type="number"
+                    [(ngModel)]="bankingTurnover"
+                    class="custom-input"
+                    placeholder="Enter Banking Turn over "
+                    autocomplete="off"
+                  />
+                </div>
+              </div>
+              <div class="col-md-4 mt-2">
+                <div class="input-container">
+                  <div class="my-1">
+                    <label>Margin Interest (%):&nbsp;</label>
+                  </div>
+                  <input
+                    pInputText
+                    class="rounded-lg"
+                    type="number"
+                    [(ngModel)]="btoMargin"
+                    class="custom-input"
+                    placeholder="Enter Margin"
+                    autocomplete="off"
+                  />
+                </div>
+              </div>
+              <div class="col-md-4 mt-2">
+                <div class="input-container">
+                  <div class="my-1">
+                    <label>FOIR (%):&nbsp;</label>
+                  </div>
+                  <input
+                    pInputText
+                    class="rounded-lg"
+                    type="number"
+                    [(ngModel)]="btoMonths"
+                    class="custom-input"
+                    placeholder="Enter FOIR"
+                    autocomplete="off"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-center mt-3">
+              <div class="me-3">
+                <button
+                  pButton
+                  pRipple
+                  type="button"
+                  class="p-button-primary"
+                  (click)="calculateBTOProgram()"
+                >
+                  Calculate
+                </button>
+              </div>
+            </div>
+            <div
+              class="mt-3 fw-bold d-flex justify-content-center mt-3"
+              *ngIf="btoValue"
+            >
+              <h6>
+                Eligible Emi in BTO Program:<span
+                  style="color: rgba(2, 5, 161, 0.91); font-weight: bold"
+                >
+                  {{ btoValue }}</span
+                >
+              </h6>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="activeTab === 'gst'" class="row">
+        <div class="col-md-6">
+          <p-accordion>
+            <p-accordionTab header="GST Details">
+              <div class="">
+                <div class="detail-card">
+                  <div class="info-line mt-2">
+                    <div class="label d-flex justify-content-between">
+                      Total GSTR-3B Sale<b>:&nbsp;</b>
+                    </div>
+                    <div class="value fw-bold text-primary">
+                      {{ totalGst3BSale }}
+                    </div>
+                  </div>
+
+                  <!-- <div *ngIf="leadDocuments?.gstDetails?.length > 0">
+                <div
+                  *ngFor="
+                    let account of leadDocuments?.gstDetails;
+                    let i = index
+                  "
+                  class="business-details mt-3"
+                >
+                  <div class="label" style="text-decoration: underline">
+                    Operating State-{{ i + 1 }}
+                  </div>
+
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      State<b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      {{ account.operatingState | capitalizeFirst }}
+                    </div>
+                  </div>
+
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      Filing Period<b>:&nbsp;</b>
+                    </div>
+                    <div
+                      *ngIf="isValidDate(account.filingPeriod)"
+                      class="value"
+                    >
+                      {{ account.filingPeriod | date }}
+                    </div>
+                  </div>
+
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      GSTR-3B Sale<b>:&nbsp;</b>
+                    </div>
+                    <div class="value">{{ account.gst3BSale }}</div>
+                  </div>
+                  <div class="info-line">
+                    <div class="label d-flex justify-content-between">
+                      GSTR-3B Attachment<b>:&nbsp;</b>
+                    </div>
+                    <div class="value">
+                      <div
+                        *ngIf="
+                          account?.gstDetails && account?.gstDetails.length > 0
+                        "
+                      >
+                        <span
+                          *ngFor="let file of account?.gstDetails"
+                          class="me-2"
+                        >
+                          <a [href]="'//' + file" target="_blank"> View </a>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div> -->
+                  <!-- <div *ngIf="leadDocuments?.gstDetails?.length > 0">
+                  <div
+                    *ngFor="
+                      let account of leadDocuments.gstDetails;
+                      let i = index
+                    "
+                    class="business-details mt-3"
+                  >
+                    <div class="label" style="text-decoration: underline">
+                      Operating State - {{ i + 1 }}
+                    </div>
+
+                    <div
+                      class="info-line"
+                      *ngFor="let field of gstAccountFields"
+                    >
+                      <div class="label d-flex justify-content-between">
+                        {{ field.label }} <b>:&nbsp;</b>
+                      </div>
+                      <div class="value">
+                        <ng-container *ngIf="field.key === 'filingPeriod'">
+                          <ng-container
+                            *ngIf="
+                              isValidDate(account[field.key]);
+                              else noValue
+                            "
+                          >
+                            {{ account[field.key] | date }}
+                          </ng-container>
+                        </ng-container>
+
+                        <ng-container *ngIf="field.key === 'gstDetails'">
+                          <ng-container
+                            *ngIf="
+                              account?.gstDetails?.length > 0;
+                              else noValue
+                            "
+                          >
+                            <span
+                              *ngFor="let file of account.gstDetails"
+                              class="me-2"
+                            >
+                              <a [href]="'//' + file" target="_blank">View</a>
+                            </span>
+                          </ng-container>
+                        </ng-container>
+
+                        <ng-container
+                          *ngIf="
+                            field.key !== 'filingPeriod' &&
+                            field.key !== 'gstDetails'
+                          "
+                        >
+                          {{ account[field.key] || "-" }}
+                        </ng-container>
+                      </div>
+                    </div>
+
+                    <ng-template #noValue>-</ng-template>
+                  </div>
+                </div> -->
+                  <div *ngIf="leadDocuments?.gstDetails?.length > 0">
+                    <p-table
+                      [value]="leadDocuments?.gstDetails"
+                      responsiveLayout="scroll"
+                      class="custom-dark-table"
+                    >
+                      <!-- Header Template -->
+                      <ng-template pTemplate="header">
+                        <tr>
+                          <th>Operating State</th>
+                          <th>Filing Period</th>
+                          <th>GSTR 3B Sale</th>
+                          <th>Attachments</th>
+                        </tr>
+                      </ng-template>
+
+                      <!-- Body Template -->
+                      <ng-template let-gst pTemplate="body">
+                        <tr>
+                          <td>{{ gst.operatingState }}</td>
+                          <td>
+                            {{
+                              isValidDate(gst.filingPeriod)
+                                ? (gst.filingPeriod | date : "MMM dd, yyyy")
+                                : "-"
+                            }}
+                          </td>
+                          <td>
+                            {{ gst?.gst3BSale ? "₹" + gst.gst3BSale : "" }}
+                          </td>
+                          <td>
+                            <div class="d-flex flex-wrap gap-2">
+                              <a
+                                *ngFor="let file of gst.gstDetails"
+                                [href]="'//' + file"
+                                target="_blank"
+                              >
+                                <i
+                                  [class]="getFileIcon(file.split('.').pop())"
+                                  class="file-icon me-2"
+                                ></i>
+                              </a>
+                            </div>
+                          </td>
+                        </tr>
+                      </ng-template>
+                    </p-table>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="leadDocuments?.gstDetails == null">
+                <div class="text-center">
+                  <div colspan="10" class="text-center fw-bold">
+                    <img
+                      alt="No Data"
+                      src="../../../../assets/images/menu/no-data.gif"
+                      width="200"
+                      height="200"
+                    />
+                    <p>No GST Details Found</p>
+                  </div>
+                </div>
+              </div>
+            </p-accordionTab>
+          </p-accordion>
+        </div>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="business-info card-header text-center mb-3">
+              <h4>Calculation for GST Program</h4>
+            </div>
+            <div class="row">
+              <div class="col-md-4 mt-2">
+                <div class="input-container">
+                  <div class="my-1">
+                    <label>GST Turnover:&nbsp;</label>
+                  </div>
+                  <input
+                    pInputText
+                    class="rounded-lg"
+                    type="number"
+                    [(ngModel)]="gstTurnover"
+                    class="custom-input"
+                    placeholder="Enter GST Turnover"
+                    autocomplete="off"
+                  />
+                </div>
+              </div>
+              <div class="col-md-4 mt-2">
+                <div class="input-container">
+                  <div class="my-1">
+                    <label>Margin Interest (%):&nbsp;</label>
+                  </div>
+                  <input
+                    pInputText
+                    class="rounded-lg"
+                    type="number"
+                    [(ngModel)]="margin"
+                    class="custom-input"
+                    placeholder="Enter Margin"
+                    autocomplete="off"
+                  />
+                </div>
+              </div>
+              <div class="col-md-4 mt-2">
+                <div class="input-container">
+                  <div class="my-1">
+                    <label>FOIR (%):&nbsp;</label>
+                  </div>
+                  <input
+                    pInputText
+                    class="rounded-lg"
+                    type="number"
+                    [(ngModel)]="months"
+                    class="custom-input"
+                    placeholder="Enter FOIR"
+                    autocomplete="off"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-center mt-3">
+              <div class="me-3">
+                <button
+                  pButton
+                  pRipple
+                  type="button"
+                  class="p-button-primary"
+                  (click)="calculateGstProgram()"
+                >
+                  Calculate
+                </button>
+              </div>
+            </div>
+            <div
+              class="mt-3 fw-bold d-flex justify-content-center mt-3"
+              *ngIf="gstValue"
+            >
+              <h6>
+                Eligible Emi in GST Program:<span
+                  style="color: rgba(2, 5, 161, 0.91); font-weight: bold"
+                >
+                  {{ gstValue }}</span
+                >
+              </h6>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- <div class="col-md-6">
+        <div class="detail-card">
+          <div class="card p-4">
+            <div class="business-info card-header text-center mb-3">
+              <h4>ITR Documents</h4>
+            </div>
+
+            <div
+              class="business-details"
+              *ngIf="leadDocuments?.financialReturns"
+            >
+              <div class="label" style="text-decoration: underline">
+                Annual Year
+              </div>
+              <div
+                class="info-line"
+                *ngIf="leadDocuments && leadDocuments?.financialReturns"
+              >
+                <div class="label d-flex justify-content-between">
+                  Annual Year Of ITR <b>:&nbsp;</b>
+                </div>
+                <div class="value">
+                  {{ leadDocuments?.financialReturns[0]?.pastIncomeTax }}
+                </div>
+              </div>
+              <div class="info-line">
+                <div class="label d-flex justify-content-between">
+                  Attachment<b>:&nbsp;</b>
+                </div>
+                <div class="value">
+                  <div
+                    *ngIf="
+                      leadDocuments &&
+                      leadDocuments?.financialReturns[0]?.pastIncomeReturns &&
+                      leadDocuments?.financialReturns[0]?.pastIncomeReturns
+                        .length > 0
+                    "
+                  >
+                    <span
+                      *ngFor="
+                        let file of leadDocuments?.financialReturns[0]
+                          ?.pastIncomeReturns
+                      "
+                      class="me-2"
+                    >
+                      <a [href]="'//' + file" target="_blank"> View </a>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="business-details mt-4"
+              *ngIf="leadDocuments?.financialReturns"
+            >
+              <div class="label" style="text-decoration: underline">
+                Annual Year
+              </div>
+
+              <div
+                class="info-line"
+                *ngIf="leadDocuments && leadDocuments?.financialReturns"
+              >
+                <div class="label d-flex justify-content-between">
+                  Annual Year Of ITR<b>:&nbsp;</b>
+                </div>
+                <div class="value">
+                  {{ leadDocuments?.financialReturns[0]?.presentIncomeTax }}
+                </div>
+              </div>
+              <div class="info-line">
+                <div class="label d-flex justify-content-between">
+                  Attachment<b>:&nbsp;</b>
+                </div>
+                <div class="value">
+                  <div
+                    *ngIf="
+                      leadDocuments &&
+                      leadDocuments?.financialReturns[0]
+                        ?.presentIncomeReturns &&
+                      leadDocuments?.financialReturns[0]?.presentIncomeReturns
+                        .length > 0
+                    "
+                  >
+                    <span
+                      *ngFor="
+                        let file of leadDocuments?.financialReturns[0]
+                          ?.presentIncomeReturns
+                      "
+                      class="me-2"
+                    >
+                      <a [href]="'//' + file" target="_blank"> View </a>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="leadDocuments?.financialReturns == null">
+              <div class="text-center">
+                <div colspan="10" class="text-center fw-bold">
+                  <img
+                    alt="No Data"
+                    src="../../../../assets/images/menu/no-data.gif"
+                    width="200"
+                    height="200"
+                  />
+                  <p>No ITR Documents Found</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> -->
+    </div>
+
+    <div class="d-flex justify-content-center mt-3" *ngIf="leadData">
+      <div class="me-3" *ngIf="leadData[0].leadInternalStatus == 5">
+        <button
+          pButton
+          pRipple
+          type="button"
+          class="p-button-primary"
+          (click)="sendLeadToReadyToLogin(leadData)"
+        >
+          Ready to Login
+        </button>
+      </div>
+      <div *ngIf="leadData[0].leadInternalStatus == 5">
+        <button
+          pButton
+          pRipple
+          type="button"
+          class="p-button-danger"
+          (click)="sendLeadToReject(leadData)"
+        >
+          In House Reject
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

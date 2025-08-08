@@ -1,0 +1,53 @@
+.image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+.image-container img {
+  display: block;
+  padding: 10px;
+  width: auto;
+  margin-top: 10px;
+  height: 190px;
+}
+
+.remarks {
+  border: none;
+}
+.profile {
+  padding: 5px;
+  border: none;
+}
+.profile-container {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+.company-name {
+  color: #230461;
+
+  font-weight: bold;
+  border-radius: 10px;
+}
+.company-type {
+  font-size: 20px;
+  color: #5e2ac6;
+  font-weight: bold;
+}
+.colored-half {
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  border-radius: 10px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60%;
+}
+
+.card-header {
+  color: #230461;
+  font-weight: bold;
+}

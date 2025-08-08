@@ -1,0 +1,191 @@
+<div>
+  <div class="m-2 p-1">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <!-- <span class="me-1">
+          <img
+            src="../../../assets/images/menu/ip.png"
+            alt="Default Image"
+            class=""
+            style="height: 35px; width: 40px"
+          />
+        </span> -->
+        <b>
+          <span class="back-btn-text"> Ip Address </span>
+        </b>
+        <!-- <span class="back-btn-text text-capitalize">Ip Address</span> -->
+      </div>
+      <div>
+        <button
+          pButton
+          pRipple
+          type="button"
+          class="p-button-primary me-2"
+          icon="pi pi-plus"
+          (click)="createIpAddress()"
+        >
+          &nbsp;Add Ip Address
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- <div class="bread-crumb">
+    <p-breadcrumb [model]="breadCrumbItems"></p-breadcrumb>
+  </div> -->
+
+  <div class="m-2">
+    <p-table
+      [value]="ipAddress"
+      [lazy]="true"
+      (onLazyLoad)="loadIpAddress($event)"
+      dataKey="id"
+      [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [paginator]="true"
+      [rows]="10"
+      [totalRecords]="ipAddressCount"
+      [loading]="loading"
+      responsiveLayout="scroll"
+      scrollHeight="flex"
+      [globalFilterFields]="[
+        'referenceNo',
+        'customer.firstName',
+        'partner.partnerName',
+        'status'
+      ]"
+      styleClass="p-datatable-customers "
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Ip Address"
+    >
+      <ng-template pTemplate="caption">
+        <div class="row">
+          <div class="col-md-4 mt-2 no-padding-small"></div>
+          <div class="col-md-4 mt-2 no-padding-small"></div>
+          <div class="col-md-4 mt-2 no-padding-small text-right">
+            <div class="d-flex">
+              <div class="flex-grow-1 me-2"></div>
+              <div class="d-flex align-items-center pointer-cursor">
+                <app-filter
+                  [position]="'right'"
+                  [iconColor]="'#33009C'"
+                  [iconSize]="'28px!important'"
+                  (filterEvent)="applyConfigFilters($event)"
+                  [filterConfig]="filterConfig"
+                  [showFilterIndication]="appliedFilter"
+                  pTooltip="Filter"
+                  tooltipPosition="top"
+                >
+                </app-filter>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th class="text-nowrap">IP Address Id</th>
+          <th>Name</th>
+          <th class="text-nowrap">Ip Address</th>
+          <th class="text-nowrap">Created By</th>
+          <th class="text-nowrap">Created Date</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-ipAddress>
+        <tr
+          class="text-capitalize"
+          [ngClass]="{ 'disabled-row': ipAddress.disabled }"
+        >
+          <td>
+            <span class="table-column-data" *ngIf="ipAddress.ipAddressId">{{
+              ipAddress.ipAddressId
+            }}</span>
+          </td>
+          <td>
+            <span class="table-column-data" *ngIf="ipAddress.ipAddressName">{{
+              ipAddress.ipAddressName
+            }}</span>
+          </td>
+
+          <td>
+            <span class="table-column-data" *ngIf="ipAddress.ipAddress">{{
+              ipAddress.ipAddress
+            }}</span>
+          </td>
+          <td>
+            <span class="table-column-data" *ngIf="ipAddress.createdBy">{{
+              ipAddress.createdBy
+            }}</span>
+          </td>
+          <td>
+            <span class="table-column-data" *ngIf="ipAddress.createdOn">{{
+              ipAddress.createdOn | date
+            }}</span>
+          </td>
+          <td>
+            <div class="text-center d-flex">
+              <div class="d-flex mr-3">
+                <!-- <button
+                  pButton
+                  pRipple
+                  type="button"
+                  pTooltip="Update"
+                  class="p-button-success me-2 update-btn"
+                  icon="fa fa-pen-to-square"
+                  (click)="updateIpAddress(ipAddress.ipAddressId)"
+                ></button> -->
+                <img
+                  alt="Update Ip Address"
+                  src="../../../assets/images/icons/edit.svg"
+                  width="24px"
+                  height="24px"
+                  (click)="updateIpAddress(ipAddress.ipAddressId)"
+                  pTooltip="Update"
+                  tooltipPosition="top"
+                />
+              </div>
+              <!-- <button
+                *ngIf="capabilities.delete"
+                pButton
+                type="button"
+                icon="fa fa-trash"
+                pTooltip="Delete"
+                tooltipPosition="left"
+                class="p-button-danger me-2 delete-btn"
+                (click)="confirmDelete(ipAddress)"
+              ></button> -->
+              <img
+                alt="Delete Ip Address"
+                *ngIf="capabilities.delete"
+                src="../../../assets/images/icons/delete.svg"
+                width="24px"
+                height="24px"
+                pTooltip="Delete"
+                (click)="confirmDelete(ipAddress)"
+                tooltipPosition="top"
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr class="text-center">
+          <td colspan="10" class="text-center fw-bold">
+            <img
+              alt="No Data"
+              src="../../../assets/images/menu/no-data.gif"
+              width="200"
+              height="200"
+            />
+            <p>No Ip Address Found</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

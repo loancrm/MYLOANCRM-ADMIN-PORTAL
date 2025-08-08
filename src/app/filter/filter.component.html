@@ -1,0 +1,241 @@
+<div class="filter-sidebar text-start sidebar-design">
+  <p-sidebar
+    [(visible)]="sidebarVisible"
+    position="{{ position }}"
+    class="custom-dark-sidebar"
+  >
+    <div>
+      <div>
+        <span class="fw-bold main-heading">Filters</span>
+      </div>
+
+      <!-- <div class="mt-3" *ngFor="let tab of filterConfig; let i = index">
+        <div>
+          <p-accordion [activeIndex]="expandedAccordions[i] ? i : -1">
+            <p-accordionTab [header]="tab.header">
+              <span *ngFor="let field of tab.data; let i = index">
+                <label [htmlFor]="field.field">{{ field.title }}</label>
+                <input
+                  pInputText
+                  [id]="field.field"
+                  [placeholder]="'Enter ' + field.title"
+                  autocomplete="off"
+                  [(ngModel)]="filter[field.field + '-' + field.filterType]"
+                  *ngIf="field && field.type == 'text'"
+                  [style]="{
+                    width: field.fieldWidth ? field.fieldWidth : '100%'
+                  }"
+                />
+                <span *ngIf="field && field.type == 'date'">
+                  <p-calendar
+                    [placeholder]="'Select ' + field.title"
+                    appendTo="body"
+                    [style]="{
+                      width: field.fieldWidth ? field.fieldWidth : '100%'
+                    }"
+                    dateFormat="mm/dd/yy"
+                    [(ngModel)]="filter[field.field + '-' + field.filterType]"
+                    [showButtonBar]="true"
+                  ></p-calendar>
+                </span>
+                <span *ngIf="field && field.type == 'dropdown'">
+                  <p-dropdown
+                    styleClass="text-left"
+                    [style]="{
+                      width: field.fieldWidth ? field.fieldWidth : '100%'
+                    }"
+                    [placeholder]="'Select ' + field.title"
+                    [options]="field.options"
+                    [optionValue]="field.value"
+                    [(ngModel)]="filter[field.field + '-' + field.filterType]"
+                    [optionLabel]="field.label"
+                    appendTo="body"
+                    [showClear]="true"
+                    [dropdownIcon]="'fa fa-caret-down'"
+                    [autoDisplayFirst]="false"
+                  >
+                  </p-dropdown>
+                </span>
+                <span *ngIf="field && field.type == 'phone'">
+                  <ngx-intl-tel-input
+                    [cssClass]="'custom'"
+                    [preferredCountries]="preferredCountries"
+                    [enableAutoCountrySelect]="true"
+                    [enablePlaceholder]="true"
+                    [searchCountryFlag]="true"
+                    [searchCountryField]="[
+                      SearchCountryField.Iso2,
+                      SearchCountryField.Name
+                    ]"
+                    [selectFirstCountry]="false"
+                    [phoneValidation]="true"
+                    [maxLength]="15"
+                    [selectedCountryISO]="selectedCountry"
+                    [separateDialCode]="separateDialCode"
+                    [numberFormat]="PhoneNumberFormat.National"
+                    [(ngModel)]="filter[field.field + '-' + field.filterType]"
+                  >
+                  </ngx-intl-tel-input>
+                </span>
+                <span *ngIf="field && field.type == 'multiselect'">
+                  <p-multiSelect
+                    [placeholder]="'Select ' + field.title"
+                    styleClass="text-left"
+                    [style]="{
+                      width: field.fieldWidth ? field.fieldWidth : '100%'
+                    }"
+                    [(ngModel)]="filter[field.field + '-' + field.filterType]"
+                    [dropdownIcon]="'fa fa-caret-down'"
+                    [options]="field.options"
+                    appendTo="body"
+                    [optionValue]="field.value"
+                    [optionLabel]="field.label"
+                  ></p-multiSelect>
+                </span>
+              </span>
+            </p-accordionTab>
+          </p-accordion>
+        </div>
+      </div> -->
+      <div class="mt-3" *ngFor="let tab of filterConfig">
+        <div class="mb-3">
+          <h6 class="fw-medium mb-2">{{ tab.header }}</h6>
+          <div *ngFor="let field of tab.data">
+            <!-- <label [htmlFor]="field.field">{{ field.title }}</label> -->
+
+            <!-- Text Input -->
+            <input
+              pInputText
+              [id]="field.field"
+              [placeholder]="'Enter ' + field.title"
+              autocomplete="off"
+              [(ngModel)]="filter[field.field + '-' + field.filterType]"
+              *ngIf="field && field.type === 'text'"
+              [style]="{ width: field.fieldWidth ? field.fieldWidth : '100%' }"
+            />
+
+            <!-- Date Input -->
+            <span *ngIf="field && field.type === 'date'">
+              <p-calendar
+                [placeholder]="'Select ' + field.title"
+                appendTo="body"
+                [style]="{
+                  width: field.fieldWidth ? field.fieldWidth : '100%'
+                }"
+                dateFormat="mm/dd/yy"
+                [(ngModel)]="filter[field.field + '-' + field.filterType]"
+                [showButtonBar]="true"
+              ></p-calendar>
+            </span>
+
+            <!-- Dropdown Input -->
+            <span *ngIf="field && field.type === 'dropdown'">
+              <p-dropdown
+                styleClass="text-left"
+                [style]="{
+                  width: field.fieldWidth ? field.fieldWidth : '100%'
+                }"
+                [placeholder]="'Select ' + field.title"
+                [options]="field.options"
+                [optionValue]="field.value"
+                [(ngModel)]="filter[field.field + '-' + field.filterType]"
+                [optionLabel]="field.label"
+                appendTo="body"
+                [showClear]="true"
+                [dropdownIcon]="'fa fa-caret-down'"
+                [autoDisplayFirst]="false"
+              ></p-dropdown>
+            </span>
+
+            <!-- Phone Input -->
+            <span *ngIf="field && field.type === 'phone'">
+              <ngx-intl-tel-input
+                [cssClass]="'custom'"
+                [preferredCountries]="preferredCountries"
+                [enableAutoCountrySelect]="true"
+                [enablePlaceholder]="true"
+                [searchCountryFlag]="true"
+                [searchCountryField]="[
+                  SearchCountryField.Iso2,
+                  SearchCountryField.Name
+                ]"
+                [selectFirstCountry]="false"
+                [phoneValidation]="true"
+                [maxLength]="15"
+                [selectedCountryISO]="selectedCountry"
+                [separateDialCode]="separateDialCode"
+                [numberFormat]="PhoneNumberFormat.National"
+                [(ngModel)]="filter[field.field + '-' + field.filterType]"
+              ></ngx-intl-tel-input>
+            </span>
+
+            <!-- MultiSelect Input -->
+            <span *ngIf="field && field.type === 'multiselect'">
+              <p-multiSelect
+                [placeholder]="'Select ' + field.title"
+                styleClass="text-left"
+                [style]="{
+                  width: field.fieldWidth ? field.fieldWidth : '100%'
+                }"
+                [(ngModel)]="filter[field.field + '-' + field.filterType]"
+                [dropdownIcon]="'fa fa-caret-down'"
+                [options]="field.options"
+                appendTo="body"
+                [optionValue]="field.value"
+                [optionLabel]="field.label"
+              ></p-multiSelect>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex justify-content-between mt-3">
+        <div>
+          <button
+            pButton
+            pRipple
+            label="Reset"
+            icon="pi pi-refresh"
+            class="p-button-raised p-button-info mr-2"
+            (click)="resetFilters()"
+          ></button>
+        </div>
+        <div>
+          <button
+            pButton
+            class="p-button-raised p-button-primary font-weight-bold"
+            pRipple
+            label="Apply"
+            icon="pi pi-check"
+            (click)="applyFilters()"
+          ></button>
+        </div>
+      </div>
+    </div>
+  </p-sidebar>
+  <!-- <i
+    class="pi pi-filter-fill"
+    [style.color]="iconColor"
+    [style.font-size]="iconSize"
+    (click)="sidebarVisible = true"
+    ><sup class="indication-dot" *ngIf="showIndicationIcon"></sup
+  ></i> -->
+  <!-- <img src="../../assets/images/icons/Filter.svg" width="24px" height="24px" /> -->
+
+  <div
+    style="position: relative; display: inline-block"
+    (click)="sidebarVisible = true"
+  >
+    <img
+      src="../../assets/images/icons/Filter.svg"
+      alt="Filter"
+      [style.width]="iconSize"
+      [style.height]="iconSize"
+      style="cursor: pointer"
+    />
+    <sup
+      class="indication-dot"
+      *ngIf="showIndicationIcon"
+      style="position: absolute; top: 0; right: 0"
+    ></sup>
+  </div>
+</div>

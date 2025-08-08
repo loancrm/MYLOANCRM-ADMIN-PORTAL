@@ -1,0 +1,90 @@
+// .lead-data .card {
+//   line-height: 3;
+//   margin-bottom: 15px;
+//   margin-left: 30px;
+//   height: auto;
+//   display: flex;
+//   flex-direction: column;
+//   justify-content: space-between;
+//   max-width: 500px;
+//   padding: 35px;
+//   border: 1px solid rgba(255, 255, 255, 0.25);
+//   border-top: 5px solid #3e065f;
+//   border-radius: 20px;
+//   background-color: white;
+//   box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.25);
+//   backdrop-filter: blur(15px);
+// }
+
+// .business-info h4 {
+//   font-weight: bold;
+//   font-size: 25px;
+//   padding: 5px;
+//   position: relative;
+//   padding: 0;
+//   margin: 0;
+//   font-size: 25px;
+//   color: green;
+//   -webkit-transition: all 0.4s ease 0s;
+//   -o-transition: all 0.4s ease 0s;
+//   transition: all 0.4s ease 0s;
+// }
+
+// .card-header {
+//   border-radius: 5px;
+// }
+
+// .business-details .label {
+//   color: black;
+//   font-size: 17px;
+//   flex: 0 0 270px;
+//   font-weight: bold;
+// }
+// .business-details .value {
+//   color: rgba(2, 5, 161, 0.91);
+//   font-size: 17px;
+//   font-weight: bold;
+// }
+// a {
+//   color: rgba(2, 5, 161, 0.91);
+// }
+
+// .lead-data {
+//   text-transform: capitalize;
+// }
+// .info-line {
+//   display: flex;
+//   align-items: center;
+//   margin-bottom: 5px;
+// }
+
+// @media screen and (max-width: 620px) {
+//   .info-line {
+//     display: block;
+//   }
+//   .card {
+//     margin: 0;
+//   }
+// }
+// .lead-data {
+//   padding: 48px;
+// }
+// @media (max-width: 767px) {
+//   .lead-data .card {
+//     margin: 1px;
+//   }
+//   .lead-data {
+//     padding: 10px;
+//   }
+//   .lead-data .card{
+//     margin-bottom: 10px;
+//   }
+// }
+// .data {
+//   background-image: url("../../../../assets/images/files/bg-2.jpg");
+//   background-repeat: no-repeat;
+//   background-size: cover;
+// }
+// ::ng-deep .bread-crumb .pi-home {
+//   color: #7a86b6 !important;
+// }

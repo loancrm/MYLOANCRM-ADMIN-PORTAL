@@ -1,0 +1,71 @@
+/* Existing styles */
+::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background: #fff;
+}
+
+
+::ng-deep .custom-dropdown .p-dropdown-label.p-placeholder,
+::ng-deep .custom-dropdown .p-dropdown-trigger {
+  color: #ffffff;
+}
+.p-button-primary {
+  background-color:#fff !important;
+  border-color: lightgray !important;
+  border-bottom-right-radius: 8px !important;
+  border-top-right-radius: 8px !important;
+  border-bottom-left-radius: 0 !important;
+  border-top-left-radius: 0 !important;
+}
+
+:host ::ng-deep .p-dropdown-panel .p-dropdown-filter-container {
+  width: 100% !important;
+}
+
+:host ::ng-deep .p-dropdown-filter {
+  width: 100% !important;
+  margin: auto;
+}
+
+/* Existing input styles (don't change) */
+input {
+  position: relative;
+  overflow: hidden; /* Hide any overflow */
+}
+
+/* Wrapper to handle overflow */
+.p-inputgroup {
+  position: relative;
+  width: 100%;
+  overflow: hidden; /* Hide overflow to keep the placeholder within bounds */
+}
+
+/* Input field styling */
+.p-inputgroup input {
+  position: relative;
+  width: 100%;
+  padding-left: 10px; /* Add left padding to make room for the text */
+  font-size: 14px; /* Adjust font size to match your design */
+}
+
+/* Apply animation to the placeholder text */
+// .p-inputgroup input::placeholder {
+//   color: #7a86b6; /* Placeholder text color */
+//   white-space: nowrap;
+//   animation: move-placeholder 10s linear infinite; /* Animation effect */
+//   opacity: 1; /* Ensure visibility */
+// }
+
+/* Keyframes to move the placeholder text */
+@keyframes move-placeholder {
+  0% {
+    transform: translateX(100%); /* Start position outside the right side */
+  }
+  50% {
+    transform: translateX(
+      0
+    ); /* Center position (where the placeholder is fully visible) */
+  }
+  100% {
+    transform: translateX(-100%); /* End position outside the left side */
+  }
+}

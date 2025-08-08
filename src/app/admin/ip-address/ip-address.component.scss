@@ -1,0 +1,11 @@
+// ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+//   background: #13003a !important;
+//   color: #fff !important;
+// }
+
+.delete-btn,
+.update-btn {
+  height: 30px;
+  width: 35px;
+  box-shadow: 5px 5px rgba(0, 0, 0, 0.1);
+}

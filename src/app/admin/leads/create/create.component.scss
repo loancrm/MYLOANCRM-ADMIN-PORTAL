@@ -1,0 +1,219 @@
+.card {
+  border: none;
+}
+
+.p-inputtext,
+::ng-deep .lead-form .p-dropdown,
+::ng-deep .lead-form .p-calendar {
+  width: 100% !important;
+}
+
+label {
+  font-size: 14px;
+  // font-weight: 600;
+  // font-size: medium;
+}
+.p-button-sm {
+  width: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+@media screen and (max-width: 620px) {
+  .lead-img {
+    display: none;
+  }
+  .icon {
+    width: 270px;
+    height: 200px;
+    align-items: center;
+    justify-content: center;
+  }
+}
+.ui-steps-item .ui-menuitem-link {
+  color: #51c297 !important;
+  font-weight: bold !important;
+}
+
+.ui-steps-item .ui-menuitem-link:active {
+  background-color: rgba(2, 5, 129, 0.91) !important;
+}
+
+// .bg-color {
+//   background: linear-gradient(#ebf4f6, #f4f7fd);
+// }
+
+::ng-deep .custom-steps {
+  border-radius: 5px !important;
+
+  cursor: pointer;
+
+  padding-top: 20px;
+}
+
+// .custom-steps-card {
+//   border-radius: 10px;
+//   padding: 20px;
+//   // box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+//   margin-bottom: 20px;
+// }
+
+::ng-deep .custom-steps .p-steps {
+  background-color: #f4f4f4;
+  border-radius: 20px;
+}
+
+::ng-deep .custom-steps .p-steps-item {
+  color: #29415b;
+  font-weight: bold;
+}
+
+::ng-deep .custom-steps .p-steps-item .p-steps-number {
+  color: #29415b;
+  border-radius: 50%;
+  padding: 5px 10px;
+}
+
+::ng-deep .custom-steps .p-steps-item.p-highlight .p-steps-number {
+  background-color: #f8fdcf;
+  color: #29415b;
+}
+
+::ng-deep .custom-steps .p-steps-item.p-disabled .p-steps-number {
+  background-color: #ccc;
+  color: #999;
+}
+
+::ng-deep .custom-steps .p-steps-title {
+  margin: 10px;
+}
+:host ::ng-deep .p-steps-item .p-menuitem-link {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+:host ::ng-deep .p-steps-item:not(.p-highlight) .p-menuitem-link:hover {
+  background: #f9f9f9;
+  border-color: #ffffff;
+}
+
+:host ::ng-deep .p-steps-item.p-highlight .p-steps-title {
+  color: #ee7846;
+}
+
+:host ::ng-deep .p-steps-item:not(.p-highlight) .p-steps-title {
+  color: #29415b !important;
+  font-weight: bold;
+}
+
+:host ::ng-deep .p-steps-item.p-highlight .p-menuitem-link {
+  background: #29415b;
+  border-color: #999999;
+  // box-shadow: 0 0 10px 1px rgba(48, 60, 193, 0.25);
+}
+
+:host ::ng-deep .custom-steps .p-steps-item.p-highlight .p-steps-number {
+  background-color: #f8fdcf;
+  color: #29415b;
+}
+
+:host ::ng-deep .p-steps-item .p-steps-connector {
+  background: #4f94d4;
+  height: 2px;
+}
+.file-wrapper {
+  display: inline-block;
+  position: relative;
+  margin-right: 12px;
+}
+
+.delete-btn {
+  position: absolute;
+  top: -5px;
+  right: -3px;
+  padding: 4px !important;
+  border-radius: 50% !important;
+  box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.delete-btn i {
+  font-size: 10px !important;
+}
+
+.delete-btn:hover {
+  background-color: #ff4d4d !important;
+}
+
+@media (max-width: 767px) {
+  .customsteps {
+    display: none !important;
+  }
+}
+// .lead-card {
+//   background-color: #13003a;
+//   color: #fff;
+// }
+// .file-icon {
+//   color: #fff !important; /* Icon color */
+//   font-size: 25px;
+// }
+
+.calendar-custom-img {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 20px;
+  width: 20px;
+  cursor: pointer;
+  filter: grayscale(100%) brightness(50%);
+}
+
+// .calendar-custom-img:hover {
+//   // opacity: 1;
+// }
+
+::ng-deep .custom-steps-vertical.p-steps {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+::ng-deep .custom-steps-vertical .p-steps-item {
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+::ng-deep .custom-steps-vertical .p-steps-number {
+  margin-right: 0.5rem;
+  background: #007ad9;
+  color: white;
+  border-radius: 50%;
+  padding: 0.5rem 0.75rem;
+}
+
+::ng-deep .custom-steps-vertical .p-steps-title {
+  font-weight: 500;
+  color: #29415b;
+}
+.step-card {
+  background-color: #fff;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.step-card:hover {
+  background-color: rgb(191, 200, 210);
+}
+
+.active-step-card {
+  border-left: 5px solid #29415b;
+  background-color: #e9f5ff;
+}

@@ -1,0 +1,97 @@
+<div>
+  <div class="bread-crumb m-2">
+    <p-breadcrumb [model]="breadCrumbItems"></p-breadcrumb>
+  </div>
+  <div class="p-1 m-2" *ngIf="leads">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <!-- <span class="me-1">
+          <img
+            src="../../../../assets/images/menu/reject-details.png"
+            alt="Default Image"
+            class=""
+            style="height: 35px; width: 40px"
+          />
+        </span> -->
+        <span class="back-btn-text text-capitalize">{{
+          leads[0]?.businessName | capitalizeFirst
+        }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container-fluid m-2">
+  <div class="row">
+    <div class="col-md-3">
+      <div class="card m-2 profile">
+        <div class="profile-container">
+          <div class="colored-half">
+            <svg
+              data-name="Layer 1"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 1200 120"
+              preserveAspectRatio="none"
+              class="svg"
+              style="
+                height: 69px;
+                width: 100%;
+                fill: rgb(20, 77, 133);
+                opacity: 0.8;
+                transform: rotateY(0deg);
+              "
+            >
+              <path
+                d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"
+              ></path>
+            </svg>
+          </div>
+          <div class="image-container">
+            <img
+              src="../../../../assets/images/profile/business-profile.png"
+              alt="Profile Picture"
+            />
+          </div>
+        </div>
+        <div *ngIf="leads" class="text-center mt-4 p-4 text-capitalize">
+          <h3 *ngIf="leads[0]?.businessName" class="company-name">
+            {{ leads[0]?.businessName | capitalizeFirst }}
+          </h3>
+          <p *ngIf="leads[0]?.businessEntity" class="company-type">
+            {{ leads[0]?.businessEntity }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-9 mt-3">
+      <div class="card remarks">
+        <div class="card-header">Remarks</div>
+        <div class="card-body">
+          <div class="row" *ngIf="creditSummary">
+            <div class="col-md-12">
+              <div class="form-group">
+                <div>
+                  <textarea
+                    class="form-control textarea"
+                    id="remarks"
+                    name="remarks"
+                    [value]="creditSummary.creditSummary"
+                    rows="3"
+                    readonly
+                  >
+                  </textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

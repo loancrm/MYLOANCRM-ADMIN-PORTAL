@@ -1,0 +1,199 @@
+<!-- <div class="container my-5">
+  <h2 class="text-center mb-4 fw-bold">Choose Your Subscription Plan</h2>
+  <p class="text-center text-muted mb-5">Select a plan that fits your needs and start exploring our features today.</p>
+
+  <div class="row justify-content-center">
+    <div class="col-md-4 mb-4" *ngFor="let plan of plans">
+      <div class="card h-100 border-0 shadow-lg plan-card">
+        <div
+          class="card-header text-white text-center py-4 position-relative"
+          [ngClass]="{
+            'bg-primary': plan.plan_name === 'Basic',
+            'bg-success': plan.plan_name === 'Free Trial',
+            'bg-warning text-dark': plan.plan_name === 'Professional'
+          }"
+        >
+          <div class="plan-icon mb-2">
+            <i
+              [ngClass]="{
+                'bi bi-rocket-takeoff': plan.plan_name === 'Basic',
+                'bi bi-lightning-charge': plan.plan_name === 'Free Trial',
+                'bi bi-award': plan.plan_name === 'Professional'
+              }"
+              class="fs-2"
+            ></i>
+          </div>
+          <h4 class="my-0 fw-bold">{{ plan.plan_name }}</h4>
+        </div>
+        <div class="card-body text-center d-flex flex-column px-4">
+          <h1 class="card-title pricing-card-title my-3 display-6">
+            ₹{{ plan.price }}
+            <small class="text-muted fs-6">/ {{ plan.durationDays }} days</small>
+          </h1>
+          <ul class="list-unstyled text-start mt-3 flex-grow-1">
+            <li *ngFor="let feature of plan.features" class="mb-2">
+              ✅ {{ feature }}
+            </li>
+          </ul>
+        </div>
+        <div class="card-footer bg-transparent text-center">
+          <button
+            class="btn w-75"
+            [ngClass]="{
+              'btn-success': plan.plan_name === 'Free Trial',
+              'btn-primary': plan.plan_name === 'Basic',
+              'btn-warning text-dark': plan.plan_name === 'Professional'
+            }"
+            (click)="subscribeToPlan(plan)"
+          >
+            Choose {{ plan.plan_name }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> -->
+<div *ngIf="loading">
+  <app-preloader></app-preloader>
+</div>
+<div class="container my-5" *ngIf="!loading">
+  <h2 class="text-center mb-4 fw-bold">Choose Your Subscription Plan</h2>
+  <p class="text-center text-muted">
+    Select a plan that fits your needs and start exploring our features today.
+  </p>
+  <div class="toggle-container">
+    <div class="toggle-wrapper gap-4">
+      <span [class.active]="!isYearly" (click)="togglePricing(false)"
+        >Monthly</span
+      >
+      <span [class.active]="isYearly" (click)="togglePricing(true)"
+        >Yearly</span
+      >
+    </div>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-md-4 mb-4" *ngFor="let plan of displayPlans">
+      <div class="card h-100 text-center">
+        <div class="card-body p-4">
+          <div
+            class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+            [ngStyle]="{
+              width: '60px',
+              height: '60px',
+              backgroundColor:
+                plan.plan_name === 'Basic'
+                  ? '#29415B'
+                  : plan.plan_name === 'Professional'
+                  ? '#ff7043'
+                  : '#28a745'
+            }"
+          >
+            <i [ngClass]="plan.iconClass" class="fa-lg d-block text-white"></i>
+          </div>
+
+          <h5 class="fw-bold mb-2">{{ plan.plan_name }}</h5>
+
+          <ng-container *ngIf="plan.plan_type === 'Free'; else paidPlan">
+            <h3 class="fw-bold mb-3">
+              ₹{{ plan.price }}
+              <span class="fs-6 fw-normal"
+                >/ {{ plan.duration_days }} days</span
+              >
+            </h3>
+          </ng-container>
+
+          <ng-template #paidPlan>
+            <h3 class="fw-bold mb-3">
+              ₹{{ plan.price }}
+              <small
+                *ngIf="plan.gst_applicable"
+                class="text-muted"
+                style="font-size: 0.75rem"
+              >
+                + GST
+              </small>
+            </h3>
+          </ng-template>
+          <!--
+          <button
+            pButton
+            label="Get Started"
+            class="my-2 p-2 w-50 p-button-rounded"
+            style="background-color: #29415b; border: none; color: white"
+            (click)="showPlanSummary(plan)"
+          ></button> -->
+          <button
+            *ngIf="plan.plan_type === 'Free'"
+            pButton
+            label="Get Started"
+            class="my-2 p-2 w-50 p-button-rounded"
+            style="background-color: #29415b; border: none; color: white"
+            (click)="subscribeToPlan(plan)"
+          ></button>
+
+          <button
+            *ngIf="plan.plan_type !== 'Free'"
+            pButton
+            label="Get Started"
+            class="my-2 p-2 w-50 p-button-rounded"
+            style="background-color: #29415b; border: none; color: white"
+            (click)="showPlanSummary(plan)"
+          ></button>
+          <ul class="list-unstyled text-start p-3">
+            <li
+              *ngFor="let feature of plan.features"
+              class="mb-2 d-flex align-items-start"
+            >
+              <img
+                src="../../assets/images/icons/tick.svg"
+                alt="Check"
+                class="me-2"
+                width="20"
+                height="20"
+              />
+              {{ feature }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<p-dialog
+  header="Plan Summary"
+  [(visible)]="displayDialog"
+  [modal]="true"
+  [style]="{ width: '400px' }"
+  [closable]="true"
+  [dismissableMask]="true"
+>
+  <ng-container *ngIf="selectedPlan">
+    <div class="mb-3">
+      <strong>{{ selectedPlan.plan_name }}</strong> ({{
+        selectedPlan.plan_type
+      }})
+    </div>
+
+    <div class="d-flex justify-content-between mb-2">
+      <span>Base Price:</span>
+      <span>₹{{ selectedPlan.basePrice }}</span>
+    </div>
+    <div class="d-flex justify-content-between mb-2">
+      <span>GST ({{ selectedPlan.gst_percentage }}%):</span>
+      <span>₹{{ selectedPlan.gstAmount }}</span>
+    </div>
+    <div class="d-flex justify-content-between fw-bold border-top pt-2 mt-2">
+      <span>Total:</span>
+      <span>₹{{ selectedPlan.totalAmount }}</span>
+    </div>
+
+    <button
+      pButton
+      label="Proceed to Pay"
+      class="w-100 mt-3"
+      style="background-color: #29415b; border: none; color: white"
+      (click)="subscribeToPlan(selectedPlan)"
+    ></button>
+  </ng-container>
+</p-dialog>

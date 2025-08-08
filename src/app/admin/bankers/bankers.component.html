@@ -1,0 +1,344 @@
+<div>
+  <div class="p-1 m-2 fixed-card">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <!-- <span class="me-1">
+          <img
+            src="../../../assets/images/menu/lenders.png"
+            alt="Default Image"
+            class=""
+            style="height: 35px; width: 40px"
+          />
+        </span> -->
+        <b>
+          <span class="back-btn-text">Lenders</span>
+        </b>
+        <!-- <span class="back-btn-text text-capitalize">Lenders</span> -->
+      </div>
+      <div>
+        <button
+          pButton
+          pRipple
+          type="button"
+          class="p-button-primary me-2"
+          icon="pi pi-plus"
+          (click)="createBankers()"
+        >
+          &nbsp;Add Lender
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- <div class="bread-crumb">
+    <p-breadcrumb [model]="breadCrumbItems"></p-breadcrumb>
+  </div> -->
+  <div *ngIf="loading">
+    <app-preloader></app-preloader>
+  </div>
+  <div class="m-2">
+    <p-table
+      #bankersTable
+      [value]="bankers"
+      [lazy]="true"
+      selectionMode="single"
+      (onLazyLoad)="loadBankers($event)"
+      (onRowSelect)="viewLead($event)"
+      dataKey="id"
+      [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [paginator]="true"
+      [rows]="10"
+      [totalRecords]="bankersCount"
+      [loading]="apiLoading"
+      class="p-datatable-striped"
+      responsiveLayout="scroll"
+      scrollHeight="flex"
+      [globalFilterFields]="[
+        'referenceNo',
+        'customer.firstName',
+        'partner.partnerName',
+        'status'
+      ]"
+      styleClass="p-datatable-customers"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Lenders"
+    >
+      <ng-template pTemplate="caption">
+        <div class="row">
+          <div class="col-md-3 no-padding-small">
+            <div class="p-inputgroup">
+              <input
+                type="text"
+                pInputText
+                placeholder="Search Lenders with Bank Name"
+                [(ngModel)]="bankersNameToSearch"
+                (ngModelChange)="
+                  inputValueChangeEvent('loanId', bankersNameToSearch)
+                "
+                (keyup.enter)="filterWithBankersName()"
+              />
+              <!-- <button
+                type="button"
+                pButton
+                icon="pi pi-search"
+                class="p-button-primary"
+                [disabled]="!bankersNameToSearch"
+                (click)="filterWithBankersName()"
+              ></button> -->
+              <button
+                type="button"
+                pButton
+                class="p-button-primary search-btn"
+                [disabled]="!bankersNameToSearch"
+                (click)="filterWithBankersName()"
+              >
+                <img
+                  src="assets/images/icons/search.svg"
+                  alt="Search"
+                  width="16"
+                  height="16"
+                  style="vertical-align: middle"
+                />
+              </button>
+            </div>
+          </div>
+          <div class="col-md-6 no-padding-small"></div>
+          <div class="col-md-3 no-padding-small text-right">
+            <br class="d-lg-none d-md-none" />
+            <p-dropdown
+              styleClass="text-left"
+              [style]="{ width: '100%' }"
+              [options]="bankersStatus"
+              (onChange)="statusChange($event)"
+              [dropdownIcon]="'fa fa-caret-down'"
+              [(ngModel)]="selectedBankersStatus"
+              optionLabel="displayName"
+              appendTo="body"
+              dataKey="name"
+            >
+            </p-dropdown>
+          </div>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th class="text-nowrap">Id</th>
+          <th>Image</th>
+          <th>Name</th>
+          <th class="text-nowrap">Created On</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-bankers let-rowIndex="rowIndex">
+        <tr
+          [pSelectableRow]="bankers"
+          class="text-capitalize"
+          [ngClass]="{ 'disabled-row': bankers.disabled }"
+        >
+          <td>
+            <!-- <span class="table-column-data" *ngIf="bankers.bankerId">{{
+              bankers.bankerId
+            }}</span> -->
+            <span class="table-column-data" *ngIf="bankers.bankerId">
+              {{ rowIndex + 1 }}
+            </span>
+          </td>
+          <td>
+            <span class="table-column-data" *ngIf="bankers.imageFiles">
+              <!-- <div
+                *ngIf="
+                  bankers && bankers.imageFiles && bankers.imageFiles.length > 0
+                "
+                class="mt-2"
+              >
+                <span *ngFor="let file of bankers.imageFiles[0]">
+                  <ng-container *ngIf="isImageFile(file)">
+                    <a [href]="'//' + file" target="_blank">
+                      <img
+                        [src]="'//' + file"
+                        alt="Image"
+                        class="img-thumbnail"
+                        style="height: 50px; width: 100px"
+                      />
+                    </a>
+                  </ng-container>
+                  <ng-container *ngIf="!isImageFile(file)">
+                    <a [href]="'//' + file" target="_blank">
+                      <i
+                        [class]="getFileIcon(file.split('.').pop())"
+                        class="file-icon"
+                      ></i>
+                    </a>
+                  </ng-container>
+                </span>
+              </div>
+              <div *ngIf="bankers && bankers.imageFiles.length == 0" class="">
+                <img
+                  src="../../../../assets/images/menu/noImage.png"
+                  style="height: 50px; width: 100px"
+                />
+              </div> -->
+
+              <ng-container
+                *ngIf="
+                  bankers &&
+                    bankers.imageFiles &&
+                    bankers.imageFiles.length > 0;
+                  else defaultImage
+                "
+              >
+                <a>
+                  <img
+                    [src]="'//' + bankers.imageFiles[0]"
+                    alt="Image"
+                    class="img-thumbnail"
+                    style="height: 50px; width: 100px"
+                  />
+                </a>
+              </ng-container>
+              <ng-template #defaultImage>
+                <img
+                  src="../../../../assets/images/menu/noImage.png"
+                  alt="Default Image"
+                  style="height: 50px; width: 100px"
+                />
+              </ng-template>
+            </span>
+          </td>
+          <td>
+            <span class="table-column-data" *ngIf="bankers.name">{{
+              bankers.name
+            }}</span>
+          </td>
+          <td>
+            <span class="table-column-data" *ngIf="bankers.createdOn">{{
+              bankers.createdOn | date
+            }}</span>
+          </td>
+          <td>
+            <span
+              class="table-column-data fw-bold statusdata"
+              *ngIf="bankers.bankerInternalStatus"
+              [ngStyle]="{
+                color: getStatusColor(
+                  getStatusName(bankers.bankerInternalStatus)
+                ).textColor,
+
+              }"
+            >
+              {{ getStatusName(bankers.bankerInternalStatus) }}
+            </span>
+          </td>
+          <td>
+            <div class="text-center d-flex">
+              <div class="d-flex">
+                <!-- <button
+                  pButton
+                  pRipple
+                  type="button"
+                  class="p-button-primary me-2 custom-btn"
+                  (click)="viewLead(bankers.id)"
+                  pTooltip="View Lender"
+                  icon="fas fa-eye"
+                  tooltipPosition="top"
+                ></button> -->
+                <!-- <img
+                  src="../../../assets/images/icons/eye.svg"
+                  width="24px"
+                  height="24px"
+                  class="me-2"
+                  tooltipPosition="top"
+                  (click)="viewLead(bankers.id)"
+                  pTooltip="View Lender"
+                /> -->
+                <!-- <button
+                  pButton
+                  pRipple
+                  type="button"
+                  class="p-button-info me-2 custom-btn"
+                  (click)="updateBankers(bankers.id)"
+                  pTooltip="Update Lender"
+                  icon="fas fa-pen-to-square"
+                  tooltipPosition="top"
+                ></button> -->
+
+                <!-- <img
+                  src="../../../assets/images/icons/edit.svg"
+                  width="24px"
+                  height="24px"
+                  class="me-2"
+                  (click)="updateBankers(bankers.id)"
+                  pTooltip="Update Lender"
+                  tooltipPosition="top"
+                /> -->
+                <!-- <button
+                  pButton
+                  pRipple
+                  type="button"
+                  class="p-button-primary custom-btn me-2"
+                  (click)="viewLoginsDone(bankers.id)"
+                  pTooltip="View Logins Done"
+                  icon="fas fa-file-shield"
+                  tooltipPosition="top"
+                ></button> -->
+                <img
+                  src="../../../assets/images/icons/lender1.svg"
+                  width="24px"
+                  alt="View Lender"
+                  height="24px"
+                  class="me-2"
+                  (click)="viewLoginsDone(bankers.id)"
+                  pTooltip="View Logins Done"
+                  tooltipPosition="top"
+                />
+              </div>
+              <p-menu
+                appendTo="body"
+                #menu
+                [model]="actionItems(bankers)"
+                [popup]="true"
+              ></p-menu>
+              <!-- <button
+                pButton
+                type="button"
+                class="custom-btn"
+                (click)="menu.toggle($event)"
+                icon="fas fa-bars"
+                pTooltip="Actions"
+                tooltipPosition="top"
+              ></button> -->
+              <img
+                alt="Actions"
+                src="../../../assets/images/icons/menu.svg"
+                width="24px"
+                height="24px"
+                pTooltip="Actions"
+                tooltipPosition="top"
+                (click)="menu.toggle($event); $event.stopPropagation()"
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr class="text-center">
+          <td colspan="10" class="text-center fw-bold">
+            <img
+              alt="No Data"
+              src="../../../assets/images/menu/no-data.gif"
+              width="200"
+              height="200"
+            />
+            <p>No Lenders Found</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

@@ -1,0 +1,210 @@
+/* Full screen background with radial gradient */
+.background-radial-gradient {
+  background-image: url("../../assets/images/bg-image.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  // background-position: center;
+  // background-attachment: fixed;
+  // max-height: 100vh;
+}
+
+/* Decorative shapes */
+// #radius-shape-1,
+// #radius-shape-2 {
+//   position: absolute;
+//   overflow: hidden;
+//   z-index: 0;
+// }
+
+// #radius-shape-1 {
+//   height: 220px;
+//   width: 220px;
+//   top: -60px;
+//   left: -130px;
+//   background: radial-gradient(#44006b, #ad1fff);
+//   border-radius: 50%;
+// }
+
+// #radius-shape-2 {
+//   height: 300px;
+//   width: 300px;
+//   bottom: -60px;
+//   right: -110px;
+//   background: radial-gradient(#44006b, #ad1fff);
+//   border-radius: 50%;
+// }
+
+/* Card Styling */
+.card {
+  // z-index: 1;
+  width: 500px;
+  // height: 650px;
+  backdrop-filter: blur(30px);
+  background-color: #ffffff !important;
+  margin-left: 120px;
+  border: none;
+  border-radius: 1rem;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Input Fields */
+// input[type="text"],
+// input[type="email"],
+// input[type="password"] {
+//   background-color: rgba(255, 255, 255, 0.9);
+//   border: 1px solid #878787;
+//   padding: 12px;
+//   border-radius: 8px;
+//   box-sizing: border-box;
+// }
+
+// .input-group {
+//   position: relative;
+// }
+.p-inputgroup-addon {
+  position: absolute;
+  right: 1px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+  padding: 0;
+  z-index: 2;
+}
+.p-inputgroup input {
+  // padding-right: 40px !important;
+  border-radius: 5px;
+}
+
+.p-inputgroup-addon img {
+  pointer-events: auto;
+  transition: opacity 0.3s ease;
+}
+
+.p-inputgroup-addon:hover img {
+  opacity: 1;
+}
+/* Label Styling */
+.form-label {
+  color: #f1f1f1;
+}
+
+/* Fixed error space */
+.error-placeholder {
+  min-height: 20px;
+  margin-top: 4px;
+  font-size: 0.875rem;
+  line-height: 1.2;
+}
+
+.text-danger {
+  color: red;
+  font-size: 13px;
+}
+
+/* Button Styling */
+.custom-button {
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+}
+
+button.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.custom-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+/* Responsive */
+// @media (max-width: 768px) {
+//   .card {
+//     width: 100%;
+//     height: auto;
+//     padding: 20px;
+//   }
+// }
+
+/* Register text link */
+// .text-muted {
+//   color: #ccc !important;
+// }
+
+// a.text-primary {
+//   color: #007bff !important;
+// }
+
+// a.text-primary:hover {
+//   text-decoration: underline;
+// }
+
+/* Optional: Add a subtle typing animation (if desired) */
+// .typing-text-container {
+//   display: inline-block;
+//   overflow: hidden;
+//   white-space: nowrap;
+//   border-right: 2px solid hsl(218, 81%, 75%);
+//   animation: typing 2s steps(10), blink 0.75s step-end infinite;
+// }
+
+// @keyframes typing {
+//   from {
+//     width: 0;
+//   }
+//   to {
+//     width: 120px;
+//   }
+// }
+
+@keyframes blink {
+  50% {
+    border-color: transparent;
+  }
+}
+.custom-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+@media (max-width: 980px) {
+  .card {
+    margin: 0 auto;
+    max-width: 100%;
+    max-height: 90vh;
+    height: auto;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .card::-webkit-scrollbar {
+    display: none;
+  }
+}
+.orange-button {
+  background-color: #ee7846 !important;
+  border-color: #ee7846 !important;
+  color: #fff !important;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.verifybtn {
+  background-color: #2a405f !important;
+  border-color: #2a405f !important;
+  color: #fff !important;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

@@ -1,0 +1,105 @@
+.background-radial-gradient {
+  background-image: url("../../assets/images/bg-image.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  // background-position: center;
+  // background-attachment: fixed;
+  // min-height: 100vh;
+}
+
+.card {
+  background-color: #ffffff;
+  border-radius: 10px;
+  border: 0.5px solid #878787;
+  width: 100%;
+  max-width: 450px;
+}
+.card-greeting {
+  color: #29415b;
+}
+.forgot-text {
+  font-size: 14px;
+  color: #ee7846 !important;
+}
+.p-inputgroup-addon {
+  position: absolute;
+  right: 1px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  padding: 0;
+  z-index: 2;
+}
+
+.p-inputgroup input {
+  // padding-right: 40px !important;
+  border-radius: 5px;
+}
+
+.calculator-heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  // margin-bottom: 30px;
+  h6 {
+    margin: 0;
+    // font-weight: bold;
+    white-space: nowrap;
+    color: #29415b;
+  }
+  .line {
+    flex: 1;
+    height: 3px;
+    background: linear-gradient(to right, transparent, orangered, transparent);
+    border-radius: 2px;
+    max-width: 150px;
+  }
+}
+
+.calucard {
+  background-color: #fff;
+  border-radius: 0.5rem;
+  transition: transform 0.2s ease-in-out;
+  cursor: pointer;
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+}
+.calci-heading {
+  color: #29415b;
+}
+@media (max-width: 991px) {
+  .card {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  .calucard {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .calculator-heading .line {
+    max-width: 100px;
+  }
+}
+
+@media (max-width: 576px) {
+  .ca {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .ca .col-md-4 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .calucard {
+    width: 100%;
+  }
+}

@@ -1,0 +1,1007 @@
+<div>
+  <div>
+    <div class="p-1 m-2">
+      <div class="d-flex justify-content-between">
+        <div
+          class="d-flex align-items-center justify-content-center pointer-cursor"
+          (click)="goBack()"
+        >
+          <span class="me-2 d-flex align-items-center">
+            <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+          </span>
+          <!-- <span class="me-1"></span> -->
+          <b>
+            <span class="back-btn-text text-capitalize">{{ heading }}</span></b
+          >
+        </div>
+      </div>
+    </div>
+    <!-- <div class="bread-crumb">
+      <p-breadcrumb [model]="breadCrumbItems"></p-breadcrumb>
+    </div> -->
+  </div>
+</div>
+
+<div *ngIf="loading">
+  <app-preloader></app-preloader>
+</div>
+<div class="bg-color" *ngIf="!loading">
+  <div class="container-fluid">
+    <div class="row g-2">
+      <div class="col-md-3">
+        <div
+          *ngFor="let step of steps; let i = index"
+          class="step-card m-2 p-3 rounded shadow-sm"
+          [ngClass]="{ 'active-step-card': activeIndex === i }"
+          (click)="activeIndex = i"
+        >
+          <h6 class="mb-0">{{ step.label }}</h6>
+        </div>
+      </div>
+
+      <div class="col-md-9">
+        <form
+          class="login-form"
+          [formGroup]="leadForm"
+          novalidate
+          (ngSubmit)="onSubmit(leadForm.value)"
+        >
+          <div class="card custom-steps-card lead-card">
+            <div *ngIf="activeIndex === 0">
+              <div class="p-2">
+                <div class="row">
+                  <!-- <div class="col-md-4">
+              <img
+                src="../../../../assets/images/leads/1.jpg"
+                width="400"
+                height="290"
+                class="icon"
+                alt="Business Details Icon"
+              />
+            </div> -->
+                  <div class="col-md-12">
+                    <h5 style="color: #29415b">Business Details</h5>
+                    <div class="row">
+                      <div class="col-md-4 mt-2">
+                        <div>
+                          <div class="my-1">
+                            <label
+                              >Business Name&nbsp;<span
+                                ><sup class="text-danger">*</sup></span
+                              ></label
+                            >
+                          </div>
+                          <input
+                            pInputText
+                            class="rounded-lg"
+                            type="text"
+                            formControlName="businessName"
+                            placeholder="Enter Business Name"
+                            autocomplete="off"
+                          />
+                          <!-- Error message for invalid BusinessName -->
+                          <div
+                            *ngIf="
+                              (submitted &&
+                                leadForm.get('businessName')?.invalid) ||
+                              leadForm.get('businessName')?.touched ||
+                              leadForm.get('businessName')?.dirty
+                            "
+                          >
+                            <small
+                              class="text-danger"
+                              *ngIf="leadForm.get('businessName')?.errors?.['required']"
+                            >
+                              Business Name is required.
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4 mt-2">
+                        <div>
+                          <div class="my-1">
+                            <label
+                              >Business Entity&nbsp;<span
+                                ><sup class="text-danger">*</sup></span
+                              ></label
+                            >
+                          </div>
+                          <p-dropdown
+                            [options]="businessEntities"
+                            formControlName="businessEntity"
+                            optionLabel="displayName"
+                            optionValue="name"
+                            [showClear]="true"
+                            appendTo="body"
+                            placeholder="Select Business Entity"
+                            [dropdownIcon]="'fa fa-caret-down'"
+                            styleClass="w-100"
+                          ></p-dropdown>
+                          <!-- Error message for invalid Business Entity -->
+                          <div
+                            *ngIf="
+                              (submitted &&
+                                leadForm.get('businessEntity')?.invalid) ||
+                              leadForm.get('businessEntity')?.touched ||
+                              leadForm.get('businessEntity')?.dirty
+                            "
+                          >
+                            <small
+                              class="text-danger"
+                              *ngIf="leadForm.get('businessEntity')?.errors?.['required']"
+                            >
+                              Business Entity is required.
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4 mt-2">
+                        <div>
+                          <div class="my-1">
+                            <label
+                              >Business Vintage&nbsp;<span
+                                ><sup class="text-danger">*</sup></span
+                              ></label
+                            >
+                          </div>
+                          <input
+                            pInputText
+                            class="rounded-lg"
+                            type="text"
+                            formControlName="businessOperatingSince"
+                            placeholder="Enter Business Vintage"
+                            autocomplete="off"
+                          />
+                          <!-- Error message for invalid Business Vintage -->
+                          <div
+                            *ngIf="
+                              (submitted &&
+                                leadForm.get('businessOperatingSince')
+                                  ?.invalid) ||
+                              leadForm.get('businessOperatingSince')?.touched ||
+                              leadForm.get('businessOperatingSince')?.dirty
+                            "
+                          >
+                            <small
+                              class="text-danger"
+                              *ngIf="leadForm.get('businessOperatingSince')?.errors?.['required']"
+                            >
+                              Business Vintage is required.
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4 mt-2">
+                        <div>
+                          <div class="my-1">
+                            <label
+                              >Nature of Business&nbsp;
+                              <span
+                                ><sup class="text-danger">*</sup></span
+                              ></label
+                            >
+                          </div>
+                          <p-dropdown
+                            [options]="natureOfBusines"
+                            formControlName="natureOfBusiness"
+                            optionLabel="displayName"
+                            optionValue="name"
+                            [showClear]="true"
+                            appendTo="body"
+                            placeholder="Select Nature Of Business"
+                            [dropdownIcon]="'fa fa-caret-down'"
+                            styleClass="w-100"
+                          ></p-dropdown>
+                          <!-- Error message for invalid Nature Of Business -->
+                          <div
+                            *ngIf="
+                              (submitted &&
+                                leadForm.get('natureOfBusiness')?.invalid) ||
+                              leadForm.get('natureOfBusiness')?.touched ||
+                              leadForm.get('natureOfBusiness')?.dirty
+                            "
+                          >
+                            <small
+                              class="text-danger"
+                              *ngIf="leadForm.get('natureOfBusiness')?.errors?.['required']"
+                            >
+                              Nature Of Business is required.
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4 mt-2">
+                        <div>
+                          <div class="my-1">
+                            <label
+                              >Product &nbsp;<span
+                                ><sup class="text-danger">*</sup></span
+                              ></label
+                            >
+                          </div>
+                          <input
+                            pInputText
+                            class="rounded-lg"
+                            type="text"
+                            formControlName="product"
+                            placeholder="Enter Product Name"
+                            autocomplete="off"
+                          />
+                          <!-- Error message for invalid Nature Of Business -->
+                          <div
+                            *ngIf="
+                              (submitted && leadForm.get('product')?.invalid) ||
+                              leadForm.get('product')?.touched ||
+                              leadForm.get('product')?.dirty
+                            "
+                          >
+                            <small
+                              class="text-danger"
+                              *ngIf="leadForm.get('product')?.errors?.['required']"
+                            >
+                              Product Name is required.
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4 mt-2">
+                        <div>
+                          <div class="my-1">
+                            <label
+                              >Business Turnover&nbsp;
+                              <span
+                                ><sup class="text-danger">*</sup></span
+                              ></label
+                            >
+                          </div>
+                          <p-dropdown
+                            [options]="businessTurnover"
+                            formControlName="businessTurnover"
+                            optionLabel="displayName"
+                            optionValue="name"
+                            [showClear]="true"
+                            appendTo="body"
+                            placeholder="Select Business Turnover"
+                            [dropdownIcon]="'fa fa-caret-down'"
+                            styleClass="w-100"
+                          ></p-dropdown>
+                          <!-- Error message for invalid Business Turnover -->
+                          <div
+                            *ngIf="
+                              (submitted &&
+                                leadForm.get('businessTurnover')?.invalid) ||
+                              leadForm.get('businessTurnover')?.touched ||
+                              leadForm.get('businessTurnover')?.dirty
+                            "
+                          >
+                            <small
+                              class="text-danger"
+                              *ngIf="leadForm.get('businessTurnover')?.errors?.['required']"
+                            >
+                              Business Turnover is required.
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="activeIndex === 1">
+              <div class="p-2">
+                <div class="row">
+                  <!-- <div class="col-md-4">
+              <img
+                src="../../../../assets/images/leads/2.jpg"
+                width="400"
+                height="290"
+                class="icon"
+                alt="Business Address Icon"
+              />
+            </div> -->
+                  <div class="col-md-12">
+                    <div class="">
+                      <h5 style="color: #29415b">Business Address</h5>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-4 mt-2">
+                        <div>
+                          <div class="my-1">
+                            <label>Address Line 1&nbsp;</label>
+                          </div>
+                          <input
+                            pInputText
+                            class="rounded-lg"
+                            type="text"
+                            placeholder="Enter Address Line 1"
+                            formControlName="addressLine1"
+                            autocomplete="off"
+                          />
+                        </div>
+                      </div>
+                      <div class="col-md-4 mt-2">
+                        <div>
+                          <div class="my-1">
+                            <label>Address Line 2</label>
+                          </div>
+                          <input
+                            pInputText
+                            class="rounded-lg"
+                            type="text"
+                            placeholder="Enter Address Line 2"
+                            formControlName="addressLine2"
+                            autocomplete="off"
+                          />
+                        </div>
+                      </div>
+                      <div class="col-md-4 mt-2">
+                        <div>
+                          <div class="my-1">
+                            <label
+                              >City&nbsp;<span
+                                ><sup class="text-danger">*</sup></span
+                              ></label
+                            >
+                          </div>
+                          <input
+                            pInputText
+                            class="rounded-lg"
+                            type="text"
+                            placeholder="Enter City"
+                            formControlName="city"
+                            autocomplete="off"
+                            list="citySuggestions"
+                          />
+                          <datalist name="citySuggestions" id="citySuggestions">
+                            <option value="Hyderabad">Hyderabad</option>
+                            <option value="Adilabad">Adilabad</option>
+                            <option value="Nizamabad">Nizamabad</option>
+                            <option value="Karimnagar">Karimnagar</option>
+                            <option value="Warangal">Warangal</option>
+                            <option value="Guntur">Guntur</option>
+                            <option value="Vizag">Vizag</option>
+                          </datalist>
+                          <!-- Error message for invalid City -->
+                          <div
+                            *ngIf="
+                              (submitted && leadForm.get('city')?.invalid) ||
+                              leadForm.get('city')?.touched ||
+                              leadForm.get('city')?.dirty
+                            "
+                          >
+                            <small
+                              class="text-danger"
+                              *ngIf="leadForm.get('city')?.errors?.['required']"
+                            >
+                              City is required.
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4 mt-2">
+                        <div>
+                          <div class="my-1">
+                            <label>State&nbsp;</label>
+                          </div>
+                          <p-dropdown
+                            [options]="stateEntities"
+                            placeholder="Select State"
+                            formControlName="state"
+                            optionLabel="displayName"
+                            optionValue="name"
+                            [showClear]="true"
+                            appendTo="body"
+                            styleClass="w-100"
+                            [dropdownIcon]="'fa fa-caret-down'"
+                          ></p-dropdown>
+                        </div>
+                      </div>
+                      <div class="col-md-4 mt-2">
+                        <div>
+                          <div class="my-1">
+                            <label>Pincode&nbsp;</label>
+                          </div>
+                          <input
+                            pInputText
+                            class="rounded-lg"
+                            type="text"
+                            placeholder="Enter Pincode"
+                            formControlName="pincode"
+                            autocomplete="off"
+                            maxlength="6"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="activeIndex === 2">
+              <div class="p-2">
+                <div class="row">
+                  <!-- <div class="col-md-4">
+              <img
+                src="../../../../assets/images/leads/3.jpg"
+                width="400"
+                height="290"
+                class="icon"
+                alt="Contact Details Icon"
+              />
+            </div> -->
+                  <div class="col-md-12">
+                    <div class="">
+                      <h5 style="color: #29415b">Contact Details</h5>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-4 mt-2">
+                        <div>
+                          <div class="my-1">
+                            <label
+                              >Contact Person Name&nbsp;<span
+                                ><sup class="text-danger">*</sup></span
+                              ></label
+                            >
+                          </div>
+                          <input
+                            pInputText
+                            class="rounded-lg"
+                            type="text"
+                            placeholder="Enter Contact Person Name"
+                            formControlName="contactPerson"
+                            autocomplete="off"
+                          />
+                          <!-- Error message for invalid City -->
+                          <div
+                            *ngIf="
+                              (submitted &&
+                                leadForm.get('contactPerson')?.invalid) ||
+                              leadForm.get('contactPerson')?.touched ||
+                              leadForm.get('contactPerson')?.dirty
+                            "
+                          >
+                            <small
+                              class="text-danger"
+                              *ngIf="leadForm.get('contactPerson')?.errors?.['required']"
+                            >
+                              Contact Person Name is required.
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4 mt-2">
+                        <div>
+                          <div class="my-1">
+                            <label
+                              >Phone&nbsp;<span
+                                ><sup class="text-danger">*</sup></span
+                              ></label
+                            >
+                          </div>
+                          <input
+                            pInputText
+                            class="rounded-lg"
+                            type="text"
+                            placeholder="Enter Phone"
+                            formControlName="primaryPhone"
+                            autocomplete="off"
+                            maxlength="10"
+                            minlength="10"
+                          />
+                          <div
+                            *ngIf="
+                              (submitted &&
+                                leadForm.get('primaryPhone')?.invalid) ||
+                              leadForm.get('primaryPhone')?.touched ||
+                              leadForm.get('primaryPhone')?.dirty
+                            "
+                          >
+                            <small
+                              class="text-danger"
+                              *ngIf="leadForm.get('primaryPhone')?.errors?.['required']"
+                            >
+                              Phone number is required.
+                            </small>
+                            <small
+                              class="text-danger"
+                              *ngIf="leadForm.get('primaryPhone')?.errors?.['pattern']"
+                            >
+                              Invalid phone number.Please enter a valid mobile
+                              number
+                            </small>
+                            <small
+                              class="text-danger"
+                              *ngIf="leadForm.get('primaryPhone')?.errors?.['minlength']"
+                            >
+                              Please Enter 10 digits mobile number
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4 mt-2">
+                        <div>
+                          <div class="my-1">
+                            <label>Secondary Phone</label>
+                          </div>
+                          <input
+                            pInputText
+                            class="rounded-lg"
+                            type="text"
+                            placeholder="Enter Secondary Phone"
+                            formControlName="secondaryPhone"
+                            autocomplete="off"
+                            maxlength="10"
+                          />
+                        </div>
+                      </div>
+                      <div class="col-md-4 mt-2">
+                        <div>
+                          <div class="my-1">
+                            <label>Business Email&nbsp;</label>
+                          </div>
+                          <input
+                            pInputText
+                            class="rounded-lg"
+                            type="email"
+                            placeholder="Enter Business Email"
+                            formControlName="businessEmail"
+                            autocomplete="off"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="activeIndex === 3">
+              <div class="p-2">
+                <div class="row">
+                  <!-- <div class="col-md-4">
+              <img
+                src="../../../../assets/images/leads/4.jpg"
+                width="400"
+                height="290"
+                class="icon"
+                alt="Loan / OD Details Icon"
+              />
+            </div> -->
+                  <div class="col-md-12">
+                    <div class="">
+                      <h5 style="color: #29415b">Loan / OD Requirement</h5>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-4 mt-2">
+                        <div>
+                          <div class="my-1">
+                            <label class="text-success">Loan Requirement</label>
+                          </div>
+                          <input
+                            pInputText
+                            class="rounded-lg"
+                            type="number"
+                            placeholder="Enter Loan Requirement"
+                            formControlName="loanRequirement"
+                            autocomplete="off"
+                            inputmode="decimal"
+                            pattern="^\d*\.?\d*$"
+                            (keydown)="preventInvalidKeys($event)"
+                            (paste)="preventInvalidPaste($event)"
+                          />
+                        </div>
+                      </div>
+                      <div class="col-md-4 mt-2">
+                        <div>
+                          <div class="my-1">
+                            <label class="text-success">OD Requirement</label>
+                          </div>
+                          <input
+                            pInputText
+                            class="rounded-lg"
+                            type="number"
+                            placeholder="Enter OD Requirement"
+                            formControlName="odRequirement"
+                            autocomplete="off"
+                            inputmode="decimal"
+                            pattern="^\d*\.?\d*$"
+                            (keydown)="preventInvalidKeys($event)"
+                            (paste)="preventInvalidPaste($event)"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="activeIndex === 4">
+              <div class="p-2">
+                <div class="row">
+                  <!-- <div class="col-md-4">
+              <img
+                src="../../../../assets/images/leads/5.jpg"
+                width="400"
+                height="290"
+                class="icon"
+                alt="Other Details Icon"
+              />
+            </div> -->
+                  <div class="col-md-12">
+                    <div class="">
+                      <h5 style="color: #29415b">Other Details</h5>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-4 mt-2">
+                        <div>
+                          <div class="my-1">
+                            <label
+                              >Had Own House ?&nbsp;
+                              <span
+                                ><sup class="text-danger">*</sup></span
+                              ></label
+                            >
+                          </div>
+                          <p-dropdown
+                            [options]="booleanOptions"
+                            formControlName="hadOwnHouse"
+                            optionLabel="displayName"
+                            optionValue="name"
+                            [showClear]="true"
+                            appendTo="body"
+                            styleClass="w-100"
+                            placeholder="Had Own House ?"
+                            [dropdownIcon]="'fa fa-caret-down'"
+                          ></p-dropdown>
+                          <!-- Error message for Had Own House -->
+                          <div
+                            *ngIf="
+                              (submitted &&
+                                leadForm.get('hadOwnHouse')?.invalid) ||
+                              leadForm.get('hadOwnHouse')?.touched ||
+                              leadForm.get('hadOwnHouse')?.dirty
+                            "
+                          >
+                            <small
+                              class="text-danger"
+                              *ngIf="leadForm.get('hadOwnHouse')?.errors?.['required']"
+                            >
+                              Had Own House is required.
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4 mt-2">
+                        <div>
+                          <div class="my-1">
+                            <label
+                              >Existing Loan Details &nbsp;<span
+                                ><sup class="text-danger">*</sup></span
+                              ></label
+                            >
+                          </div>
+                          <input
+                            pInputText
+                            class="rounded-lg"
+                            type="text"
+                            placeholder="Enter Existing Loan Details"
+                            formControlName="existingLoanDetails"
+                            autocomplete="off"
+                          />
+                          <!-- Error message for Existing Loan Details -->
+                          <div
+                            *ngIf="
+                              (submitted &&
+                                leadForm.get('existingLoanDetails')?.invalid) ||
+                              leadForm.get('existingLoanDetails')?.touched ||
+                              leadForm.get('existingLoanDetails')?.dirty
+                            "
+                          >
+                            <small
+                              class="text-danger"
+                              *ngIf="leadForm.get('existingLoanDetails')?.errors?.['required']"
+                            >
+                              Existing Loan Details is required.
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4 mt-2" *ngIf="actionType == 'update'">
+                        <div>
+                          <div class="my-1">
+                            <label class="text-success">Audio Files</label>
+                          </div>
+                          <button
+                            pButton
+                            pRipple
+                            type="button"
+                            class="p-button-info me-2"
+                            (click)="uploadFiles('audioFiles', 'audio/*')"
+                          >
+                            <i class="pi pi-upload"></i>&nbsp;Upload Files
+                          </button>
+                        </div>
+                        <div
+                          *ngIf="
+                            leadData &&
+                            leadData[0]?.audioFiles &&
+                            leadData[0]?.audioFiles.length > 0
+                          "
+                          class="mt-2"
+                        >
+                          <span
+                            *ngFor="let file of leadData[0]?.audioFiles"
+                            class="file-wrapper"
+                          >
+                            <a [href]="'//' + file" target="_blank">
+                              <i
+                                [class]="getFileIcon(file.split('.').pop())"
+                                class="file-icon me-2"
+                              ></i>
+                            </a>
+                            <button
+                              pButton
+                              *ngIf="this.capabilities.delete"
+                              type="button"
+                              class="p-button-danger delete-btn p-button-sm"
+                              (click)="confirmDelete(file)"
+                            >
+                              <i class="pi pi-times"></i>
+                            </button>
+                          </span>
+                        </div>
+                      </div>
+                      <div
+                        class="col-md-4 mt-2"
+                        *ngIf="
+                          userDetails &&
+                          userDetails.userType &&
+                          userDetails.userType != '3'
+                        "
+                      >
+                        <div>
+                          <div class="my-1">
+                            <label>Lead Source&nbsp;</label>
+                          </div>
+                          <p-dropdown
+                            [options]="leadSources"
+                            formControlName="leadSource"
+                            optionLabel="name"
+                            optionValue="id"
+                            [showClear]="true"
+                            appendTo="body"
+                            styleClass="w-100"
+                            placeholder="Select Lead Source"
+                            [dropdownIcon]="'fa fa-caret-down'"
+                          ></p-dropdown>
+                        </div>
+                      </div>
+                      <div
+                        class="col-md-4 mt-2"
+                        *ngIf="
+                          userDetails &&
+                          userDetails.userType &&
+                          userDetails.userType != '3'
+                        "
+                      >
+                        <div>
+                          <div class="my-1">
+                            <label
+                              >Sourced By&nbsp;<span
+                                ><sup class="text-danger">*</sup></span
+                              ></label
+                            >
+                          </div>
+                          <p-dropdown
+                            [options]="leadUsers"
+                            formControlName="sourcedBy"
+                            optionLabel="name"
+                            optionValue="id"
+                            styleClass="w-100"
+                            appendTo="body"
+                            [showClear]="true"
+                            placeholder="Select Sourced By"
+                            [dropdownIcon]="'fa fa-caret-down'"
+                            [filter]="true"
+                            filterPlaceholder="Search..."
+                          ></p-dropdown>
+                          <!-- Error message for Existing Sourced By -->
+                          <div
+                            *ngIf="
+                              (submitted &&
+                                leadForm.get('sourcedBy')?.invalid) ||
+                              leadForm.get('sourcedBy')?.touched ||
+                              leadForm.get('sourcedBy')?.dirty
+                            "
+                          >
+                            <small
+                              class="text-danger"
+                              *ngIf="leadForm.get('sourcedBy')?.errors?.['required']"
+                            >
+                              Sourced By is required.
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+                      <div
+                        class="col-md-4 mt-2"
+                        *ngIf="
+                          userDetails &&
+                          userDetails.userType &&
+                          userDetails.userType != '3'
+                        "
+                      >
+                        <div>
+                          <div class="my-1">
+                            <label>Created On &nbsp;</label>
+                          </div>
+                          <!-- <p-calendar
+                      formControlName="createdOn"
+                      placeholder="select Created on Date"
+                      [showIcon]="true"
+                      appendTo="body"
+                      dateFormat="yy-mm-dd"
+                      [showButtonBar]="true"
+                    ></p-calendar> -->
+                          <div
+                            class="custom-calendar-wrapper w-100 position-relative"
+                          >
+                            <p-calendar
+                              #calendar
+                              formControlName="createdOn"
+                              placeholder="Select Created On Date"
+                              [showIcon]="false"
+                              appendTo="body"
+                              dateFormat="yy-mm-dd"
+                              [showButtonBar]="true"
+                              styleClass=" w-100"
+                            ></p-calendar>
+
+                            <!-- Custom Calendar Image Icon -->
+                            <img
+                              src="../../../../assets/images/icons/calendar.svg"
+                              alt="Calendar Icon"
+                              class="calendar-custom-img"
+                              (click)="calendar.toggle()"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4 mt-2">
+                        <div>
+                          <div class="my-1">
+                            <label>
+                              Called From &nbsp;<span
+                                ><sup class="text-danger">*</sup></span
+                              ></label
+                            >
+                          </div>
+                          <input
+                            pInputText
+                            class="rounded-lg"
+                            type="text"
+                            placeholder="Enter Bank Name "
+                            formControlName="calledFrom"
+                            autocomplete="off"
+                          />
+                          <!-- Error message for Bank Name -->
+                          <div
+                            *ngIf="
+                              (submitted &&
+                                leadForm.get('calledFrom')?.invalid) ||
+                              leadForm.get('calledFrom')?.touched ||
+                              leadForm.get('calledFrom')?.dirty
+                            "
+                          >
+                            <small
+                              class="text-danger"
+                              *ngIf="leadForm.get('calledFrom')?.errors?.['required']"
+                            >
+                              Bank Name is required.
+                            </small>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-4 mt-2">
+                        <div>
+                          <div class="my-1">
+                            <label>Lead Remarks&nbsp;</label>
+                          </div>
+                          <p-dropdown
+                            [options]="leadRemarks"
+                            formControlName="leadRemarks"
+                            optionLabel="displayName"
+                            optionValue="id"
+                            [showClear]="true"
+                            appendTo="body"
+                            styleClass="w-100"
+                            placeholder="Select Lead Remarks"
+                            [dropdownIcon]="'fa fa-caret-down'"
+                          ></p-dropdown>
+                        </div>
+                      </div>
+                      <div class="col-md-12">
+                        <div class="my-1">
+                          <label
+                            >Remarks&nbsp;<span
+                              ><sup class="text-danger">*</sup></span
+                            ></label
+                          >
+                        </div>
+                        <textarea
+                          pInputTextarea
+                          class="rounded-lg"
+                          width
+                          placeholder="Enter Remarks"
+                          formControlName="remarks"
+                          autocomplete="off"
+                          [autoResize]="true"
+                        ></textarea>
+                        <!-- Error message for Remarks -->
+                        <div
+                          *ngIf="
+                            (submitted && leadForm.get('remarks')?.invalid) ||
+                            leadForm.get('remarks')?.touched ||
+                            leadForm.get('remarks')?.dirty
+                          "
+                        >
+                          <small
+                            class="text-danger"
+                            *ngIf="leadForm.get('remarks')?.errors?.['required']"
+                          >
+                            Remarks is required.
+                          </small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <button
+                pButton
+                type="button"
+                label="Previous"
+                class="p-button-info"
+                (click)="activeIndex = activeIndex - 1"
+                [disabled]="activeIndex === 0"
+              ></button>
+              <button
+                pButton
+                type="button"
+                label="Next"
+                class="p-button-info"
+                (click)="activeIndex = activeIndex + 1"
+                [disabled]="activeIndex === steps.length - 1"
+              ></button>
+            </div>
+          </div>
+          <div class="d-flex justify-content-center">
+            <div class="d-flex mt-3 mb-5">
+              <button
+                pButton
+                pRipple
+                type="button"
+                class="p-button-info me-2"
+                (click)="goBack()"
+              >
+                Go Back
+              </button>
+              <button
+                pButton
+                pRipple
+                type="submit"
+                [disabled]="loading"
+                class="p-button-primary"
+              >
+                {{ actionType == "create" ? "Add" : "Update" }} Lead
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

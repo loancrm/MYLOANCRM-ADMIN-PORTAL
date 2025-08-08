@@ -1,0 +1,757 @@
+<section id="hero">
+  <div class="container">
+    <div class="row justify-content-between">
+      <div
+        class="col-lg-6 pt-5 pt-lg-0 order-2 order-lg-1 d-flex align-items-center"
+      >
+        <div data-aos="zoom-out">
+          <h1 class="mb-4 fw-bold mt-5 typing-text-container">
+            <span class="typing-text"> Business Loan CRM </span>
+          </h1>
+          <h2>
+            CRM software technology for business loan DSA's, financial
+            consultancies, loan agents and direct lenders to efficiently operate
+            your business.
+          </h2>
+          <div class="text-center text-lg-start">
+            <a
+              href=""
+              (click)="navigateToContact()"
+              class="btn-get-started scrollto"
+              >Get Started</a
+            >
+          </div>
+        </div>
+      </div>
+      <div
+        class="col-lg-5 order-1 order-lg-2 hero-img"
+        data-aos="zoom-out"
+        data-aos-delay="300"
+      >
+        <img
+          src="../../../assets/images/Home/hero-img.png"
+          class="img-fluid animated"
+          alt=""
+        />
+      </div>
+    </div>
+  </div>
+
+  <svg
+    class="hero-waves"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    viewBox="0 24 150 28"
+    preserveAspectRatio="none"
+  >
+    <defs>
+      <path
+        id="wave-path"
+        d="M-160 44c30 0 58-18 88-18s58 18 88 18 58-18 88-18 58 18 88 18v44h-352z"
+      />
+    </defs>
+    <g class="wave1">
+      <use xlink:href="#wave-path" x="50" y="3" fill="rgba(255,255,255, .1)" />
+    </g>
+    <g class="wave2">
+      <use xlink:href="#wave-path" x="50" y="0" fill="rgba(255,255,255, .2)" />
+    </g>
+    <g class="wave3">
+      <use xlink:href="#wave-path" x="50" y="9" fill="#fff" />
+    </g>
+  </svg>
+</section>
+<section data-aos="zoom-in" data-aos-duration="1500">
+  <div class="mb-3">
+    <h3
+      class="text-center"
+      style="font-size: 30px; font-weight: bold; color: rgba(2, 5, 161, 0.91)"
+    >
+      Our Partners
+    </h3>
+  </div>
+  <div class="carousel-container">
+    <p-carousel
+      [value]="images"
+      [numVisible]="numVisibleItems"
+      [circular]="true"
+      [autoplayInterval]="3000"
+      [numScroll]="1"
+    >
+      <ng-template let-image pTemplate="item">
+        <img [src]="image" style="width: 95%; height: 80%" alt="image" />
+      </ng-template>
+    </p-carousel>
+  </div>
+</section>
+
+<section id="about" class="about">
+  <div class="container" data-aos="fade-up">
+    <div class="" data-aos="zoom-in">
+      <h1
+        class="text-center"
+        style="font-size: 40px; font-weight: bold; color: rgba(2, 5, 161, 0.91)"
+      >
+        About Us
+      </h1>
+    </div>
+
+    <div class="row content mt-2">
+      <div
+        class="col-lg-6 d-flex align-items-center"
+        data-aos="fade-right"
+        data-aos-duration="1500"
+      >
+        <img
+          src="../../../assets/images/Home/skills.png"
+          class="img-fluid"
+          alt=""
+        />
+      </div>
+      <div
+        class="col-lg-6 pt-lg-0"
+        data-aos="fade-left"
+        data-aos-duration="1500"
+      >
+        <p class="p-4" style="text-align: justify; margin-top: 20px">
+          &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;We started with the aim of
+          making the complete unsecured business loan process as easy as
+          possible so that every entrepreneur can have access to credit easily.
+          The Fintalk is one of the major digital platform in which uses
+          technology and analytics tools for analysing and processing customers
+          loan application so that we can help our customers to get unsecured
+          business loan with minimum documents in their account in as less as 24
+          hours. Every day The Fintalk helps find the financing they need to
+          grow and thrive. We pride ourselves on making lending simple and fully
+          managed for our clients.<br />
+
+          &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; With over 10 years of shared
+          experience working in the financial services industry, we offer
+          unparalleled lender relationships and resources. The team's extensive
+          background in Underwriting and Portfolio Credit Management allows us
+          to connect start-ups and small business owners with the funding they
+          need in the fastest, most efficient and affordable way possible.
+        </p>
+        <div class="text-center">
+          <button
+            pButton
+            pRipple
+            type="button"
+            (click)="navigateToContact()"
+            class="p-button-primary"
+          >
+            Contact Us
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="main3" id="features">
+  <div class="container p-5 mt-2">
+    <div class="row justify-content-center">
+      <div class="col-md-8" data-aos="zoom-in">
+        <h1
+          class="text-center"
+          style="font-size: 40px; font-weight: bold; color: white"
+        >
+          Features
+        </h1>
+      </div>
+    </div>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3 mb-4">
+      <div class="col">
+        <div class="card h-100" data-aos="flip-left" data-aos-duration="1500">
+          <div class="feat-img text-center">
+            <img
+              alt="Loan Management"
+              src="../../../assets/images/Home/loan.png"
+              style="width: 90px; height: 90px"
+            />
+          </div>
+          <div class="card-body">
+            <h5
+              class="card-title text-center"
+              style="color: rgba(2, 5, 161, 0.91); font-weight: bold"
+            >
+              Business Loans
+            </h5>
+            <p class="card-text text-center">
+              Build amortization schedules for interest only and balloon
+              payments and much more.
+            </p>
+            <div class="text-center mt-3">
+              <button
+                (click)="navigateToContact()"
+                pButton
+                pRipple
+                type="button"
+                class="p-button-primary"
+              >
+                Learn More
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100" data-aos="flip-left" data-aos-duration="1500">
+          <div class="feat-img text-center">
+            <img
+              alt="Overdraft Management"
+              src="../../../assets/images/Home/draft.png"
+              style="width: 90px; height: 90px"
+            />
+          </div>
+          <div class="card-body">
+            <h5
+              class="card-title text-center"
+              style="color: rgba(2, 5, 161, 0.91); font-weight: bold"
+            >
+              Business Overdrafts
+            </h5>
+            <p class="card-text text-center">
+              Create dynamic payment plans and build custom fields for equipment
+              value and age.
+            </p>
+            <div class="text-center mt-3">
+              <button
+                (click)="navigateToContact()"
+                pButton
+                pRipple
+                type="button"
+                class="p-button-primary"
+              >
+                Learn More
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100" data-aos="flip-left" data-aos-duration="1500">
+          <div class="feat-img text-center">
+            <img
+              alt="Vendor Finance"
+              src="../../../assets/images/Home/seller.png"
+              style="width: 90px; height: 90px"
+            />
+          </div>
+          <div class="card-body">
+            <h5
+              class="card-title text-center"
+              style="color: rgba(2, 5, 161, 0.91); font-weight: bold"
+            >
+              Purchase/Vendor Finance
+            </h5>
+            <p class="card-text text-center">
+              White labeled client portal where clients can upload invoices and
+              see transactions.
+            </p>
+            <div class="text-center mt-3">
+              <button
+                (click)="navigateToContact()"
+                pButton
+                pRipple
+                type="button"
+                class="p-button-primary"
+              >
+                Learn More
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100" data-aos="flip-left" data-aos-duration="1500">
+          <div class="feat-img text-center">
+            <img
+              alt="Professional Loans"
+              src="../../../assets/images/Home/loan 2.png"
+              style="width: 90px; height: 90px"
+            />
+          </div>
+          <div class="card-body">
+            <h5
+              class="card-title text-center"
+              style="color: rgba(2, 5, 161, 0.91); font-weight: bold"
+            >
+              Professional Loans
+            </h5>
+            <p class="card-text text-center">
+              Package up unlimited docs and market to multiple lenders with one
+              click of a button.
+            </p>
+            <div class="text-center mt-3">
+              <button
+                (click)="navigateToContact()"
+                pButton
+                pRipple
+                type="button"
+                class="p-button-primary"
+              >
+                Learn More
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="main6 text-center" id="requirements">
+  <div class="container p-5 mt-2">
+    <h1
+      class="text-center mb-3"
+      data-aos="zoom-in"
+      style="font-size: 40px; font-weight: bold; color: rgba(2, 5, 161, 0.91)"
+    >
+      Give The Power Of TheFintalk To Your customers
+    </h1>
+
+    <div class="row">
+      <div
+        class="col-md-6 mt-4 text-left p-5"
+        data-aos="fade-right"
+        data-aos-duration="1500"
+      >
+        <p
+          class="mb-4"
+          style="font-size: 18px; font-weight: normal; text-align: justify"
+        >
+          <span style="color: rgba(2, 5, 161, 0.91)"
+            ><b>TheFintalk CRM</b></span
+          >
+          will boost your team’s productivity, increase efficiency, provide more
+          transparency, and generate more revenue. Manage your entire end-to-end
+          business in one central platform.
+        </p>
+        <p
+          class="mb-4"
+          style="font-size: 18px; font-weight: normal; text-align: justify"
+        >
+          Whether you are lender, DSA's, or any loan agents in need of a better
+          way to track and manage your pipeline, TheFintalk CRM is built for
+          you. You’ll have access to state-of-the art technology to keep you at
+          the cutting edge of your industry.
+        </p>
+        <div class="text-center">
+          <button
+            (click)="navigateToContact()"
+            pButton
+            pRipple
+            type="button"
+            class="p-button-primary"
+          >
+            Learn More
+          </button>
+        </div>
+      </div>
+      <div class="col-md-6 p-5" data-aos="fade-left" data-aos-duration="1500">
+        <img
+          alt="TheFintalk CRM"
+          src="../../../assets/images/Home/screen3.png"
+          alt="Image"
+          class="img-fluid"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="main4 mt-2 p-5" id="future">
+  <div style="margin-top: 8px" data-aos="zoom-in" data-aos-duration="1500">
+    <h1
+      class="text-center"
+      style="font-size: 40px; font-weight: bold; color: rgba(2, 5, 161, 0.91)"
+    >
+      The Future of Business Loans CRM is Now
+    </h1>
+  </div>
+  <div class="container mt-5">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3">
+      <div class="col">
+        <div class="card p-5" data-aos="flip-right" data-aos-duration="1500">
+          <div class="feat-img text-center">
+            <img
+              alt="Multi-Lender Submissions"
+              src="../../../assets/images/Home/task-list.png"
+              style="width: 90px; height: 90px"
+            />
+          </div>
+          <div
+            class="card-head mt-4"
+            style="
+              font-size: 20px;
+              color: rgba(2, 5, 161, 0.91);
+              font-weight: bold;
+            "
+          >
+            Multi-Lender Submissions
+          </div>
+          <div class="card-text mt-3" data-aos="zoom-in">
+            Send advance and loan docs to multiple lenders at the same time.
+            Track lender submissions with notes and submission statuses.
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card p-5" data-aos="flip-right" data-aos-duration="1500">
+          <div class="feat-img text-center">
+            <img
+              alt="Full Underwriting"
+              src="../../../assets/images/Home/find.png"
+              style="width: 90px; height: 90px"
+            />
+          </div>
+          <div
+            class="card-head mt-4"
+            style="
+              font-size: 20px;
+              color: rgba(2, 5, 161, 0.91);
+              font-weight: bold;
+            "
+          >
+            Full Underwriting
+          </div>
+          <div class="card-text mt-3" data-aos="zoom-in">
+            Complete underwriting technology with multi-advance tracking, plus
+            third party integrations for merchant financials and credit reports.
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card p-5" data-aos="flip-right" data-aos-duration="1500">
+          <div class="feat-img text-center">
+            <img
+              alt="Participation Tracking"
+              src="../../../assets/images/Home/tracking.png"
+              style="width: 90px; height: 90px"
+            />
+          </div>
+          <div
+            class="card-head mt-4"
+            style="
+              font-size: 20px;
+              color: rgba(2, 5, 161, 0.91);
+              font-weight: bold;
+            "
+          >
+            Participation Tracking
+          </div>
+          <div class="card-text mt-3" data-aos="zoom-in">
+            Manage all advances and business loan that you are participating in
+            or syndication partners you have on your loans or advances.
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card p-5" data-aos="flip-right" data-aos-duration="1500">
+          <div class="feat-img text-center">
+            <img
+              alt="Loan Origination"
+              src="../../../assets/images/Home/schedule.png"
+              style="width: 90px; height: 90px"
+            />
+          </div>
+          <div
+            class="card-head mt-4"
+            style="
+              font-size: 20px;
+              color: rgba(2, 5, 161, 0.91);
+              font-weight: bold;
+            "
+          >
+            Loan Origination
+          </div>
+          <div class="card-text mt-3" data-aos="zoom-in">
+            Complete customizable CRM with electronic signature, client portal,
+            document builder and much more.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="main5" id="features2">
+  <h1
+    class="mb-4 fw-bold mt-3 text-center"
+    data-aos="zoom-in-down"
+    data-aos-duration="1500"
+  >
+    <span style="color: rgba(2, 5, 161, 0.91)"
+      >Grow Faster with TheFintalk</span
+    >
+  </h1>
+  <p
+    class="mb-5 text-center"
+    style="font-size: 20px"
+    data-aos="zoom-in-down"
+    data-aos-duration="1500"
+  >
+    Generate more leads, close more deals, track and manage your portfolio, all
+    under one roof.
+  </p>
+  <div class="container-fluid fast-pro">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 p-5">
+      <div class="col">
+        <div class="card p-5">
+          <div class="feat-img text-center">
+            <img
+              alt="Loan Origination"
+              src="../../../assets/images/Home/schedule.png"
+              style="width: 90px; height: 90px"
+            />
+          </div>
+          <div
+            class="card-head mt-4"
+            style="
+              font-size: 20px;
+              color: rgba(2, 5, 161, 0.91);
+              font-weight: bold;
+            "
+          >
+            Loan Origination
+          </div>
+          <div class="card-text mt-3" data-aos="zoom-in">
+            Lenders & DSA's can tailor their loan process
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card p-5">
+          <div class="feat-img text-center">
+            <img
+              alt="SMS & Email Marketing"
+              src="../../../assets/images/Home/text-message.png"
+              style="width: 90px; height: 90px"
+            />
+          </div>
+          <div
+            class="card-head mt-4"
+            style="
+              font-size: 20px;
+              color: rgba(2, 5, 161, 0.91);
+              font-weight: bold;
+            "
+          >
+            SMS & Email Marketing
+          </div>
+          <div class="card-text mt-3" data-aos="zoom-in">
+            Communicate with clients, send campaigns, track opens, and more.
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card p-5">
+          <div class="feat-img text-center">
+            <img
+              alt="Reporting & Analytics"
+              src="../../../assets/images/Home/report.png"
+              style="width: 90px; height: 90px"
+            />
+          </div>
+          <div
+            class="card-head mt-4"
+            style="
+              font-size: 20px;
+              color: rgba(2, 5, 161, 0.91);
+              font-weight: bold;
+            "
+          >
+            Reporting & Analytics
+          </div>
+          <div class="card-text mt-3" data-aos="zoom-in">
+            Run pre-built or customized reports that can be exported via Excel
+            and PDF.
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card p-5">
+          <div class="feat-img text-center">
+            <img
+              alt="Track Leads"
+              src="../../../assets/images/Home/search.png"
+              style="width: 90px; height: 90px"
+            />
+          </div>
+          <div
+            class="card-head mt-4"
+            style="
+              font-size: 20px;
+              color: rgba(2, 5, 161, 0.91);
+              font-weight: bold;
+            "
+          >
+            Track Leads
+          </div>
+          <div class="card-text mt-3" data-aos="zoom-in">
+            Send targeted marketing or offers to your VIPs and keep them
+            engaged.
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card p-5">
+          <div class="feat-img text-center">
+            <img
+              alt="Role based Access Control"
+              src="../../../assets/images/Home/password-code.png"
+              style="width: 90px; height: 90px"
+            />
+          </div>
+          <div
+            class="card-head mt-4"
+            style="
+              font-size: 20px;
+              color: rgba(2, 5, 161, 0.91);
+              font-weight: bold;
+            "
+          >
+            Role based Access Control
+          </div>
+          <div class="card-text mt-3" data-aos="zoom-in">
+            Create rules and set permissions to manage and restrict access to
+            your leads.
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card p-5">
+          <div class="feat-img text-center">
+            <img
+              alt="Loan Servicing"
+              src="../../../assets/images/Home/debt.png"
+              style="width: 90px; height: 90px"
+            />
+          </div>
+          <div
+            class="card-head mt-4"
+            style="
+              font-size: 20px;
+              color: rgba(2, 5, 161, 0.91);
+              font-weight: bold;
+            "
+          >
+            Loan Servicing
+          </div>
+          <div class="card-text mt-3" data-aos="zoom-in">
+            Manage and service your entire portfolio through TheFintalk
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="main6 mb-5" id="features3">
+  <h1
+    class="fw-bold mt-2 text-center"
+    data-aos="zoom-in-down"
+    data-aos-duration="1500"
+  >
+    <span style="color: rgba(2, 5, 161, 0.91)">See it in Action</span>
+  </h1>
+  <div class="container mt-4">
+    <div class="row">
+      <div
+        class="background-img d-flex justify-content-center align-items-center"
+      >
+        <div>
+          <div class="text-center my-3 login-page-carousal">
+            <p-carousel
+              [value]="carousalImages"
+              [showNavigators]="false"
+              styleClass="custom-carousel"
+              [numVisible]="1"
+              [numScroll]="1"
+              [circular]="true"
+              [autoplayInterval]="4000"
+              [showIndicators]="true"
+            >
+              <ng-template let-image pTemplate="item">
+                <div class="carousal-item">
+                  <div class="carousal-item-content">
+                    <div>
+                      <h4 class="p-mb-1">
+                        <img
+                          alt="Demo Image"
+                          class="img-fluid shadow-image rounded-3"
+                          src="{{ image.url }}"
+                        />
+                      </h4>
+                    </div>
+                  </div>
+                </div>
+              </ng-template>
+            </p-carousel>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section
+  class="main7 p-5"
+  id="features5"
+  data-aos="zoom-in-down"
+  data-aos-duration="1500"
+>
+  <h1 class="mb-4 fw-bold mt-2 text-center">
+    <span style="color: rgba(2, 5, 161, 0.91)">Demo Our Business Loan CRM</span>
+  </h1>
+  <p class="mb-4 text-center" style="font-size: 20px">
+    Like Nothing You’ve Seen. Sign Up Today & Experience TheFintalk
+  </p>
+  <div class="text-center">
+    <button
+      (click)="navigateToContact()"
+      pButton
+      pRipple
+      type="button"
+      class="p-button-primary"
+    >
+      Request a Demo
+    </button>
+  </div>
+</section>
+
+<section class="main8 p-3" id="features6">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6">
+        <h1 class="mb-4 fw-bold" style="font-size: 40px" data-aos="fade-right">
+          <span style="color: rgba(2, 5, 161, 0.91)"
+            >Dedicated Business Loan CRM for DSA's and Lenders</span
+          >
+        </h1>
+      </div>
+      <div class="col-md-4 mt-3">
+        <p data-aos="fade-left">Join Our Newsletter</p>
+        <input
+          data-aos="fade-left"
+          class="form-control form-control-lg"
+          style="height: 55px !important"
+          type="email"
+          placeholder="Your Email Address"
+        />
+      </div>
+      <div class="col-md-2 mt-5" data-aos="fade-left">
+        <button
+          (click)="navigateToContact()"
+          pButton
+          pRipple
+          type="button"
+          class="p-button-primary"
+          style="height: 55px"
+        >
+          Request a Demo
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

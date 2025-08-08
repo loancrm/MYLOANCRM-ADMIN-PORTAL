@@ -1,0 +1,18 @@
+<p-toast
+  [breakpoints]="{ '920px': { width: '100%', right: '0', left: '0' } }"
+></p-toast>
+<p-confirmDialog></p-confirmDialog>
+<div *ngIf="loading">
+  <app-preloader></app-preloader>
+</div>
+<div *ngIf="!loading">
+  <router-outlet></router-outlet>
+</div>
+<button
+  type="button"
+  (click)="scrollToTop()"
+  class="scroll-top-button"
+  [ngClass]="{ show: isScrolled }"
+>
+  <i class="fas fa-arrow-up"></i>
+</button>

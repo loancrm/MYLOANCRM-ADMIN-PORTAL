@@ -1,0 +1,82 @@
+.card {
+  border: none;
+}
+// .callback-form{
+//   background-color: #13003A;
+//   color: #fff;
+// }
+
+.p-inputtext,
+::ng-deep .callback-form .p-dropdown,
+::ng-deep .callback-form .p-calendar {
+  width: 100% !important;
+}
+
+label {
+  font-size: medium;
+}
+@media screen and (max-width: 620px) {
+  .icon {
+    width: 300px;
+    height: 200px;
+    align-items: center;
+    justify-content: center;
+  }
+}
+.file-wrapper {
+  display: inline-block;
+  position: relative;
+  margin-right: 12px;
+}
+
+.delete-btn {
+  position: absolute;
+  top: -5px;
+  right: -3px;
+  padding: 4px !important;
+  border-radius: 50% !important;
+  box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.delete-btn i {
+  font-size: 10px !important;
+}
+
+.delete-btn:hover {
+  background-color: #ff4d4d !important;
+}
+// .file-icon {
+//   color: #fff !important; /* Icon color */
+//   font-size: 30px;
+// }
+
+// .calendar-custom-img {
+//   position: absolute;
+//   right: 20px;
+//   top: 75%;
+//   transform: translateY(-50%);
+//   height: 20px;
+//   width: 20px;
+//
+//   cursor: pointer;
+//   filter: grayscale(100%) brightness(50%);
+//   // opacity: 0.6;
+//   // filter: brightness(0) invert(1);
+//   // transition: opacity 0.2s ease;
+// }
+.calendar-custom-img {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 20px;
+  width: 20px;
+  cursor: pointer;
+  filter: grayscale(100%) brightness(50%);
+}

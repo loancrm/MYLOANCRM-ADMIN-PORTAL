@@ -1,0 +1,1514 @@
+<div>
+  <div class="p-1 m-2">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <b>
+          <span class="back-btn-text"> Leads </span>
+        </b>
+      </div>
+      <div>
+        <ng-container>
+          <p-dropdown
+            [options]="loanTypes"
+            placeholder="Add Lead"
+            [(ngModel)]="selectedLoanType"
+            optionLabel="displayName"
+            optionValue="name"
+            (onChange)="onLoanTypeSelect($event)"
+            [showClear]="true"
+            appendTo="body"
+            [dropdownIcon]="'fa fa-caret-down'"
+            styleClass="custom-dropdown p-button-primary"
+          ></p-dropdown>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <div class="file-upload-steps text-capitalize m-2">
+    <p-tabMenu
+      [model]="items"
+      class="tabdesign"
+      [activeItem]="activeItem"
+      (activeItemChange)="onActiveItemChange($event)"
+    ></p-tabMenu>
+    <div *ngIf="activeItem && activeItem.name">
+      <div *ngIf="activeItem.name == 'businessLoan'">
+        <div class="text-capitalize">
+          <p-table
+            #leadsTable
+            [value]="leads"
+            [sortOrder]="-1"
+            [lazy]="true"
+            selectionMode="single"
+            (onLazyLoad)="loadLeads($event)"
+            dataKey="id"
+            (onRowSelect)="viewLead($event)"
+            [showCurrentPageReport]="true"
+            [rowsPerPageOptions]="[10, 25, 50]"
+            [paginator]="true"
+            [rows]="10"
+            class="p-datatable-striped"
+            [totalRecords]="totalLeadsCount"
+            [loading]="apiLoading"
+            responsiveLayout="scroll"
+            scrollHeight="flex"
+            [globalFilterFields]="[
+              'referenceNo',
+              'customer.firstName',
+              'partner.partnerName',
+              'status',
+              'businessName',
+              'primaryPhone'
+            ]"
+            styleClass="p-datatable-customers "
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} leads"
+          >
+            <ng-template pTemplate="caption">
+              <!-------Adding one searchbar in business name and phone number-->
+              <div class="row">
+                <div class="col-md-3 mt-2 no-padding-small">
+                  <div class="p-inputgroup">
+                    <input
+                      type="text"
+                      pInputText
+                      placeholder="Enter Business Name or Phone Number"
+                      [(ngModel)]="businessNameToSearch"
+                      (ngModelChange)="
+                        inputValueChangeEvent('loanId', businessNameToSearch)
+                      "
+                      (keyup.enter)="filterWithBusinessName()"
+                    />
+                    <!-- <button
+                      type="button"
+                      pButton
+                      icon="pi pi-search"
+                      class="p-button-primary"
+                      [disabled]="!businessNameToSearch"
+                      (click)="filterWithBusinessName()"
+                    ></button> -->
+                    <button
+                      type="button"
+                      pButton
+                      class="p-button-primary"
+                      [disabled]="!businessNameToSearch"
+                      (click)="filterWithBusinessName()"
+                    >
+                      <img
+                        src="assets/images/icons/search.svg"
+                        alt="Search"
+                        width="16"
+                        height="16"
+                        style="vertical-align: middle"
+                      />
+                    </button>
+                  </div>
+                </div>
+                <div
+                  class="col-md-3 mt-2 no-padding-small"
+                  *ngIf="
+                    userDetails &&
+                    userDetails.userType &&
+                    userDetails.userType == '3'
+                  "
+                ></div>
+                <div class="col-md-3 mt-2 no-padding-small">
+                  <div
+                    class="p-inputgroup"
+                    *ngIf="
+                      userDetails &&
+                      userDetails.userType &&
+                      userDetails.userType != '3'
+                    "
+                  >
+                    <br class="d-lg-none d-md-none" />
+                    <p-dropdown
+                      styleClass="text-left"
+                      [style]="{ width: '100%' }"
+                      [options]="leadUsers"
+                      (onChange)="statusChangeforSourcedBy($event)"
+                      [dropdownIcon]="'fa fa-caret-down'"
+                      [(ngModel)]="selectedSourcedByStatus"
+                      optionLabel="name"
+                      dataKey="name"
+                      appendTo="body"
+                      [filter]="true"
+                      filterPlaceholder="Search..."
+                    >
+                    </p-dropdown>
+                  </div>
+                </div>
+                <div class="col-md-3 mt-2 no-padding-small text-right">
+                  <div class="d-flex">
+                    <div class="flex-grow-1 me-2">
+                      <p-dropdown
+                        styleClass="text-left"
+                        [style]="{ width: '100%' }"
+                        [options]="leadStatus"
+                        (onChange)="statusChange($event)"
+                        [dropdownIcon]="'fa fa-caret-down'"
+                        [(ngModel)]="selectedLeadStatus"
+                        optionLabel="displayName"
+                        dataKey="name"
+                        appendTo="body"
+                      >
+                      </p-dropdown>
+                    </div>
+                    <div class="d-flex align-items-center pointer-cursor">
+                      <app-filter
+                        [position]="'right'"
+                        [iconColor]="'#33009C'"
+                        [iconSize]="'28px!important'"
+                        (filterEvent)="applyConfigFilters($event, '')"
+                        [filterConfig]="filterConfig"
+                        [showFilterIndication]="appliedFilter"
+                        pTooltip="Filter"
+                        tooltipPosition="top"
+                      >
+                      </app-filter>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+              <tr>
+                <th class="text-nowrap">Lead Id</th>
+                <th class="text-nowrap">Business Name</th>
+                <th class="text-nowrap">Business Entity</th>
+                <th class="text-nowrap">Contact Person</th>
+                <th class="text-nowrap">Primary Phone</th>
+                <th>City</th>
+                <th
+                  class="text-nowrap"
+                  *ngIf="
+                    userDetails &&
+                    userDetails.userType &&
+                    userDetails.userType != '3'
+                  "
+                >
+                  Sourced By
+                </th>
+                <th class="text-nowrap">Created Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-lead>
+              <tr [pSelectableRow]="lead">
+                <td>
+                  <span class="table-column-data singleline">{{
+                    lead.customId || "-"
+                  }}</span>
+                </td>
+                <td>
+                  <span class="table-column-data singleline">{{
+                    lead.businessName
+                      ? (lead.businessName | capitalizeFirst)
+                      : "-"
+                  }}</span>
+                </td>
+                <td>
+                  <span class="table-column-data">{{
+                    lead.businessEntity
+                      ? getEntityName(lead.businessEntity)
+                      : "-"
+                  }}</span>
+                </td>
+                <td>
+                  <span class="table-column-data singleline">{{
+                    lead.contactPerson
+                      ? (lead.contactPerson | capitalizeFirst)
+                      : "-"
+                  }}</span>
+                </td>
+                <td>
+                  <span class="table-column-data">{{
+                    lead.primaryPhone ? lead.primaryPhone : "-"
+                  }}</span>
+                </td>
+                <td>
+                  <span class="table-column-data singleline">{{
+                    lead.city ? (lead.city | capitalizeFirst) : "-"
+                  }}</span>
+                </td>
+                <td
+                  *ngIf="
+                    userDetails &&
+                    userDetails.userType &&
+                    userDetails.userType != '3'
+                  "
+                >
+                  <span class="table-column-data singleline">{{
+                    lead.sourcedBy
+                      ? (getSourceName(lead.sourcedBy) | capitalizeFirst)
+                      : "-"
+                  }}</span>
+                </td>
+                <td>
+                  <span class="table-column-data">{{
+                    lead.createdOn
+                      ? (lead.createdOn | date : "mediumDate")
+                      : "-"
+                  }}</span>
+                </td>
+                <td>
+                  <span
+                    class="table-column-data fw-bold statusdata"
+                    *ngIf="lead.leadInternalStatus"
+                    [ngStyle]="{
+                      color: getStatusColor(
+                        getStatusName(lead.leadInternalStatus)
+                      ).textColor,
+
+                    }"
+                  >
+                    {{ getStatusName(lead.leadInternalStatus) }}
+                  </span>
+                </td>
+                <td>
+                  <div class="text-center" style="text-align: left">
+                    <div class="d-flex">
+                      <!-- <button
+                        pButton
+                        pRipple
+                        type="button"
+                        class="p-button-primary me-2 custom-btn"
+                        (click)="viewLead(lead)"
+                        pTooltip="View Lead"
+                        icon="fas fa-eye"
+                        tooltipPosition="top"
+                      ></button> -->
+                      <!-- <img
+                        src="../../../assets/images/icons/eye.svg"
+                        width="24px"
+                        height="24px"
+                        class="me-2"
+                        pTooltip="View Lead"
+                        tooltipPosition="top"
+                        (click)="viewLead(lead);$event.stopPropagation()"
+                      /> -->
+                      <img
+                        alt="View Lead"
+                        src="../../../assets/images/icons/edit.svg"
+                        width="24px"
+                        height="24px"
+                        class="me-2"
+                        (click)="updateLead(lead.id); $event.stopPropagation()"
+                        pTooltip="Update Lead"
+                        tooltipPosition="top"
+                      />
+                      <p-menu
+                        appendTo="body"
+                        #menu
+                        [model]="actionItems(lead)"
+                        [popup]="true"
+                      ></p-menu>
+                      <img
+                        alt="Actions"
+                        src="../../../assets/images/icons/menu.svg"
+                        width="24px"
+                        height="24px"
+                        pTooltip="Actions"
+                        tooltipPosition="top"
+                        (click)="menu.toggle($event); $event.stopPropagation()"
+                      />
+                      <!-- <button
+                        pButton
+                        pRipple
+                        type="button"
+                        class="p-button-info me-2 custom-btn"
+                        (click)="updateLead(lead.id)"
+                        pTooltip="Update Lead"
+                        icon="fas fa-pen-to-square"
+                        tooltipPosition="top"
+                      ></button>
+
+                      <button
+                        pButton
+                        type="button"
+                        class="custom-btn"
+                        (click)="menu.toggle($event)"
+                        icon="fas fa-bars"
+                        pTooltip="Actions"
+                        tooltipPosition="top"
+                      ></button> -->
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr class="text-center">
+                <td colspan="10" class="text-center fw-bold">
+                  <img
+                    alt="No Data"
+                    src="../../../assets/images/menu/no-data.gif"
+                    width="200"
+                    height="200"
+                  />
+                  <p>No Leads Found</p>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+      <div *ngIf="activeItem.name == 'personalLoan'">
+        <div class="text-capitalize">
+          <p-table
+            #personalleadsTable
+            [value]="loanLeads"
+            [sortOrder]="-1"
+            [lazy]="true"
+            selectionMode="single"
+            (onLazyLoad)="loadLeadsforPersonal($event)"
+            dataKey="id"
+            (onRowSelect)="viewLead($event)"
+            [showCurrentPageReport]="true"
+            [rowsPerPageOptions]="[10, 25, 50]"
+            [paginator]="true"
+            [rows]="10"
+            class="p-datatable-striped"
+            [totalRecords]="personalloanLeadsCount"
+            [loading]="loadleadsloading"
+            responsiveLayout="scroll"
+            scrollHeight="flex"
+            [globalFilterFields]="[
+              'referenceNo',
+              'customer.firstName',
+              'partner.partnerName',
+              'status'
+            ]"
+            styleClass="p-datatable-customers "
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} leads"
+          >
+            <ng-template pTemplate="caption">
+              <div class="row">
+                <div class="col-md-3 mt-2 no-padding-small">
+                  <div class="p-inputgroup">
+                    <input
+                      type="text"
+                      pInputText
+                      placeholder="Search Lead with Person Name"
+                      [(ngModel)]="businessNameToSearchForPersonal"
+                      (ngModelChange)="
+                        inputValueChangeEventForPersonal(
+                          'loanId',
+                          businessNameToSearchForPersonal
+                        )
+                      "
+                      (keyup.enter)="filterWithBusinessNameForPersonal()"
+                    />
+                    <!-- <button
+                      type="button"
+                      pButton
+                      icon="pi pi-search"
+                      class="p-button-primary"
+                      [disabled]="!businessNameToSearchForPersonal"
+                      (click)="filterWithBusinessNameForPersonal()"
+                    ></button> -->
+                    <button
+                      type="button"
+                      pButton
+                      class="p-button-primary"
+                      [disabled]="!businessNameToSearchForPersonal"
+                      (click)="filterWithBusinessNameForPersonal()"
+                    >
+                      <img
+                        src="assets/images/icons/search.svg"
+                        alt="Search"
+                        width="16"
+                        height="16"
+                        style="vertical-align: middle"
+                      />
+                    </button>
+                  </div>
+                </div>
+                <div
+                  class="col-md-3 mt-2 no-padding-small"
+                  *ngIf="
+                    userDetails &&
+                    userDetails.userType &&
+                    userDetails.userType == '3'
+                  "
+                ></div>
+                <div class="col-md-3 mt-2 no-padding-small">
+                  <div
+                    class="p-inputgroup"
+                    *ngIf="
+                      userDetails &&
+                      userDetails.userType &&
+                      userDetails.userType != '3'
+                    "
+                  >
+                    <br class="d-lg-none d-md-none" />
+                    <p-dropdown
+                      styleClass="text-left"
+                      [style]="{ width: '100%' }"
+                      [options]="leadUsers"
+                      (onChange)="statusChangeForPersonal($event)"
+                      [dropdownIcon]="'fa fa-caret-down'"
+                      [(ngModel)]="SourcedByForPersonal"
+                      optionLabel="name"
+                      dataKey="name"
+                      appendTo="body"
+                      [filter]="true"
+                      filterPlaceholder="Search..."
+                    >
+                    </p-dropdown>
+                  </div>
+                </div>
+                <div class="col-md-3 mt-2 no-padding-small text-right">
+                  <div class="d-flex">
+                    <div class="flex-grow-1 me-2">
+                      <p-dropdown
+                        styleClass="text-left"
+                        [style]="{ width: '100%' }"
+                        [options]="leadStatus"
+                        (onChange)="statusChangeForPersonal($event)"
+                        [dropdownIcon]="'fa fa-caret-down'"
+                        [(ngModel)]="selectedPersonalLeadStatus"
+                        optionLabel="displayName"
+                        dataKey="name"
+                        appendTo="body"
+                      >
+                      </p-dropdown>
+                    </div>
+                    <div class="d-flex align-items-center pointer-cursor">
+                      <app-filter
+                        [position]="'right'"
+                        [iconColor]="'#33009C'"
+                        [iconSize]="'28px!important'"
+                        (filterEvent)="applyConfigFilters($event, 'Personal')"
+                        [filterConfig]="personalfilterConfig"
+                        [showFilterIndication]="appliedFilterPersonal"
+                        pTooltip="Filter"
+                        tooltipPosition="top"
+                      >
+                      </app-filter>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="header" let-columns>
+              <tr>
+                <th class="text-nowrap">Lead Id</th>
+                <th class="text-nowrap">Applicant Name</th>
+                <th>Designation</th>
+                <th class="text-nowrap">Primary Phone</th>
+                <th>Salary</th>
+                <th>Job Experience</th>
+                <th
+                  class="text-nowrap"
+                  *ngIf="
+                    userDetails &&
+                    userDetails.userType &&
+                    userDetails.userType != '3'
+                  "
+                >
+                  Sourced By
+                </th>
+                <th class="text-nowrap">Created Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-lead>
+              <tr [pSelectableRow]="lead">
+                <td>
+                  <span class="table-column-data singleline">{{
+                    lead.customId || "-"
+                  }}</span>
+                </td>
+                <td>
+                  <span class="table-column-data singleline">{{
+                    lead.contactPerson
+                      ? (lead.contactPerson | capitalizeFirst)
+                      : "-"
+                  }}</span>
+                </td>
+                <td>
+                  <span class="table-column-data singleline">{{
+                    lead.designation
+                      ? (lead.designation | capitalizeFirst)
+                      : "-"
+                  }}</span>
+                </td>
+                <td>
+                  <span class="table-column-data">{{
+                    lead.primaryPhone ? lead.primaryPhone : "-"
+                  }}</span>
+                </td>
+                <td>
+                  <span class="table-column-data">{{
+                    lead.salary ? lead.salary : "-"
+                  }}</span>
+                </td>
+                <td>
+                  <span class="table-column-data">{{
+                    lead.jobExperience ? lead.jobExperience : "-"
+                  }}</span>
+                </td>
+                <td
+                  *ngIf="
+                    userDetails &&
+                    userDetails.userType &&
+                    userDetails.userType != '3'
+                  "
+                >
+                  <span class="table-column-data singleline">{{
+                    lead.sourcedByName
+                      ? (lead.sourcedByName | capitalizeFirst)
+                      : "-"
+                  }}</span>
+                </td>
+                <td>
+                  <span class="table-column-data">{{
+                    lead.createdOn
+                      ? (lead.createdOn | date : "mediumDate")
+                      : "-"
+                  }}</span>
+                </td>
+                <td>
+                  <span
+                    class="table-column-data fw-bold statusdata"
+                    *ngIf="lead.leadInternalStatus"
+                    [ngStyle]="{
+                      color: getStatusColor(
+                        getStatusName(lead.leadInternalStatus)
+                      ).textColor,
+
+                    }"
+                  >
+                    {{ getStatusName(lead.leadInternalStatus) }}
+                  </span>
+                </td>
+                <td>
+                  <div class="text-center">
+                    <div class="d-flex">
+                      <!-- <button
+                        pButton
+                        pRipple
+                        type="button"
+                        class="p-button-primary me-2 custom-btn"
+                        (click)="viewLead(lead)"
+                        pTooltip="View Lead"
+                        icon="fas fa-eye"
+                        tooltipPosition="top"
+                      ></button> -->
+                      <!-- <img
+                        src="../../../assets/images/icons/eye.svg"
+                        width="24px"
+                        height="24px"
+                        class="me-2"
+                        (click)="viewLead(lead)"
+                        pTooltip="View Lead"
+                        tooltipPosition="top"
+                      /> -->
+                      <!-- <button
+                        pButton
+                        pRipple
+                        type="button"
+                        class="p-button-info me-2 custom-btn"
+                        (click)="updateLoanLead(lead.leadId)"
+                        pTooltip="Update Lead"
+                        icon="fas fa-pen-to-square"
+                        tooltipPosition="top"
+                      ></button> -->
+                      <img
+                        alt="Update Lead"
+                        src="../../../assets/images/icons/edit.svg"
+                        width="24px"
+                        height="24px"
+                        class="me-2"
+                        (click)="updateLoanLead(lead.leadId)"
+                        pTooltip="Update Lead"
+                        tooltipPosition="top"
+                      />
+                      <p-menu
+                        appendTo="body"
+                        #menu
+                        [model]="actionItemsForLead(lead, 'personal')"
+                        [popup]="true"
+                      ></p-menu>
+                      <!-- <button
+                        pButton
+                        type="button"
+                        class="custom-btn"
+                        (click)="menu.toggle($event)"
+                        icon="fas fa-bars"
+                        pTooltip="Actions"
+                        tooltipPosition="top"
+                      ></button> -->
+                      <img
+                        alt="Actions"
+                        src="../../../assets/images/icons/menu.svg"
+                        width="24px"
+                        height="24px"
+                        pTooltip="Actions"
+                        tooltipPosition="top"
+                        (click)="menu.toggle($event); $event.stopPropagation()"
+                      />
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr class="text-center">
+                <td colspan="10" class="text-center fw-bold">
+                  <img
+                    alt="No Data"
+                    src="../../../assets/images/menu/no-data.gif"
+                    width="200"
+                    height="200"
+                  />
+                  <p>No Leads Found</p>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+      <div *ngIf="activeItem.name == 'homeLoan'">
+        <p-tabMenu
+          [model]="employmentStatus"
+          class="tabdesign"
+          [activeItem]="activeEmploymentStatus"
+          (activeItemChange)="onActiveEmploymentStatusChange($event)"
+        ></p-tabMenu>
+        <ng-container
+          *ngIf="activeEmploymentStatus && activeEmploymentStatus.name"
+        >
+          <ng-container
+            *ngIf="
+              activeEmploymentStatus.name == 'employed' ||
+              activeEmploymentStatus.name == 'self-employed'
+            "
+          >
+            <div class="text-capitalize">
+              <p-table
+                #HomeleadsTable
+                [value]="loanLeads"
+                [sortOrder]="-1"
+                (onRowSelect)="viewLead($event)"
+                [lazy]="true"
+                selectionMode="single"
+                (onLazyLoad)="
+                  activeEmploymentStatus.name == 'employed'
+                    ? loadLeadsforHome($event)
+                    : loadLeadsforHomeself($event)
+                "
+                dataKey="id"
+                [showCurrentPageReport]="true"
+                [rowsPerPageOptions]="[10, 25, 50]"
+                [paginator]="true"
+                [rows]="10"
+                class="p-datatable-striped"
+                [totalRecords]="
+                  activeEmploymentStatus.name == 'employed'
+                    ? homeloanLeadsCount
+                    : homeloanselfLeadsCount
+                "
+                [loading]="loadleadsloading"
+                responsiveLayout="scroll"
+                scrollHeight="flex"
+                [globalFilterFields]="[
+                  'referenceNo',
+                  'customer.firstName',
+                  'partner.partnerName',
+                  'status'
+                ]"
+                styleClass="p-datatable-customers "
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} leads"
+              >
+                <ng-template pTemplate="caption">
+                  <div class="row">
+                    <div class="col-md-3 mt-2 no-padding-small">
+                      <div class="p-inputgroup">
+                        <input
+                          type="text"
+                          pInputText
+                          [placeholder]="
+                            activeEmploymentStatus.name === 'employed'
+                              ? 'Search Lead with Person Name'
+                              : 'Search Lead with Business Name'
+                          "
+                          [(ngModel)]="searchInputValue"
+                          (ngModelChange)="handleInputChange($event)"
+                          (keyup.enter)="filterBasedOnEmploymentStatus()"
+                        />
+                        <!-- <button
+                          type="button"
+                          pButton
+                          icon="pi pi-search"
+                          class="p-button-primary"
+                          [disabled]="!searchInputValue"
+                          (click)="filterBasedOnEmploymentStatus()"
+                        ></button> -->
+                        <button
+                          type="button"
+                          pButton
+                          class="p-button-primary"
+                          [disabled]="!searchInputValue"
+                          (click)="filterBasedOnEmploymentStatus()"
+                        >
+                          <img
+                            src="assets/images/icons/search.svg"
+                            alt="Search"
+                            width="16"
+                            height="16"
+                            style="vertical-align: middle"
+                          />
+                        </button>
+                      </div>
+                    </div>
+                    <div
+                      class="col-md-3 mt-2 no-padding-small"
+                      *ngIf="
+                        userDetails &&
+                        userDetails.userType &&
+                        userDetails.userType == '3'
+                      "
+                    ></div>
+                    <div class="col-md-3 mt-2 no-padding-small">
+                      <div
+                        class="p-inputgroup"
+                        *ngIf="
+                          userDetails &&
+                          userDetails.userType &&
+                          userDetails.userType != '3'
+                        "
+                      >
+                        <br class="d-lg-none d-md-none" />
+                        <p-dropdown
+                          styleClass="text-left"
+                          [style]="{ width: '100%' }"
+                          [options]="leadUsers"
+                          (onChange)="
+                            activeEmploymentStatus.name === 'employed'
+                              ? statusChangeForHome($event)
+                              : statusChangeForHomeSelf($event)
+                          "
+                          [dropdownIcon]="'fa fa-caret-down'"
+                          [(ngModel)]="SourcedByForHome"
+                          optionLabel="name"
+                          dataKey="name"
+                          [filter]="true"
+                          appendTo="body"
+                          filterPlaceholder="Search..."
+                        >
+                        </p-dropdown>
+                      </div>
+                    </div>
+                    <div class="col-md-3 mt-2 no-padding-small text-right">
+                      <div class="d-flex">
+                        <div class="flex-grow-1 me-2">
+                          <p-dropdown
+                            styleClass="text-left"
+                            [style]="{ width: '100%' }"
+                            [options]="leadStatus"
+                            (onChange)="
+                              activeEmploymentStatus.name === 'employed'
+                                ? statusChangeForHome($event)
+                                : statusChangeForHomeSelf($event)
+                            "
+                            [dropdownIcon]="'fa fa-caret-down'"
+                            [(ngModel)]="selectedHomeLeadStatus"
+                            optionLabel="displayName"
+                            dataKey="name"
+                            appendTo="body"
+                          >
+                          </p-dropdown>
+                        </div>
+                        <div class="d-flex align-items-center pointer-cursor">
+                          <app-filter
+                            [position]="'right'"
+                            [iconColor]="'#33009C'"
+                            [iconSize]="'28px!important'"
+                            (filterEvent)="
+                              activeEmploymentStatus.name === 'employed'
+                                ? applyConfigFilters($event, 'Home')
+                                : applyConfigFilters($event, 'Homeself')
+                            "
+                            [filterConfig]="
+                              activeEmploymentStatus.name === 'employed'
+                                ? HomefilterConfig
+                                : HomeSelffilterConfig
+                            "
+                            [showFilterIndication]="
+                              activeEmploymentStatus.name === 'employed'
+                                ? appliedFilterHome
+                                : appliedFilterHomeself
+                            "
+                            pTooltip="Filter"
+                            tooltipPosition="top"
+                          >
+                          </app-filter>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th class="text-nowrap">Lead Id</th>
+                    <th
+                      class="text-nowrap"
+                      *ngIf="activeEmploymentStatus.name === 'employed'"
+                    >
+                      Applicant Name
+                    </th>
+                    <th
+                      class="text-nowrap"
+                      *ngIf="activeEmploymentStatus.name === 'self-employed'"
+                    >
+                      Business Name
+                    </th>
+                    <th *ngIf="activeEmploymentStatus.name === 'employed'">
+                      Designation
+                    </th>
+                    <th
+                      class="text-nowrap"
+                      *ngIf="activeEmploymentStatus.name === 'self-employed'"
+                    >
+                      Business Entity
+                    </th>
+                    <th *ngIf="activeEmploymentStatus.name === 'employed'">
+                      Salary
+                    </th>
+                    <th
+                      class="text-nowrap"
+                      *ngIf="activeEmploymentStatus.name === 'self-employed'"
+                    >
+                      Contact Person
+                    </th>
+                    <th class="text-nowrap">Primary Phone</th>
+                    <th
+                      class="text-nowrap"
+                      *ngIf="activeEmploymentStatus.name === 'employed'"
+                    >
+                      Job Experience
+                    </th>
+                    <th
+                      class="text-nowrap"
+                      *ngIf="activeEmploymentStatus.name === 'self-employed'"
+                    >
+                      Business Turnover
+                    </th>
+                    <th
+                      class="text-nowrap"
+                      *ngIf="
+                        userDetails &&
+                        userDetails.userType &&
+                        userDetails.userType != '3'
+                      "
+                    >
+                      Sourced By
+                    </th>
+                    <th class="text-nowrap">Created Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-lead>
+                  <tr [pSelectableRow]="lead">
+                    <td>
+                      <span class="table-column-data singleline">{{
+                        lead.customId || "-"
+                      }}</span>
+                    </td>
+                    <td *ngIf="activeEmploymentStatus.name === 'employed'">
+                      <span class="table-column-data singleline">{{
+                        lead.contactPerson
+                          ? (lead.contactPerson | capitalizeFirst)
+                          : "-"
+                      }}</span>
+                    </td>
+                    <td *ngIf="activeEmploymentStatus.name === 'self-employed'">
+                      <span class="table-column-data singleline">{{
+                        lead.businessName
+                          ? (lead.businessName | capitalizeFirst)
+                          : "-"
+                      }}</span>
+                    </td>
+                    <td *ngIf="activeEmploymentStatus.name === 'employed'">
+                      <span class="table-column-data singleline">{{
+                        lead.designation
+                          ? (lead.designation | capitalizeFirst)
+                          : "-"
+                      }}</span>
+                    </td>
+                    <td *ngIf="activeEmploymentStatus.name === 'self-employed'">
+                      <span class="table-column-data">{{
+                        lead.businessEntity
+                          ? getEntityName(lead.businessEntity)
+                          : "-"
+                      }}</span>
+                    </td>
+                    <td *ngIf="activeEmploymentStatus.name === 'employed'">
+                      <span class="table-column-data">{{
+                        lead.salary ? lead.salary : "-"
+                      }}</span>
+                    </td>
+                    <td *ngIf="activeEmploymentStatus.name === 'self-employed'">
+                      <span class="table-column-data singleline">{{
+                        lead.contactPerson
+                          ? (lead.contactPerson | capitalizeFirst)
+                          : "-"
+                      }}</span>
+                    </td>
+                    <td>
+                      <span class="table-column-data">{{
+                        lead.primaryPhone ? lead.primaryPhone : "-"
+                      }}</span>
+                    </td>
+                    <td *ngIf="activeEmploymentStatus.name === 'employed'">
+                      <span class="table-column-data">{{
+                        lead.jobExperience ? lead.jobExperience : "-"
+                      }}</span>
+                    </td>
+                    <td *ngIf="activeEmploymentStatus.name === 'self-employed'">
+                      <span class="table-column-data">{{
+                        lead.businessTurnover ? lead.businessTurnover : "-"
+                      }}</span>
+                    </td>
+                    <td
+                      *ngIf="
+                        userDetails &&
+                        userDetails.userType &&
+                        userDetails.userType != '3'
+                      "
+                    >
+                      <span class="table-column-data singleline">{{
+                        lead.sourcedByName
+                          ? (lead.sourcedByName | capitalizeFirst)
+                          : "-"
+                      }}</span>
+                    </td>
+                    <td>
+                      <span class="table-column-data">{{
+                        lead.createdOn
+                          ? (lead.createdOn | date : "mediumDate")
+                          : "-"
+                      }}</span>
+                    </td>
+                    <td>
+                      <span
+                        class="table-column-data fw-bold statusdata"
+                        [ngStyle]="{
+                          color: getStatusColor(
+                            getStatusName(lead.leadInternalStatus)
+                          ).textColor,
+
+                        }"
+                      >
+                        {{ getStatusName(lead.leadInternalStatus) }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="text-center">
+                        <div class="d-flex">
+                          <!-- <button
+                            pButton
+                            pRipple
+                            type="button"
+                            class="p-button-primary me-2 custom-btn"
+                            (click)="viewLead(lead)"
+                            pTooltip="View Lead"
+                            icon="fas fa-eye"
+                            tooltipPosition="top"
+                          ></button> -->
+                          <!-- <img
+                            src="../../../assets/images/icons/eye.svg"
+                            width="24px"
+                            height="24px"
+                            class="me-2"
+                            tooltipPosition="top"
+                            (click)="viewLead(lead)"
+                            pTooltip="View Lead"
+                          /> -->
+                          <!-- <button
+                            pButton
+                            pRipple
+                            type="button"
+                            class="p-button-info me-2 custom-btn"
+                            (click)="updateLoanLead(lead.leadId)"
+                            pTooltip="Update Lead"
+                            icon="fas fa-pen-to-square"
+                            tooltipPosition="top"
+                          ></button> -->
+                          <img
+                            alt="Update Lead"
+                            src="../../../assets/images/icons/edit.svg"
+                            width="24px"
+                            height="24px"
+                            class="me-2"
+                            (click)="updateLoanLead(lead.leadId)"
+                            pTooltip="Update Lead"
+                            tooltipPosition="top"
+                          />
+                          <p-menu
+                            appendTo="body"
+                            #menuhome
+                            [model]="getHomeActionItems(lead)"
+                            [popup]="true"
+                          ></p-menu>
+
+                          <!-- <button
+                            pButton
+                            type="button"
+                            class="custom-btn"
+                            (click)="menuhome.toggle($event)"
+                            icon="fas fa-bars"
+                            pTooltip="Actions"
+                            tooltipPosition="top"
+                          ></button> -->
+                          <img
+                            alt="Actions"
+                            src="../../../assets/images/icons/menu.svg"
+                            width="24px"
+                            height="24px"
+                            pTooltip="Actions"
+                            tooltipPosition="top"
+                            (click)="
+                              menuhome.toggle($event); $event.stopPropagation()
+                            "
+                          />
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr class="text-center">
+                    <td colspan="10" class="text-center fw-bold">
+                      <img
+                        alt="No Data"
+                        src="../../../assets/images/menu/no-data.gif"
+                        width="200"
+                        height="200"
+                      />
+                      <p>No Leads Found</p>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </ng-container>
+        </ng-container>
+      </div>
+      <div *ngIf="activeItem.name == 'lap'">
+        <p-tabMenu
+          [model]="employmentStatus"
+          class="tabdesign"
+          [activeItem]="activeEmploymentStatus"
+          (activeItemChange)="onActiveEmploymentStatusChange($event)"
+        ></p-tabMenu>
+        <ng-container
+          *ngIf="activeEmploymentStatus && activeEmploymentStatus.name"
+        >
+          <ng-container
+            *ngIf="
+              activeEmploymentStatus.name == 'employed' ||
+              activeEmploymentStatus.name == 'self-employed'
+            "
+          >
+            <div class="text-capitalize">
+              <p-table
+                #LapleadsTable
+                [value]="loanLeads"
+                [sortOrder]="-1"
+                [lazy]="true"
+                selectionMode="single"
+                (onRowSelect)="viewLead($event)"
+                (onLazyLoad)="
+                  activeEmploymentStatus.name == 'employed'
+                    ? loadLeadsforlap($event)
+                    : loadLeadsforlapself($event)
+                "
+                dataKey="id"
+                [showCurrentPageReport]="true"
+                [rowsPerPageOptions]="[10, 25, 50]"
+                [paginator]="true"
+                [rows]="10"
+                class="p-datatable-striped"
+                [totalRecords]="
+                  activeEmploymentStatus.name == 'employed'
+                    ? lapLeadsCount
+                    : lapselfLeadsCount
+                "
+                [loading]="loadleadsloading"
+                responsiveLayout="scroll"
+                scrollHeight="flex"
+                [globalFilterFields]="[
+                  'referenceNo',
+                  'customer.firstName',
+                  'partner.partnerName',
+                  'status'
+                ]"
+                styleClass="p-datatable-customers"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} leads"
+              >
+                <ng-template pTemplate="caption">
+                  <div class="row">
+                    <div class="col-md-3 mt-2 no-padding-small">
+                      <div class="p-inputgroup">
+                        <input
+                          type="text"
+                          pInputText
+                          [placeholder]="
+                            activeEmploymentStatus.name === 'employed'
+                              ? 'Search Lead with Person Name'
+                              : 'Search Lead with Business Name'
+                          "
+                          [(ngModel)]="searchInputValue"
+                          (ngModelChange)="handleInputChange($event)"
+                          (keyup.enter)="filterBasedOnEmploymentStatus()"
+                        />
+                        <!-- <button
+                          type="button"
+                          pButton
+                          icon="pi pi-search"
+                          class="p-button-primary"
+                          [disabled]="!searchInputValue"
+                          (click)="filterBasedOnEmploymentStatus()"
+                        ></button> -->
+                        <button
+                          type="button"
+                          pButton
+                          class="p-button-primary"
+                          [disabled]="!searchInputValue"
+                          (click)="filterBasedOnEmploymentStatus()"
+                        >
+                          <img
+                            src="assets/images/icons/search.svg"
+                            alt="Search"
+                            width="16"
+                            height="16"
+                            style="vertical-align: middle"
+                          />
+                        </button>
+                      </div>
+                    </div>
+                    <div
+                      class="col-md-3 mt-2 no-padding-small"
+                      *ngIf="
+                        userDetails &&
+                        userDetails.userType &&
+                        userDetails.userType == '3'
+                      "
+                    ></div>
+                    <div class="col-md-3 mt-2 no-padding-small">
+                      <div
+                        class="p-inputgroup"
+                        *ngIf="
+                          userDetails &&
+                          userDetails.userType &&
+                          userDetails.userType != '3'
+                        "
+                      >
+                        <br class="d-lg-none d-md-none" />
+                        <p-dropdown
+                          styleClass="text-left"
+                          [style]="{ width: '100%' }"
+                          [options]="leadUsers"
+                          (onChange)="
+                            activeEmploymentStatus.name === 'employed'
+                              ? statusChangeForLap($event)
+                              : statusChangeForLapSelf($event)
+                          "
+                          [dropdownIcon]="'fa fa-caret-down'"
+                          [(ngModel)]="SourcedByForLap"
+                          optionLabel="name"
+                          dataKey="name"
+                          appendTo="body"
+                          [filter]="true"
+                          filterPlaceholder="Search..."
+                        >
+                        </p-dropdown>
+                      </div>
+                    </div>
+                    <div class="col-md-3 mt-2 no-padding-small text-right">
+                      <div class="d-flex">
+                        <div class="flex-grow-1 me-2">
+                          <p-dropdown
+                            styleClass="text-left"
+                            [style]="{ width: '100%' }"
+                            [options]="leadStatus"
+                            (onChange)="
+                              activeEmploymentStatus.name === 'employed'
+                                ? statusChangeForLap($event)
+                                : statusChangeForLapSelf($event)
+                            "
+                            [dropdownIcon]="'fa fa-caret-down'"
+                            [(ngModel)]="selectedLapLeadStatus"
+                            optionLabel="displayName"
+                            dataKey="name"
+                            appendTo="body"
+                          >
+                          </p-dropdown>
+                        </div>
+                        <div class="d-flex align-items-center pointer-cursor">
+                          <app-filter
+                            [position]="'right'"
+                            [iconColor]="'#33009C'"
+                            [iconSize]="'28px!important'"
+                            (filterEvent)="
+                              activeEmploymentStatus.name === 'employed'
+                                ? applyConfigFilters($event, 'Lap')
+                                : applyConfigFilters($event, 'Lapself')
+                            "
+                            [filterConfig]="
+                              activeEmploymentStatus.name === 'employed'
+                                ? HomefilterConfig
+                                : HomeSelffilterConfig
+                            "
+                            [showFilterIndication]="
+                              activeEmploymentStatus.name === 'employed'
+                                ? appliedFilterLap
+                                : appliedFilterLapself
+                            "
+                            pTooltip="Filter"
+                            tooltipPosition="top"
+                          >
+                          </app-filter>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </ng-template>
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th class="text-nowrap">Lead Id</th>
+                    <th
+                      class="text-nowrap"
+                      *ngIf="activeEmploymentStatus.name === 'employed'"
+                    >
+                      Applicant Name
+                    </th>
+                    <th
+                      class="text-nowrap"
+                      *ngIf="activeEmploymentStatus.name === 'self-employed'"
+                    >
+                      Business Name
+                    </th>
+                    <th *ngIf="activeEmploymentStatus.name === 'employed'">
+                      Designation
+                    </th>
+                    <th
+                      class="text-nowrap"
+                      *ngIf="activeEmploymentStatus.name === 'self-employed'"
+                    >
+                      Business Entity
+                    </th>
+                    <th
+                      class="text-nowrap"
+                      *ngIf="activeEmploymentStatus.name === 'self-employed'"
+                    >
+                      Contact Person
+                    </th>
+                    <th class="text-nowrap">Primary Phone</th>
+                    <th *ngIf="activeEmploymentStatus.name === 'employed'">
+                      Salary
+                    </th>
+                    <th
+                      class="text-nowrap"
+                      *ngIf="activeEmploymentStatus.name === 'employed'"
+                    >
+                      Job Experience
+                    </th>
+                    <th
+                      class="text-nowrap"
+                      *ngIf="
+                        userDetails &&
+                        userDetails.userType &&
+                        userDetails.userType != '3'
+                      "
+                    >
+                      Sourced By
+                    </th>
+                    <th class="text-nowrap">Created Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-lead>
+                  <tr [pSelectableRow]="lead">
+                    <td>
+                      <span
+                        class="table-column-data singleline"
+                        *ngIf="lead.customId"
+                        >{{ lead.customId }}</span
+                      >
+                    </td>
+                    <td *ngIf="activeEmploymentStatus.name === 'employed'">
+                      <span class="table-column-data singleline">{{
+                        lead.contactPerson
+                          ? (lead.contactPerson | capitalizeFirst)
+                          : "-"
+                      }}</span>
+                    </td>
+                    <td *ngIf="activeEmploymentStatus.name === 'self-employed'">
+                      <span class="table-column-data singleline">{{
+                        lead.businessName
+                          ? (lead.businessName | capitalizeFirst)
+                          : "-"
+                      }}</span>
+                    </td>
+                    <td *ngIf="activeEmploymentStatus.name === 'employed'">
+                      <span class="table-column-data singleline">{{
+                        lead.designation
+                          ? (lead.designation | capitalizeFirst)
+                          : "-"
+                      }}</span>
+                    </td>
+                    <td *ngIf="activeEmploymentStatus.name === 'self-employed'">
+                      <span class="table-column-data">{{
+                        lead.businessEntity
+                          ? getEntityName(lead.businessEntity)
+                          : "-"
+                      }}</span>
+                    </td>
+                    <td *ngIf="activeEmploymentStatus.name === 'self-employed'">
+                      <span class="table-column-data singleline">{{
+                        lead.contactPerson
+                          ? (lead.contactPerson | capitalizeFirst)
+                          : "-"
+                      }}</span>
+                    </td>
+                    <td>
+                      <span class="table-column-data">{{
+                        lead.primaryPhone ? lead.primaryPhone : "-"
+                      }}</span>
+                    </td>
+                    <td *ngIf="activeEmploymentStatus.name === 'employed'">
+                      <span class="table-column-data">{{
+                        lead.salary ? lead.salary : "-"
+                      }}</span>
+                    </td>
+                    <td *ngIf="activeEmploymentStatus.name === 'employed'">
+                      <span class="table-column-data">{{
+                        lead.jobExperience ? lead.jobExperience : "-"
+                      }}</span>
+                    </td>
+
+                    <td
+                      *ngIf="
+                        userDetails &&
+                        userDetails.userType &&
+                        userDetails.userType != '3'
+                      "
+                    >
+                      <span class="table-column-data singleline">{{
+                        lead.sourcedByName
+                          ? (lead.sourcedByName | capitalizeFirst)
+                          : "-"
+                      }}</span>
+                    </td>
+                    <td>
+                      <span class="table-column-data">{{
+                        lead.createdOn
+                          ? (lead.createdOn | date : "mediumDate")
+                          : "-"
+                      }}</span>
+                    </td>
+                    <td>
+                      <span
+                        class="table-column-data fw-bold statusdata"
+                        *ngIf="lead.leadInternalStatus"
+                        [ngStyle]="{
+                          color: getStatusColor(
+                            getStatusName(lead.leadInternalStatus)
+                          ).textColor,
+
+                        }"
+                      >
+                        {{ getStatusName(lead.leadInternalStatus) }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="text-center">
+                        <div class="d-flex">
+                          <!-- <img
+                            src="../../../assets/images/icons/eye.svg"
+                            width="24px"
+                            height="24px"
+                            class="me-2"
+                            (click)="viewLead(lead)"
+                            pTooltip="View Lead"
+                            tooltipPosition="top"
+                          /> -->
+                          <img
+                            alt="View Lead"
+                            src="../../../assets/images/icons/edit.svg"
+                            width="24px"
+                            height="24px"
+                            class="me-2"
+                            (click)="updateLoanLead(lead.leadId)"
+                            pTooltip="Update Lead"
+                            tooltipPosition="top"
+                          />
+                          <p-menu
+                            appendTo="body"
+                            #menu
+                            [model]="getLapActionItems(lead)"
+                            [popup]="true"
+                          ></p-menu>
+                          <img
+                            alt="Actions"
+                            src="../../../assets/images/icons/menu.svg"
+                            width="24px"
+                            height="24px"
+                            (click)="
+                              menu.toggle($event); $event.stopPropagation()
+                            "
+                            pTooltip="Actions"
+                            tooltipPosition="top"
+                          />
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr class="text-center">
+                    <td colspan="10" class="text-center fw-bold">
+                      <img
+                        alt="No Data"
+                        src="../../../assets/images/menu/no-data.gif"
+                        width="200"
+                        height="200"
+                      />
+                      <p>No Leads Found</p>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </ng-container>
+        </ng-container>
+      </div>
+      <div *ngIf="activeItem.name == 'professionalLoans'">
+        <p>Comming soon ....</p>
+      </div>
+      <div *ngIf="activeItem.name == 'educationlLoans'">
+        <p>Comming soon ....</p>
+      </div>
+      <div *ngIf="activeItem.name == 'carLoan'">
+        <p>Comming soon ....</p>
+      </div>
+      <div *ngIf="activeItem.name == 'commercialVehicleLoan'">
+        <p>Comming soon ....</p>
+      </div>
+    </div>
+  </div>
+</div>

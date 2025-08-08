@@ -1,0 +1,166 @@
+<div>
+  <div class="bread-crumb m-2">
+    <p-breadcrumb [model]="breadCrumbItems"></p-breadcrumb>
+  </div>
+  <div class="p-1 m-2 fixed-card" *ngIf="bankers">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <!-- <span class="me-1">
+        <img
+          src="../../../../assets/images/menu/logins-done.png"
+          alt="Default Image"
+          class=""
+          style="height: 35px; width: 40px"
+        />
+      </span> -->
+        <div class="fw-bold back-btn-text text-capitalize">
+          &nbsp; {{ bankers.name | uppercasePipe }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card text-capitalize m-2">
+    <div
+      *ngIf="bankers"
+      class="text-center p-3 fw-bold"
+      style="color: #ee7846; font-size: 23px"
+    >
+      <div class="">
+        <span style="color: #29415b; font-size: 23px">Logins Done in </span
+        >{{ bankers.name | uppercasePipe }}
+      </div>
+    </div>
+    <div class="mb-4">
+      <p-table
+        #lenderTable
+        [value]="loginsDone"
+        [lazy]="true"
+        editable="true"
+        [editMode]="'cell'"
+        dataKey="id"
+        (onEditComplete)="onRowEditSave($event)"
+        selectionMode="single"
+        (onLazyLoad)="loadLeads($event)"
+        (onRowSelect)="viewLead($event)"
+        [showCurrentPageReport]="true"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        [paginator]="true"
+        [rows]="10"
+        [totalRecords]="loginsDoneCount"
+        [loading]="loading"
+        responsiveLayout="scroll"
+        scrollHeight="flex"
+        class="p-datatable-striped"
+        [globalFilterFields]="['leadName', 'program', 'status', 'remarks']"
+        styleClass="p-datatable-customers"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} logins Done"
+      >
+        <ng-template pTemplate="caption">
+          <div class="row">
+            <div class="col-md-3 mt-2 no-padding-small">
+              <div class="p-inputgroup">
+                <input
+                  type="text"
+                  pInputText
+                  placeholder="Search Lead with Business Name"
+                  [(ngModel)]="businessNameToSearch"
+                  (ngModelChange)="
+                    inputValueChangeEvent('loanId', businessNameToSearch)
+                  "
+                  (keyup.enter)="filterWithBusinessName()"
+                />
+                <!-- <button
+                  type="button"
+                  pButton
+                  icon="pi pi-search"
+                  class="p-button-primary"
+                  [disabled]="!businessNameToSearch"
+                  (click)="filterWithBusinessName()"
+                ></button> -->
+                <button
+                  type="button"
+                  pButton
+                  class="p-button-primary"
+                  [disabled]="!businessNameToSearch"
+                  (click)="filterWithBusinessName()"
+                >
+                  <img
+                    src="assets/images/icons/search.svg"
+                    alt="Search"
+                    width="16"
+                    height="16"
+                    style="vertical-align: middle"
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Lead Name</th>
+            <th>Surrogate</th>
+            <th>Login Date</th>
+            <th>Status</th>
+            <th pEditableColumnField="fipRemarks">Remarks</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-lender let-editing="editing">
+          <tr class="text-capitalize" [pSelectableRow]="lender">
+            <td>{{ lender.businessName | capitalizeFirst }}</td>
+            <td>{{ lender.program }}</td>
+            <td>{{ lender.loginDate }}</td>
+            <td>{{ lender.fipStatus }}</td>
+            <!-- <td
+              pEditableColumn
+              pEditableColumnField="fipRemarks"
+              (click)="$event.stopPropagation()"
+            > -->
+            <td
+              pEditableColumn
+              pEditableColumnField="fipRemarks"
+            >
+              <p-cellEditor>
+                <ng-template pTemplate="input">
+                  <input
+                    type="text"
+                    pInputText
+                    [(ngModel)]="lender.fipRemarks"
+                    class="form-control"
+                    autofocus
+                  />
+                </ng-template>
+                <ng-template pTemplate="output">
+                  {{ lender.fipRemarks }}
+                </ng-template>
+              </p-cellEditor>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr class="text-center">
+            <td colspan="5" class="text-center fw-bold">
+              <img
+              alt="No Data"
+                src="../../../assets/images/menu/no-data.gif"
+                width="200"
+                height="200"
+              />
+              <p>No Logins Done Found</p>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>

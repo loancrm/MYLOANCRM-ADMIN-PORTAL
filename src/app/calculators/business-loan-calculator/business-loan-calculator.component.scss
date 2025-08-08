@@ -1,0 +1,29 @@
+.container {
+  background-color: #f8f9fa;
+  padding: 30px;
+  border-radius: 10px;
+}
+
+.form-group label {
+  font-weight: bold;
+}
+.emi-heading {
+  color: #ee7846;
+}
+.emi-value,
+.heading {
+  color: #29415b;
+}
+
+::ng-deep .p-slider .p-slider-range {
+  background-color: #29415b !important; /* Range fill color */
+}
+
+::ng-deep .p-slider .p-slider-handle {
+  background-color: #fff !important; /* Handle color */
+  border-color: #29415b !important;
+}
+
+::ng-deep .p-slider .p-slider-handle:hover {
+  box-shadow: 0 0 0 0.2rem rgba(41, 65, 91, 0.3);
+}

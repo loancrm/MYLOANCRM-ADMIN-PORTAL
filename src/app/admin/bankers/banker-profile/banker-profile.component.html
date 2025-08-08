@@ -1,0 +1,202 @@
+<div>
+  <div class="bread-crumb m-2">
+    <p-breadcrumb [model]="breadCrumbItems"></p-breadcrumb>
+  </div>
+  <div class="m-2 p-1" *ngIf="bankers">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <!-- <span class="me-1">
+        <img
+          src="../../../../assets/images/menu/view-bank.png"
+          alt="Default Image"
+          class=""
+          style="height: 35px; width: 40px"
+        />
+      </span> -->
+        <div class="fw-bold back-btn-text text-capitalize">
+          &nbsp; {{ bankers.name | capitalizeFirst }} Profile
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--
+  <div class="bread-crumb m-2">
+    <p-breadcrumb [model]="breadCrumbItems"></p-breadcrumb>
+  </div> -->
+  <div *ngIf="loading">
+    <app-preloader></app-preloader>
+  </div>
+
+  <div class="bg-color">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card p-4 banker-profile">
+            <div class="row">
+              <div
+                class="col-md-4 d-flex justify-content-center align-items-center"
+              >
+                <!-- <div
+                  *ngIf="
+                    bankers &&
+                    bankers.imageFiles &&
+                    bankers.imageFiles.length > 0
+                  "
+                  class="mt-2"
+                >
+                  <span *ngFor="let file of bankers.imageFiles">
+                    <ng-container *ngIf="isImageFile(file)">
+                      <a [href]="'//' + file" target="_blank">
+                        <img
+                          [src]="'//' + file"
+                          alt="Image"
+                          class="img-thumbnail"
+                          style="height: 120px; width: 240px"
+                        />
+                      </a>
+                    </ng-container>
+                    <ng-container *ngIf="!isImageFile(file)">
+                      <a [href]="'//' + file" target="_blank">
+                        <i
+                          [class]="getFileIcon(file.split('.').pop())"
+                          class="file-icon"
+                        ></i>
+                      </a>
+                    </ng-container>
+                  </span>
+                </div>
+                <div *ngIf="bankers && bankers.imageFiles.length == 0" class="">
+                  <tr class="text-center">
+                    <img
+                      src="../../../../assets/images/menu/noImage.png"
+                      width="100"
+                      height="100"
+                    />
+                    <p>No Image Found</p>
+                  </tr>
+                </div> -->
+
+                <ng-container
+                  *ngIf="
+                    bankers &&
+                      bankers.imageFiles &&
+                      bankers.imageFiles.length > 0;
+                    else defaultImage
+                  "
+                >
+                  <a>
+                    <img
+                      [src]="'//' + bankers.imageFiles[0]"
+                      alt="Image"
+                      class="img-thumbnail"
+                      style="height: 120px; width: 240px"
+                    />
+                  </a>
+                </ng-container>
+                <ng-template #defaultImage>
+                  <img
+                    src="../../../../assets/images/menu/noImage.png"
+                    alt="Default Image"
+                    style="height: 120px; width: 240px"
+                  />
+                </ng-template>
+              </div>
+              <div class="col-md-8 text-center">
+                <div *ngIf="bankers">
+                  <div class="">
+                    <span class="bankname text-capitalize">{{
+                      bankers.name | capitalizeFirst
+                    }}</span>
+                  </div>
+                  <div class="">
+                    <label class="bankerid">Banker ID:&nbsp;</label>
+                    <span style="color: #ee7846">{{ bankers.bankerId }}</span>
+                  </div>
+                  <div>
+                    <label class="bankStatus">Status:&nbsp;</label>
+                    <span
+                      class="table-column-data fw-bold statusdata"
+                      *ngIf="bankers.bankerInternalStatus"
+                      [ngStyle]="{
+                        color: getStatusColor(
+                          getStatusName(bankers.bankerInternalStatus)
+                        ).textColor,
+                        'background-color': getStatusColor(
+                          getStatusName(bankers.bankerInternalStatus)
+                        ).backgroundColor
+                      }"
+                    >
+                      {{ getStatusName(bankers.bankerInternalStatus) }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 text-capitalize mb-3" *ngIf="bankers">
+          <div class="card p-4 banker-profile" *ngIf="bankers.branchDetails">
+            <div
+              *ngFor="let branch of bankers.branchDetails; let i = index"
+              class="mb-3"
+            >
+              <div class="flex justify-content-center">
+                <p-accordion [multiple]="true" [activeIndex]="[0]">
+                  <p-accordionTab
+                    header="Branch-{{ i + 1 }} Details"
+                    [headerStyleClass]="'accordion-header'"
+                  >
+                    <div class="mt-3">
+                      <div class="info-line">
+                        <div class="label d-flex justify-content-between">
+                          Branch <b>:&nbsp;</b>
+                        </div>
+                        <div class="value">
+                          {{ branch?.branch | capitalizeFirst }}
+                        </div>
+                      </div>
+                      <div class="info-line">
+                        <div class="label d-flex justify-content-between">
+                          Contact Person <b>:&nbsp;</b>
+                        </div>
+                        <div class="value">
+                          {{ branch?.contactPerson | capitalizeFirst }}
+                        </div>
+                      </div>
+                      <div class="info-line">
+                        <div class="label d-flex justify-content-between">
+                          Designation <b>:&nbsp;</b>
+                        </div>
+                        <div class="value">
+                          {{ branch?.designation | capitalizeFirst }}
+                        </div>
+                      </div>
+                      <div class="info-line">
+                        <div class="label d-flex justify-content-between">
+                          Mobile Number<b>:&nbsp;</b>
+                        </div>
+                        <div class="value">{{ branch?.phone }}</div>
+                      </div>
+                      <div class="info-line">
+                        <div class="label d-flex justify-content-between">
+                          Email<b>:&nbsp;</b>
+                        </div>
+                        <div class="value email">{{ branch?.email }}</div>
+                      </div>
+                    </div>
+                  </p-accordionTab>
+                </p-accordion>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

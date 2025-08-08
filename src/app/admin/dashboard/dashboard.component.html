@@ -1,0 +1,353 @@
+<div
+  class="welcome d-flex justify-content-between align-items-center p-1 m-1 greeting-card"
+>
+  <!-- Left: Greeting -->
+  <div class="d-flex align-items-center m-2">
+    <!-- <img
+      src="../../../assets/images/menu/welcome.gif"
+      width="45"
+      height="45"
+      class="me-3"
+      alt="Image"
+    /> -->
+    <div>
+      <h5 class="card-title mb-0 text-capitalize">
+        {{ greetingMessage }}, &nbsp;<span>{{
+          userDetails.name | capitalizeFirst
+        }}</span>
+      </h5>
+    </div>
+  </div>
+
+  <!-- Right: Date Range Dropdown -->
+  <!-- <p-dropdown
+    [options]="dateOptions"
+    [(ngModel)]="selectedDateOption"
+    optionLabel="label"
+    placeholder="Select Range"
+    class="w-auto"
+    style="min-width: 160px"
+  ></p-dropdown> -->
+</div>
+
+<div *ngIf="loading">
+  <app-preloader></app-preloader>
+</div>
+
+<div class="" *ngIf="!loading">
+  <div class="container-fluid">
+    <!-- <div class="row">
+      <ng-container *ngFor="let item of countsAnalytics">
+        <ng-container *ngIf="item.condition">
+          <div class="col-lg-2 col-md-4 col-sm-4 col-12">
+            <div
+              class="card p-3 shadow-sm pointer-cursor mt-3 cards"
+              [ngStyle]="{
+                'background-color': item.backgroundColor,
+                color: item.color
+              }"
+              (click)="goToRoute(item.routerLink)"
+            >
+              <div class="d-flex">
+                <div class="me-2">
+                  <img
+                    src="assets/images/menu/{{ item.name }}.png"
+                    width="50"
+                    alt="{{ item.displayName }} icon"
+                  />
+                </div>
+                <div class="d-flex align-items-center">
+                  <div>
+                    <div class="count-sub-title text-nowrap">
+                      {{ item.displayName }}
+                    </div>
+                    <div class="count-title text-nowrap">
+                      {{ item.count }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </ng-container>
+    </div> -->
+
+    <div class="container-fluid text-capitalize p-0">
+      <div class="row g-2">
+        <ng-container *ngFor="let card of countsAnalytics">
+          <div
+            *ngIf="card.condition"
+            class="col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2"
+          >
+            <div
+              class="card countcard shadow-sm d-flex flex-row align-items-center justify-content-between px-3 py-2 pointer-cursor h-100"
+              (click)="goToRoute(card.routerLink)"
+            >
+              <div>
+                <h6 class="card-heading mb-1">{{ card.displayName }}</h6>
+                <h4 class="card-count mb-0">{{ card.count }}</h4>
+              </div>
+              <div
+                class="rounded-circle d-flex align-items-center justify-content-center dashboardicon"
+                [ngStyle]="{ 'background-color': card.color }"
+                style="width: 40px; height: 40px"
+              >
+                <img
+                  [src]="card.icon"
+                  alt="{{ card.name }}"
+                  width="24"
+                  height="24"
+                  style="filter: brightness(0) invert(1)"
+                />
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <div
+      class="row gap-2 mt-2"
+      *ngIf="userDetails && userDetails.userType && userDetails.userType == '3'"
+    >
+      <div class="col-md-6 col-12" *ngIf="pieChartOptions">
+        <br class="d-lg-none d-md-none" />
+        <div class="card">
+          <div class="dropdown-container">
+            <!-- <select class="dropdown" (change)="onChangeDropdown($event)">
+              <option
+                *ngFor="let option of dropdownOptions"
+                [value]="option.label"
+              >
+                {{ option.label }}
+              </option>
+            </select> -->
+            <p-dropdown
+              [options]="dropdownOptions"
+              optionLabel="label"
+              [(ngModel)]="selectedDropdownOption"
+              [dropdownIcon]="'fa fa-caret-down'"
+              (onChange)="onChangeDropdown($event.value)"
+              filterPlaceholder="Search..."
+              [appendTo]="'body'"
+              [panelStyle]="{ left: 'auto', right: '0' }"
+              placeholder="Select an option"
+              class="w-100"
+            ></p-dropdown>
+          </div>
+          <div>
+            <app-apex-charts [chartOptions]="pieChartOptions"></app-apex-charts>
+            <span
+              ><img
+                [src]="chartDisplayMessage"
+                *ngIf="chartDisplayMessage"
+                alt="No Data Available"
+            /></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="row g-3 mt-2"
+      *ngIf="userDetails && userDetails.userType && userDetails.userType != '3'"
+    >
+      <!-- <div class="col-md-6 col-12" *ngIf="leadsCallbacksChartOptions">
+        <div class="card">
+          <div>
+            <app-apex-charts
+              [chartOptions]="leadsCallbacksChartOptions"
+            ></app-apex-charts>
+          </div>
+        </div>
+      </div> -->
+      <div class="col-md-6 col-12" *ngIf="AgentWiseBarChartOptions">
+        <!-- <br class="d-lg-none d-md-none" /> -->
+        <div class="card">
+          <div class="dropdown-container">
+            <p-dropdown
+              styleClass="text-left"
+              [style]="{ width: '100%' }"
+              [options]="leadUsers"
+              (onChange)="statusChange($event)"
+              [dropdownIcon]="'fa fa-caret-down'"
+              [(ngModel)]="selectedSoucedByStatus"
+              optionLabel="name"
+              dataKey="name"
+              [filter]="true"
+              filterPlaceholder="Search..."
+              [appendTo]="'body'"
+              [panelStyle]="{ left: 'auto', right: '0' }"
+            >
+            </p-dropdown>
+          </div>
+          <div>
+            <app-apex-charts
+              [chartOptions]="AgentWiseBarChartOptions"
+            ></app-apex-charts>
+            <!-- <p-chart
+              type="bar"
+              [data]="barChartData"
+              [options]="barChartOptions"
+              (onChartClick)="onBarClick($event)"
+              class="fixed-bar-chart"
+            >
+            </p-chart> -->
+            <span
+              *ngIf="
+                leadsCountforFilter == 0 &&
+                filesCountforFilter + partialsCountforFilter == 0 &&
+                fiProcessCountforFilter == 0 &&
+                approvalCountforFilter == 0 &&
+                disbursalCountforFilter == 0 &&
+                followupsCountforFilter == 0
+              "
+            >
+              <img [src]="chartDisplayMessage1" alt="No Data Available" />
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 position-relative">
+        <!-- Custom Loader Overlay -->
+        <div *ngIf="apiLoading" class="custom-loader-overlay">
+          <app-preloader></app-preloader>
+        </div>
+
+        <div
+          class="card rounded-3 p-3 mb-3 text-capitalize"
+          style="height: 350px"
+        >
+          <p-table
+            [value]="filesInProcessleads"
+            class="outlined-table"
+            [lazy]="true"
+            selectionMode="single"
+            (onLazyLoad)="loadLeads($event)"
+            (onRowSelect)="onRowSelect($event)"
+            [totalRecords]="fiProcessCount"
+            [scrollable]="true"
+            [loading]="false"
+            [rowsPerPageOptions]="[10, 25, 50]"
+            [paginator]="true"
+            [rows]="10"
+            scrollHeight="240px"
+            [style]="{ cursor: 'pointer', 'min-height': '310px' }"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Files In Process"
+          >
+            <!-- Header -->
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Lead Id</th>
+                <th>Business Name</th>
+                <th>Sourced By</th>
+              </tr>
+            </ng-template>
+
+            <!-- Body -->
+            <ng-template pTemplate="body" let-rowData>
+              <tr [pSelectableRow]="rowData">
+                <td>{{ rowData.customId }}</td>
+                <td>{{ rowData.businessName | capitalizeFirst }}</td>
+                <td>
+                  {{ getSourceName(rowData.sourcedBy) | capitalizeFirst }}
+                </td>
+              </tr>
+            </ng-template>
+
+            <!-- Empty Message -->
+            <ng-template pTemplate="emptymessage">
+              <tr class="text-center">
+                <td colspan="10" class="text-center fw-bold">
+                  <img
+                    alt="No Data"
+                    src="../../../assets/images/menu/no-data.gif"
+                    width="200"
+                    height="200"
+                  />
+                  <p>No Files In Process</p>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+      <div class="col-md-8 col-12" *ngIf="ApprovedDisbursedAmountChartOptions">
+        <br class="d-lg-none d-md-none" />
+        <div class="card">
+          <app-apex-charts
+            [chartOptions]="ApprovedDisbursedAmountChartOptions"
+          ></app-apex-charts>
+          <span *ngIf="allCountsZero">
+            <img [src]="chartDisplayMessage1" alt="No Data Available" />
+          </span>
+        </div>
+      </div>
+      <div class="col-md-4 col-12" *ngIf="pieChartOptions">
+        <!-- <br class="d-lg-none d-md-none" /> -->
+        <div class="card">
+          <div class="dropdown-container">
+            <!-- <select class="dropdown" (change)="onChangeDropdown($event)">
+                  <option
+                    *ngFor="let option of dropdownOptions"
+                    [value]="option.label"
+                  >
+                    {{ option.label }}
+                  </option>
+                </select> -->
+
+            <p-dropdown
+              [options]="dropdownOptions"
+              styleClass="text-left"
+              optionLabel="label"
+              [(ngModel)]="selectedDropdownOption"
+              [dropdownIcon]="'fa fa-caret-down'"
+              (onChange)="onChangeDropdown($event.value)"
+              placeholder="Select an option"
+              filterPlaceholder="Search..."
+              [appendTo]="'body'"
+              [panelStyle]="{ left: 'auto', right: '0' }"
+              class="w-100"
+            ></p-dropdown>
+          </div>
+          <div>
+            <app-apex-charts [chartOptions]="pieChartOptions"></app-apex-charts>
+            <span
+              ><img
+                [src]="chartDisplayMessage"
+                *ngIf="chartDisplayMessage"
+                alt="No Data Available"
+            /></span>
+          </div>
+        </div>
+      </div>
+      <!-- <div
+        class="row"
+        *ngIf="
+          userDetails && userDetails.userType && userDetails.userType != '3'
+        "
+      > -->
+      <!-- <div class="col-md-12 col-12">
+          <div class="row mt-3">
+            <ng-container>
+
+            </ng-container>
+
+          </div>
+        </div> -->
+      <!-- <br /> -->
+      <!-- </div> -->
+    </div>
+    <footer class="footer-card text-center text-lg-start mx-2 my-4">
+      <div class="text-center">
+        © 2024
+        <span style="color: #ee7846">
+          <span style="color: #29415b">My</span>Loan<span style="color: #29415b"
+            >CRM.</span
+          ></span
+        >
+        &nbsp; | All Rights Reserved
+      </div>
+    </footer>
+  </div>
+</div>
