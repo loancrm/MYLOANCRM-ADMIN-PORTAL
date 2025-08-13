@@ -41,16 +41,16 @@ export class CreateComponent {
   dateRangeFrom: any;
   dateRangeTo: any;
   moment: any;
-  businessEntities = projectConstantsLocal.BUSINESS_ENTITIES;
-  natureofBusiness = projectConstantsLocal.NATURE_OF_BUSINESS;
-  businessTurnover = projectConstantsLocal.BUSINESS_TURNOVER;
-  hadOwnHouse = projectConstantsLocal.YES_OR_NO;
-  leadStatusList = projectConstantsLocal.LEAD_INTERNAL_STATUS_REPORTS;
-  productTypeList = projectConstantsLocal.PRODUCT_TYPES;
-  processCodeList = projectConstantsLocal.PROCESS_CODES;
-  callbacksStatusList = projectConstantsLocal.CALLBACK_STATUS_REPORTS;
-  loginsStatus = projectConstantsLocal.BANKSSAVED_STATUS;
-  approvalStatus = projectConstantsLocal.APPROVALS_STATUS;
+  businessEntities: any;
+  natureofBusiness: any;
+  businessTurnover: any;
+  hadOwnHouse: any;
+  leadStatusList: any;
+  productTypeList: any;
+  processCodeList: any;
+  callbacksStatusList: any;
+  loginsStatus: any;
+  approvalStatus: any;
   dateRange = [
     { field: 'date', title: 'Date From', type: 'date', filterType: 'ge' },
     { field: 'date', title: 'Date To', type: 'date', filterType: 'le' },
@@ -96,7 +96,7 @@ export class CreateComponent {
     });
   }
   ngOnInit() {
-    Promise.all([ this.getBanks()])
+    Promise.all([this.getBanks()])
       .then(() => {
         this.setReportsList();
       })
@@ -984,7 +984,6 @@ export class CreateComponent {
   getBanks(filter = {}) {
     return new Promise((resolve, reject) => {
       this.loading = true;
-      
     });
   }
 

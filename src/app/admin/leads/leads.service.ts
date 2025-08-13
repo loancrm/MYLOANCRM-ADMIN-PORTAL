@@ -159,7 +159,7 @@ export class LeadsService {
     const url = 'contactus/total';
     return this.serviceMeta.httpGet(url, null, filter);
   }
-   getSubscibersCount(filter = {}) {
+  getSubscibersCount(filter = {}) {
     const url = 'contactus/subsciberstotal';
     return this.serviceMeta.httpGet(url, null, filter);
   }
@@ -167,12 +167,6 @@ export class LeadsService {
     const url = 'subscriptionPlans/total';
     return this.serviceMeta.httpGet(url, null, filter);
   }
-
-
-
-
-
-
   getloanLeads(filter = {}) {
     const url = 'loanleads';
     return this.serviceMeta.httpGet(url, null, filter);
@@ -221,15 +215,6 @@ export class LeadsService {
     const url = 'reports/reportsCount';
     return this.serviceMeta.httpGet(url, null, filter);
   }
-
-
-
-
-
-
-
-
-
   createPlan(data) {
     const url = 'subscriptionPlans';
     return this.serviceMeta.httpPost(url, data);
