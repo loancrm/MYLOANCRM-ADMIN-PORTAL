@@ -51,7 +51,7 @@ export class LoginComponent {
     this.isPasswordVisible = !this.isPasswordVisible;
   }
   doForgotPassword() {
-    this.router.navigate(['/user/forgot-password']);
+    this.router.navigate(['/admin/forgot-password']);
   }
   createForm() {
     this.loginForm = this.formBuilder.group({
@@ -75,12 +75,12 @@ export class LoginComponent {
             data['accessToken']
           );
           this.localStorageService.setItemOnLocalStorage(
-            'userDetails',
+            'adminDetails',
             jwtDecode(data['accessToken'])
           );
 
           // this.router.navigate(['user', 'dashboard']);
-          this.router.navigate(['user', 'dashboard'], {
+          this.router.navigate(['admin', 'dashboard'], {
             queryParams: { v: this.version },
           });
         }

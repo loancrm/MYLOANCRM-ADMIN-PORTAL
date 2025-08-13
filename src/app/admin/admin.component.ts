@@ -38,7 +38,7 @@ export class AdminComponent {
             break;
         }
       });
-    this.routingService.setFeatureRoute('user');
+    this.routingService.setFeatureRoute('admin');
   }
 
   @HostListener('window:resize', ['$event'])

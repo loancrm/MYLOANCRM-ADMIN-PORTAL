@@ -22,7 +22,6 @@ import { RoutingService } from '../../services/routing-service';
 import { ToastService } from '../../services/toast.service';
 import { LeadsService } from '../leads/leads.service';
 import { Router } from '@angular/router';
-import { LeadSearchComponent } from '../leadSearch/leadSearch.component';
 import { DialogService } from 'primeng/dynamicdialog';
 import { ConfirmationService } from 'primeng/api';
 
@@ -86,7 +85,6 @@ export class SidebarMenuComponent implements OnChanges {
         }
         this.setMenuItems();
       });
-    this.getUserRoles();
   }
 
   @HostListener('window:resize')
@@ -102,79 +100,13 @@ export class SidebarMenuComponent implements OnChanges {
     this.toggle.emit(this.isSidebarVisible);
   }
 
-  filterWithBusinessName() {
-    let searchFilter = {};
-    if (this.isPhoneNumber(this.businessNameToSearch)) {
-      searchFilter = { 'primaryPhone-like': this.businessNameToSearch };
-    } else {
-      searchFilter = { 'businessName-like': this.businessNameToSearch };
-    }
-    this.applyFilters(searchFilter);
-  }
-  applyFilters(searchFilter = {}) {
-    this.searchFilter = searchFilter;
-    this.loadLeads(this.currentTableEvent);
-  }
 
-  loadLeads(event) {
-    this.currentTableEvent = event;
-    let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
 
-    api_filter = Object.assign({}, api_filter, this.searchFilter);
-    if (api_filter) {
-      this.searchLeads(api_filter);
-    }
-  }
 
-  searchLeads(filter = {}) {
-    this.loading = true;
-    this.leadsService.searchLeads(filter).subscribe(
-      (response: any) => {
-        // console.log(response);
-        if (response) {
-          this.dialogService.open(LeadSearchComponent, {
-            data: response,
-            header: 'Lead Information',
-            width: '80%',
-          });
-        } else {
-          this.toastService.showError('An unknown error occurred.');
-        }
-        this.loading = false;
-      },
-      (error: any) => {
-        this.loading = false;
-        this.toastService.showError(error);
-      }
-    );
-  }
 
-  isPhoneNumber(value: string): boolean {
-    const phoneNumberPattern = /^[0-9]{10}$/;
-    return phoneNumberPattern.test(value);
-  }
-  getUserRoles(filter = {}) {
-    this.leadsService.getUserRoles(filter).subscribe(
-      (roles) => {
-        this.userRoles = roles;
-        // console.log(this.userRoles);
-      },
-      (error: any) => {
-        this.toastService.showError(error);
-      }
-    );
-  }
 
-  getUserRoleName(userId) {
-    if (this.userRoles && this.userRoles.length > 0) {
-      let leadUserName = this.userRoles.filter(
-        (leadUser) => leadUser.id == userId
-      );
-      // console.log(leadUserName);
-      return (leadUserName && leadUserName[0] && leadUserName[0].name) || '';
-    }
-    return '';
-  }
+
+
   closeMenu() {
     const screenWidth = window.innerWidth;
     if (screenWidth <= 767) {
@@ -194,184 +126,25 @@ export class SidebarMenuComponent implements OnChanges {
       this.setMenuItems();
     });
     this.userDetails =
-      this.localStorageService.getItemFromLocalStorage('userDetails');
+      this.localStorageService.getItemFromLocalStorage('adminDetails');
     if (this.userDetails && this.userDetails.user) {
       this.userDetails = this.userDetails.user;
-      this.userDetails.userImage = JSON.parse(this.userDetails.userImage);
+      // this.userDetails.userImage = JSON.parse(this.userDetails.userImage);
     }
     // console.log(this.userDetails);
-    this.capabilities = this.leadsService.getUserRbac();
+    // this.capabilities = this.leadsService.getUserRbac();
     // console.log(this.capabilities);
   }
 
   setMenuItems() {
-    this.subFeatureMenuItems = [
-      {
-        name: 'Dashboard',
-        condition: true,
-        routerLink: 'dashboard',
-        image: 'dashboard.gif',
-        thumbnail: 'home-color.png',
-        showOutside: true,
-      },
-      {
-        name: 'Leads',
-        condition: this.capabilities.leads,
-        routerLink: 'leads',
-        image: 'leads.gif',
-        thumbnail: 'leads.png',
-        showOutside: true,
-      },
-      {
-        name: 'Callbacks',
-        condition: this.capabilities.callbacks,
-        routerLink: 'callbacks',
-        image: 'callbacks.gif',
-        thumbnail: 'callbacks.png',
-        showOutside: true,
-      },
-      {
-        name: 'Follow Ups',
-        condition: this.capabilities.followups,
-        routerLink: 'followups',
-        image: 'followups.gif',
-        thumbnail: 'followups.png',
-        showOutside: true,
-      },
-      {
-        name: 'Files',
-        condition: this.capabilities.files,
-        routerLink: 'files',
-        image: 'files.gif',
-        thumbnail: 'files.png',
-        showOutside: true,
-      },
-      // {
-      //   name: 'Partial Files',
-      //   condition: this.capabilities.files,
-      //   routerLink: 'partial',
-      //   image: 'partial.gif',
-      //   thumbnail: 'partial.png',
-      //   showOutside: true,
-      // },
-      {
-        name: 'Credit Eval',
-        condition: this.capabilities.credit,
-        routerLink: 'credit',
-        image: 'credit.gif',
-        thumbnail: 'credit.png',
-        showOutside: true,
-      },
 
-      {
-        name: 'Logins',
-        condition: this.capabilities.logins,
-        routerLink: 'logins',
-        image: 'logins.gif',
-        thumbnail: 'logins.png',
-        showOutside: true,
-      },
-
-      {
-        name: 'Files in Process',
-        condition: this.capabilities.filesinprocess,
-        routerLink: 'filesinprocess',
-        image: 'activity.gif',
-        thumbnail: 'filesinprocess.png',
-        showOutside: true,
-      },
-
-      {
-        name: 'Sanctions',
-        condition: this.capabilities.approvals,
-        routerLink: 'approvals',
-        image: 'approvals.gif',
-        thumbnail: 'approvals.png',
-        showOutside: true,
-      },
-      {
-        name: 'Disbursals',
-        condition: this.capabilities.disbursals,
-        routerLink: 'disbursals',
-        image: 'disbursal.gif',
-        thumbnail: 'disbursal.png',
-        showOutside: true,
-      },
-      {
-        name: 'Rejects',
-        condition: this.capabilities.rejects,
-        routerLink: 'rejects',
-        image: 'rejects.gif',
-        thumbnail: 'rejects.png',
-        showOutside: true,
-      },
-      // {
-      //   name: 'Lenders',
-      //   condition: this.capabilities.lenders,
-      //   routerLink: 'lenders',
-      //   image: 'lenders.gif',
-      //   thumbnail: 'lenders.png',
-      //   showOutside: true,
-      // },
-      {
-        name: 'Team',
-        condition: this.capabilities.team,
-        routerLink: 'team',
-        image: 'team.gif',
-        thumbnail: 'team.png',
-        showOutside: true,
-      },
-      {
-        name: 'Lenders',
-        condition: this.capabilities.bankers,
-        routerLink: 'bankers',
-        image: 'lenders.gif',
-        thumbnail: 'lenders.png',
-        showOutside: true,
-      },
-      {
-        name: 'Reports',
-        condition: this.capabilities.reports,
-        routerLink: 'reports',
-        image: 'reports.gif',
-        thumbnail: 'reports.png',
-        showOutside: false,
-      },
-      {
-        name: 'Ip Address',
-        condition: this.capabilities.ipAddress,
-        routerLink: 'ipAddress',
-        image: 'ip.png',
-        thumbnail: 'ip.png',
-        showOutside: false,
-      },
-      {
-        name: 'Settings',
-        condition: true,
-        routerLink: 'settings',
-        image: 'settings.gif',
-        thumbnail: 'settings.png',
-        showOutside: false,
-      },
-    ];
+    // console.log("hello")
     this.menuItems = [
       { label: 'Home', icon: '../../../assets/images/icons/home.svg', route: 'dashboard', condition: true, },
-      { label: 'Leads', icon: '../../../assets/images/icons/leads.svg', route: 'leads', condition: this.capabilities.leads, },
-      { label: 'Callbacks', icon: '../../../assets/images/icons/callbacks.svg', route: 'callbacks', condition: this.capabilities.callbacks, },
-      { label: 'Follow Ups', icon: '../../../assets/images/icons/followups.svg', route: 'followups', condition: this.capabilities.followups, },
-      { label: 'Files', icon: '../../../assets/images/icons/files.svg', route: 'files', condition: this.capabilities.files, },
-      { label: 'Credit Evaluation', icon: '../../../assets/images/icons/credit.svg', route: 'credit', condition: this.capabilities.credit, },
-      { label: 'Logins', icon: '../../../assets/images/icons/logins.svg', route: 'logins', condition: this.capabilities.logins, },
-      { label: 'File In Process', icon: '../../../assets/images/icons/filesinprocess.svg', route: 'filesinprocess', condition: this.capabilities.filesinprocess, },
-      { label: 'Sanctions', icon: '../../../assets/images/icons/sanctions.svg', route: 'approvals', condition: this.capabilities.approvals, },
-      { label: 'Disbursals', icon: '../../../assets/images/icons/disbursal.svg', route: 'disbursals', condition: this.capabilities.disbursals, },
-      { label: 'Rejects', icon: '../../../assets/images/icons/rejects.svg', route: 'rejects', condition: this.capabilities.rejects, },
-      { label: 'Users', icon: '../../../assets/images/icons/team.svg', route: 'team', condition: this.capabilities.team, },
-      { label: 'Lenders', icon: '../../../assets/images/icons/lender1.svg', route: 'bankers', condition: this.capabilities.bankers, },
-      { label: 'Reports', icon: '../../../assets/images/icons/reports.svg', route: 'reports', condition: this.capabilities.reports, },
-      { label: 'Ip Address', icon: '../../../assets/images/icons/ipaddress.svg', route: 'ipAddress', condition: this.capabilities.ipAddress, },
-      { label: 'Integrations', icon: '../../../assets/images/icons/Integ.svg', route: 'integrations', condition: this.capabilities.integrations, },
-      { label: 'Settings', icon: '../../../assets/images/icons/Settings.svg', route: 'settings' },
+      { label: 'Accounts', icon: '../../../assets/images/icons/leads.svg', route: 'accounts', condition: true },
+      { label: 'Subscriptions', icon: '../../../assets/images/icons/callbacks.svg', route: 'subscription-plans', condition: true },
+      { label: 'Contacts', icon: '../../../assets/images/icons/callbacks.svg', route: 'contact-submissions', condition: true },
+      { label: 'Subscribers', icon: '../../../assets/images/icons/callbacks.svg', route: 'subscribers', condition: true },
     ];
   }
 
@@ -456,7 +229,7 @@ export class SidebarMenuComponent implements OnChanges {
           .then(() => {
             this.toastService.showSuccess('Logout Successful');
             this.localStorage.clearAllFromLocalStorage();
-            this.router.navigate(['user', 'login']);
+            this.router.navigate(['admin', 'login']);
           })
           .catch((error) => {
             this.toastService.showError(error);

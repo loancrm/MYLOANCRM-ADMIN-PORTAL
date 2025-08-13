@@ -60,7 +60,7 @@ export class ResetPasswordComponent {
       this.authService.resetPassword(data).subscribe({
         next: () => {
           this.toastService.showSuccess('Password reset successfully!');
-          this.router.navigate(['user/login']);
+          this.router.navigate(['admin/login']);
         },
 
         error: (error) => {

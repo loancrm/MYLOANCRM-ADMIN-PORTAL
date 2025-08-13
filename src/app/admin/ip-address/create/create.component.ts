@@ -44,14 +44,14 @@ export class CreateComponent {
         this.ipAddressId = params['id'];
         this.actionType = 'update';
         this.heading = 'Update Ip Address';
-        this.getIpAddressById().then((data) => {
-          if (data) {
-            // console.log('ip address data', this.ipAddressData);
-            this.ipAddressForm.patchValue({
-              ipAddress: this.ipAddressData.ipAddress,
-            });
-          }
-        });
+        // this.getIpAddressById().then((data) => {
+        //   if (data) {
+        //     // console.log('ip address data', this.ipAddressData);
+        //     this.ipAddressForm.patchValue({
+        //       ipAddress: this.ipAddressData.ipAddress,
+        //     });
+        //   }
+        // });
       }
     });
 
@@ -59,23 +59,24 @@ export class CreateComponent {
       {
 
         label: ' Home',
-        routerLink: '/user/dashboard',
+        routerLink: '/admin/dashboard',
         queryParams: { v: this.version },
       },
-      { label: 'Ip Address', routerLink: '/user/ipAddress',
+      {
+        label: 'Ip Address', routerLink: '/admin/ipAddress',
         queryParams: { v: this.version },
-       },
+      },
       { label: this.actionType == 'create' ? 'Create' : 'Update' },
     ];
-    this.getIpAddressById().then((data) => {
-      if (data) {
-        // console.log(this.ipAddressData);
-        this.ipAddressForm.patchValue({
-          ipAddress: this.ipAddressData?.ipAddress,
-          ipAddressName: this.ipAddressData?.ipAddressName,
-        });
-      }
-    });
+    // this.getIpAddressById().then((data) => {
+    //   if (data) {
+    //     // console.log(this.ipAddressData);
+    //     this.ipAddressForm.patchValue({
+    //       ipAddress: this.ipAddressData?.ipAddress,
+    //       ipAddressName: this.ipAddressData?.ipAddressName,
+    //     });
+    //   }
+    // });
   }
   ngOnInit() {
     this.createForm();
@@ -154,55 +155,55 @@ export class CreateComponent {
     // console.log('formData', formData);
     if (this.actionType == 'create') {
       this.loading = true;
-      this.leadsService.createIpAddress(formData).subscribe(
-        (data) => {
-          if (data) {
-            this.loading = false;
-            this.toastService.showSuccess('Ip Address Added Successfully');
-            this.routingService.handleRoute('ipAddress', null);
-          }
-        },
-        (error: any) => {
-          this.loading = false;
-          // console.log(error);
-          this.toastService.showError(error);
-        }
-      );
+      // this.leadsService.createIpAddress(formData).subscribe(
+      //   (data) => {
+      //     if (data) {
+      //       this.loading = false;
+      //       this.toastService.showSuccess('Ip Address Added Successfully');
+      //       this.routingService.handleRoute('ipAddress', null);
+      //     }
+      //   },
+      //   (error: any) => {
+      //     this.loading = false;
+      //     // console.log(error);
+      //     this.toastService.showError(error);
+      //   }
+      // );
     } else if (this.actionType == 'update') {
       this.loading = true;
       // console.log(formData);
-      this.leadsService.updateIpAddress(this.ipAddressId, formData).subscribe(
-        (data) => {
-          if (data) {
-            this.loading = false;
-            this.toastService.showSuccess('Ip Address Updated Successfully');
-            this.routingService.handleRoute('ipAddress', null);
-          }
-        },
-        (error: any) => {
-          this.loading = false;
-          this.toastService.showError(error);
-        }
-      );
+      // this.leadsService.updateIpAddress(this.ipAddressId, formData).subscribe(
+      //   (data) => {
+      //     if (data) {
+      //       this.loading = false;
+      //       this.toastService.showSuccess('Ip Address Updated Successfully');
+      //       this.routingService.handleRoute('ipAddress', null);
+      //     }
+      //   },
+      //   (error: any) => {
+      //     this.loading = false;
+      //     this.toastService.showError(error);
+      //   }
+      // );
     }
   }
   getIpAddressById(filter = {}) {
-    return new Promise((resolve, reject) => {
-      this.loading = true;
-      this.leadsService.getIpAddressById(this.ipAddressId, filter).subscribe(
-        (response) => {
-          this.ipAddressData = response;
-          // console.log(this.ipAddressData);
-          this.loading = false;
-          resolve(true);
-        },
-        (error: any) => {
-          this.loading = false;
-          resolve(false);
-          this.toastService.showError(error);
-        }
-      );
-    });
+    // return new Promise((resolve, reject) => {
+    //   this.loading = true;
+    //   this.leadsService.getIpAddressById(this.ipAddressId, filter).subscribe(
+    //     (response) => {
+    //       this.ipAddressData = response;
+    //       // console.log(this.ipAddressData);
+    //       this.loading = false;
+    //       resolve(true);
+    //     },
+    //     (error: any) => {
+    //       this.loading = false;
+    //       resolve(false);
+    //       this.toastService.showError(error);
+    //     }
+    //   );
+    // });
   }
 
   goBack() {

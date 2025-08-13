@@ -9,7 +9,7 @@ export class ReportsService {
   constructor(private serviceMeta: ServiceMeta,) { }
 
   getExportedLeads(filter = {}) {
-    const url = 'users/export';
+    const url = 'admin/export';
     return this.serviceMeta.httpGet(url, null, filter);
   }
 }

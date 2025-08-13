@@ -1,51 +1,36 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LeadsComponent } from './leads.component';
-import { CreateComponent } from './create/create.component';
-import { RouterModule, Routes } from '@angular/router';
-import { TableModule } from 'primeng/table';
+import { SubscriptionPlansComponent } from './subscription-plans.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { InputTextModule } from 'primeng/inputtext';
-import { DropdownModule } from 'primeng/dropdown';
-import { ButtonModule } from 'primeng/button';
+import { Routes, RouterModule } from '@angular/router';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { ButtonModule } from 'primeng/button';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputTextModule } from 'primeng/inputtext';
 import { MenuModule } from 'primeng/menu';
+import { TableModule } from 'primeng/table';
+import { TabMenuModule } from 'primeng/tabmenu';
 import { FilterModule } from 'src/app/filter/filter.module';
 import { CapitalizeFirstPipe } from 'src/app/pipes/capitalize.pipe';
-import { TabMenuModule } from 'primeng/tabmenu';
 
 const routes: Routes = [
-  { path: '', component: LeadsComponent },
+  { path: '', component: SubscriptionPlansComponent },
   {
     path: 'create',
     loadChildren: () =>
       import('./create/create.module').then((m) => m.CreateModule),
   },
- 
-
-  {
+   {
     path: 'update/:id',
     loadChildren: () =>
       import('./create/create.module').then((m) => m.CreateModule),
   },
-  {
-    path: 'profile/:id',
-    loadChildren: () =>
-      import('./lead-profile/lead-profile.module').then(
-        (m) => m.LeadProfileModule
-      ),
-  },
-  {
-    path: 'profile/:status/:id',
-    loadChildren: () =>
-      import('./lead-profile/lead-profile.module').then(
-        (m) => m.LeadProfileModule
-      ),
-  },
 ];
 
 @NgModule({
-  declarations: [LeadsComponent],
+  declarations: [
+    SubscriptionPlansComponent
+  ],
   imports: [
     CommonModule,
     CapitalizeFirstPipe,
@@ -60,6 +45,6 @@ const routes: Routes = [
     FilterModule,
     TabMenuModule,
     [RouterModule.forChild(routes)],
-  ],
+  ]
 })
-export class LeadsModule {}
+export class SubscriptionPlansModule { }

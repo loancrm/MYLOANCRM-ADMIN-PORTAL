@@ -75,12 +75,12 @@ export class CreateComponent {
     this.breadCrumbItems = [
       {
         label: ' Home',
-        routerLink: '/user/dashboard',
+        routerLink: '/admin/dashboard',
         queryParams: { v: this.version },
       },
       {
         label: 'Reports',
-        routerLink: '/user/reports',
+        routerLink: '/admin/reports',
         queryParams: { v: this.version },
       },
       { label: 'Generate Report' },
@@ -96,7 +96,7 @@ export class CreateComponent {
     });
   }
   ngOnInit() {
-    Promise.all([this.getLeadUsers(), this.getBanks(), this.getDistinctLeads()])
+    Promise.all([ this.getBanks()])
       .then(() => {
         this.setReportsList();
       })
@@ -108,12 +108,12 @@ export class CreateComponent {
     this.breadCrumbItems = [
       {
         label: ' Home',
-        routerLink: '/user/dashboard',
+        routerLink: '/admin/dashboard',
         queryParams: { v: this.version },
       },
       {
         label: 'Reports',
-        routerLink: '/user/reports',
+        routerLink: '/admin/reports',
         queryParams: { v: this.version },
       },
       {
@@ -848,112 +848,112 @@ export class CreateComponent {
   routeTo() { }
 
   generateReport(reportType: string) {
-    this.loading = true;
-    const selectedReportData = {};
-    for (const key in this.reportData) {
-      if (this.reportData[key]) {
-        selectedReportData[key] = this.reportData[key];
-      }
-    }
-    const apiFilter = {};
-    if (this.reportData['createdOn-gte']) {
-      apiFilter['createdOn-gte'] = this.moment(
-        this.reportData['createdOn-gte']
-      ).format('YYYY-MM-DD');
-    }
-    if (this.reportData['createdOn-lte']) {
-      apiFilter['createdOn-lte'] = this.moment(this.reportData['createdOn-lte'])
-        .add(1, 'days')
-        .format('YYYY-MM-DD');
-    }
-    if (this.reportData['approvalDate-gte']) {
-      apiFilter['approvalDate-gte'] = this.moment(
-        this.reportData['approvalDate-gte']
-        // ).format('MM/DD/YYYY');
-      ).format('YYYY-MM-DD');
-    }
-    if (this.reportData['approvalDate-lte']) {
-      apiFilter['approvalDate-lte'] = this.moment(
-        this.reportData['approvalDate-lte']
-      ).format('YYYY-MM-DD');
-    }
+    // this.loading = true;
+    // const selectedReportData = {};
+    // for (const key in this.reportData) {
+    //   if (this.reportData[key]) {
+    //     selectedReportData[key] = this.reportData[key];
+    //   }
+    // }
+    // const apiFilter = {};
+    // if (this.reportData['createdOn-gte']) {
+    //   apiFilter['createdOn-gte'] = this.moment(
+    //     this.reportData['createdOn-gte']
+    //   ).format('YYYY-MM-DD');
+    // }
+    // if (this.reportData['createdOn-lte']) {
+    //   apiFilter['createdOn-lte'] = this.moment(this.reportData['createdOn-lte'])
+    //     .add(1, 'days')
+    //     .format('YYYY-MM-DD');
+    // }
+    // if (this.reportData['approvalDate-gte']) {
+    //   apiFilter['approvalDate-gte'] = this.moment(
+    //     this.reportData['approvalDate-gte']
+    //     // ).format('MM/DD/YYYY');
+    //   ).format('YYYY-MM-DD');
+    // }
+    // if (this.reportData['approvalDate-lte']) {
+    //   apiFilter['approvalDate-lte'] = this.moment(
+    //     this.reportData['approvalDate-lte']
+    //   ).format('YYYY-MM-DD');
+    // }
 
-    if (this.reportData['disbursalDate-gte']) {
-      apiFilter['disbursalDate-gte'] = this.moment(
-        this.reportData['disbursalDate-gte']
-      ).format('YYYY-MM-DD');
-    }
-    if (this.reportData['disbursalDate-lte']) {
-      apiFilter['disbursalDate-lte'] = this.moment(
-        this.reportData['disbursalDate-lte']
-      ).format('YYYY-MM-DD');
-    }
-    if (this.reportData['loginDate-gte']) {
-      apiFilter['loginDate-gte'] = this.moment(
-        this.reportData['loginDate-gte']
-      ).format('YYYY-MM-DD');
-    }
-    if (this.reportData['loginDate-lte']) {
-      apiFilter['loginDate-lte'] = this.moment(
-        this.reportData['loginDate-lte']
-      ).format('YYYY-MM-DD');
-    }
-    Object.assign(selectedReportData, apiFilter);
-    for (const key in selectedReportData) {
-      if (Array.isArray(selectedReportData[key])) {
-        const newKey = key.replace('-eq', '-or');
-        selectedReportData[newKey] = selectedReportData[key].join(',');
-        delete selectedReportData[key];
-      }
-    }
-    // console.log(reportType);
-    // console.log(selectedReportData);
-    const reportServiceMap = {
-      LEADS: () => this.leadsService.getExportedLeads(selectedReportData),
-      CALLBACKS: () =>
-        this.leadsService.getExportedCallbacks(selectedReportData),
-      FILESINPROCESS: () =>
-        this.leadsService.exportFilesInProcess(selectedReportData),
-      SANCTIONFILES: () =>
-        this.leadsService.exportApprovalLeads(selectedReportData),
-      DISBURSALFILES: () =>
-        this.leadsService.exportDisbursalLeads(selectedReportData),
-      BANKREJECTEDFILES: () =>
-        this.leadsService.exportBankRejectedLeads(selectedReportData),
-      CNIFILES: () => this.leadsService.exportCNILeads(selectedReportData),
-      SANCTIONDETAILS: () =>
-        this.leadsService.exportSanctionDetails(selectedReportData),
-      DISBURSALDETAILS: () =>
-        this.leadsService.exportDisbursalDetails(selectedReportData),
-      CNIDETAILS: () =>
-        this.leadsService.exportCNILeadDetails(selectedReportData),
-      LOGINSDONEDETAILS: () =>
-        this.leadsService.exportloginsDoneDetails(selectedReportData),
-      LOGINFILES: () => this.leadsService.exportloginFiles(selectedReportData),
-    };
-    const serviceCall = reportServiceMap[reportType];
-    if (!serviceCall) {
-      this.loading = false;
-      this.toastService.showError('Invalid report type');
-      return;
-    }
-    serviceCall().subscribe(
-      (response: any) => {
-        this.loading = false;
-        if (response.success && response.fileUrl) {
-          // window.open('//' + response.fileUrl, '_blank');
-          this.toastService.showSuccess('Report Generated Successfully and sent via email.');
-        } else {
-          this.toastService.showError('Failed to download the report.');
-        }
-      },
-      (error: any) => {
-        this.toastService.showError(
-          error
-        );
-        this.loading = false;
-      }
-    );
+    // if (this.reportData['disbursalDate-gte']) {
+    //   apiFilter['disbursalDate-gte'] = this.moment(
+    //     this.reportData['disbursalDate-gte']
+    //   ).format('YYYY-MM-DD');
+    // }
+    // if (this.reportData['disbursalDate-lte']) {
+    //   apiFilter['disbursalDate-lte'] = this.moment(
+    //     this.reportData['disbursalDate-lte']
+    //   ).format('YYYY-MM-DD');
+    // }
+    // if (this.reportData['loginDate-gte']) {
+    //   apiFilter['loginDate-gte'] = this.moment(
+    //     this.reportData['loginDate-gte']
+    //   ).format('YYYY-MM-DD');
+    // }
+    // if (this.reportData['loginDate-lte']) {
+    //   apiFilter['loginDate-lte'] = this.moment(
+    //     this.reportData['loginDate-lte']
+    //   ).format('YYYY-MM-DD');
+    // }
+    // Object.assign(selectedReportData, apiFilter);
+    // for (const key in selectedReportData) {
+    //   if (Array.isArray(selectedReportData[key])) {
+    //     const newKey = key.replace('-eq', '-or');
+    //     selectedReportData[newKey] = selectedReportData[key].join(',');
+    //     delete selectedReportData[key];
+    //   }
+    // }
+    // // console.log(reportType);
+    // // console.log(selectedReportData);
+    // // const reportServiceMap = {
+    // //   LEADS: () => this.leadsService.getExportedLeads(selectedReportData),
+    // //   CALLBACKS: () =>
+    // //     this.leadsService.getExportedCallbacks(selectedReportData),
+    // //   FILESINPROCESS: () =>
+    // //     this.leadsService.exportFilesInProcess(selectedReportData),
+    // //   SANCTIONFILES: () =>
+    // //     this.leadsService.exportApprovalLeads(selectedReportData),
+    // //   DISBURSALFILES: () =>
+    // //     this.leadsService.exportDisbursalLeads(selectedReportData),
+    // //   BANKREJECTEDFILES: () =>
+    // //     this.leadsService.exportBankRejectedLeads(selectedReportData),
+    // //   CNIFILES: () => this.leadsService.exportCNILeads(selectedReportData),
+    // //   SANCTIONDETAILS: () =>
+    // //     this.leadsService.exportSanctionDetails(selectedReportData),
+    // //   DISBURSALDETAILS: () =>
+    // //     this.leadsService.exportDisbursalDetails(selectedReportData),
+    // //   CNIDETAILS: () =>
+    // //     this.leadsService.exportCNILeadDetails(selectedReportData),
+    // //   LOGINSDONEDETAILS: () =>
+    // //     this.leadsService.exportloginsDoneDetails(selectedReportData),
+    // //   LOGINFILES: () => this.leadsService.exportloginFiles(selectedReportData),
+    // // };
+    // // const serviceCall = reportServiceMap[reportType];
+    // // if (!serviceCall) {
+    // //   this.loading = false;
+    // //   this.toastService.showError('Invalid report type');
+    // //   return;
+    // // }
+    // serviceCall().subscribe(
+    //   (response: any) => {
+    //     this.loading = false;
+    //     if (response.success && response.fileUrl) {
+    //       // window.open('//' + response.fileUrl, '_blank');
+    //       this.toastService.showSuccess('Report Generated Successfully and sent via email.');
+    //     } else {
+    //       this.toastService.showError('Failed to download the report.');
+    //     }
+    //   },
+    //   (error: any) => {
+    //     this.toastService.showError(
+    //       error
+    //     );
+    //     this.loading = false;
+    //   }
+    // );
   }
 
   onNumberInputChange(event: any) {
@@ -980,88 +980,13 @@ export class CreateComponent {
     }
     return field.defaultValue;
   }
-  getLeadUsers(filter = {}) {
-    return new Promise((resolve, reject) => {
-      this.loading = true;
-      this.leadsService.getUsers(filter).subscribe(
-        (leadUsers: any) => {
-          // this.leadUsers = [{ name: 'All' }, ...leadUsers];
-          this.leadUsers = [...leadUsers];
-          // console.log(leadUsers);
-          this.loading = false;
-          resolve(true);
-        },
-        (error: any) => {
-          this.loading = false;
-          this.toastService.showError(error);
-          resolve(false);
-        }
-      );
-    });
-  }
 
   getBanks(filter = {}) {
     return new Promise((resolve, reject) => {
       this.loading = true;
-      this.leadsService.getBanks(filter).subscribe(
-        (response: any) => {
-          // this.banks = [{ name: 'All' }, ...response];
-          this.banks = [...response];
-          // console.log(this.banks);
-          this.loading = false;
-          resolve(true);
-        },
-        (error: any) => {
-          this.loading = false;
-          this.toastService.showError(error);
-          resolve(false);
-        }
-      );
+      
     });
   }
 
-  getDistinctLeads(filter = {}) {
-    return new Promise((resolve, reject) => {
-      this.loading = true;
-      this.leadsService.getDistinctLeads(filter).subscribe(
-        (response: any) => {
-          // this.files = [{ businessName: 'All', id: 1 }, ...response];
-          this.files = [...response];
-          this.files = this.files.map((file) => {
-            const formattedBusinessName = file.businessName
-              .split(' ')
-              .map((word) => {
-                if (word.includes('.')) {
-                  return word
-                    .split('.')
-                    .map(
-                      (part) =>
-                        part.charAt(0).toUpperCase() +
-                        part.slice(1).toLowerCase()
-                    )
-                    .join('.');
-                }
-                return (
-                  word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-                );
-              })
-              .join(' ');
-            return {
-              ...file,
-              businessName: formattedBusinessName,
-              label: `${formattedBusinessName} (${file.id})`,
-            };
-          });
-          // console.log(this.files);
-          this.loading = false;
-          resolve(true);
-        },
-        (error: any) => {
-          this.loading = false;
-          this.toastService.showError(error);
-          resolve(false);
-        }
-      );
-    });
-  }
+
 }

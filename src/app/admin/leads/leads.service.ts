@@ -150,102 +150,29 @@ export class LeadsService {
     const url = 'accounts/' + accountId;
     return this.serviceMeta.httpGet(url, null, filter);
   }
-  deleteAccount(accountId, filter = {}) {
-    const url = 'accounts/' + accountId;
-    return this.serviceMeta.httpDelete(url, null, filter);
+
+  getAccountsCount(filter = {}) {
+    const url = 'accounts/total';
+    return this.serviceMeta.httpGet(url, null, filter);
   }
-  deleteLead(leadId, filter = {}) {
-    const url = 'leads/' + leadId;
-    return this.serviceMeta.httpDelete(url, null, filter);
+  getContactsCount(filter = {}) {
+    const url = 'contactus/total';
+    return this.serviceMeta.httpGet(url, null, filter);
   }
-  deleteLoanLead(leadId, filter = {}) {
-    const url = 'loanleads/' + leadId;
-    return this.serviceMeta.httpDelete(url, null, filter);
+   getSubscibersCount(filter = {}) {
+    const url = 'contactus/subsciberstotal';
+    return this.serviceMeta.httpGet(url, null, filter);
   }
-  deleteLogin(leadId, filter = {}) {
-    const url = 'logins/' + leadId;
-    return this.serviceMeta.httpDelete(url, null, filter);
-  }
-  createLeadFromCallback(data) {
-    const url = 'leads/callbacktolead';
-    return this.serviceMeta.httpPost(url, data);
-  }
-  createLoanLeadFromCallback(data) {
-    const url = 'loanleads/callbacktoloanlead';
-    return this.serviceMeta.httpPost(url, data);
+  getPlansCount(filter = {}) {
+    const url = 'subscriptionPlans/total';
+    return this.serviceMeta.httpGet(url, null, filter);
   }
 
-  createLoanLead(data) {
-    const url = 'loanleads';
-    return this.serviceMeta.httpPost(url, data);
-  }
 
-  createIpAddress(data) {
-    const url = 'ipAddress';
-    return this.serviceMeta.httpPost(url, data);
-  }
 
-  updateLead(leadId, data) {
-    const url = 'leads/' + leadId;
-    return this.serviceMeta.httpPut(url, data);
-  }
-  updateLeadFileRemarks(leadId, data) {
-    const url = 'leads/file-remarks/' + leadId;
-    return this.serviceMeta.httpPut(url, data);
-  }
-  updateFipRemark(leadId, data) {
-    const url = 'leads/' + leadId;
-    return this.serviceMeta.httpPut(url, data);
-  }
 
-  updateLoanLead(leadId, data) {
-    const url = 'loanleads/' + leadId;
-    return this.serviceMeta.httpPut(url, data);
-  }
-  updateFIPDetails(leadId, data) {
-    const url = 'logins/fipDetails/' + leadId;
-    return this.serviceMeta.httpPut(url, data);
-  }
-  updateplFIPDetails(leadId, data) {
-    const url = 'logins/plfipDetails/' + leadId;
-    return this.serviceMeta.httpPut(url, data);
-  }
-  updateRevenueDetails(leadId, data) {
-    const url = 'logins/revenueDetails/' + leadId;
-    return this.serviceMeta.httpPut(url, data);
-  }
-  updateApprovalsDetails(leadId, data) {
-    const url = 'logins/approved/' + leadId;
-    return this.serviceMeta.httpPut(url, data);
-  }
-  updateplApprovalsDetails(leadId, data) {
-    const url = 'logins/plapproved/' + leadId;
-    return this.serviceMeta.httpPut(url, data);
-  }
-  updateDisbursalDetails(leadId, data) {
-    const url = 'logins/disbursed/' + leadId;
-    return this.serviceMeta.httpPut(url, data);
-  }
-  getLeads(filter = {}) {
-    const url = 'leads';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getFiles(filter = {}) {
-    const url = 'leads/files';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getInhouseRejectedLeads(filter = {}) {
-    const url = 'leads/inHouseRejects';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getAllLeadData(leadId, filter = {}) {
-    const url = 'leads/lead-data/' + leadId;
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getAllLoanLeadData(leadId, filter = {}) {
-    const url = 'loanleads/getallloandata/' + leadId;
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
+
+
   getloanLeads(filter = {}) {
     const url = 'loanleads';
     return this.serviceMeta.httpGet(url, null, filter);
@@ -262,611 +189,61 @@ export class LeadsService {
     const url = 'ipAddress/' + ipAddressId;
     return this.serviceMeta.httpDelete(url, null, filter);
   }
-  getTotalSanctionedAmountSum(filter = {}) {
-    const url = 'logins/totalsancsum';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getTotalDisbursedAmountSum(filter = {}) {
-    const url = 'logins/totaldisbsum';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getApprovalsLeads(filter = {}) {
-    const url = 'logins/approvals';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getplApprovalsLeads(filter = {}) {
-    const url = 'logins/plapprovals';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getDisbursalLeads(filter = {}) {
-    const url = 'logins/disbursals';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getplDisbursalLeads(filter = {}) {
-    const url = 'logins/pldisbursals';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getBankRejectsLeads(filter = {}) {
-    const url = 'logins/bankRejects';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getplBankRejectsLeads(filter = {}) {
-    const url = 'logins/plbankRejects';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getCNIRejectsLeads(filter = {}) {
-    const url = 'logins/cniRejects';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getplCNIRejectsLeads(filter = {}) {
-    const url = 'logins/plcniRejects';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getDistinctLeads(filter = {}) {
-    const url = 'logins';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getFIPProcessDistinctLeads(filter = {}) {
-    const url = 'logins/fipDistinctLeads';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getplFIPDistinctLeads(filter = {}) {
-    const url = 'logins/plfipDistinctLeads';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getExportedLeads(filter = {}) {
-    const url = 'reports/exportLeads';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  exportFilesInProcess(filter = {}) {
-    const url = 'reports/exportFip';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  exportApprovalLeads(filter = {}) {
-    const url = 'reports/exportApprovals';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  exportDisbursalLeads(filter = {}) {
-    const url = 'reports/exportDisbursals';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  exportBankRejectedLeads(filter = {}) {
-    const url = 'reports/exportBankRejects';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  exportCNILeads(filter = {}) {
-    const url = 'reports/exportCNIS';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  exportCNILeadDetails(filter = {}) {
-    const url = 'reports/exportCNIdetails';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  exportSanctionDetails(filter = {}) {
-    const url = 'reports/exportSanctionDetails';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
 
-  exportDisbursalDetails(filter = {}) {
-    const url = 'reports/exportDisbursalDetails';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
 
-  exportloginsDoneDetails(filter = {}) {
-    const url = 'reports/exportloginsDoneDetails';
+  getAccounts(filter = {}) {
+    const url = 'accounts';
     return this.serviceMeta.httpGet(url, null, filter);
   }
-  exportloginFiles(filter = {}) {
-    const url = 'reports/exportloginfiles';
+  getContacts(filter = {}) {
+    const url = 'contactus';
     return this.serviceMeta.httpGet(url, null, filter);
   }
-  getExportedCallbacks(filter = {}) {
-    const url = 'reports/exportCallbacks';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  createUsers(data) {
-    const url = 'users';
-    return this.serviceMeta.httpPost(url, data);
-  }
-  createSubscription(data) {
-    const url = 'subscriptions';
-    return this.serviceMeta.httpPost(url, data);
-  }
-  createRazorpayOrder(amount: number) {
-    const url = 'subscriptions/razorpay/order';
-    return this.serviceMeta.httpPost(url, { amount });
-  }
-
-  verifyAndStoreSubscription(data: any) {
-    const url = 'subscriptions/razorpay/verify';
-    return this.serviceMeta.httpPost(url, data);
-  }
-  deleteUsers(userId, filter = {}) {
-    const url = 'users/' + userId;
-    return this.serviceMeta.httpDelete(url, null, filter);
-  }
-  updateUsers(userId, data) {
-    const url = 'users/' + userId;
-    return this.serviceMeta.httpPut(url, data);
-  }
-  getUsers(filter = {}) {
-    const url = 'users';
+  getsubscribers(filter = {}) {
+    const url = 'contactus/subscribe';
     return this.serviceMeta.httpGet(url, null, filter);
   }
   getReports(filter = {}) {
     const url = 'reports/reportsdata';
     return this.serviceMeta.httpGet(url, null, filter);
   }
-  getActiveUsers(filter = {}) {
-    const url = 'users/active';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getUsersDetailsById(userId, filter = {}) {
-    const url = 'users/' + userId;
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getSubscriptionById(accountId, filter = {}) {
-    const url = 'subscriptions/' + accountId;
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getUserRbac() {
-    let userDetails =
-      this.localStorageService.getItemFromLocalStorage('userDetails');
-    let user = userDetails?.user || {};
-    // console.log(user);
-    let rbac = user.rbac.split(',');
-    let capabilities = {
-      leads: rbac.includes('leads'),
-      callbacks: rbac.includes('callbacks'),
-      files: rbac.includes('files'),
-      // partial: rbac.includes('partial'),
-      credit: rbac.includes('credit'),
-      logins: rbac.includes('logins'),
-      filesinprocess: rbac.includes('filesinprocess'),
-      approvals: rbac.includes('approvals'),
-      disbursals: rbac.includes('disbursals'),
-      rejects: rbac.includes('rejects'),
-      team: rbac.includes('team'),
-      bankers: rbac.includes('bankers'),
-      reports: rbac.includes('reports'),
-      ipAddress: rbac.includes('ipAddress'),
-      integrations: rbac.includes('integrations'),
-      followups: rbac.includes('followups'),
-      delete: rbac.includes('delete'),
-    };
-    return capabilities;
-  }
-  getUsersCount(filter = {}) {
-    const url = 'users/total';
+
+
+  getPlanById(leadId, filter = {}) {
+    const url = 'subscriptionPlans/' + leadId;
     return this.serviceMeta.httpGet(url, null, filter);
   }
 
-  getActiveUsersCount(filter = {}) {
-    const url = 'users/activeCount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
+
+
+
   getReportsCount(filter = {}) {
     const url = 'reports/reportsCount';
     return this.serviceMeta.httpGet(url, null, filter);
   }
 
-  changeLeadStatus(leadId, statusId) {
-    const url = `leads/${leadId}/changestatus/${statusId}`;
-    return this.serviceMeta.httpPut(url, null);
-  }
 
-  changeLoanLeadStatus(leadId, statusId) {
-    const url = `loanleads/${leadId}/changestatus/${statusId}`;
-    return this.serviceMeta.httpPut(url, null);
-  }
-  updateUserStatus(userId: number, status: string) {
-    const url = `users/${userId}/status`;
-    const body = { status };
-    return this.serviceMeta.httpPut(url, body);
-  }
-  changeCallBackStatus(callbackId, statusId) {
-    const url = `callbacks/${callbackId}/changestatus/${statusId}`;
-    return this.serviceMeta.httpPut(url, null);
-  }
-  deleteCallBack(callBackId, filter = {}) {
-    const url = 'callbacks/' + callBackId;
-    return this.serviceMeta.httpDelete(url, null, filter);
-  }
 
-  changeBankersStatus(bankersId, statusId) {
-    const url = `bankers/${bankersId}/changestatus/${statusId}`;
-    return this.serviceMeta.httpPut(url, null);
-  }
 
-  deleteBanker(bankerId, filter = {}) {
-    const url = 'bankers/' + bankerId;
-    return this.serviceMeta.httpDelete(url, null, filter);
-  }
-  getLeadDetailsById(leadId, filter = {}) {
-    const url = 'leads/' + leadId;
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
 
-  getLoanLeadById(leadId, filter = {}) {
-    const url = 'loanleads/' + leadId;
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getCreditSummary(leadId, filter = {}) {
-    const url = 'leads/creditSummary/' + leadId;
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getFIPDetailsById(leadId, filter = {}) {
-    const url = 'logins/fipDetails/' + leadId;
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getBankRejectsDetailsById(leadId, filter = {}) {
-    const url = 'logins/bankRejected/' + leadId;
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getCNIRejectsDetailsById(leadId, filter = {}) {
-    const url = 'logins/cniRejected/' + leadId;
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getApprovalsDetailsById(leadId, filter = {}) {
-    const url = 'logins/approved/' + leadId;
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getDisbursalsDetailsById(leadId, filter = {}) {
-    const url = 'logins/disbursed/' + leadId;
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getLoginsDoneById(filter = {}) {
-    const url = 'logins/loginsDone';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
 
-  getLeadDocumentsById(leadId, filter = {}) {
-    const url = 'leads/documents/' + leadId;
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getDscrValuesById(leadId, filter = {}) {
-    const url = 'leads/dscr_ratio/' + leadId;
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  addLeadDocuments(leadId, data) {
-    const url = 'leads/documents/' + leadId;
-    return this.serviceMeta.httpPut(url, data);
-  }
-  addLoanLeadsDocumentData(leadId, data) {
-    const url = 'loanleads/loanleadsdocuments/' + leadId;
-    return this.serviceMeta.httpPut(url, data);
-  }
-  addDscrValuesData(leadId, data) {
-    const url = 'leads/dscr_ratio/' + leadId;
-    return this.serviceMeta.httpPut(url, data);
-  }
-  calculateGstProgram(leadId, data) {
-    const url = 'leads/calulategstprogram/' + leadId;
-    return this.serviceMeta.httpPut(url, data);
-  }
-  calculateEligibleEmi(leadId, data) {
-    const url = 'loanleads/eligibleemi/' + leadId;
-    return this.serviceMeta.httpPut(url, data);
-  }
-  calculateBTOProgram(leadId, data) {
-    const url = 'leads/btoprogram/' + leadId;
-    return this.serviceMeta.httpPut(url, data);
-  }
-  calculateBalanceSheet(leadId, data) {
-    const url = 'leads/balancesheet/' + leadId;
-    return this.serviceMeta.httpPut(url, data);
-  }
-  calculateDscrRatio(leadId, data) {
-    const url = 'leads/dscrratio/' + leadId;
-    return this.serviceMeta.httpPut(url, data);
-  }
-  getLeadsCount(filter = {}) {
-    const url = 'leads/total';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
 
-  getFilesCount(filter = {}) {
-    const url = 'leads/files-count';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getLoginsDoneCount(filter = {}) {
-    const url = 'logins/loginsDoneCount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
 
-  getloanLeadsCount(filter = {}) {
-    const url = 'loanleads/total';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
 
-  getTotalLeadsCountArray(filter = {}) {
-    const url = 'loanleads/arraycount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-
-  getStatusLeadsCountArray(filter = {}) {
-    const url = 'loanleads/statuscount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-
-  getTotalCallbacksCountArray(filter = {}) {
-    const url = 'callbacks/arraycount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-
-  getStatusCallbacksCountArray(filter = {}) {
-    const url = 'callbacks/statuscount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getDistinctLeadCount(filter = {}) {
-    const url = 'logins/total';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getFIPProcessDistinctLeadsCount(filter = {}) {
-    const url = 'logins/fipcount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-
-  getplFIPDistinctLeadsCount(filter = {}) {
-    const url = 'logins/plfipcount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getApprovedLeadCount(filter = {}) {
-    const url = 'logins/approvalCount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-
-  getplApprovedLeadCount(filter = {}) {
-    const url = 'logins/plapprovalCount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getBankRejectedLeadCount(filter = {}) {
-    const url = 'logins/rejectedCount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-
-  getplBankRejectedLeadCount(filter = {}) {
-    const url = 'logins/plrejectedCount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getCNIRejectedLeadCount(filter = {}) {
-    const url = 'logins/cniCount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getplCNIRejectedLeadCount(filter = {}) {
-    const url = 'logins/plcniCount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getDisbursalLeadCount(filter = {}) {
-    const url = 'logins/disbursalCount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-
-  getplDisbursalLeadCount(filter = {}) {
-    const url = 'logins/pldisbursalCount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getLeadCountStatus(filter = {}) {
-    const url = 'counts/leads';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getRejectsCountStatus(filter = {}) {
-    const url = 'counts/rejects';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getLoginsCountStatus(filter = {}) {
-    const url = 'counts/logins';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getCallbackCountStatus(filter = {}) {
-    const url = 'counts/callback';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getFilesCountStatus(filter = {}) {
-    const url = 'counts/files';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  // getPartialCountStatus(filter = {}) {
-  //   const url = 'counts/partial';
-  //   return this.serviceMeta.httpGet(url, null, filter);
-  // }
-  getCreditEvaluationCountStatus(filter = {}) {
-    const url = 'counts/credit';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getMonthWiseLeadCountStatus(filter = {}) {
-    const url = 'counts/monthleads';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getMonthWiseCallBacksCount(filter = {}) {
-    const url = 'counts/monthcallbacks';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getPast7DaysLeadCountStatus(filter = {}) {
-    const url = 'counts/week/leads';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getPast7DaysCallBacksCountStatus(filter = {}) {
-    const url = 'counts/week/callback';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getLastMonthLeadCountStatus(filter = {}) {
-    const url = 'counts/lastmonth/leads';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-
-  getThisMonthLeadCountStatus(filter = {}) {
-    const url = 'counts/thismonth/leads';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getThisMonthCallBacksCount(filter = {}) {
-    const url = 'counts/thismonth/callbacks';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-
-  getLastBeforeMonthLeadCountStatus(filter = {}) {
-    const url = 'counts/lastbeforemonth/leads';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getTwoMonthsAgoCallBacksCount(filter = {}) {
-    const url = 'counts/lastbeforemonth/callbacks';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getLastMonthCallBacksCountStatus(filter = {}) {
-    const url = 'counts/lastmonth/callback';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-
-  getDisbursedAmount(filter = {}) {
-    const url = 'counts/lastmonth/disbursed';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-
-  getuserLastMonthSanctionedAmount(filter = {}) {
-    const url = 'counts/lastmonth/sancamount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-
-  getuserLastMonthDisbursedAmount(filter = {}) {
-    const url = 'counts/lastmonth/disbamount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-
-  getuserLastLastMonthSanctionedAmount(filter = {}) {
-    const url = 'counts/lastlastmonth/sancamount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-
-  getuserTwoMonthsAgoSanctionedAmount(filter = {}) {
-    const url = 'counts/twomonthsago/sancamount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-
-  getuserLastLastMonthDisbursedAmount(filter = {}) {
-    const url = 'counts/lastlastmonth/disbamount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getuserTwoMonthsAgoDisbursedAmount(filter = {}) {
-    const url = 'counts/twomonthsago/disbamount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getuserCurrentMonthDisbursedAmount(filter = {}) {
-    const url = 'counts/thismonth/disbamount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getuserCurrentMonthSanctionedAmount(filter = {}) {
-    const url = 'counts/thismonth/sancamount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-
-  getSanctionedAmount(filter = {}) {
-    const url = 'counts/firstmonth/approved';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getLast6MonthsLeadCountStatus(filter = {}) {
-    const url = 'counts/last6months/leads';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getLast6MonthsCallBacksCountStatus(filter = {}) {
-    const url = 'counts/last6months/callback';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getLastYearLeadCountStatus(filter = {}) {
-    const url = 'counts/lastyear/leads';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getLastYearCallBacksCountStatus(filter = {}) {
-    const url = 'counts/lastyear/callback';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getUserRoles(filter = {}) {
-    const url = 'users/userroles';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getLeadSources(filter = {}) {
-    const url = 'leads/sources';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  createCallBack(data) {
-    const url = 'callbacks';
-    return this.serviceMeta.httpPost(url, data);
-  }
-  createLogin(data) {
-    const url = 'logins';
-    return this.serviceMeta.httpPost(url, data);
-  }
-  createDscrTable(leadId) {
-    const url = 'createTable/insertidDscrTable';
-    return this.serviceMeta.httpPost(url, leadId);
-  }
-  createleadDocumentsTable(leadId) {
-    const url = 'createTable/insertidleaddocumentsTable';
-    return this.serviceMeta.httpPost(url, leadId);
-  }
-  updateCallBack(leadId, data) {
-    const url = 'callbacks/' + leadId;
-    return this.serviceMeta.httpPut(url, data);
-  }
-
-  updateIpAddress(ipAddressId, data) {
-    const url = 'ipAddress/' + ipAddressId;
-    return this.serviceMeta.httpPut(url, data);
-  }
-  getCallBacks(filter = {}) {
-    const url = 'callbacks';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getCallBackDetailsById(leadId, filter = {}) {
-    const url = 'callbacks/' + leadId;
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-
-  getIpAddressById(ipAddressId, filter = {}) {
-    const url = 'ipAddress/' + ipAddressId;
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getCallBacksCount(filter = {}) {
-    const url = 'callbacks/total';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-
-  getIpAddressCount(filter = {}) {
-    const url = 'ipAddress/total';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  createBanker(data) {
-    const url = 'bankers';
-    return this.serviceMeta.httpPost(url, data);
-  }
-  updateBanker(bankersId, data) {
-    const url = 'bankers/' + bankersId;
-    return this.serviceMeta.httpPut(url, data);
-  }
-  getBankers(filter = {}) {
-    const url = 'bankers';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getSubscriptionPlans(filter = {}) {
+  createPlan(data) {
     const url = 'subscriptionPlans';
-    return this.serviceMeta.httpGet(url, null, filter);
+    return this.serviceMeta.httpPost(url, data);
   }
-  getBanks(filter = {}) {
-    const url = 'bankers/banks';
-    return this.serviceMeta.httpGet(url, null, filter);
+  updatePlan(bankersId, data) {
+    const url = 'subscriptionPlans/' + bankersId;
+    return this.serviceMeta.httpPut(url, data);
   }
-  getBankersDetailsById(bankersId, filter = {}) {
-    const url = 'bankers/' + bankersId;
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
-  getBankersCount(filter = {}) {
-    const url = 'bankers/total';
+
+  getSubscriptionPlans(filter = {}) {
+    const url = 'subscriptionPlans/plans';
     return this.serviceMeta.httpGet(url, null, filter);
   }
 
-  getNewBankersCount(filter = {}) {
-    const url = 'bankers/newBankerscount';
-    return this.serviceMeta.httpGet(url, null, filter);
-  }
   //bankers documents
   // uploadFiles(data: FormData, type = "default") {
   //   const url = "files/upload?type=" + type;

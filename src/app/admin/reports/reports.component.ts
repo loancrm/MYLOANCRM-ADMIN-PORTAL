@@ -34,7 +34,7 @@ export class ReportsComponent {
     this.breadCrumbItems = [
       {
         label: ' Home',
-        routerLink: '/user/dashboard',
+        routerLink: '/admin/dashboard',
         queryParams: { v: this.version },
       },
       { label: 'Reports' },

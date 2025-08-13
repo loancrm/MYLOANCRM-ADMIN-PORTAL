@@ -1,21 +1,24 @@
-import { Component, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CreateComponent } from './create.component';
-import { RouterModule, Routes } from '@angular/router';
-import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { InputTextModule } from 'primeng/inputtext';
-import { DropdownModule } from 'primeng/dropdown';
+import { Routes, RouterModule } from '@angular/router';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { CalendarModule } from 'primeng/calendar';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
-import { PreloaderModule } from '../../../preloader/preloader.module';
 import { StepsModule } from 'primeng/steps';
 import { TabViewModule } from 'primeng/tabview';
+import { PreloaderModule } from 'src/app/preloader/preloader.module';
 
 const routes: Routes = [{ path: '', component: CreateComponent }];
 
+
 @NgModule({
-  declarations: [CreateComponent],
+  declarations: [
+    CreateComponent
+  ],
   imports: [
     CommonModule,
     FormsModule,
@@ -29,6 +32,6 @@ const routes: Routes = [{ path: '', component: CreateComponent }];
     InputTextareaModule,
     PreloaderModule,
     [RouterModule.forChild(routes)],
-  ],
+  ]
 })
 export class CreateModule { }

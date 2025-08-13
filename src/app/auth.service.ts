@@ -58,19 +58,19 @@ export class AuthService {
   }
 
   userLogin(data) {
-    const url = 'user/login';
+    const url = 'admin/login';
     return this.serviceMeta.httpPost(url, data);
   }
   forgotPassword(data) {
-    const url = 'user/forgot-password';
+    const url = 'admin/forgot-password';
     return this.serviceMeta.httpPost(url, data);
   }
   userLogout() {
-    const url = 'user/logout';
+    const url = 'admin/logout';
     return this.serviceMeta.httpPost(url, null);
   }
   resetPassword(data: any) {
-    const url = 'user/reset-password';
+    const url = 'admin/reset-password';
     return this.serviceMeta.httpPost(url, data);
   }
 }

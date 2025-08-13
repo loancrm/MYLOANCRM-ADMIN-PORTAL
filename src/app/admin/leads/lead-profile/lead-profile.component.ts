@@ -54,7 +54,7 @@ export class LeadProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const userDetails = this.localStorageService.getItemFromLocalStorage('userDetails');
+    const userDetails = this.localStorageService.getItemFromLocalStorage('adminDetails');
     this.userDetails = userDetails.user;
     this.accountId = this.userDetails?.accountId; // make sure accountId is available
     this.leadId = this.route.snapshot.paramMap.get('id');
@@ -75,12 +75,12 @@ export class LeadProfileComponent implements OnInit {
     this.breadCrumbItems = [
       {
         label: ' Home',
-        routerLink: '/user/dashboard',
+        routerLink: '/admin/dashboard',
         queryParams: { v: this.version },
       },
       {
         label: 'leads',
-        routerLink: '/user/leads',
+        routerLink: '/admin/leads',
         queryParams: { v: this.version },
       },
       { label: 'Profile' },

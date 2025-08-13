@@ -1,188 +1,7 @@
-<!-- <section
-  class="d-flex align-items-center justify-content-center min-vh-100 background-radial-gradient overflow-hidden"
->
-  <div class="container text-center text-lg-start">
-    <div class="row gx-lg-5 align-items-center">
-      <div class="col-lg-6 mb-5 mb-lg-0" style="z-index: 10">
-      </div>
-
-      <div class="col-lg-6 mb-5 mb-lg-0 position-relative">
-
-
-        <div class="card">
-          <div class="card-body">
-            <div class="card-logo d-flex mb-2">
-              <img
-                src="../../assets/images/logo.svg"
-                alt="Business Logo"
-                width="150"
-                height="35"
-              />
-            </div>
-            <div class="text-large text-left fw-medium mb-2">
-              <span class="text-capitalize">Hi, Welcome Back 👋</span>
-            </div>
-            <form
-              class="login-form"
-              [formGroup]="loginForm"
-              novalidate
-              (ngSubmit)="onSubmit(loginForm.value)"
-            >
-              <div class="form-outline mb-4">
-                <input
-                  pInputText
-                  class="rounded-lg w-100"
-                  type="text"
-                  id="username"
-                  formControlName="username"
-                  placeholder="Enter your email or phone number"
-                  autocomplete="off"
-                  style="
-                    height: 40px;
-                    background-color: #ffffff;
-                    border-color: #878787;
-                  "
-                />
-                <label class="form-label fw-medium" for="username"
-                  >Email or Phone Number</label
-                >
-              </div>
-              <div class="form-outline mb-4">
-                <div class="p-inputgroup">
-                  <input
-                    pInputText
-                    class="rounded-lg w-100 text-bg-light"
-                    id="password"
-                    [type]="isPasswordVisible ? 'text' : 'password'"
-                    placeholder="Enter your password"
-                    formControlName="password"
-                    autocomplete="off"
-                    style="
-                      height: 40px;
-                      background-color: #ffffff;
-                      border-color: #878787;
-                    "
-                  />
-
-
-                  <span
-                    class="p-inputgroup-addon"
-                    (click)="togglePasswordVisibility()"
-                    style="cursor: pointer"
-                  >
-                    <img
-                      [src]="
-                        isPasswordVisible
-                          ? 'assets/images/icons/eye-slash.svg'
-                          : 'assets/images/icons/eye.svg'
-                      "
-                      alt="Toggle Password Visibility"
-                      width="20"
-                      height="20"
-                    />
-                  </span>
-                </div>
-                <label class="form-label fw-medium" for="password"
-                  >Password</label
-                >
-                <div
-                  class="d-flex justify-content-between align-items-center mb-2"
-                >
-                  <div></div>
-                  <a
-                    class="text-decoration-none fw-medium text-primary"
-                    (click)="doForgotPassword()"
-                    style="cursor: pointer"
-                  >
-                    <span style="color: #878787">Forgot Password?</span>
-                  </a>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                pButton
-                pRipple
-                [disabled]="!loginForm.valid"
-                class="p-button-primary mb-4 w-100"
-                [class.disabled]="api_loading"
-              >
-                Sign In
-              </button>
-              <div class="text-center">
-                <span class="text-muted">Don't Have An Account?</span>
-                <a
-                  routerLink="/user/register"
-                  class="fw-bold text-primary text-decoration-none"
-                >
-                  <span style="color: orangered"> Register here</span>
-                </a>
-              </div>
-            </form>
-          </div>
-        </div>
-        <div class="mt-5">
-          <div class="calculator-heading">
-            <div class="line"></div>
-            <h5>Use Our Calculator</h5>
-            <div class="line"></div>
-          </div>
-          <div class="row justify-content-center ca w-75">
-            <div class="col-md-4 mb-4">
-              <div
-                class="calucard h-100 text-center border-0 shadow-sm pointer-cursor"
-                routerLink="/calculator/business"
-              >
-                <div class="card-body p-2">
-                  <img
-                    src="../../assets/images/icons/businessloan.svg"
-                    alt="business loan"
-                  />
-                  <h6 class="fw-bold mb-2">Business Loan</h6>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-md-4 mb-4">
-              <div
-                class="calucard h-100 text-center border-0 shadow-sm pointer-cursor"
-                routerLink="/calculator/personal"
-              >
-                <div class="card-body p-2">
-                  <img
-                    src="../../assets/images/icons/team.svg"
-                    alt="personal loan"
-                  />
-                  <h6 class="fw-bold mb-2">Personal Loan</h6>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-md-4 mb-4">
-              <div
-                class="calucard h-100 text-center border-0 shadow-sm pointer-cursor"
-                routerLink="/calculator/home"
-              >
-                <div class="card-body p-2">
-                  <img
-                    src="../../assets/images/icons/home.svg"
-                    alt="home lone"
-                  />
-                  <h6 class="fw-bold mb-2">Home Loan</h6>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section> -->
-
 <section
   class="d-flex align-items-center justify-content-center min-vh-100 background-radial-gradient"
 >
-  <div class="container">
+  <div class="container-fluid">
     <div class="row justify-content-end">
       <div class="col-lg-6 col-md-10 col-sm-12 m-2">
         <div class="card shadow-sm mx-auto">
@@ -198,7 +17,7 @@
             </div>
 
             <div class="text-center card-greeting fw-semibold mb-4 fs-6">
-              Hi, Welcome Back 👋
+              Hi, Welcome Back Admin👋
             </div>
 
             <form
@@ -221,11 +40,11 @@
                 />
               </div>
 
-              <div class="mb-2 position-relative">
+              <div class="mb-2">
                 <label class="form-label fw-medium" for="password"
                   >Password</label
                 >
-                <div class="p-inputgroup">
+                <div class="p-inputgroup position-relative">
                   <input
                     pInputText
                     id="password"
@@ -252,84 +71,18 @@
                     />
                   </span>
                 </div>
-
-                <div class="text-end m-2">
-                  <a
-                    class="text-decoration-none forgot-text"
-                    (click)="doForgotPassword()"
-                    style="cursor: pointer"
-                  >
-                    Forgot Password?
-                  </a>
-                </div>
               </div>
 
               <button
                 type="submit"
                 pButton
                 pRipple
-                class="w-100 p-button-primary d-flex align-items-center justify-content-center"
+                class="w-100 mt-3 p-button-primary d-flex align-items-center justify-content-center"
                 [disabled]="!loginForm.valid || api_loading"
               >
                 Sign In
               </button>
-
-              <div class="text-center mt-3">
-                <span class="text-muted">Don't have an account? </span>
-                <a
-                  routerLink="/user/register"
-                  class="text-decoration-none"
-                  style="color: #ee7846"
-                  >Sign Up</a
-                >
-              </div>
             </form>
-          </div>
-        </div>
-
-        <div class="">
-          <div class="calculator-heading my-3">
-            <div class="line"></div>
-            <h6>Use Our Calculator</h6>
-            <div class="line"></div>
-          </div>
-
-          <div class="row ca justify-content-center">
-            <div class="col-6 col-md-4 mb-2">
-              <div
-                class="calucard text-center shadow-sm py-2"
-                routerLink="/calculator/business"
-              >
-                <img
-                  src="../../assets/images/icons/businessloan.svg"
-                  alt="Business Loan"
-                />
-                <h6 class="fw-bold mt-2 calci-heading">Business Loan</h6>
-              </div>
-            </div>
-
-            <div class="col-6 col-md-4 mb-2">
-              <div
-                class="calucard text-center shadow-sm py-2"
-                routerLink="/calculator/personal"
-              >
-                <img
-                  src="../../assets/images/icons/team.svg"
-                  alt="Personal Loan"
-                />
-                <h6 class="fw-bold mt-2 calci-heading">Personal Loan</h6>
-              </div>
-            </div>
-
-            <div class="col-6 col-md-4 mb-2">
-              <div
-                class="calucard text-center shadow-sm py-2"
-                routerLink="/calculator/home"
-              >
-                <img src="../../assets/images/icons/home.svg" alt="Home Loan" />
-                <h6 class="fw-bold mt-2 calci-heading">Home Loan</h6>
-              </div>
-            </div>
           </div>
         </div>
       </div>

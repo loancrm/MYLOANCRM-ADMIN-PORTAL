@@ -12,7 +12,6 @@ import { LocalStorageService } from '../../../services/local-storage.service';
 import { ActivatedRoute } from '@angular/router';
 import { RoutingService } from '../../../services/routing-service';
 import { DateTimeProcessorService } from '../../../services/date-time-processor.service';
-import { FileUploadComponent } from '../../file-upload/file-upload.component';
 import { DialogService } from 'primeng/dynamicdialog';
 import { ConfirmationService } from 'primeng/api';
 import moment from 'moment-timezone';
@@ -117,16 +116,16 @@ export class CreateComponent {
       }
     });
     // this.userDetails =
-    //   this.localStorageService.getItemFromLocalStorage('userDetails');
+    //   this.localStorageService.getItemFromLocalStorage('adminDetails');
     this.breadCrumbItems = [
       {
         label: ' Home',
-        routerLink: '/user/dashboard',
+        routerLink: '/admin/dashboard',
         queryParams: { v: this.version },
       },
       {
         label: 'Leads',
-        routerLink: '/user/leads',
+        routerLink: '/admin/leads',
         queryParams: { v: this.version },
       },
       { label: this.actionType == 'create' ? 'Create' : 'Update' },
@@ -151,10 +150,10 @@ export class CreateComponent {
   ngOnInit() {
     this.today = new Date();
     let userDetails =
-      this.localStorageService.getItemFromLocalStorage('userDetails');
+      this.localStorageService.getItemFromLocalStorage('adminDetails');
     this.userDetails = userDetails.user;
     // console.log(this.userDetails);
-    this.capabilities = this.leadsService.getUserRbac();
+    // this.capabilities = this.leadsService.getUserRbac();
     // console.log(this.capabilities);
     this.createForm();
     const phoneControl = this.leadForm.get('primaryPhone');
@@ -425,29 +424,23 @@ export class CreateComponent {
     });
   }
   uploadFiles(fileType, acceptableTypes, index?) {
-    let data = {
-      acceptableTypes: acceptableTypes,
-      files:
-        index || index == 0
-          ? this.selectedFiles[fileType][index]['filesData']
-          : this.selectedFiles[fileType]['filesData'],
-      uploadedFiles:
-        index || index == 0
-          ? this.selectedFiles[fileType][index]['uploadedFiles']
-          : this.selectedFiles[fileType]['uploadedFiles'],
-    };
-    let fileUploadRef = this.dialogService.open(FileUploadComponent, {
-      header: 'Select Files',
-      width: '90%',
-      contentStyle: { 'max-height': '500px', overflow: 'auto' },
-      baseZIndex: 10000,
-      data: data,
-    });
-    fileUploadRef.onClose.subscribe((files: any) => {
-      if (files) {
-        this.saveFiles(files, fileType, index);
-      }
-    });
+    // let data = {
+    //   acceptableTypes: acceptableTypes,
+    //   files:
+    //     index || index == 0
+    //       ? this.selectedFiles[fileType][index]['filesData']
+    //       : this.selectedFiles[fileType]['filesData'],
+    //   uploadedFiles:
+    //     index || index == 0
+    //       ? this.selectedFiles[fileType][index]['uploadedFiles']
+    //       : this.selectedFiles[fileType]['uploadedFiles'],
+    // };
+    // let fileUploadRef =
+    // fileUploadRef.onClose.subscribe((files: any) => {
+    //   if (files) {
+    //     this.saveFiles(files, fileType, index);
+    //   }
+    // });
   }
   confirmDelete(file) {
     // console.log('Before Deletion:', this.selectedFiles);

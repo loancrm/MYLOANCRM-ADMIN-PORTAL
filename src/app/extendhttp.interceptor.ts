@@ -137,7 +137,7 @@ export class ExtendhttpInterceptor implements HttpInterceptor {
           this.authService.triggerCancelPendingRequests(); // Cancel all pending/future requests
           this.authService.doLogout();
           this.localStorageService.clearAllFromLocalStorage();
-          this.router.navigate(['user', 'login']);
+          this.router.navigate(['admin', 'login']);
         }
         return throwError(() => error);
       })

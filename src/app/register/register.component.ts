@@ -128,7 +128,7 @@ export class RegisterComponent implements OnInit {
       next: (response) => {
         this.loading = false;
         this.toastService.showSuccess('Account created successfully');
-        this.router.navigate(['/user/login']);
+        this.router.navigate(['/admin/login']);
       },
       error: (error) => {
         this.loading = false;

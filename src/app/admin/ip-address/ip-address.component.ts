@@ -31,7 +31,7 @@ export class IpAddressComponent implements OnInit {
     this.breadCrumbItems = [
       {
         label: ' Home',
-        routerLink: '/user/dashboard',
+        routerLink: '/admin/dashboard',
         queryParams: { v: this.version },
       },
       { label: 'Ip Address' },
@@ -39,7 +39,7 @@ export class IpAddressComponent implements OnInit {
   }
   ngOnInit(): void {
     this.setFilterConfig();
-    this.capabilities = this.leadsService.getUserRbac();
+    // this.capabilities = this.leadsService.getUserRbac();
     // console.log(this.capabilities);
   }
 
@@ -156,22 +156,22 @@ export class IpAddressComponent implements OnInit {
     );
     if (api_filter) {
       // console.log(api_filter);
-      this.getIpAddressCount(api_filter);
+      // this.getIpAddressCount(api_filter);
       this.getIpAddress(api_filter);
     }
   }
 
-  getIpAddressCount(filter = {}) {
-    this.leadsService.getIpAddressCount(filter).subscribe(
-      (response) => {
-        this.ipAddressCount = response;
-        // console.log(this.ipAddressCount);
-      },
-      (error: any) => {
-        this.toastService.showError('error occurs');
-      }
-    );
-  }
+  // getIpAddressCount(filter = {}) {
+  //   this.leadsService.getIpAddressCount(filter).subscribe(
+  //     (response) => {
+  //       this.ipAddressCount = response;
+  //       // console.log(this.ipAddressCount);
+  //     },
+  //     (error: any) => {
+  //       this.toastService.showError('error occurs');
+  //     }
+  //   );
+  // }
 
   getIpAddress(filter = {}) {
     this.loading = true;

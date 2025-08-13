@@ -6,7 +6,6 @@ import { ToastService } from '../../services/toast.service';
 import { SubscriptionService } from '../../services/subscription.service';
 import { LeadsService } from '../leads/leads.service';
 import { DialogService } from 'primeng/dynamicdialog';
-import { LeadSearchComponent } from '../leadSearch/leadSearch.component';
 import { RoutingService } from 'src/app/services/routing-service';
 import { ConfirmationService } from 'primeng/api';
 import { DateTimeProcessorService } from 'src/app/services/date-time-processor.service';
@@ -56,7 +55,6 @@ export class HeaderComponent implements OnInit {
     this.leadsService.sidebarVisible$.subscribe((collapsed) => {
       this.sidebarCollapsed = collapsed;
     });
-    this.getUserRoles();
   }
 
   ngOnInit(): void {
@@ -65,11 +63,11 @@ export class HeaderComponent implements OnInit {
       this.isMobile = window.innerWidth < 768;
     });
     const userDetails =
-      this.localStorageService.getItemFromLocalStorage('userDetails');
+      this.localStorageService.getItemFromLocalStorage('adminDetails');
     if (userDetails && userDetails.user) {
       this.userDetails = userDetails.user;
-      this.fetchSubscription(this.userDetails.accountId);
-      this.userDetails.userImage = JSON.parse(this.userDetails.userImage);
+      // this.fetchSubscription(this.userDetails.accountId);
+      // this.userDetails.userImage = JSON.parse(this.userDetails.userImage);
     }
     // this.leadsService.connect(this.userDetails.id, this.userDetails.userType);
 
@@ -105,49 +103,10 @@ export class HeaderComponent implements OnInit {
   toggleDropdown(): void {
     this.dropdownOpen = !this.dropdownOpen;
   }
-  fetchSubscription(accountId: number) {
-    this.leadsService.getSubscriptionById(accountId).subscribe({
-      next: (sub: any) => {
-        if (sub) {
-          this.subscriptionPlanName = sub.plan_name;
-          this.subscriptionEndDate = sub.end_date;
-          this.subscriptionStatus = sub.status;
 
-          const today = this.moment();
-          const end = this.moment(sub.end_date);
-          const diff = end.diff(today, 'days');
-
-          // Build the display string for the header badge
-          if (diff < 0 || sub.status === 'Expired') {
-            this.displayPlanStatus = `${sub.plan_name} - Expired`;
-            this.upgradeMessage = `Your ${sub.plan_name} plan has expired.`;
-            this.upgradeButtonLabel = sub.plan_name === 'Free Trial' ? 'Upgrade Now' : 'Renew';
-            this.showUpgradeButton = true;
-          } else if (diff <= 1) {
-            this.displayPlanStatus = `${sub.plan_name} - Expires in 1 day`;
-            this.upgradeMessage = `Your ${sub.plan_name} plan will expire in 1 day.`;
-            this.upgradeButtonLabel = sub.plan_name === 'Free Trial' ? 'Upgrade Now' : 'Renew';
-            this.showUpgradeButton = true;
-          } else if (diff <= 7) {
-            this.displayPlanStatus = `${sub.plan_name} - Expires in ${diff} days`;
-            this.upgradeMessage = `Your ${sub.plan_name} plan will expire in ${diff} days.`;
-            this.upgradeButtonLabel = sub.plan_name === 'Free Trial' ? 'Upgrade Now' : 'Renew';
-            this.showUpgradeButton = true;
-          } else {
-            this.displayPlanStatus = `${sub.plan_name} - Active`;
-            this.upgradeMessage = '';
-            this.showUpgradeButton = false;
-          }
-        }
-      },
-      error: (err) => {
-        console.error('Failed to fetch subscription:', err);
-      }
-    });
-  }
 
   upgradeSubscription() {
-    this.router.navigate(['/user/choose-subscription']);
+    this.router.navigate(['/admin/choose-subscription']);
   }
   userLogout() {
     this.authService
@@ -155,7 +114,7 @@ export class HeaderComponent implements OnInit {
       .then(() => {
         this.toastService.showSuccess('Logout Successful');
         this.localStorage.clearAllFromLocalStorage();
-        this.router.navigate(['user', 'login']);
+        this.router.navigate(['admin', 'login']);
       })
       .catch((error) => {
         this.toastService.showError(error);
@@ -176,78 +135,10 @@ export class HeaderComponent implements OnInit {
   //   this.notifications = [];
   //   this.notificationCount = 0;
   // }
-  filterWithBusinessName() {
-    let searchFilter = {};
-    if (this.isPhoneNumber(this.businessNameToSearch)) {
-      searchFilter = { 'primaryPhone-like': this.businessNameToSearch };
-    } else {
-      searchFilter = { 'businessName-like': this.businessNameToSearch };
-    }
-    this.applyFilters(searchFilter);
-  }
 
-  isPhoneNumber(value: string): boolean {
-    const phoneNumberPattern = /^[0-9]{10}$/;
-    return phoneNumberPattern.test(value);
-  }
-  applyFilters(searchFilter = {}) {
-    this.searchFilter = searchFilter;
-    this.loadLeads(this.currentTableEvent);
-  }
 
-  loadLeads(event) {
-    this.currentTableEvent = event;
-    let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
 
-    api_filter = Object.assign({}, api_filter, this.searchFilter);
-    if (api_filter) {
-      this.searchLeads(api_filter);
-    }
-  }
 
-  searchLeads(filter = {}) {
-    this.loading = true;
-    this.leadsService.searchLeads(filter).subscribe(
-      (response: any) => {
-        // console.log(response);
-        if (response) {
-          this.dialogService.open(LeadSearchComponent, {
-            data: response,
-            header: 'Lead Information',
-            width: '80%',
-          });
-        } else {
-          this.toastService.showError('An unknown error occurred.');
-        }
-        this.loading = false;
-      },
-      (error: any) => {
-        this.loading = false;
-        this.toastService.showError(error);
-      }
-    );
-  }
-
-  getUserRoles(filter = {}) {
-    this.leadsService.getUserRoles(filter).subscribe(
-      (roles) => {
-        this.userRoles = roles;
-      },
-      (error: any) => {
-        this.toastService.showError(error);
-      }
-    );
-  }
-
-  getUserRoleName(userId) {
-    if (this.userRoles && this.userRoles.length > 0) {
-      let leadUserName = this.userRoles.filter(
-        (leadUser) => leadUser.id == userId
-      );
-      return (leadUserName && leadUserName[0] && leadUserName[0].name) || '';
-    }
-    return '';
-  }
   showSidebarMenu() {
     this.showSidebar = !this.showSidebar;
     this.subscriptionService.sendMessage({

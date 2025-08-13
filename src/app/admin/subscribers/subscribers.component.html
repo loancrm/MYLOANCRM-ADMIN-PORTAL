@@ -1,0 +1,160 @@
+<div>
+  <div class="p-1 m-2 fixed-card">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <b>
+          <span class="back-btn-text">Subscibers </span>
+        </b>
+      </div>
+    </div>
+  </div>
+  <div class="m-2">
+    <p-table
+      #accountTable
+      [value]="accounts"
+      [lazy]="true"
+      (onLazyLoad)="loadAccounts($event)"
+      (onRowSelect)="viewAccount($event)"
+      selectionMode="single"
+      dataKey="id"
+      [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [paginator]="true"
+      [rows]="10"
+      [totalRecords]="accountsCount"
+      [loading]="apiLoading"
+      class="p-datatable-striped"
+      responsiveLayout="scroll"
+      scrollHeight="flex"
+      [globalFilterFields]="[
+        'referenceNo',
+        'customer.firstName',
+        'partner.partnerName',
+        'status'
+      ]"
+      styleClass="p-datatable-customers "
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Accounts"
+    >
+      <ng-template pTemplate="caption">
+        <div class="row">
+          <div class="col-md-3 mt-2 no-padding-small">
+            <div class="p-inputgroup">
+              <input
+                type="text"
+                pInputText
+                placeholder="Search User with User Name"
+                [(ngModel)]="userNameToSearch"
+                (ngModelChange)="
+                  inputValueChangeEvent('loanId', userNameToSearch)
+                "
+                (keyup.enter)="filterWithName()"
+              />
+              <button
+                type="button"
+                pButton
+                class="p-button-primary search-btn"
+                [disabled]="!userNameToSearch"
+                (click)="filterWithName()"
+              >
+                <img
+                  src="assets/images/icons/search.svg"
+                  alt="Search"
+                  width="16"
+                  height="16"
+                  style="vertical-align: middle"
+                />
+              </button>
+            </div>
+          </div>
+          <div class="col-md-6 no-padding-small"></div>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th class="text-nowrap">Id</th>
+        
+          <th class="text-nowrap">Email</th>
+          <th>Subscribed On</th>
+          <!-- <th>Actions</th> -->
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-team>
+        <tr
+          [pSelectableRow]="team"
+          class="text-capitalize"
+          [ngClass]="{ 'disabled-row': team.disabled }"
+        >
+          <td>
+            <span class="table-column-data" *ngIf="team.id">{{
+              team.id
+            }}</span>
+          </td>
+
+          
+          <td>
+            <span class="table-column-data text-lowercase" *ngIf="team.email">{{
+              team.email
+            }}</span>
+          </td>
+         
+          <td>
+            <span class="table-column-data" *ngIf="team.subscribed_on">{{
+              team.subscribed_on | date
+            }}</span>
+          </td>
+          <!--
+          <td>
+            <div class="text-center d-flex">
+              <div class="d-flex">
+                <img
+                  alt="Update User"
+                  src="../../../assets/images/icons/edit.svg"
+                  width="24px"
+                  height="24px"
+                  class="me-2"
+                  (click)="updateAccount(team.id)"
+                  pTooltip="Update User"
+                  tooltipPosition="top"
+                />
+              </div>
+              <p-menu
+                appendTo="body"
+                #menu
+                [model]="actionItems(team)"
+                [popup]="true"
+              ></p-menu>
+              <img
+                alt="Actions"
+                src="../../../assets/images/icons/menu.svg"
+                width="24px"
+                height="24px"
+                pTooltip="Actions"
+                tooltipPosition="top"
+                (click)="menu.toggle($event); $event.stopPropagation()"
+              />
+            </div>
+          </td> -->
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr class="text-center">
+          <td colspan="10" class="text-center fw-bold">
+            <img
+              alt="No Data"
+              src="../../../assets/images/menu/no-data.gif"
+              width="200"
+              height="200"
+            />
+            <p>No Accounts Found</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

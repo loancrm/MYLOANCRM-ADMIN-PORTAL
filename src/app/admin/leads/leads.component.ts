@@ -105,7 +105,7 @@ export class LeadsComponent implements OnInit {
     this.breadCrumbItems = [
       {
         label: '  Dashboard',
-        routerLink: '/user/dashboard',
+        routerLink: '/admin/dashboard',
         queryParams: { v: this.version },
       },
       { label: 'Leads' },
@@ -128,7 +128,7 @@ export class LeadsComponent implements OnInit {
     });
     // this.loadEmploymentActiveItem();
     this.setFilterConfig();
-    this.capabilities = this.leadsService.getUserRbac();
+    // this.capabilities = this.leadsService.getUserRbac();
     console.log(this.capabilities);
     const loanTypes = ['', 'Personal', 'Home', 'Homeself', 'Lap', 'Lapself'];
     loanTypes.forEach((type) => {
@@ -156,7 +156,7 @@ export class LeadsComponent implements OnInit {
   }
   private async initializeUserDetails(): Promise<void> {
     const userDetails =
-      this.localStorageService.getItemFromLocalStorage('userDetails');
+      this.localStorageService.getItemFromLocalStorage('adminDetails');
     this.userDetails = userDetails.user;
     // this.employmentStatus = [
     //   { label: 'Employed', name: 'employed' },
