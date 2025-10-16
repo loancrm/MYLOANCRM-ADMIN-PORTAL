@@ -51,6 +51,11 @@ const routes: Routes = [
             (m) => m.IpAddressModule
           ),
       },
+      {
+        path: 'social-media-leads',
+        loadChildren: () =>
+          import('./social-media-leads/social-media-leads.module').then((m) => m.SocialMediaLeadsModule),
+      },
     ],
   },
 ];

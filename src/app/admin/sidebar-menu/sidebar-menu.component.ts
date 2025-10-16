@@ -145,6 +145,7 @@ export class SidebarMenuComponent implements OnChanges {
       { label: 'Subscriptions', icon: '../../../assets/images/icons/callbacks.svg', route: 'subscription-plans', condition: true },
       { label: 'Contacts', icon: '../../../assets/images/icons/callbacks.svg', route: 'contact-submissions', condition: true },
       { label: 'Subscribers', icon: '../../../assets/images/icons/callbacks.svg', route: 'subscribers', condition: true },
+      { label: 'Social Media Leads', icon: '../../../assets/images/icons/callbacks.svg', route: 'social-media-leads', condition: true },
     ];
   }
 

@@ -5,6 +5,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { AdminRoutingModule } from './admin-routing.module';
 import { HeaderModule } from './header/header.module';
 import { SidebarMenuModule } from './sidebar-menu/sidebar-menu.module';
+// import { SocialMediaLeadsComponent } from './social-media-leads/social-media-leads.component';
 
 @NgModule({
   declarations: [AdminComponent],

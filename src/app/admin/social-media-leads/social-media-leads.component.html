@@ -1,0 +1,105 @@
+<!-- <div class="p-3">
+  <h2>Social Media Leads</h2>
+
+  <div *ngIf="loading">Loading leads...</div>
+
+  <table *ngIf="!loading && socialMediaLeads.length > 0" border="1" class="table table-striped">
+    <thead>
+      <tr>
+        <th>Lead ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>City</th>
+        <th>Platform</th>
+        <th>Created Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let lead of socialMediaLeads; let i = index">
+        <td>{{ lead.id }}</td>
+        <td>{{ lead.Name }}</td>
+        <td>{{ lead.Email }}</td>
+        <td>{{ lead.PhoneNumber }}</td>
+        <td>{{ lead. City}}</td>
+        <td>{{ lead. Platform}}</td>
+        <td>{{ lead.CreatedOn }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!loading && socialMediaLeads.length === 0">
+    No leads found.
+  </div>
+</div> -->
+
+
+<div>
+  <div class="p-1 m-2 fixed-card">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <b>
+          <span class="back-btn-text">Social Media Leads </span>
+        </b>
+      </div>
+    </div>
+  </div>
+  <div class="m-2">
+    <p-table
+      #SocialMediaLeadsTable
+      [value]="socialMediaLeads"
+      [lazy]="true"
+      (onLazyLoad)="loadsocialmediaLeads($event)"
+      selectionMode="single"
+      dataKey="id"
+      [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [paginator]="true"
+      [rows]="10"
+      [totalRecords]="socialMediaLeadsCount"
+      [loading]="apiLoading"
+      class="p-datatable-striped"
+      responsiveLayout="scroll"
+      scrollHeight="flex"
+      [globalFilterFields]="[
+        'id',
+        'Name',
+        'Email',
+        'PhoneNumber',
+        'City',
+        'Platform',
+        'CreatedOn'
+      ]"
+      styleClass="p-datatable-customers "
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Leads">
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+            <th>Lead ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>City</th>
+            <th>Platform</th>
+            <th>Created Time</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-team>
+        <tr>
+            <td>{{ team.id }}</td>
+            <td>{{ team.Name }}</td>
+            <td>{{ team.Email }}</td>
+            <td>{{ team.PhoneNumber }}</td>
+            <td>{{ team.City }}</td>
+            <td>{{ team.Platform }}</td>
+            <td>{{ team.CreatedOn | date}}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
