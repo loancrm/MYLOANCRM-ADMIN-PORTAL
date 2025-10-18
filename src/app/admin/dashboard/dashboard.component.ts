@@ -206,6 +206,16 @@ export class DashboardComponent implements OnInit {
         color: '#FFC001',
         icon: '../../../assets/images/icons/files.svg'
       },
+      {
+        name: 'cibil-reports',
+        displayName: 'Cibil Reports',
+        count: 0,
+        routerLink: 'cibil-reports',
+        condition: true,
+        backgroundColor: '#FBF2EF',
+        color: '#FFC001',
+        icon: '../../../assets/images/icons/files.svg'
+      },
     ];
   }
 

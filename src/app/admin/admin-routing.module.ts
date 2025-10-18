@@ -51,6 +51,13 @@ const routes: Routes = [
             (m) => m.IpAddressModule
           ),
       },
+       {
+        path: 'cibil-reports',
+        loadChildren: () =>
+          import('./cibil-reports/cibil-reports.module').then(
+            (m) => m.CibilReportsModule
+          ),
+      },
       {
         path: 'social-media-leads',
         loadChildren: () =>

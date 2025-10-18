@@ -1,0 +1,169 @@
+<div>
+  <div class="p-1 m-2 fixed-card">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <b>
+          <span class="back-btn-text">Accounts </span>
+        </b>
+      </div>
+    </div>
+  </div>
+  <div class="m-2">
+    <p-table
+      #accountTable
+      [value]="accounts"
+      [lazy]="true"
+      (onLazyLoad)="loadCibilReports($event)"
+      (onRowSelect)="viewAccount($event)"
+      selectionMode="single"
+      dataKey="id"
+      [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [paginator]="true"
+      [rows]="10"
+      [totalRecords]="accountsCount"
+      [loading]="apiLoading"
+      class="p-datatable-striped"
+      responsiveLayout="scroll"
+      scrollHeight="flex"
+      [globalFilterFields]="[
+        'referenceNo',
+        'customer.firstName',
+        'partner.partnerName',
+        'status'
+      ]"
+      styleClass="p-datatable-customers "
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Accounts"
+    >
+      <ng-template pTemplate="caption">
+        <div class="row">
+          <div class="col-md-3 mt-2 no-padding-small">
+            <div class="p-inputgroup">
+              <input
+                type="text"
+                pInputText
+                placeholder="Search User with User Name"
+                [(ngModel)]="userNameToSearch"
+                (ngModelChange)="
+                  inputValueChangeEvent('loanId', userNameToSearch)
+                "
+                (keyup.enter)="filterWithName()"
+              />
+              <button
+                type="button"
+                pButton
+                class="p-button-primary search-btn"
+                [disabled]="!userNameToSearch"
+                (click)="filterWithName()"
+              >
+                <img
+                  src="assets/images/icons/search.svg"
+                  alt="Search"
+                  width="16"
+                  height="16"
+                  style="vertical-align: middle"
+                />
+              </button>
+            </div>
+          </div>
+          <div class="col-md-6 no-padding-small"></div>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th class="text-nowrap">Account Id</th>
+          <th>Name</th>
+          <th>Mobile</th>
+          <th class="text-nowrap">Pan</th>
+          <th class="text-nowrap">City</th>
+          <th>Aadhar</th>
+          <th>Gender</th>
+          <th>Consent</th>
+          <th>Credit Score</th>
+          <th>status</th>
+          <th>Download</th>
+
+          <th>Created on</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-report let-rowIndex="rowIndex">
+        <tr>
+          <td>{{ report.accountId }}</td>
+          <!-- <td>{{ report.client_id }}</td> -->
+          <td>{{ report.name }}</td>
+          <td>{{ report.mobile }}</td>
+          <td>{{ report.pan }}</td>
+          <td>{{ report.city }}</td>
+          <td>{{ report.aadhar_number }}</td>
+          <td>{{ report.gender }}</td>
+          <td>{{ report.consent }}</td>
+          <td>{{ report.credit_score }}</td>
+          <td>{{ report.status }}</td>
+
+          <!-- Downloadable Report -->
+          <!-- <td>
+            <a
+              *ngIf="report.report_url"
+              [href]="report.report_url"
+              target="_blank"
+            >
+              <img
+                src="../../../assets/images/icons/file-download.svg"
+                width="24"
+                height="24"
+              />
+            </a>
+          </td> -->
+
+          <!-- Uploaded Report -->
+          <td>
+            <a
+              *ngIf="report.uploaded_url"
+              [href]="'//' + report.uploaded_url"
+              target="_blank"
+            >
+              <img
+                src="../../../assets/images/icons/file-download.svg"
+                width="24"
+                height="24"
+                pTooltip="Download Report"
+                class="downloadimg"
+                tooltipPosition="top"
+              />
+            </a>
+          </td>
+
+          <!-- <td>
+            <span *ngIf="report.pancard">Available</span>
+          </td>
+
+          <td>
+            <span *ngIf="report.aadharcard">Available</span>
+          </td> -->
+
+          <td>{{ report.created_at | date }}</td>
+          <!-- <td>{{ report.updated_at | date : "dd-MM-yyyy HH:mm:ss" }}</td> -->
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr class="text-center">
+          <td colspan="10" class="text-center fw-bold">
+            <img
+              alt="No Data"
+              src="../../../assets/images/menu/no-data.gif"
+              width="200"
+              height="200"
+            />
+            <p>No Accounts Found</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

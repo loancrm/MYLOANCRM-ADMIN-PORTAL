@@ -9,11 +9,11 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ToastService } from 'src/app/services/toast.service';
 
 @Component({
-  selector: 'app-accounts',
-  templateUrl: './accounts.component.html',
-  styleUrl: './accounts.component.scss'
+  selector: 'app-cibil-reports',
+  templateUrl: './cibil-reports.component.html',
+  styleUrl: './cibil-reports.component.scss'
 })
-export class AccountsComponent {
+export class CibilReportsComponent {
   breadCrumbItems: any = [];
   searchFilter: any = {};
   currentTableEvent: any;
@@ -62,14 +62,8 @@ export class AccountsComponent {
     //   icon: 'pi pi-refresh',
     //   command: () => this.updateAccount(team.id),
     // });
-
-
     return menuItems;
   }
-
-
-
-
 
   getStatusColor(status: string): {
     textColor: string;
@@ -96,7 +90,7 @@ export class AccountsComponent {
       'teamAppliedFilter',
       this.appliedFilter
     );
-    this.loadAccounts(null);
+    this.loadCibilReports(null);
   }
 
   updateAccount(accountId) {
@@ -110,7 +104,7 @@ export class AccountsComponent {
     this.location.back();
   }
 
-  loadAccounts(event) {
+  loadCibilReports(event) {
     // console.log(event);
     this.currentTableEvent = event;
     let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
@@ -137,7 +131,7 @@ export class AccountsComponent {
   }
 
   getTeamCount(filter = {}) {
-    this.leadsService.getAccountsCount(filter).subscribe(
+    this.leadsService.getFetchedCibilReportsCount(filter).subscribe(
       (teamsCount) => {
         this.accountsCount = teamsCount;
         // console.log(this.accountsCount);
@@ -150,7 +144,7 @@ export class AccountsComponent {
 
   getTeam(filter = {}) {
     this.apiLoading = true;
-    this.leadsService.getAccounts(filter).subscribe(
+    this.leadsService.getFetchedCibilReports(filter).subscribe(
       (team) => {
         this.accounts = team;
         this.apiLoading = false;
@@ -164,7 +158,7 @@ export class AccountsComponent {
 
   applyFilters(searchFilter = {}) {
     this.searchFilter = searchFilter;
-    this.loadAccounts(this.currentTableEvent);
+    this.loadCibilReports(this.currentTableEvent);
   }
 
   filterWithName() {
@@ -177,6 +171,6 @@ export class AccountsComponent {
       'selectedTeamStatus',
       event.value
     );
-    this.loadAccounts(this.currentTableEvent);
+    this.loadCibilReports(this.currentTableEvent);
   }
 }

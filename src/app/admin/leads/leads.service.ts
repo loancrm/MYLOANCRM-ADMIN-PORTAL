@@ -6,8 +6,7 @@ import axios from 'axios';
 import { io, Socket } from 'socket.io-client';
 import { projectConstantsLocal } from 'src/app/constants/project-constants';
 import { BehaviorSubject } from 'rxjs';
-// import { HttpClient } from '@angular/common/http';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 @Injectable({
   providedIn: 'root',
 })
@@ -164,7 +163,6 @@ export class LeadsService {
     const url = 'contactus/subsciberstotal';
     return this.serviceMeta.httpGet(url, null, filter);
   }
-  
   getPlansCount(filter = {}) {
     const url = 'subscriptionPlans/total';
     return this.serviceMeta.httpGet(url, null, filter);
@@ -190,19 +188,10 @@ export class LeadsService {
     const url = 'social-media-leads';
     return this.serviceMeta.httpGet(url, null, filter);
   }
-  getSocilaMediaCount(filter = {}){
-    const url ='social-media-leads/socialmedialeadsCount'
-    return this.serviceMeta.httpGet(url,null,filter);
+  getSocilaMediaCount(filter = {}) {
+    const url = 'social-media-leads/socialmedialeadsCount'
+    return this.serviceMeta.httpGet(url, null, filter);
   }
-  // constructor(private http: HttpClient) { }
-  // getSocialMediaLeads(filter = {}) {
-  //   console.log("🔹 Frontend Service: getSocialMediaLeads called with filter:", filter);
-  //   let params = new HttpParams();
-  //   Object.keys(filter).forEach(key => {
-  //     params = params.set(key, filter[key]);
-  //   });
-  //   return this.http.get<any[]>('/api/social-media-leads', { params });
-  // }
 
   getAccounts(filter = {}) {
     const url = 'accounts';
@@ -210,6 +199,16 @@ export class LeadsService {
   }
   getContacts(filter = {}) {
     const url = 'contactus';
+    return this.serviceMeta.httpGet(url, null, filter);
+  }
+
+  getFetchedCibilReports(filter = {}) {
+    const url = 'admin/fetched-cibil-reports';
+    return this.serviceMeta.httpGet(url, null, filter);
+  }
+
+  getFetchedCibilReportsCount(filter = {}) {
+    const url = 'admin/fetched-cibil-reports-count';
     return this.serviceMeta.httpGet(url, null, filter);
   }
   getsubscribers(filter = {}) {
