@@ -25,7 +25,7 @@ export class SocialMediaLeadsComponent {
   appliedFilter: {};
   filterConfig: any[] = [];
   capabilities: any;
-   accountsCount: any = 0;
+  accountsCount: any = 0;
   version = projectConstantsLocal.VERSION_DESKTOP;
   @ViewChild('SocialMediaLeadsTable') socialMediaLeadsTable!: Table;
   constructor(
@@ -72,21 +72,62 @@ export class SocialMediaLeadsComponent {
   //   this.searchFilter = searchFilter;
   //   this.loadAccounts(this.currentTableEvent);
   // }
-  getSocilaMediaCount(filter={}){
+  getSocilaMediaCount(filter = {}) {
     this.leadsService.getSocilaMediaCount().subscribe(
       (socialmediaCount) => {
         this.socialMediaLeadsCount = socialmediaCount;
         console.log(this.socialMediaLeadsCount);
-        
+
       },
       (error: any) => {
         this.toastService.showError(error);
       }
     );
   }
+  exportSocialLeadsToCSV() {
+    const headers = [
+      'Lead ID',
+      'Name',
+      'Email',
+      'Phone',
+      'Company',
+      'City',
+      'Platform',
+      'Created Time'
+    ];
+
+    const rows = this.socialMediaLeads.map((lead: any) => [
+      lead.id || '',
+      lead.Name || '',
+      lead.Email || '',
+      lead.PhoneNumber || '',
+      lead.Company || '',
+      lead.City || '',
+      lead.Platform || '',
+      lead.CreatedOn ? new Date(lead.CreatedOn).toLocaleDateString() : ''
+    ]);
+
+    let csvContent =
+      headers.join(',') +
+      '\n' +
+      rows.map((r: string[]) => r.map(this.escapeCSVValue).join(',')).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'social_media_leads.csv';
+    link.click();
+  }
+
+  escapeCSVValue(value: any) {
+    if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+      value = `"${value.replace(/"/g, '""')}"`;
+    }
+    return value;
+  }
 
 
-   loadsocialmediaLeads(event) {
+  loadsocialmediaLeads(event) {
     // console.log(event);
     this.currentTableEvent = event;
     let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
@@ -105,22 +146,22 @@ export class SocialMediaLeadsComponent {
     }
   }
   getSocialMediaLeads(filter = {}) {
-  this.apiLoading = true;
-  console.log('Fetching social media leads...');
-  this.leadsService.getSocialMediaLeads(filter).subscribe(
-    (data) => {
-      console.log('Raw API response:', data);
-      this.socialMediaLeads = data;
-      this.apiLoading = false;
-      console.log('Data received and assigned:', this.socialMediaLeads);
-    },
-    (error) => {
-      console.error('API error:', error);
-      this.toastService.showError('Error fetching social media leads');
-    }
-  );
-  
-}
+    this.apiLoading = true;
+    console.log('Fetching social media leads...');
+    this.leadsService.getSocialMediaLeads(filter).subscribe(
+      (data) => {
+        console.log('Raw API response:', data);
+        this.socialMediaLeads = data;
+        this.apiLoading = false;
+        console.log('Data received and assigned:', this.socialMediaLeads);
+      },
+      (error) => {
+        console.error('API error:', error);
+        this.toastService.showError('Error fetching social media leads');
+      }
+    );
+
+  }
 
   // loadAccounts(event) {
   //   // console.log(event);

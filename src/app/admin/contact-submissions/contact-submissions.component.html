@@ -14,6 +14,13 @@
       </div>
     </div>
   </div>
+  <button
+    pButton
+    label="Export Contacts CSV"
+    icon="pi pi-file"
+    class="p-button-info mb-2"
+    (click)="exportContactsToCSV()"
+  ></button>
   <div class="m-2">
     <p-table
       #accountTable

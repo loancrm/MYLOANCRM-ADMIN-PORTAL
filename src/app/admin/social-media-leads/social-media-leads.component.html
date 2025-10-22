@@ -49,6 +49,15 @@
       </div>
     </div>
   </div>
+  <div>
+    <button
+      pButton
+      label="Export CSV"
+      icon="pi pi-download"
+      class="p-button-success"
+      (click)="exportSocialLeadsToCSV()"
+    ></button>
+  </div>
   <div class="m-2">
     <p-table
       #SocialMediaLeadsTable

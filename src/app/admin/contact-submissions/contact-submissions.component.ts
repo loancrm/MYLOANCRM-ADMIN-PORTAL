@@ -7,7 +7,8 @@ import { ConfirmationService, MenuItem } from 'primeng/api';
 import { LeadsService } from '../leads/leads.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ToastService } from 'src/app/services/toast.service';
-
+// import * as XLSX from 'xlsx';
+// import { saveAs } from 'file-saver';
 @Component({
   selector: 'app-contact-submissions',
   templateUrl: './contact-submissions.component.html',
@@ -178,4 +179,83 @@ export class ContactSubmissionsComponent {
     );
     this.loadAccounts(this.currentTableEvent);
   }
+
+//   exportToExcel() {
+//   // Define the data you want to export
+//   const exportData = this.accounts.map((team: any) => ({
+//     'Contact Id': team.contactId || '',
+//     'Business Name': team.company_name || '',
+//     'Person Name': team.full_name || '',
+//     'Mobile': team.phone || '',
+//     'Email': team.email || '',
+//     'Message': team.message || '',
+//     'Created Date': team.submitted_on
+//       ? new Date(team.submitted_on).toLocaleDateString()
+//       : '',
+//   }));
+
+//   // Convert JSON to a worksheet
+//   const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportData);
+
+//   // Create a workbook and add the worksheet
+//   const workbook: XLSX.WorkBook = {
+//     Sheets: { 'Contacts Data': worksheet },
+//     SheetNames: ['Contacts Data'],
+//   };
+
+//   // Generate Excel file buffer
+//   const excelBuffer: any = XLSX.write(workbook, {
+//     bookType: 'xlsx',
+//     type: 'array',
+//   });
+
+//   // Save file
+//   const blob: Blob = new Blob([excelBuffer], {
+//     type:
+//       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
+//   });
+
+//   saveAs(blob, 'Contacts_' + new Date().toISOString().split('T')[0] + '.xlsx');
+// }
+
+  exportContactsToCSV() {
+  const headers = [
+    'Contact Id',
+    'Business Name',
+    'Person Name',
+    'Mobile',
+    'Email',
+    'Message',
+    'Created Date'
+  ];
+
+  const rows = this.accounts.map((team: any) => [
+    team.contactId || '',
+    team.company_name || '',
+    team.full_name || '',
+    team.phone || '',
+    team.email || '',
+    team.message || '',
+    team.submitted_on ? new Date(team.submitted_on).toLocaleDateString() : ''
+  ]);
+
+  let csvContent =
+    headers.join(',') +
+    '\n' +
+    rows.map((r: string[]) => r.map(this.escapeCSVValue).join(',')).join('\n');
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'contacts.csv';
+  link.click();
+}
+
+escapeCSVValue(value: any) {
+  if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+    value = `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+}
+
 }
