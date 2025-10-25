@@ -12,15 +12,16 @@
           <span class="back-btn-text">Contacts </span>
         </b>
       </div>
+      <button
+        pButton
+        label="Export Contacts CSV"
+        icon="pi pi-file"
+        class="p-button-info mb-2"
+        (click)="exportContactsToCSV()"
+      ></button>
     </div>
   </div>
-  <button
-    pButton
-    label="Export Contacts CSV"
-    icon="pi pi-file"
-    class="p-button-info mb-2"
-    (click)="exportContactsToCSV()"
-  ></button>
+
   <div class="m-2">
     <p-table
       #accountTable
@@ -89,6 +90,7 @@
           <th>Person Name</th>
           <th class="text-nowrap">Mobile</th>
           <th class="text-nowrap">Email</th>
+          <th class="text-nowrap">City</th>
           <th class="text-nowrap">Message</th>
           <th>Created Date</th>
           <!-- <th>Actions</th> -->
@@ -125,6 +127,12 @@
               team.email
             }}</span>
           </td>
+          <td>
+            <span *ngIf="team.city" class="table-column-data">
+              {{ team.city | capitalizeFirst }}
+            </span>
+          </td>
+
           <td>
             <span
               class="table-column-data text-lowercase"

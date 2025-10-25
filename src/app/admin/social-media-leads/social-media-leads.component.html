@@ -47,17 +47,17 @@
           <span class="back-btn-text">Social Media Leads </span>
         </b>
       </div>
+
+      <button
+        pButton
+        label="Export CSV"
+        icon="pi pi-download"
+        class="p-button-info"
+        (click)="exportSocialLeadsToCSV()"
+      ></button>
     </div>
   </div>
-  <div>
-    <button
-      pButton
-      label="Export CSV"
-      icon="pi pi-download"
-      class="p-button-success"
-      (click)="exportSocialLeadsToCSV()"
-    ></button>
-  </div>
+  <div></div>
   <div class="m-2">
     <p-table
       #SocialMediaLeadsTable
