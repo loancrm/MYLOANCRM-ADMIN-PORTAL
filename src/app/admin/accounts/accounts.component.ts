@@ -66,10 +66,50 @@ export class AccountsComponent {
 
     return menuItems;
   }
+  exportAccountsToCSV() {
+    const headers = [
+      'Account Id',
+      'Name',
+      'Business Name',
 
+      'Mobile',
+      'Email',
+      'City',
+      'Wallet Balance',
+      'Created Date'
+    ];
 
+    const rows = this.accounts.map((team: any) => [
+      team.accountId || '',
+      team.name || '',
+      team.businessName || '',
 
+      team.mobile || '',
+      team.emailId || '',
+      team.city || '',
 
+      team.walletBalance || '',
+      team.createdOn ? new Date(team.createdOn).toLocaleDateString() : ''
+    ]);
+
+    let csvContent =
+      headers.join(',') +
+      '\n' +
+      rows.map((r: string[]) => r.map(this.escapeCSVValue).join(',')).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'Accounts.csv';
+    link.click();
+  }
+
+  escapeCSVValue(value: any) {
+    if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+      value = `"${value.replace(/"/g, '""')}"`;
+    }
+    return value;
+  }
 
   getStatusColor(status: string): {
     textColor: string;
