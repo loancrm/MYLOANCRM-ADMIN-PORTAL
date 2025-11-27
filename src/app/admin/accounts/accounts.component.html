@@ -28,6 +28,7 @@
       [lazy]="true"
       (onLazyLoad)="loadAccounts($event)"
       selectionMode="single"
+      (onRowSelect)="viewAccount($event)"
       dataKey="id"
       [showCurrentPageReport]="true"
       [rowsPerPageOptions]="[10, 25, 50, 100]"
@@ -54,7 +55,7 @@
               <input
                 type="text"
                 pInputText
-                placeholder="Search User with User Name"
+                placeholder="Search Business Name"
                 [(ngModel)]="userNameToSearch"
                 (ngModelChange)="
                   inputValueChangeEvent('loanId', userNameToSearch)
@@ -78,7 +79,25 @@
               </button>
             </div>
           </div>
-          <div class="col-md-6 no-padding-small"></div>
+          <div class="col-md-5 no-padding-small"></div>
+           <div class="col-md-4 mt-2 no-padding-small text-right">
+              <div class="d-flex">
+                <div class="flex-grow-1 me-2"></div>
+                <div class="d-flex align-items-center pointer-cursor">
+                  <app-filter
+                    [position]="'right'"
+                    [iconColor]="'#33009C'"
+                    [iconSize]="'28px!important'"
+                    (filterEvent)="applyConfigFilters($event)"
+                    [filterConfig]="filterConfig"
+                    [showFilterIndication]="appliedFilter"
+                    pTooltip="Filter"
+                    tooltipPosition="top"
+                  >
+                  </app-filter>
+                </div>
+              </div>
+            </div>
         </div>
       </ng-template>
       <ng-template pTemplate="header" let-columns>
@@ -88,13 +107,20 @@
           <th>Person Name</th>
           <th class="text-nowrap">Mobile</th>
           <th class="text-nowrap">Email</th>
+          <th class="text-nowrap">City</th>
+          <th class="text-nowrap">Wallet Balance</th>
+          <th class="text-nowrap">Plan</th>
+          <th class="text-nowrap">Status</th>
+
+
           <th>Created Date</th>
-          <th>Status</th>
-          <th>Actions</th>
+          <!-- <th>Status</th> -->
+          <!-- <th>Actions</th> -->
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-team>
         <tr
+          [pSelectableRow]="team"
           class="text-capitalize"
           [ngClass]="{ 'disabled-row': team.disabled }"
         >
@@ -125,12 +151,33 @@
               >{{ team.emailId }}</span
             >
           </td>
+
+          <td>
+            <span class="table-column-data" *ngIf="team.city">{{
+              team.city
+            }}</span>
+          </td>
+          <td>
+            <span class="table-column-data" *ngIf="team.walletBalance">{{
+              team.walletBalance
+            }}</span>
+          </td>
+          <td>
+            <span class="table-column-data" *ngIf="team.latest_plan_name">{{
+              team.latest_plan_name
+            }}</span>
+          </td>
+          <td>
+            <span class="table-column-data" *ngIf="team.latest_status">{{
+              team.latest_status
+            }}</span>
+          </td>
           <td>
             <span class="table-column-data" *ngIf="team.createdOn">{{
               team.createdOn | date
             }}</span>
           </td>
-          <td>
+          <!-- <td>
             <span
               class="table-column-data fw-bold statusdata"
               *ngIf="team.status"
@@ -140,8 +187,8 @@
             >
               {{ team.status }}
             </span>
-          </td>
-          <td>
+          </td> -->
+          <!-- <td>
             <div class="text-center d-flex">
               <div class="d-flex">
                 <img
@@ -171,7 +218,7 @@
                 (click)="menu.toggle($event); $event.stopPropagation()"
               />
             </div>
-          </td>
+          </td> -->
         </tr>
       </ng-template>
       <ng-template pTemplate="emptymessage">

@@ -1,0 +1,622 @@
+<div>
+  <div class="p-1 m-2 fixed-card">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <b>
+          <span class="back-btn-text">Profile </span>
+        </b>
+      </div>
+      <button
+        pButton
+        type="button"
+        class="p-button-info rounded-5"
+        (click)="toggleSidebar()"
+      >
+        Remarks
+      </button>
+    </div>
+  </div>
+</div>
+<div *ngIf="loading">
+  <app-preloader></app-preloader>
+</div>
+<div class="card m-2">
+  <!-- LOADING -->
+
+  <ng-container *ngIf="!loading && accountDetails">
+    <!-- ================= BASIC DETAILS SECTION ================= -->
+    <h4 class="fw-bold mt-3">Basic Information</h4>
+
+    <div class="row mt-3">
+      <div class="col-md-6">
+        <p><b>Account ID:</b> {{ accountDetails.accountId }}</p>
+        <p><b>Name:</b> {{ accountDetails.name }}</p>
+        <p><b>Business Name:</b> {{ accountDetails.businessName }}</p>
+      </div>
+      <div class="col-md-6">
+        <p><b>Mobile:</b> {{ accountDetails.mobile }}</p>
+        <p><b>Email:</b> {{ accountDetails.emailId }}</p>
+        <p><b>City:</b> {{ accountDetails.city }}</p>
+        <p><b>Wallet Balance:</b> {{ accountDetails.walletBalance }}</p>
+
+        <!-- <p><b>Status:</b> {{ accountDetails.status }}</p> -->
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Activity Detail Dialog -->
+  <p-dialog
+    [(visible)]="showActivityDetail"
+    [modal]="true"
+    [style]="{ width: '80vw', maxWidth: '900px' }"
+    [closable]="true"
+    [draggable]="false"
+    [resizable]="false"
+    header="Activity Details"
+    (onHide)="closeActivityDetail()"
+  >
+    <div *ngIf="selectedActivity" class="activity-detail">
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <strong>Date & Time:</strong>
+          <p>{{ selectedActivity.createdOn | date : "medium" }}</p>
+        </div>
+        <div class="col-md-6">
+          <strong>User:</strong>
+          <p>
+            {{
+              selectedActivity.userName || "User #" + selectedActivity.userId
+            }}
+          </p>
+        </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <strong>Action:</strong>
+          <p>
+            <span
+              [ngClass]="getActionBadgeClass(selectedActivity.action)"
+              class="badge"
+            >
+              {{ selectedActivity.action }}
+            </span>
+          </p>
+        </div>
+        <div class="col-md-6">
+          <strong>Status:</strong>
+          <p>
+            <span
+              [ngClass]="getStatusBadgeClass(selectedActivity.status)"
+              class="badge"
+            >
+              {{ selectedActivity.status }}
+            </span>
+          </p>
+        </div>
+      </div>
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <strong>Entity Type:</strong>
+          <p>{{ selectedActivity.entityType }}</p>
+        </div>
+        <div class="col-md-6">
+          <strong>Entity ID:</strong>
+          <p>{{ selectedActivity.entityId || "-" }}</p>
+        </div>
+      </div>
+      <div class="row mb-3" *ngIf="selectedActivity.entityName">
+        <div class="col-md-12">
+          <strong>Entity Name:</strong>
+          <p>{{ selectedActivity.entityName }}</p>
+        </div>
+      </div>
+      <div class="row mb-3" *ngIf="selectedActivity.module">
+        <div class="col-md-6">
+          <strong>Module:</strong>
+          <p>{{ selectedActivity.module }}</p>
+        </div>
+        <div class="col-md-6">
+          <strong>IP Address:</strong>
+          <p>{{ selectedActivity.ipAddress || "-" }}</p>
+        </div>
+      </div>
+      <div class="row mb-3" *ngIf="selectedActivity.description">
+        <div class="col-md-12">
+          <strong>Description:</strong>
+          <p>{{ selectedActivity.description }}</p>
+        </div>
+      </div>
+      <div class="row mb-3" *ngIf="selectedActivity.oldValues">
+        <div class="col-md-12">
+          <strong>Old Values:</strong>
+          <pre class="json-preview">{{
+            formatJSON(selectedActivity.oldValues)
+          }}</pre>
+        </div>
+      </div>
+      <div class="row mb-3" *ngIf="selectedActivity.newValues">
+        <div class="col-md-12">
+          <strong>New Values:</strong>
+          <pre class="json-preview">{{
+            formatJSON(selectedActivity.newValues)
+          }}</pre>
+        </div>
+      </div>
+      <div class="row mb-3" *ngIf="selectedActivity.errorMessage">
+        <div class="col-md-12">
+          <strong>Error Message:</strong>
+          <p class="text-danger">{{ selectedActivity.errorMessage }}</p>
+        </div>
+      </div>
+      <div class="row mb-3" *ngIf="selectedActivity.userAgent">
+        <div class="col-md-12">
+          <strong>User Agent:</strong>
+          <p class="text-muted small">{{ selectedActivity.userAgent }}</p>
+        </div>
+      </div>
+    </div>
+  </p-dialog>
+</div>
+<div
+  *ngIf="sidebarVisible"
+  class="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-10"
+  style="z-index: 1040"
+  (click)="sidebarVisible = false"
+></div>
+
+<div
+  *ngIf="sidebarVisible"
+  class="position-fixed top-0 end-0 h-100 bg-white shadow follow-ups-sidebar"
+  style="
+    width: 400px;
+    max-width: 90vw;
+    z-index: 1050;
+    display: flex;
+    flex-direction: column;
+  "
+>
+  <div
+    class="p-3 border-bottom d-flex justify-content-between align-items-center flex-shrink-0"
+  >
+    <h5 class="mb-0 text-truncate">Follow-ups</h5>
+    <button
+      type="button"
+      class="btn-close flex-shrink-0"
+      aria-label="Close"
+      (click)="sidebarVisible = false"
+    ></button>
+  </div>
+
+  <!-- Filter Section -->
+  <div class="p-3 border-bottom bg-light flex-shrink-0">
+    <div class="mb-2">
+      <input
+        type="text"
+        pInputText
+        [placeholder]="'Search Here...'"
+        [(ngModel)]="searchText"
+        (input)="onSearchChange()"
+        style="width: 100%; min-width: 0"
+      />
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+      <div class="custom-calendar-wrapper w-100 position-relative">
+        <p-calendar
+          #filtercalendar
+          [(ngModel)]="selectedDate"
+          (onSelect)="onDateChange()"
+          placeholder="Filter by Date"
+          [showIcon]="false"
+          appendTo="body"
+          dateFormat="dd-mm-yy"
+          [showButtonBar]="true"
+          styleClass="w-100"
+          inputStyleClass="form-control form-control-sm"
+        ></p-calendar>
+        <img
+          src="../../../../assets/images/icons/calendar.svg"
+          alt="Calendar Icon"
+          class="calendar-custom-img"
+          (click)="filtercalendar.toggle()"
+        />
+      </div>
+      <button
+        *ngIf="searchText || selectedDate"
+        type="button"
+        class="btn btn-sm btn-outline-secondary flex-shrink-0"
+        (click)="clearFilters()"
+        title="Clear filters"
+        style="min-width: 38px"
+      >
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="flex-grow-1 overflow-auto p-3" style="min-height: 0">
+    <div *ngIf="filteredNotes.length === 0" class="text-center text-muted py-4">
+      <p class="mb-0">No follow-ups found</p>
+    </div>
+    <div
+      *ngFor="let note of filteredNotes"
+      class="mb-3 p-2 rounded border bg-light note-item text-capitalize"
+      style="word-wrap: break-word; overflow-wrap: break-word"
+    >
+      <div class="d-flex justify-content-between align-items-center mb-1 gap-2">
+        <strong class="text-truncate" style="max-width: 60%">{{
+          note.updatedBy | capitalizeFirst
+        }}</strong>
+        <small class="text-muted flex-shrink-0" style="white-space: nowrap">
+          {{ note.date | date : "dd-MMM-yyyy hh:mm a" }}
+        </small>
+      </div>
+
+      <div style="word-break: break-word; overflow-wrap: break-word">
+        <p class="mb-0" style="white-space: pre-wrap">
+          {{ note.remarks | capitalizeFirst }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="d-flex align-items-start gap-2 p-2 border-top bg-light flex-shrink-0"
+  >
+    <textarea
+      [(ngModel)]="newNote.remarks"
+      placeholder="Enter remarks"
+      class="form-control flex-grow-1"
+      rows="3"
+      style="min-width: 0; resize: none"
+    ></textarea>
+
+    <button
+      pButton
+      type="button"
+      icon="pi pi-send"
+      class="rounded-5 p-button-primary align-self-end flex-shrink-0"
+      (click)="addRemarks()"
+      style="min-width: 40px"
+    ></button>
+  </div>
+</div>
+
+<p-tabView>
+  <!-- TAB 1 — SUBSCRIPTIONS -->
+  <p-tabPanel header="Subscriptions">
+    <div class="m-2">
+      <p-table
+        [value]="subscriptions"
+        [lazy]="true"
+        [sortField]="'created_on'"
+        [sortOrder]="-1"
+        (onLazyLoad)="loadSubscriptions($event)"
+        dataKey="id"
+        [showCurrentPageReport]="true"
+        [rowsPerPageOptions]="[10, 25, 50, 100]"
+        [paginator]="true"
+        [rows]="10"
+        [totalRecords]="subscriptionCount"
+        [loading]="loading"
+        responsiveLayout="scroll"
+        scrollHeight="flex"
+        styleClass="p-datatable-customers"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} subscriptions"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="accountId">
+              Account Id <p-sortIcon field="accountId"></p-sortIcon>
+            </th>
+            <th pSortableColumn="plan_name">
+              Plan Name <p-sortIcon field="plan_name"></p-sortIcon>
+            </th>
+            <th pSortableColumn="plan_type">
+              Plan Type <p-sortIcon field="plan_type"></p-sortIcon>
+            </th>
+            <th pSortableColumn="price">
+              Price <p-sortIcon field="price"></p-sortIcon>
+            </th>
+            <th pSortableColumn="total_amount">
+              Total Amount <p-sortIcon field="total_amount"></p-sortIcon>
+            </th>
+            <th pSortableColumn="start_date">
+              Start Date <p-sortIcon field="start_date"></p-sortIcon>
+            </th>
+            <th pSortableColumn="end_date">
+              End Date <p-sortIcon field="end_date"></p-sortIcon>
+            </th>
+            <th pSortableColumn="status">
+              Status <p-sortIcon field="status"></p-sortIcon>
+            </th>
+            <th pSortableColumn="created_on">
+              Created On <p-sortIcon field="created_on"></p-sortIcon>
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-sub>
+          <tr>
+            <td>{{ sub.accountId }}</td>
+            <td>{{ sub.plan_name }}</td>
+            <td>{{ sub.plan_type }}</td>
+            <td>{{ sub.price }}</td>
+            <td>{{ sub.total_amount }}</td>
+            <td>{{ sub.start_date | date }}</td>
+            <td>{{ sub.end_date ? (sub.end_date | date) : "-" }}</td>
+            <td>
+              <span [ngClass]="getStatusClass(sub.status)" class="badge">{{
+                sub.status
+              }}</span>
+            </td>
+            <td>{{ sub.created_on ? (sub.created_on | date) : "-" }}</td>
+
+            <!-- <td>{{ sub.auto_renew ? "Yes" : "No" }}</td> -->
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr class="text-center">
+            <td colspan="9" class="text-center fw-bold">
+              <p>No Subscriptions Found</p>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </p-tabPanel>
+
+  <!-- TAB 2 — PAYMENTS -->
+  <p-tabPanel header="Payments">
+    <div class="m-2">
+      <p-table
+        [value]="payments"
+        [lazy]="true"
+        [sortField]="'created_on'"
+        [sortOrder]="-1"
+        (onLazyLoad)="loadPayments($event)"
+        dataKey="id"
+        [showCurrentPageReport]="true"
+        [rowsPerPageOptions]="[10, 25, 50, 100]"
+        [paginator]="true"
+        [rows]="10"
+        [totalRecords]="transactionsCount"
+        [loading]="loading"
+        responsiveLayout="scroll"
+        scrollHeight="flex"
+        styleClass="p-datatable-customers"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} payments"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="accountId">
+              Account ID <p-sortIcon field="accountId"></p-sortIcon>
+            </th>
+            <th pSortableColumn="order_id">
+              Order ID <p-sortIcon field="order_id"></p-sortIcon>
+            </th>
+            <th pSortableColumn="payment_id">
+              Payment ID <p-sortIcon field="payment_id"></p-sortIcon>
+            </th>
+            <th pSortableColumn="plan_name">
+              Plan Name <p-sortIcon field="plan_name"></p-sortIcon>
+            </th>
+            <th pSortableColumn="amount_paid">
+              Amount Paid <p-sortIcon field="amount_paid"></p-sortIcon>
+            </th>
+            <th pSortableColumn="currency">
+              Currency <p-sortIcon field="currency"></p-sortIcon>
+            </th>
+            <th pSortableColumn="status">
+              Status <p-sortIcon field="status"></p-sortIcon>
+            </th>
+            <th pSortableColumn="created_on">
+              Created On <p-sortIcon field="created_on"></p-sortIcon>
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-pay>
+          <tr>
+            <td>{{ pay.accountId }}</td>
+            <td>{{ pay.order_id }}</td>
+            <td>{{ pay.payment_id }}</td>
+            <td>{{ pay.plan_name }}</td>
+            <td>{{ pay.amount_paid }}</td>
+            <td>{{ pay.currency }}</td>
+            <td>
+              <span [ngClass]="getStatusClass(pay.status)" class="badge">{{
+                pay.status
+              }}</span>
+            </td>
+            <td>{{ pay.created_on | date : "short" }}</td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr class="text-center">
+            <td colspan="8" class="text-center fw-bold">
+              <p>No Payments Found</p>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </p-tabPanel>
+
+  <!-- TAB 3 — ACTIVITY LOGS -->
+  <p-tabPanel header="Activity Logs">
+    <div class="m-2">
+      <p-table
+        [value]="activities"
+        [lazy]="true"
+        [sortOrder]="-1"
+        [sortField]="'createdOn'"
+        (onLazyLoad)="loadActivities($event)"
+        dataKey="id"
+        [showCurrentPageReport]="true"
+        [rowsPerPageOptions]="[10, 25, 50, 100]"
+        [paginator]="true"
+        [rows]="10"
+        [totalRecords]="activitiesCount"
+        [loading]="loading"
+        responsiveLayout="scroll"
+        scrollHeight="flex"
+        styleClass="p-datatable-customers"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} activities"
+      >
+        <ng-template pTemplate="caption">
+          <div class="row">
+            <div class="col-md-4 mt-2 no-padding-small"></div>
+            <div class="col-md-4 mt-2 no-padding-small"></div>
+            <div class="col-md-4 mt-2 no-padding-small text-right">
+              <div class="d-flex">
+                <div class="flex-grow-1 me-2"></div>
+                <div class="d-flex align-items-center pointer-cursor">
+                  <app-filter
+                    [position]="'right'"
+                    [iconColor]="'#33009C'"
+                    [iconSize]="'28px!important'"
+                    (filterEvent)="applyConfigFilters($event)"
+                    [filterConfig]="filterConfig"
+                    [showFilterIndication]="appliedFilter"
+                    pTooltip="Filter"
+                    tooltipPosition="top"
+                  >
+                  </app-filter>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th pSortableColumn="createdOn" class="text-nowrap">
+              Date & Time <p-sortIcon field="createdOn"></p-sortIcon>
+            </th>
+            <th pSortableColumn="userName" class="text-nowrap">
+              User <p-sortIcon field="userName"></p-sortIcon>
+            </th>
+            <th pSortableColumn="action" class="text-nowrap">
+              Action <p-sortIcon field="action"></p-sortIcon>
+            </th>
+            <th pSortableColumn="entityType" class="text-nowrap">
+              Entity Type <p-sortIcon field="entityType"></p-sortIcon>
+            </th>
+            <th pSortableColumn="entityName" class="text-nowrap">
+              Entity Name <p-sortIcon field="entityName"></p-sortIcon>
+            </th>
+            <th pSortableColumn="module" class="text-nowrap">
+              Module <p-sortIcon field="module"></p-sortIcon>
+            </th>
+            <th pSortableColumn="status" class="text-nowrap">
+              Status <p-sortIcon field="status"></p-sortIcon>
+            </th>
+            <th pSortableColumn="ipAddress" class="text-nowrap">
+              IP Address <p-sortIcon field="ipAddress"></p-sortIcon>
+            </th>
+            <th class="text-nowrap">Actions</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-activity>
+          <tr>
+            <td>
+              <span class="table-column-data" *ngIf="activity.createdOn">
+                {{ activity.createdOn | date : "short" }}
+              </span>
+            </td>
+            <td>
+              <span class="table-column-data" *ngIf="activity.userName">
+                {{ activity.userName }}
+              </span>
+              <span class="text-muted" *ngIf="!activity.userName">
+                User #{{ activity.userId }}
+              </span>
+            </td>
+            <td>
+              <span
+                [ngClass]="getActionBadgeClass(activity.action)"
+                class="badge"
+              >
+                {{ activity.action }}
+              </span>
+            </td>
+            <td>
+              <span class="table-column-data">
+                {{ activity.entityType }}
+              </span>
+            </td>
+            <td>
+              <span class="table-column-data" *ngIf="activity.entityName">
+                {{ activity.entityName }}
+              </span>
+              <span
+                class="text-muted"
+                *ngIf="!activity.entityName && activity.entityId"
+              >
+                ID: {{ activity.entityId }}
+              </span>
+              <span
+                class="text-muted"
+                *ngIf="!activity.entityName && !activity.entityId"
+              >
+                -
+              </span>
+            </td>
+            <td>
+              <span class="table-column-data" *ngIf="activity.module">
+                {{ activity.module }}
+              </span>
+              <span class="text-muted" *ngIf="!activity.module">-</span>
+            </td>
+            <td>
+              <span
+                [ngClass]="getStatusBadgeClass(activity.status)"
+                class="badge"
+              >
+                {{ activity.status }}
+              </span>
+            </td>
+            <td>
+              <span class="table-column-data" *ngIf="activity.ipAddress">
+                {{ activity.ipAddress }}
+              </span>
+              <span class="text-muted" *ngIf="!activity.ipAddress">-</span>
+            </td>
+            <td>
+              <div class="text-center d-flex tableimage">
+                <div class="d-flex mr-3">
+                  <img
+                    alt="View Details"
+                    src="../../../assets/images/icons/eye.svg"
+                    width="24px"
+                    height="24px"
+                    (click)="viewActivityDetails(activity)"
+                    pTooltip="View Details"
+                    tooltipPosition="top"
+                    class="pointer-cursor"
+                  />
+                </div>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr class="text-center">
+            <td colspan="9" class="text-center fw-bold">
+              <p style="color: #535ab4; font-weight: 400; font-size: 18px">
+                No Activities Found
+              </p>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </p-tabPanel>
+</p-tabView>

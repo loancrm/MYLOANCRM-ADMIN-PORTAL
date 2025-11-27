@@ -16,7 +16,13 @@ import { CapitalizeFirstPipe } from 'src/app/pipes/capitalize.pipe';
 
 const routes: Routes = [
   { path: '', component: AccountsComponent },
-
+  {
+    path: 'profile/:id',
+    loadChildren: () =>
+      import('./profile/profile.module').then(
+        (m) => m.ProfileModule
+      ),
+  },
 ];
 
 @NgModule({

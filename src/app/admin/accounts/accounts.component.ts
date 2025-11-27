@@ -48,8 +48,7 @@ export class AccountsComponent {
   }
 
   ngOnInit(): void {
-
-
+    this.setFilterConfig();
   }
 
 
@@ -75,6 +74,8 @@ export class AccountsComponent {
       'Mobile',
       'Email',
       'City',
+      'Plan',
+      'Status',
       'Wallet Balance',
       'Created Date'
     ];
@@ -87,6 +88,8 @@ export class AccountsComponent {
       team.mobile || '',
       team.emailId || '',
       team.city || '',
+      team.latest_plan_name || '',
+      team.latest_status || '',
 
       team.walletBalance || '',
       team.createdOn ? new Date(team.createdOn).toLocaleDateString() : ''
@@ -142,10 +145,6 @@ export class AccountsComponent {
   updateAccount(accountId) {
     this.routingService.handleRoute('team/update/' + accountId, null);
   }
-  viewAccount(event) {
-    const user = event.data
-    this.routingService.handleRoute('team/view/' + user.id, null);
-  }
   goBack() {
     this.location.back();
   }
@@ -168,7 +167,109 @@ export class AccountsComponent {
       this.getTeam(api_filter);
     }
   }
+  viewAccount(event) {
+    const lead = event.data
+    this.routingService.handleRoute('accounts/profile/' + lead.accountId, null);
+  }
+  setFilterConfig() {
 
+    this.filterConfig = [
+      {
+        header: 'Account Id',
+        data: [
+          {
+            field: 'accountId',
+            title: 'Account Id',
+            type: 'text',
+            filterType: 'like',
+          },
+        ],
+      },
+      {
+        header: 'Name',
+        data: [
+          {
+            field: 'name',
+            title: 'Name',
+            type: 'text',
+            filterType: 'like',
+          },
+        ],
+      },
+      {
+        header: 'Mobile',
+        data: [
+          {
+            field: 'mobile',
+            title: 'Mobile',
+            type: 'text',
+            filterType: 'like',
+          },
+        ],
+      },
+      {
+        header: 'Email ID',
+        data: [
+          {
+            field: 'emailId',
+            title: 'Email ID',
+            type: 'text',
+            filterType: 'like',
+          },
+        ],
+      },
+      {
+        header: 'City',
+        data: [
+          {
+            field: 'city',
+            title: 'City',
+            type: 'text',
+            filterType: 'like',
+          },
+        ],
+      },
+      // {
+      //   header: 'Plan',
+      //   data: [
+      //     {
+      //       field: 'latest_plan_name',
+      //       title: 'Plan',
+      //       type: 'text',
+      //       filterType: 'like',
+      //     },
+      //   ],
+      // },
+      // {
+      //   header: 'Status',
+      //   data: [
+      //     {
+      //       field: 'latest_status',
+      //       title: 'Status',
+      //       type: 'text',
+      //       filterType: 'like',
+      //     },
+      //   ],
+      // },
+      {
+        header: 'Date Range',
+        data: [
+          {
+            field: 'createdOn',
+            title: 'From',
+            type: 'date',
+            filterType: 'gte',
+          },
+          {
+            field: 'createdOn',
+            title: 'To',
+            type: 'date',
+            filterType: 'lte',
+          },
+        ],
+      },
+    ];
+  }
   inputValueChangeEvent(dataType, value) {
     if (value == '') {
       this.searchFilter = {};

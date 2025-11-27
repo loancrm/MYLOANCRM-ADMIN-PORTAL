@@ -35,9 +35,6 @@ export class LeadsService {
   //       return '';
   //     });
   // }
-
-
-
   toggleSidebar() {
     this.sidebarVisible.next(!this.sidebarVisible.value);
   }
@@ -150,7 +147,41 @@ export class LeadsService {
     const url = 'accounts/' + accountId;
     return this.serviceMeta.httpGet(url, null, filter);
   }
+  getActivities(filters) {
+    const url = 'accounts/activity';
+    console.log('Fetching activities with filters:', filters);
+    return this.serviceMeta.httpGet(url, null, filters);
+  }
+  getActivitiesCount(filters) {
+    const url = 'accounts/activity/total'
+    return this.serviceMeta.httpGet(url, null, filters);
+  }
 
+  getSubscriptions(filters) {
+    const url = 'accounts/subscriptions';
+    console.log('Fetching activities with filters:', filters);
+    return this.serviceMeta.httpGet(url, null, filters);
+  }
+  getSubscriptionsCount(filters) {
+    const url = 'accounts/subscriptions/total'
+    return this.serviceMeta.httpGet(url, null, filters);
+  }
+
+  getTransactions(filters) {
+    const url = 'accounts/transactions';
+    console.log('Fetching activities with filters:', filters);
+    return this.serviceMeta.httpGet(url, null, filters);
+  }
+  addRemarks(accountId, note: any) {
+    return this.serviceMeta.httpPost(`accounts/remarks/${accountId}/notes`, note);
+  }
+  getNotes(accountId) {
+    return this.serviceMeta.httpGet(`accounts/remarks/${accountId}/notes`);
+  }
+  getTransactionsCount(filters) {
+    const url = 'accounts/transactions/total'
+    return this.serviceMeta.httpGet(url, null, filters);
+  }
   getAccountsCount(filter = {}) {
     const url = 'accounts/total';
     return this.serviceMeta.httpGet(url, null, filter);
@@ -388,10 +419,10 @@ export class LeadsService {
       if (event.sortOrder && event.sortOrder == 1) {
         filterValue = 'asc';
       } else if (event.sortOrder && event.sortOrder == -1) {
-        filterValue = 'dsc';
+        filterValue = 'desc';
       }
       if (filterValue) {
-        api_filter['sort_' + event.sortField] = filterValue;
+        api_filter['sort'] = event.sortField + `,${filterValue}`;
       }
     }
     return api_filter;
