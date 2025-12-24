@@ -674,7 +674,8 @@ export class LeadsService {
               : '';
 
             // Build redirect URL with token
-            let redirectUrl = `http://localhost:4200/user/dashboard`;
+            // let redirectUrl = `http://localhost:4200/user/dashboard`;
+            let redirectUrl = `https://app.myloancrm.com/user/dashboard`;
             redirectUrl += `?token=${token}`;
             if (userData) {
               redirectUrl += `&user=${userData}`;
