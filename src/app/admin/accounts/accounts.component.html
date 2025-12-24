@@ -33,17 +33,24 @@
       [showCurrentPageReport]="true"
       [rowsPerPageOptions]="[10, 25, 50, 100]"
       [paginator]="true"
-      [rows]="10"
+      [rows]="initialRows"
+      [first]="initialFirst"
       [totalRecords]="accountsCount"
       [loading]="apiLoading"
       class="p-datatable-striped"
       responsiveLayout="scroll"
       scrollHeight="flex"
       [globalFilterFields]="[
-        'referenceNo',
-        'customer.firstName',
-        'partner.partnerName',
-        'status'
+        'accountId',
+        'businessName',
+        'name',
+        'mobile',
+        'emailId',
+        'city',
+        'walletBalance',
+        'latest_plan_name',
+        'latest_status',
+        'latest_remark'
       ]"
       styleClass="p-datatable-customers "
       currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Accounts"
@@ -78,26 +85,33 @@
                 />
               </button>
             </div>
+            <!-- <input
+              pInputText
+              type="text"
+              (input)="onSearchInput($event)"
+              placeholder="Search reports..."
+              class="form-control"
+            /> -->
           </div>
           <div class="col-md-5 no-padding-small"></div>
-           <div class="col-md-4 mt-2 no-padding-small text-right">
-              <div class="d-flex">
-                <div class="flex-grow-1 me-2"></div>
-                <div class="d-flex align-items-center pointer-cursor">
-                  <app-filter
-                    [position]="'right'"
-                    [iconColor]="'#33009C'"
-                    [iconSize]="'28px!important'"
-                    (filterEvent)="applyConfigFilters($event)"
-                    [filterConfig]="filterConfig"
-                    [showFilterIndication]="appliedFilter"
-                    pTooltip="Filter"
-                    tooltipPosition="top"
-                  >
-                  </app-filter>
-                </div>
+          <div class="col-md-4 mt-2 no-padding-small text-right">
+            <div class="d-flex">
+              <div class="flex-grow-1 me-2"></div>
+              <div class="d-flex align-items-center pointer-cursor">
+                <app-filter
+                  [position]="'right'"
+                  [iconColor]="'#33009C'"
+                  [iconSize]="'28px!important'"
+                  (filterEvent)="applyConfigFilters($event)"
+                  [filterConfig]="filterConfig"
+                  [showFilterIndication]="appliedFilter"
+                  pTooltip="Filter"
+                  tooltipPosition="top"
+                >
+                </app-filter>
               </div>
             </div>
+          </div>
         </div>
       </ng-template>
       <ng-template pTemplate="header" let-columns>
@@ -111,11 +125,11 @@
           <th class="text-nowrap">Wallet Balance</th>
           <th class="text-nowrap">Plan</th>
           <th class="text-nowrap">Status</th>
-
+          <th class="text-nowrap">Remarks</th>
 
           <th>Created Date</th>
           <!-- <th>Status</th> -->
-          <!-- <th>Actions</th> -->
+          <th>Actions</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-team>
@@ -173,9 +187,28 @@
             }}</span>
           </td>
           <td>
+            <span class="table-column-data" *ngIf="team.latest_remark">{{
+              team.latest_remark
+            }}</span>
+          </td>
+          <td>
             <span class="table-column-data" *ngIf="team.createdOn">{{
               team.createdOn | date
             }}</span>
+          </td>
+          <td>
+            <button
+              pButton
+              type="button"
+              label="Login"
+              icon="pi pi-sign-in"
+              class="p-button-sm p-button-primary"
+              [loading]="loadingProviderLogin[team.accountId]"
+              [disabled]="loadingProviderLogin[team.accountId]"
+              (click)="onLoginAsProvider(team)"
+              pTooltip="Login as provider for this account"
+              tooltipPosition="top"
+            ></button>
           </td>
           <!-- <td>
             <span

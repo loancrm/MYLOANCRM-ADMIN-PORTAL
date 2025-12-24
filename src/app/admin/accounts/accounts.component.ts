@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { Location } from '@angular/common';
 import { projectConstantsLocal } from 'src/app/constants/project-constants';
 import { Table } from 'primeng/table';
@@ -11,12 +11,13 @@ import { ToastService } from 'src/app/services/toast.service';
 @Component({
   selector: 'app-accounts',
   templateUrl: './accounts.component.html',
-  styleUrl: './accounts.component.scss'
+  styleUrl: './accounts.component.scss',
 })
-export class AccountsComponent {
+export class AccountsComponent implements AfterViewInit {
   breadCrumbItems: any = [];
   searchFilter: any = {};
   currentTableEvent: any;
+
   userNameToSearch: any;
   accounts: any = [];
   leadSources: any = [];
@@ -26,8 +27,11 @@ export class AccountsComponent {
   appliedFilter: {};
   filterConfig: any[] = [];
   capabilities: any;
+  initialFirst: number = 0; // For storing initial pagination position
+  initialRows: number = 10;
   version = projectConstantsLocal.VERSION_DESKTOP;
   @ViewChild('accountTable') accountTable!: Table;
+  loadingProviderLogin: { [accountId: string]: boolean } = {};
 
   constructor(
     private routingService: RoutingService,
@@ -48,11 +52,49 @@ export class AccountsComponent {
   }
 
   ngOnInit(): void {
+    this.restorePaginationState();
+
     this.setFilterConfig();
+    const storedAppliedFilter =
+      this.localStorageService.getItemFromLocalStorage('accountAppliedFilter');
+    if (storedAppliedFilter) {
+      this.appliedFilter = storedAppliedFilter;
+    }
+  }
+  ngAfterViewInit(): void {
+    // Trigger initial load with restored pagination state after view is ready
+    if (this.accountTable) {
+      const initialEvent = {
+        first: this.initialFirst,
+        rows: this.initialRows,
+
+        sortOrder: -1,
+      };
+      // PrimeNG will automatically trigger onLazyLoad, but we ensure it uses our restored values
+      this.accountTable.first = this.initialFirst;
+      this.accountTable.rows = this.initialRows;
+      // Manually trigger the lazy load with restored pagination
+      this.loadAccounts(initialEvent);
+    }
   }
 
+  restorePaginationState() {
+    const storedPage = this.localStorageService.getItemFromLocalStorage(
+      'disbursalsCurrentPage'
+    );
+    const storedRows = this.localStorageService.getItemFromLocalStorage(
+      'disbursalsRowsPerPage'
+    );
 
+    if (storedPage) {
+      const pageNumber = parseInt(storedPage, 10);
+      const rowsPerPage = storedRows ? parseInt(storedRows, 10) : 10;
 
+      // Convert page number to first index (page 1 = 0, page 2 = rows, page 3 = rows*2, etc.)
+      this.initialFirst = (pageNumber - 1) * rowsPerPage;
+      this.initialRows = rowsPerPage;
+    }
+  }
   actionItems(team: any): MenuItem[] {
     // const menuItems: MenuItem[] = [];
     const menuItems: any = [{ label: 'Actions', items: [] }];
@@ -61,7 +103,6 @@ export class AccountsComponent {
     //   icon: 'pi pi-refresh',
     //   command: () => this.updateAccount(team.id),
     // });
-
 
     return menuItems;
   }
@@ -77,7 +118,7 @@ export class AccountsComponent {
       'Plan',
       'Status',
       'Wallet Balance',
-      'Created Date'
+      'Created Date',
     ];
 
     const rows = this.accounts.map((team: any) => [
@@ -92,13 +133,15 @@ export class AccountsComponent {
       team.latest_status || '',
 
       team.walletBalance || '',
-      team.createdOn ? new Date(team.createdOn).toLocaleDateString() : ''
+      team.createdOn ? new Date(team.createdOn).toLocaleDateString() : '',
     ]);
 
     let csvContent =
       headers.join(',') +
       '\n' +
-      rows.map((r: string[]) => r.map(this.escapeCSVValue).join(',')).join('\n');
+      rows
+        .map((r: string[]) => r.map(this.escapeCSVValue).join(','))
+        .join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
@@ -108,7 +151,10 @@ export class AccountsComponent {
   }
 
   escapeCSVValue(value: any) {
-    if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+    if (
+      typeof value === 'string' &&
+      (value.includes(',') || value.includes('"'))
+    ) {
       value = `"${value.replace(/"/g, '""')}"`;
     }
     return value;
@@ -136,7 +182,7 @@ export class AccountsComponent {
       this.appliedFilter = api_filter;
     }
     this.localStorageService.setItemOnLocalStorage(
-      'teamAppliedFilter',
+      'accountAppliedFilter',
       this.appliedFilter
     );
     this.loadAccounts(null);
@@ -150,8 +196,38 @@ export class AccountsComponent {
   }
 
   loadAccounts(event) {
-    // console.log(event);
+    if (!event) {
+      // If no event provided, use current stored state
+      event = {
+        first: this.initialFirst,
+        rows: this.initialRows,
+
+        sortOrder: -1,
+      };
+    }
+
     this.currentTableEvent = event;
+
+    // Save current page to localStorage whenever pagination changes
+    if (event && (event.first !== undefined || event.first === 0)) {
+      const rows = event.rows || 10;
+      // Calculate current page number (1-based)
+      const currentPage =
+        event.first === 0 ? 1 : Math.floor(event.first / rows) + 1;
+      this.localStorageService.setItemOnLocalStorage(
+        'disbursalsCurrentPage',
+        currentPage.toString()
+      );
+      this.localStorageService.setItemOnLocalStorage(
+        'disbursalsRowsPerPage',
+        rows.toString()
+      );
+
+      // Update initial values for future reference
+      this.initialFirst = event.first;
+      this.initialRows = rows;
+    }
+
     let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
 
     api_filter = Object.assign(
@@ -162,17 +238,26 @@ export class AccountsComponent {
     );
 
     if (api_filter) {
-      // console.log(api_filter);
+      console.log(api_filter);
       this.getTeamCount(api_filter);
       this.getTeam(api_filter);
     }
   }
+  onSearchInput(event: Event) {
+    const target = event.target as HTMLInputElement;
+    if (target && this.accountTable) {
+      this.accountTable.filterGlobal(target.value, 'contains');
+    }
+  }
   viewAccount(event) {
-    const lead = event.data
+    const lead = event.data;
     this.routingService.handleRoute('accounts/profile/' + lead.accountId, null);
   }
   setFilterConfig() {
-
+    const followupDateRangeFilter = () => [
+      { field: 'followupDate', title: 'From', type: 'date', filterType: 'gte' },
+      { field: 'followupDate', title: 'To', type: 'date', filterType: 'lte' },
+    ];
     this.filterConfig = [
       {
         header: 'Account Id',
@@ -196,6 +281,40 @@ export class AccountsComponent {
           },
         ],
       },
+      {
+        header: 'Latest Plan',
+        data: [
+          {
+            field: 'latest_plan_name',
+            title: 'Plan',
+            type: 'text',
+            filterType: 'like',
+          },
+        ],
+      },
+      {
+        header: 'Latest Status',
+        data: [
+          {
+            field: 'latest_status',
+            title: 'Status',
+            type: 'text',
+            filterType: 'like',
+          },
+        ],
+      },
+      {
+        header: 'Latest Remark',
+        data: [
+          {
+            field: 'latest_remark',
+            title: 'Latest Remark',
+            type: 'text',
+            filterType: 'like',
+          },
+        ],
+      },
+
       {
         header: 'Mobile',
         data: [
@@ -251,6 +370,8 @@ export class AccountsComponent {
       //     },
       //   ],
       // },
+      { header: 'FollowUp Date Range', data: followupDateRangeFilter() },
+
       {
         header: 'Date Range',
         data: [
@@ -270,6 +391,7 @@ export class AccountsComponent {
       },
     ];
   }
+
   inputValueChangeEvent(dataType, value) {
     if (value == '') {
       this.searchFilter = {};
@@ -309,8 +431,31 @@ export class AccountsComponent {
   }
 
   filterWithName() {
-    let searchFilter = { 'name-like': this.userNameToSearch };
+    let searchFilter = {};
+
+    const trimmedInput = this.userNameToSearch?.trim() || '';
+
+    if (!trimmedInput) {
+      this.applyFilters({});
+      return;
+    }
+
+    if (this.isPhoneNumber(trimmedInput)) {
+      // Mobile number search
+      searchFilter = { 'mobile-like': trimmedInput };
+    } else {
+      // Search by business name OR person name
+      searchFilter = {
+        'businessName-like': trimmedInput,
+      };
+    }
+
     this.applyFilters(searchFilter);
+  }
+
+  isPhoneNumber(value: string): boolean {
+    const phoneNumberPattern = /^[6-9]\d{9}$/;
+    return phoneNumberPattern.test(value.trim());
   }
 
   statusChange(event) {
@@ -319,5 +464,43 @@ export class AccountsComponent {
       event.value
     );
     this.loadAccounts(this.currentTableEvent);
+  }
+
+  onLoginAsProvider(account: any): void {
+    const accountId = account.accountId;
+
+    if (!accountId) {
+      alert('Account ID is missing');
+      return;
+    }
+
+    // Confirm action
+    if (
+      !confirm(
+        `Are you sure you want to login as provider for account ${accountId}?`
+      )
+    ) {
+      return;
+    }
+
+    // Show loading state
+    this.loadingProviderLogin[accountId] = true;
+
+    this.leadsService
+      .loginAsProviderAndRedirect(accountId)
+      .then(() => {
+        // Success - redirect happens automatically
+        this.loadingProviderLogin[accountId] = false;
+      })
+      .catch((error) => {
+        // Handle error
+        this.loadingProviderLogin[accountId] = false;
+        const errorMessage =
+          error.error?.message ||
+          error.message ||
+          'Failed to login as provider';
+        alert(errorMessage);
+        console.error('Provider login error:', error);
+      });
   }
 }

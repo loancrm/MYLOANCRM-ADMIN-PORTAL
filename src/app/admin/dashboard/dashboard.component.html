@@ -50,6 +50,94 @@
           </div>
         </ng-container>
       </div>
+
+      <div class="row gap-2 mt-2">
+        <div class="col-md-6 col-12">
+          <br class="d-lg-none d-md-none" />
+          <div class="card">
+            <div class="text-capitalize" style="height: 350px">
+              <p-table
+                [value]="accounts"
+                class="custom-scrollbar"
+                [sortOrder]="-1"
+                [lazy]="true"
+                selectionMode="single"
+                [totalRecords]="accountsCount"
+                (onLazyLoad)="onLazyLoadData($event)"
+                (onRowSelect)="viewAccount($event)"
+                dataKey="id"
+                [showCurrentPageReport]="false"
+                [rowsPerPageOptions]="[10, 25, 50]"
+                [paginator]="true"
+                [rows]="10"
+                class="p-datatable-striped"
+                [loading]="apiLoading"
+                scrollHeight="240px"
+                styleClass="p-datatable-customers "
+              >
+                <ng-template pTemplate="caption">
+                  <div
+                    class="d-flex align-items-center justify-content-between gap-3 flex-nowrap"
+                    style="overflow: hidden"
+                  >
+                    <div>Today Followups</div>
+                  </div>
+                </ng-template>
+
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Business Name</th>
+                    <th>Remarks</th>
+                    <!-- <th>FollowUp Date</th> -->
+                    <th>Plan</th>
+                    <th>Status</th>
+                  </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-lead>
+                  <tr [pSelectableRow]="lead">
+                    <td>
+                      {{ lead.businessName || "-" }}
+                    </td>
+
+                    <td>
+                      {{ lead.latest_remark || "-" }}
+                    </td>
+                    <!-- <td>
+                    {{
+                      (lead.filefollowupDate ? lead.filefollowupDate : "-")
+                        | date : "MMM d, y, h:mm a"
+                    }}
+                  </td> -->
+                    <td>
+                      {{ lead.latest_plan_name | capitalizeFirst }}
+                    </td>
+                    <td>
+                      {{ lead.latest_status | capitalizeFirst }}
+                    </td>
+                  </tr>
+                </ng-template>
+
+                <ng-template pTemplate="emptymessage">
+                  <tr class="text-center">
+                    <td colspan="10" class="text-center fw-bold">
+                      <p
+                        style="
+                          color: #535ab4;
+                          font-weight: 400;
+                          font-size: 18px;
+                        "
+                      >
+                        No Data Found
+                      </p>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <footer class="footer-card text-center text-lg-start mx-2 my-4">

@@ -58,6 +58,13 @@ const routes: Routes = [
             (m) => m.CibilReportsModule
           ),
       },
+       {
+        path: 'cam-reports',
+        loadChildren: () =>
+          import('./cam-reports/cam-reports.module').then(
+            (m) => m.CamReportsModule
+          ),
+      },
       {
         path: 'social-media-leads',
         loadChildren: () =>

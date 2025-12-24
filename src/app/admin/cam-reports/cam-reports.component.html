@@ -1,0 +1,155 @@
+<div class="p-1 m-2">
+  <div class="d-flex justify-content-between align-items-center">
+    <div
+      class="d-flex align-items-center justify-content-center pointer-cursor"
+      (click)="goBack()"
+    >
+      <span class="me-2 d-flex align-items-center">
+        <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+      </span>
+      <b>
+        <span class="back-btn-text">BSA Reports</span>
+      </b>
+    </div>
+    <!-- <button pButton type="button" class="p-button-primary" (click)="goBack()">
+      <i class="pi pi-plus me-2"></i>Create New Report
+    </button> -->
+  </div>
+</div>
+
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header">
+      <h5 class="mb-0">Bank Statement Analysis Reports</h5>
+      <small class="text-muted">View all your BSA reports</small>
+    </div>
+
+    <div class="card-body">
+      <div *ngIf="loading" class="text-center p-4">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        <p>Loading reports...</p>
+      </div>
+
+      <div *ngIf="!loading && reports.length === 0" class="text-center p-4">
+        <i class="pi pi-inbox" style="font-size: 3rem; color: #ccc"></i>
+        <p class="text-muted mt-3">
+          No BSA reports found. Create your first report to get started.
+        </p>
+      </div>
+
+      <p-table
+        *ngIf="!loading && reports.length > 0"
+        [value]="reports"
+        [paginator]="true"
+        [rows]="10"
+        [rowsPerPageOptions]="[10, 20, 50]"
+        [responsive]="true"
+        styleClass="p-datatable-striped"
+        [globalFilterFields]="[
+          'reportId',
+          'reportName',
+          'accountNumber',
+          'reportStatus'
+        ]"
+        #dt
+      >
+        <ng-template pTemplate="caption">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="p-input-icon-left">
+              <!-- <i class="pi pi-search"></i> -->
+              <input
+                pInputText
+                type="text"
+                (input)="onSearchInput($event)"
+                placeholder="Search reports..."
+                class="form-control"
+              />
+            </span>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-refresh"
+              class="p-button-outlined"
+              (click)="loadReports()"
+              pTooltip="Refresh"
+            ></button>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="accountId">
+              Account ID <p-sortIcon field="accountId"></p-sortIcon>
+            </th>
+            <th pSortableColumn="reportId">
+              Report ID <p-sortIcon field="reportId"></p-sortIcon>
+            </th>
+            <th pSortableColumn="reportName">
+              Report Name <p-sortIcon field="reportName"></p-sortIcon>
+            </th>
+            <th>Account Number</th>
+            <th>Account Type</th>
+            <th>Bank ID</th>
+            <th pSortableColumn="reportStatus">
+              Status <p-sortIcon field="reportStatus"></p-sortIcon>
+            </th>
+            <th>Lead ID</th>
+            <th pSortableColumn="createdOn">
+              Created On <p-sortIcon field="createdOn"></p-sortIcon>
+            </th>
+            <th pSortableColumn="updatedOn">
+              Updated On <p-sortIcon field="updatedOn"></p-sortIcon>
+            </th>
+            <th>Created By</th>
+            <th>Actions</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-report let-rowIndex="rowIndex">
+          <tr>
+            <td>
+              <strong>{{ report.accountId || "N/A" }}</strong>
+            </td>
+            <td>
+              <strong>{{ report.reportId || "N/A" }}</strong>
+            </td>
+            <td>{{ report.reportName || "N/A" }}</td>
+            <td>{{ report.accountNumber || "N/A" }}</td>
+            <td>{{ getAccountTypeName(report.accountType) }}</td>
+            <td>{{ report.bankId || "N/A" }}</td>
+            <td>
+              <span
+                class="p-tag"
+                [ngClass]="getStatusClass(report.reportStatus)"
+              >
+                {{ report.reportStatus || "PENDING" }}
+              </span>
+            </td>
+            <td>{{ report.leadId || "N/A" }}</td>
+            <td>{{ report.createdOn | date : "short" }}</td>
+            <td>{{ report.updatedOn | date : "short" }}</td>
+            <td>{{ report.createdBy || "N/A" }}</td>
+            <td>
+              <button
+                pButton
+                type="button"
+                icon="pi pi-eye"
+                class="p-button-rounded p-button-text p-button-sm"
+                (click)="viewReport(report.reportId)"
+                pTooltip="View Report"
+                tooltipPosition="top"
+                [disabled]="report.reportStatus !== 'ANALYSED'"
+              ></button>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="11" class="text-center">No reports found</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>

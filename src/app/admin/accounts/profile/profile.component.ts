@@ -5,6 +5,7 @@ import { forkJoin } from 'rxjs';
 import { Location } from '@angular/common';
 import { ToastService } from 'src/app/services/toast.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { DateTimeProcessorService } from 'src/app/services/date-time-processor.service';
 export interface FollowUpNote {
   date: Date;
   remarks: string;
@@ -13,7 +14,7 @@ export interface FollowUpNote {
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
-  styleUrl: './profile.component.scss'
+  styleUrl: './profile.component.scss',
 })
 export class ProfileComponent implements OnInit {
   accountId: any;
@@ -41,16 +42,21 @@ export class ProfileComponent implements OnInit {
   loading: boolean = false;
   searchFilter: any = {};
   userDetails: any;
+  moment: any;
+  fileFollowupDebounce: any = null;
+
   constructor(
     private route: ActivatedRoute,
     private location: Location,
     private toastService: ToastService,
     private leadService: LeadsService,
     private localStorageService: LocalStorageService,
-
-  ) { }
+    private dateTimeProcessor: DateTimeProcessorService
+  ) {}
 
   ngOnInit(): void {
+    this.moment = this.dateTimeProcessor.getMoment();
+
     let userDetails =
       this.localStorageService.getItemFromLocalStorage('adminDetails');
     this.userDetails = userDetails.user;
@@ -58,9 +64,8 @@ export class ProfileComponent implements OnInit {
     console.log(this.userDetails);
     this.setFilterConfig();
     this.accountId = this.route.snapshot.paramMap.get('id');
-    this.loadoverview()
+    this.loadoverview();
     this.loadNotes();
-
   }
   setFilterConfig() {
     this.filterConfig = [
@@ -137,8 +142,6 @@ export class ProfileComponent implements OnInit {
         ],
       },
     ];
-
-
   }
   loadoverview() {
     this.loading = true;
@@ -149,13 +152,15 @@ export class ProfileComponent implements OnInit {
     }).subscribe({
       next: (res: any) => {
         this.accountDetails = res.account;
-        // this.subscriptions = res.subscriptions || [];
-        this.loading = false;
+        (this.accountDetails.followupDate = this.accountDetails.followupDate
+          ? new Date(this.accountDetails.followupDate)
+          : null),
+          (this.loading = false);
       },
       error: (err) => {
         console.error(err);
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -184,7 +189,6 @@ export class ProfileComponent implements OnInit {
       }
     );
   }
-
 
   loadSubscriptions(event: any) {
     this.currentTableEvent = event;
@@ -222,7 +226,7 @@ export class ProfileComponent implements OnInit {
         this.allNotes = [...this.notes];
         this.applyFilters();
       },
-      error: (err) => console.error(err)
+      error: (err) => console.error(err),
     });
   }
   addRemarks() {
@@ -235,8 +239,12 @@ export class ProfileComponent implements OnInit {
         this.notes = res.notes;
         this.allNotes = [...this.notes];
         this.applyFilters();
-        this.newNote = { date: new Date(), remarks: '', updatedBy: this.userDetails?.name };
-        this.toastService.showSuccess("Note added successfully");
+        this.newNote = {
+          date: new Date(),
+          remarks: '',
+          updatedBy: this.userDetails?.name,
+        };
+        this.toastService.showSuccess('Note added successfully');
       },
       (error: any) => {
         this.loading = false;
@@ -250,15 +258,16 @@ export class ProfileComponent implements OnInit {
 
     if (this.searchText && this.searchText.trim()) {
       const searchLower = this.searchText.toLowerCase().trim();
-      filtered = filtered.filter(note =>
-      (note.remarks?.toLowerCase().includes(searchLower) ||
-        note.updatedBy?.toLowerCase().includes(searchLower))
+      filtered = filtered.filter(
+        (note) =>
+          note.remarks?.toLowerCase().includes(searchLower) ||
+          note.updatedBy?.toLowerCase().includes(searchLower)
       );
     }
 
     if (this.selectedDate) {
       const selectedDateStr = new Date(this.selectedDate).toDateString();
-      filtered = filtered.filter(note => {
+      filtered = filtered.filter((note) => {
         if (note.date) {
           const noteDateStr = new Date(note.date).toDateString();
           return noteDateStr === selectedDateStr;
@@ -316,11 +325,16 @@ export class ProfileComponent implements OnInit {
   }
   getStatusClass(status: string) {
     switch (status) {
-      case 'Active': return 'badge bg-success';
-      case 'Expired': return 'badge bg-danger';
-      case 'Cancelled': return 'badge bg-secondary';
-      case 'Trial': return 'badge bg-warning text-dark';
-      default: return 'badge bg-light text-dark';
+      case 'Active':
+        return 'badge bg-success';
+      case 'Expired':
+        return 'badge bg-danger';
+      case 'Cancelled':
+        return 'badge bg-secondary';
+      case 'Trial':
+        return 'badge bg-warning text-dark';
+      default:
+        return 'badge bg-light text-dark';
     }
   }
 
@@ -373,5 +387,52 @@ export class ProfileComponent implements OnInit {
   closeActivityDetail() {
     this.showActivityDetail = false;
     this.selectedActivity = null;
+  }
+  updateAccountfollowupDate(accountDetails: any) {
+    clearTimeout(this.fileFollowupDebounce);
+
+    // Get the date from accountDetails.followupDate (bound to calendar) or from lead object
+    const dateValue =
+      this.accountDetails?.followupDate || accountDetails?.followupDate;
+
+    if (!dateValue) {
+      console.log('No date value found');
+      return;
+    }
+
+    console.log('Date value to save:', dateValue);
+
+    this.fileFollowupDebounce = setTimeout(() => {
+      // Format date and time: YYYY-MM-DD HH:mm:ss
+      const payload = {
+        followupDate: this.moment(dateValue).format('YYYY-MM-DD HH:mm:ss'),
+      };
+
+      console.log('Payload to send:', payload);
+
+      this.loading = true;
+
+      // Use lead.id from the passed parameter
+      const accountId = accountDetails?.accountId;
+
+      if (!accountId) {
+        this.loading = false;
+        this.toastService.showError('Account ID not found');
+        return;
+      }
+
+      this.leadService.updateAccountFollowupDate(accountId, payload).subscribe(
+        () => {
+          this.loading = false;
+          this.toastService.showSuccess(
+            'Follow-up Date & Time Updated Successfully'
+          );
+        },
+        (error) => {
+          this.loading = false;
+          this.toastService.showError(error);
+        }
+      );
+    }, 700);
   }
 }

@@ -12,6 +12,36 @@
           <span class="back-btn-text">Profile </span>
         </b>
       </div>
+      <div class="d-flex align-items-center gap-2 ms-auto">
+      <div>Follow Up Date & Time</div>
+      <div
+        class="custom-calendar-wrapper position-relative"
+        style="width: 300px"
+        *ngIf="accountDetails"
+      >
+        <p-calendar
+          #calendar
+          [(ngModel)]="accountDetails.followupDate"
+          (onClose)="updateAccountfollowupDate(accountDetails)"
+          placeholder="Select File followup Date & Time"
+          [showIcon]="false"
+          appendTo="body"
+          dateFormat="yy-mm-dd"
+          [showTime]="true"
+          hourFormat="12"
+          [showButtonBar]="true"
+          [timeOnly]="false"
+          [stepMinute]="1"
+          styleClass="w-100"
+        ></p-calendar>
+        <img
+          src="../../../../assets/images/icons/calendar.svg"
+          alt="Calendar Icon"
+          class="calendar-custom-img"
+          (click)="calendar.toggle()"
+        />
+      </div>
+    </div>
       <button
         pButton
         type="button"

@@ -1,0 +1,1693 @@
+<div>
+  <div class="p-1 m-2" *ngIf="report">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <b>
+          <span class="back-btn-text"> {{ report?.report?.reportName }} </span>
+        </b>
+      </div>
+      <div class="d-flex gap-2">
+        <button
+          *ngIf="mainaccountId == '1234567'"
+          pButton
+          type="button"
+          icon="pi pi-pencil"
+          label="Edit Report"
+          class="p-button-primary"
+          (click)="editReport(report?.report?.reportId)"
+        ></button>
+
+        <button
+          *ngIf="mainaccountId == '1234567'"
+          pButton
+          type="button"
+          icon="fa fa-download"
+          label="Download CAM"
+          class="p-button-info"
+          (click)="downloadCam()"
+        ></button>
+      </div>
+    </div>
+  </div>
+
+  <div #tabContainer class="p-1 m-2">
+    <!-- <p-tabView
+      [(activeIndex)]="activeIndex"
+      (onChange)="onTabChange($event)"
+      class="custom-tabview"
+    > -->
+    <div class="d-flex justify-content-between align-items-center w-100 my-2">
+      <!-- Display selected label as heading -->
+      <span *ngIf="selectedTab" class="selected-section-heading">
+        {{ selectedTab.label }}
+      </span>
+
+      <!-- Dropdown on the right -->
+      <p-dropdown
+        [options]="allTabs"
+        [(ngModel)]="selectedTab"
+        optionLabel="label"
+        placeholder="Select Section"
+        [filter]="true"
+        [style]="{ width: '300px' }"
+        appendTo="body"
+        filterPlaceholder="Search..."
+        (onChange)="onDropdownChange($event)"
+      ></p-dropdown>
+    </div>
+
+    <!-- Normal visible tabs -->
+    <!-- <p-tabPanel *ngFor="let tab of allTabs" [header]="tab.label"> -->
+    <ng-container [ngSwitch]="selectedTab.id">
+      <div *ngSwitchCase="'summary'">
+        <div *ngIf="loading" class="text-center my-4">
+          <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        </div>
+        <div
+          *ngIf="bankAccountDetails && !loading && accountData"
+          class="card p-3 mb-4"
+        >
+          <h5>Bank Account Details</h5>
+          <table class="table table-bordered">
+            <tbody>
+              <td>Description</td>
+              <td>{{ accountData.setValue }}</td>
+              <tr *ngFor="let item of bankAccountDetails | keyvalue">
+                <td>{{ item.key }}</td>
+                <td>{{ item.value }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div *ngIf="monthwiseData?.length && !loading" class="card p-3">
+          <h5>Monthwise Details</h5>
+          <div class="table-wrapper" style="overflow: auto; max-height: 600px">
+            <table class="table table-bordered sticky-table">
+              <thead>
+                <tr class="sticky-header">
+                  <th class="sticky-col">Description</th>
+                  <ng-container *ngFor="let month of monthwiseData">
+                    <th *ngIf="month.setValue !== 'Description'">
+                      {{ month.setValue }}
+                    </th>
+                  </ng-container>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let key of monthwiseKeys">
+                  <td class="sticky-col">{{ key }}</td>
+                  <ng-container
+                    *ngFor="let monthMap of monthwiseMatrix | slice : 1"
+                  >
+                    <td>
+                      {{ monthMap[key] || "-" }}
+                    </td>
+                  </ng-container>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div
+          *ngIf="!loading && (!reportData || reportData.length === 0)"
+          class="text-center text-muted"
+        >
+          No summary data available.
+        </div>
+      </div>
+      <div *ngSwitchCase="'overview'">
+        <div *ngIf="overviewLoading" class="text-center my-4">
+          <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        </div>
+
+        <div *ngIf="overviewData && !overviewLoading">
+          <div class="metric-card d-flex justify-content-between flex-wrap p-3">
+            <div class="metric-item text-center">
+              <h4>{{ overviewData?.precisaScore }}</h4>
+              <small>MYLOANCRM SCORE</small>
+            </div>
+            <div class="metric-item text-center">
+              <h4>{{ overviewData?.volatilityScore }}</h4>
+              <small>VOLATILITY SCORE</small>
+            </div>
+            <div class="metric-item text-center">
+              <h4>{{ overviewData?.foirScore }}</h4>
+              <small>FOIR</small>
+            </div>
+            <div class="metric-item text-center">
+              <h4>
+                {{ overviewData?.tabCounts?.circularTransactionCount }}
+              </h4>
+              <small>CIRCULAR TXNS</small>
+            </div>
+            <div class="metric-item text-center">
+              <h4>{{ overviewData?.tabCounts?.bouncedChequeCount }}</h4>
+              <small>BOUNCED CHEQUES</small>
+            </div>
+            <div class="metric-item text-center">
+              <h4>{{ overviewData?.transactionCount }}</h4>
+              <small>TRANSACTIONS</small>
+              <br />
+              <small class="text-nowrap"
+                >{{ overviewData?.txnStartDate }} -
+                {{ overviewData?.txnEndDate }}</small
+              >
+            </div>
+            <div class="metric-item text-center">
+              <h4>{{ overviewData?.averageDailyBalance }}</h4>
+              <small class="text-nowrap">MONTHLY AVG BALANCE</small>
+            </div>
+          </div>
+
+          <!-- <div class="col-md-6">
+            <p-table
+              *ngIf="!overviewLoading && overviewData"
+              [value]="overviewData?.account"
+              [paginator]="true"
+              [rows]="10"
+              responsiveLayout="scroll"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Bank Name</th>
+                  <th>IFSC & MICR Code</th>
+                  <th>Ifsc Branch Name & Address</th>
+                  <th>Account Number</th>
+                  <th>Account Type</th>
+                  <th>Account Age</th>
+                  <th>Statement Type</th>
+                  <th>Account Type</th>
+                  <th>Account Age</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-row>
+                <tr>
+                  <td>{{ row.counterparty }}</td>
+                  <td>{{ row.totalTxnAmt }}</td>
+                  <td>{{ row.totalTxnCount }}</td>
+                  <td>{{ row.recurringTxnAmt }}</td>
+                  <td>{{ row.recurringTxnCount }}</td>
+                  <td>{{ row.primaryTxnCategory }}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div> -->
+        </div>
+
+        <div
+          *ngIf="
+            !overviewLoading && (!overviewData || overviewData.length === 0)
+          "
+          class="text-center text-muted"
+        >
+          No overview data available.
+        </div>
+      </div>
+      <div *ngSwitchCase="'transactions'">
+        <div>
+          <p-table
+            [value]="transactionData"
+            [paginator]="true"
+            [filterDelay]="500"
+            [rows]="100"
+            [totalRecords]="totalTransactions"
+            [lazy]="true"
+            (onLazyLoad)="loadTransactionsData($event)"
+            [sortField]="sortField"
+            [sortOrder]="sortOrder"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Transactions"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th pSortableColumn="transaction_date">
+                  Txn Date
+                  <p-sortIcon field="transaction_date"></p-sortIcon>
+                </th>
+                <th pSortableColumn="particular">
+                  Particular <p-sortIcon field="particular"></p-sortIcon>
+                </th>
+                <th pSortableColumn="cheque_Number">
+                  Cheque/Ref nbr
+                  <p-sortIcon field="cheque_Number"></p-sortIcon>
+                </th>
+                <th pSortableColumn="counterparty">
+                  Counterparty
+                  <p-sortIcon field="counterparty"></p-sortIcon>
+                </th>
+                <th pSortableColumn="amount">
+                  Debit (₹) <p-sortIcon field="amount"></p-sortIcon>
+                </th>
+                <th pSortableColumn="credit">
+                  Credit (₹) <p-sortIcon field="credit"></p-sortIcon>
+                </th>
+                <th pSortableColumn="balance">
+                  Balance (₹) <p-sortIcon field="balance"></p-sortIcon>
+                </th>
+                <th pSortableColumn="computed_balance">
+                  Computed Balance (₹)
+                  <p-sortIcon field="computed_balance"></p-sortIcon>
+                </th>
+                <th pSortableColumn="categories">
+                  Category <p-sortIcon field="categories"></p-sortIcon>
+                </th>
+                <th pSortableColumn="tags">
+                  Tags <p-sortIcon field="tags"></p-sortIcon>
+                </th>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-transaction>
+              <tr>
+                <td>
+                  {{ transaction.transaction_date | date : "dd/MM/yyyy" }}
+                </td>
+                <td>{{ transaction.particular }}</td>
+                <td>{{ transaction.cheque_Number }}</td>
+                <td>{{ transaction.counterparty }}</td>
+                <td>
+                  {{
+                    transaction.transaction_type === "DB"
+                      ? (transaction.amount | number : "1.2-2")
+                      : ""
+                  }}
+                </td>
+                <td>
+                  {{
+                    transaction.transaction_type === "CR"
+                      ? (transaction.amount | number : "1.2-2")
+                      : ""
+                  }}
+                </td>
+                <td>{{ transaction.balance | number : "1.2-2" }}</td>
+                <td>
+                  {{ transaction.computed_balance | number : "1.2-2" }}
+                </td>
+                <td>{{ transaction.categories }}</td>
+                <td>{{ transaction.tags }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+
+        <div
+          *ngIf="
+            !transactionLoading &&
+            (!transactionData || transactionData.length === 0)
+          "
+          class="text-center text-muted"
+        >
+          No Transactions data available.
+        </div>
+      </div>
+      <div *ngSwitchCase="'irregularities'">
+        <div *ngIf="overviewLoading" class="text-center my-4">
+          <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        </div>
+
+        <div *ngIf="irregularitiesData && !overviewLoading">
+          <p-accordion>
+            <p-accordionTab
+              *ngFor="let item of irregularitiesData"
+              [header]="item.activity"
+            >
+              <ng-container
+                *ngIf="
+                  (item.transactions?.length ||
+                    item.monthlyTransactions?.length ||
+                    item.files?.length) > 0;
+                  else noData
+                "
+              >
+                <p-table
+                  [value]="
+                    item.transactions?.length
+                      ? item.transactions
+                      : item.monthlyTransactions?.length
+                      ? item.monthlyTransactions
+                      : item.files
+                  "
+                  responsiveLayout="scroll"
+                >
+                  <ng-template pTemplate="header">
+                    <tr *ngIf="item.activity == 'Round Figure Tax Payments'">
+                      <th>Txn Date</th>
+                      <th>Particulars</th>
+                      <th>Counter Party</th>
+                      <th>Amount</th>
+                      <th>Balance</th>
+                    </tr>
+
+                    <tr *ngIf="item.activity == 'Cash deposit on Bank Holiday'">
+                      <th>Txn Date</th>
+                      <th>Particulars</th>
+                      <th>Amount</th>
+                      <th>Balance</th>
+                    </tr>
+
+                    <tr *ngIf="item.activity == 'Equal debits & credits'">
+                      <th>Month</th>
+                      <th>Credit Txn Count</th>
+                      <th>Credit Amount</th>
+                      <th>Debit Txn Count</th>
+                      <th>Debit Amount</th>
+                    </tr>
+                    <tr
+                      *ngIf="
+                        item.activity ==
+                        'Parties present in both debits and credits'
+                      "
+                    >
+                      <th>Counterparty</th>
+                      <th>Month</th>
+                      <th>Debit Amount</th>
+                      <th>Debit Amount</th>
+                      <th>Credit Amount</th>
+                      <th>Credit Amount</th>
+                      <th>Txn Count</th>
+                    </tr>
+                  </ng-template>
+
+                  <ng-template pTemplate="body" let-t>
+                    <tr *ngIf="item.activity == 'Cash deposit on Bank Holiday'">
+                      <td>{{ t.date }}</td>
+                      <td>{{ t.particular }}</td>
+                      <td>{{ t.amount }}</td>
+                      <td>{{ t.balance | number : "1.0-2" }}</td>
+                    </tr>
+
+                    <tr *ngIf="item.activity == 'Equal debits & credits'">
+                      <td>{{ t.month }}</td>
+                      <td>{{ t.creditTransactionCount }}</td>
+                      <td>{{ t.creditAmount }}</td>
+                      <td>{{ t.debitTransactionCount }}</td>
+                      <td>{{ t.debitAmount | number : "1.0-2" }}</td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </ng-container>
+
+              <ng-template #noData>
+                <div class="text-center p-3">No data available</div>
+              </ng-template>
+
+              <!-- Fallback when no transactions -->
+              <ng-template #noData>
+                <div class="p-3 text-gray-500">
+                  No irregular transactions found.
+                </div>
+              </ng-template>
+            </p-accordionTab>
+          </p-accordion>
+        </div>
+
+        <div
+          *ngIf="
+            !overviewLoading &&
+            (!irregularitiesData || irregularitiesData.length === 0)
+          "
+          class="text-center text-muted"
+        >
+          No Irregularities data available.
+        </div>
+      </div>
+
+      <div *ngSwitchCase="'counterparty'">
+        <div *ngIf="overviewLoading" class="text-center my-4">
+          <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        </div>
+        <div class="row g-3" *ngIf="countePartyData">
+          <!-- Credit Card -->
+          <div class="col-12 col-md-6" *ngIf="countePartyData.credit?.length">
+            <div class="card p-3 shadow-sm rounded-3">
+              <h5
+                class="d-flex justify-content-between align-items-center mb-3"
+              >
+                <span>Credit</span>
+                <span class="badge bg-success"
+                  >{{ countePartyData.credit.length }} items</span
+                >
+              </h5>
+
+              <table class="table table-bordered table-sm">
+                <thead class="table-light">
+                  <tr>
+                    <th>Counterparty</th>
+                    <th class="text-end">Amount (₹)</th>
+                    <th class="text-end">Amount %</th>
+                    <th class="text-end">Txn Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of countePartyData.credit">
+                    <td>{{ item.counterparty }}</td>
+                    <td class="text-end">{{ item.amount }}</td>
+                    <td class="text-end">{{ item.amountPercentage }}%</td>
+                    <td class="text-end">{{ item.transactionCount }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Debit Card -->
+          <div class="col-12 col-md-6" *ngIf="countePartyData.debit?.length">
+            <div class="card p-3 shadow-sm rounded-3">
+              <h5
+                class="d-flex justify-content-between align-items-center mb-3"
+              >
+                <span>Debit</span>
+                <span class="badge bg-danger"
+                  >{{ countePartyData.debit.length }} items</span
+                >
+              </h5>
+
+              <table class="table table-bordered table-sm">
+                <thead class="table-light">
+                  <tr>
+                    <th>Counterparty</th>
+                    <th class="text-end">Amount (₹)</th>
+                    <th class="text-end">Amount %</th>
+                    <th class="text-end">Txn Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of countePartyData.debit">
+                    <td>{{ item.counterparty }}</td>
+                    <td class="text-end">{{ item.amount }}</td>
+                    <td class="text-end">{{ item.amountPercentage }}%</td>
+                    <td class="text-end">{{ item.transactionCount }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <!-- {{ countePartyData | json }} -->
+        <div *ngIf="countePartyData && !overviewLoading"></div>
+
+        <div
+          *ngIf="
+            !overviewLoading &&
+            (!countePartyData || countePartyData.length === 0)
+          "
+          class="text-center text-muted"
+        >
+          No Counter party data available.
+        </div>
+      </div>
+
+      <div *ngSwitchCase="'daily-balance'">
+        <!-- Loader -->
+        <div *ngIf="overviewLoading" class="text-center my-3">
+          <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        </div>
+
+        <!-- Table when data available -->
+        <div *ngIf="dailyBalanceTable.length > 0 && !overviewLoading">
+          <p-table [value]="dailyBalanceTable" responsiveLayout="scroll">
+            <!-- Header -->
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Day of month</th>
+                <th *ngFor="let col of monthList">{{ col }}</th>
+              </tr>
+            </ng-template>
+
+            <!-- Body -->
+            <ng-template pTemplate="body" let-row>
+              <tr>
+                <td>{{ row.day }}</td>
+                <td *ngFor="let col of monthList">
+                  {{ row[col] ? (row[col] | number : "1.0-2") : "-" }}
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+
+        <!-- No Data -->
+        <div
+          *ngIf="!overviewLoading && dailyBalanceTable.length === 0"
+          class="text-center text-muted"
+        >
+          No Counter party data available.
+        </div>
+      </div>
+
+      <div *ngSwitchCase="'categories'">
+        <div *ngIf="categoriesData">
+          <p-accordion>
+            <!-- Inflows -->
+            <p-accordionTab header="Inflow Categories">
+              <p-treeTable
+                [value]="inflowCategories"
+                tableStyleClass="p-datatable-sm"
+              >
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Category</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Txn Amount (₹)</th>
+                    <th>% Total</th>
+                    <th>Avg Txn Amount (₹)</th>
+                    <th>Txn Count</th>
+                  </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
+                  <tr>
+                    <td>
+                      <p-treeTableToggler
+                        [rowNode]="rowNode"
+                      ></p-treeTableToggler>
+                      {{ rowData.category }}
+                    </td>
+                    <td>{{ rowData.startDate }}</td>
+                    <td>{{ rowData.endDate }}</td>
+                    <td>{{ rowData.amount | number }}</td>
+                    <td>{{ rowData.exposure }}%</td>
+                    <td>{{ rowData.avgAmount | number }}</td>
+                    <td>{{ rowData.transactionCount }}</td>
+                  </tr>
+                </ng-template>
+              </p-treeTable>
+            </p-accordionTab>
+
+            <!-- Outflows -->
+            <p-accordionTab header="Outflow Categories">
+              <p-treeTable
+                [value]="outflowCategories"
+                tableStyleClass="p-datatable-sm"
+              >
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Category</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Txn Amount (₹)</th>
+                    <th>% Total</th>
+                    <th>Avg Txn Amount (₹)</th>
+                    <th>Txn Count</th>
+                  </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
+                  <tr>
+                    <td>
+                      <p-treeTableToggler
+                        [rowNode]="rowNode"
+                      ></p-treeTableToggler>
+                      {{ rowData.category }}
+                    </td>
+                    <td>{{ rowData.startDate }}</td>
+                    <td>{{ rowData.endDate }}</td>
+                    <td>{{ rowData.amount | number }}</td>
+                    <td>{{ rowData.exposure }}%</td>
+                    <td>{{ rowData.avgAmount | number }}</td>
+                    <td>{{ rowData.transactionCount }}</td>
+                  </tr>
+                </ng-template>
+              </p-treeTable>
+            </p-accordionTab>
+          </p-accordion>
+        </div>
+
+        <!-- {{ categoriesData | json }} -->
+
+        <div
+          *ngIf="
+            !overviewLoading && (!categoriesData || categoriesData.length === 0)
+          "
+          class="text-center text-muted"
+        >
+          No Categories data available.
+        </div>
+      </div>
+
+      <div *ngSwitchCase="'bounced-cheques'">
+        <div *ngIf="overviewLoading" class="text-center my-4">
+          <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        </div>
+        <div *ngIf="bouncedChequeData">
+          <p-accordion>
+            <p-accordionTab *ngFor="let tab of chequeTabs" [header]="tab.label">
+              <p-table [value]="tab.data" tableStyleClass="p-datatable-sm">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Date</th>
+                    <th>Particulars</th>
+                    <th>Cheque No.</th>
+                    <th>Debit (₹)</th>
+                    <th>Credit (₹)</th>
+                    <th>Balance (₹)</th>
+                    <th>Tags</th>
+                  </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-row>
+                  <tr>
+                    <td>{{ row.date }}</td>
+                    <td>{{ row.particular }}</td>
+                    <td>{{ row.chequeNumber || "-" }}</td>
+                    <td>
+                      {{ row.type === "DB" ? (row.amount | number) : "-" }}
+                    </td>
+                    <td>
+                      {{ row.type === "CR" ? (row.amount | number) : "-" }}
+                    </td>
+                    <td>{{ row.balance | number }}</td>
+                    <td>{{ row.tags }}</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </p-accordionTab>
+          </p-accordion>
+        </div>
+
+        <div
+          *ngIf="
+            !overviewLoading &&
+            (!bouncedChequeData || bouncedChequeData.length === 0)
+          "
+          class="text-center text-muted"
+        >
+          No Bounced Cheque party data available.
+        </div>
+      </div>
+
+      <!-- <div *ngSwitchCase="'loans-analysis'">
+        <div *ngIf="overviewLoading" class="text-center my-4">
+          <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        </div>
+        <div *ngIf="loanAnalysisData">
+
+              <p-table [value]="loanAnalysisData?.loanDetails" tableStyleClass="p-datatable-sm">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>No</th>
+                    <th>Lender</th>
+                    <th>Loan Credit</th>
+                    <th>Loan Debit (₹)</th>
+                    <th>EMI started On</th>
+                    <th>EMI Obligations</th>
+                  </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-row>
+                  <tr>
+                    <td>{{ row.no }}</td>
+                    <td>{{ row.lender }}</td>
+                    <td>{{ row.loanCredit || "-" }}</td>
+
+                    <td>{{ row.loanDebit | number }}</td>
+                    <td>{{ row.emiDebit }}</td>
+                    <td>{{ row.emiStartedOn }}</td>
+                    <td>{{ row.emiStartedOn }}</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+
+        </div>
+
+        <div
+          *ngIf="
+            !overviewLoading &&
+            (!bouncedChequeData || bouncedChequeData.length === 0)
+          "
+          class="text-center text-muted"
+        >
+          No Bounced Cheque party data available.
+        </div>
+      </div> -->
+      <div *ngSwitchCase="'cash-flow'">
+        <!-- Table when data available -->
+        <div *ngIf="cashFlowData && !overviewLoading">
+          <p-table
+            *ngIf="cashFlowData?.monthly"
+            [value]="cashFlowData.monthly"
+            class="p-datatable-sm"
+            [responsiveLayout]="'scroll'"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Month</th>
+                <th>Inflow</th>
+                <th>Outflow</th>
+                <th>Net Cash Flow</th>
+                <th>Monthly Avg Balance</th>
+                <th>Inflow Txn Count</th>
+                <th>Outflow Txn Count</th>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-row>
+              <tr>
+                <td>{{ row.month }}</td>
+                <td>{{ row.inflow | number : "1.0-0" }}</td>
+                <td>{{ row.outflow | number : "1.0-0" }}</td>
+                <td>{{ row.netCashFlow | number : "1.0-0" }}</td>
+                <td>{{ row.monthlyAvgBalance | number : "1.0-0" }}</td>
+                <td>{{ row.inflowTransactionCount }}</td>
+                <td>{{ row.outflowTransactionCount }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+          <p-table
+            *ngIf="cashFlowData?.quarterly"
+            [value]="cashFlowData.quarterly"
+            class="p-datatable-sm"
+            [responsiveLayout]="'scroll'"
+          >
+            <ng-template pTemplate="body" let-row>
+              <tr>
+                <td>{{ row.month }}</td>
+                <td>{{ row.inflow | number : "1.0-0" }}</td>
+                <td>{{ row.outflow | number : "1.0-0" }}</td>
+                <td>{{ row.netCashFlow | number : "1.0-0" }}</td>
+                <td>{{ row.monthlyAvgBalance | number : "1.0-0" }}</td>
+                <td>{{ row.inflowTransactionCount }}</td>
+                <td>{{ row.outflowTransactionCount }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+          <!-- {{ cashFlowData | json }} -->
+        </div>
+        <!-- No Data -->
+      </div>
+
+      <div *ngSwitchCase="'biz-cash-flow'">
+        <!-- Table when data available -->
+        <div *ngIf="bizCashFlow && !overviewLoading">
+          <p-table
+            *ngIf="bizCashFlow?.monthly"
+            [value]="bizCashFlow.monthly"
+            class="p-datatable-sm"
+            [responsiveLayout]="'scroll'"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Month</th>
+                <th>Total Inflow</th>
+                <th>Biz Inflow</th>
+                <th>% Biz Inflow</th>
+                <th>Biz Inflow Txns</th>
+                <th>Total Outflow</th>
+                <th>Biz Outflow</th>
+                <th>% Biz outflow</th>
+                <th>Biz outflow Txns</th>
+                <th>Net Biz Cashflow</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-row>
+              <tr>
+                <td>{{ row.month }}</td>
+                <td>{{ row.inflow | number : "1.0-0" }}</td>
+                <td>{{ row.bizInflow | number : "1.0-0" }}</td>
+                <td>{{ row.bizInflowPercentage | number : "1.0-0" }}</td>
+                <td>
+                  {{ row.bizInflowTransactionCount | number : "1.0-0" }}
+                </td>
+                <td>{{ row.outflow }}</td>
+                <td>{{ row.bizOutflow }}</td>
+                <td>{{ row.bizOutflowPercentage | number : "1.0-0" }}</td>
+                <td>
+                  {{ row.bizOutflowTransactionCount | number : "1.0-0" }}
+                </td>
+                <td>{{ row.bizCashFlow }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+          <p-table
+            *ngIf="bizCashFlow?.quarterly"
+            [value]="bizCashFlow.quarterly"
+            class="p-datatable-sm"
+            [responsiveLayout]="'scroll'"
+          >
+            <ng-template pTemplate="body" let-row>
+              <tr>
+                <td>{{ row.month }}</td>
+                <td>{{ row.inflow | number : "1.0-0" }}</td>
+                <td>{{ row.bizInflow | number : "1.0-0" }}</td>
+                <td>{{ row.bizInflowPercentage | number : "1.0-0" }}</td>
+                <td>
+                  {{ row.bizInflowTransactionCount | number : "1.0-0" }}
+                </td>
+                <td>{{ row.outflow }}</td>
+                <td>{{ row.bizOutflow }}</td>
+                <td>{{ row.bizOutflowPercentage | number : "1.0-0" }}</td>
+                <td>
+                  {{ row.bizOutflowTransactionCount | number : "1.0-0" }}
+                </td>
+                <td>{{ row.bizCashFlow }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+
+      <div *ngSwitchCase="'duplicate-txns'">
+        <div *ngIf="duplicateTxnsData?.duplicateTxns?.length">
+          <p-table
+            [value]="duplicateTxnsData.duplicateTxns"
+            [paginator]="true"
+            [rows]="duplicateTxnsData.pagination.pageSize"
+            [totalRecords]="duplicateTxnsData.pagination.totalElements"
+            [rowsPerPageOptions]="[10, 20, 50]"
+            [responsiveLayout]="'scroll'"
+            class="p-datatable-sm"
+          >
+            <!-- Header -->
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Date</th>
+                <th>Particulars</th>
+                <th>Type</th>
+                <th>Amount (₹)</th>
+                <th>Balance (₹)</th>
+                <th>Cheque No.</th>
+                <th>File Name</th>
+                <th>Duplicate Count</th>
+                <th>Sequence</th>
+              </tr>
+            </ng-template>
+
+            <!-- Body -->
+            <ng-template pTemplate="body" let-row>
+              <tr>
+                <td>{{ row.date }}</td>
+                <td>{{ row.particular }}</td>
+                <td>{{ row.type }}</td>
+                <td>{{ row.amount | number : "1.2-2" }}</td>
+                <td>{{ row.balance | number : "1.2-2" }}</td>
+                <td>{{ row.chequeNumber || "-" }}</td>
+                <td>{{ row.fileName }}</td>
+                <td>{{ row.duplicate }}</td>
+                <td>{{ row.sequence }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+
+        <div
+          *ngIf="
+            !overviewLoading &&
+            (!duplicateTxnsData || duplicateTxnsData.duplicateTxns.length === 0)
+          "
+          class="text-center text-muted"
+        >
+          No Duplicate Transactions data available.
+        </div>
+      </div>
+
+      <div *ngSwitchCase="'recurring-payments'">
+        <div *ngIf="recurringPaymentsData?.recurringPayments?.length">
+          <p-table
+            [value]="recurringPaymentsData?.recurringPayments"
+            [paginator]="true"
+            [rows]="100"
+            [totalRecords]="recurringPaymentsData?.recurringPayments?.length"
+            [rowsPerPageOptions]="[20, 50, 100, 200, 500]"
+            [responsiveLayout]="'scroll'"
+            class="p-datatable-sm"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Recurring Payments"
+          >
+            <!-- Header -->
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Particulars</th>
+                <th>Counterparty</th>
+                <th>Amount</th>
+                <th>Txn Count</th>
+                <th>Interval</th>
+                <th>Misses</th>
+              </tr>
+            </ng-template>
+
+            <!-- Body -->
+            <ng-template pTemplate="body" let-row>
+              <tr>
+                <td>{{ row.startDate }}</td>
+                <td>{{ row.endDate }}</td>
+                <td>{{ row.particulars }}</td>
+                <td>{{ row.counterparty }}</td>
+                <td>{{ row.amount | number : "1.2-2" }}</td>
+                <td>{{ row.transactionCount || "-" }}</td>
+                <td>{{ row.interval }}</td>
+                <td>{{ row.misses }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+        <!-- {{ recurringPaymentsData | json }} -->
+      </div>
+
+      <div *ngSwitchCase="'loans'">
+        <div *ngIf="loansData?.loans?.length">
+          <p-table
+            [value]="loansData?.loans"
+            [paginator]="true"
+            [rows]="100"
+            [totalRecords]="loansData?.loans?.length"
+            [rowsPerPageOptions]="[20, 50, 100, 200, 500]"
+            [responsiveLayout]="'scroll'"
+            class="p-datatable-sm"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Loans"
+          >
+            <!-- Header -->
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Particulars</th>
+                <th>Counterparty</th>
+                <th>Debit</th>
+                <th>Credit</th>
+                <th>Txn Count</th>
+                <!-- <th>Interval</th> -->
+                <th>Misses</th>
+              </tr>
+            </ng-template>
+            <!-- Body -->
+            <ng-template pTemplate="body" let-row>
+              <tr>
+                <td>{{ row.startDate }}</td>
+                <td>{{ row.endDate }}</td>
+                <td>{{ row.particulars }}</td>
+                <td>{{ row.counterparty }}</td>
+                <td>
+                  <span *ngIf="row.transactionType === 'DB'">
+                    {{ row.amount | number : "1.2-2" }}
+                  </span>
+                </td>
+                <td>
+                  <span *ngIf="row.transactionType === 'CR'">
+                    {{ row.amount | number : "1.2-2" }}
+                  </span>
+                </td>
+                <td>{{ row.transactionCount || "-" }}</td>
+                <!-- <td>{{ row.interval }}</td> -->
+                <td>{{ row.misses }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+        <!-- {{ recurringPaymentsData | json }} -->
+      </div>
+      <div *ngSwitchCase="'emi-payments'">
+        <div *ngIf="emiPaymentsData?.emi?.length">
+          <p-table
+            [value]="emiPaymentsData?.emi"
+            [paginator]="true"
+            [rows]="100"
+            [totalRecords]="emiPaymentsData?.emi?.length"
+            [rowsPerPageOptions]="[20, 50, 100, 200, 500]"
+            [responsiveLayout]="'scroll'"
+            class="p-datatable-sm"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Emi Payments"
+          >
+            <!-- Header -->
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Particulars</th>
+                <th>Counterparty</th>
+                <th>Amount</th>
+                <th>Txn Count</th>
+                <th>Interval</th>
+                <th>Misses</th>
+              </tr>
+            </ng-template>
+
+            <!-- Body -->
+            <ng-template pTemplate="body" let-row>
+              <tr>
+                <td>{{ row.startDate }}</td>
+                <td>{{ row.endDate }}</td>
+                <td>{{ row.particulars }}</td>
+                <td>{{ row.counterparty }}</td>
+                <td>{{ row.amount | number : "1.2-2" }}</td>
+                <td>{{ row.transactionCount || "-" }}</td>
+                <td>{{ row.interval }}</td>
+                <td>{{ row.misses }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+        <!-- {{ recurringPaymentsData | json }} -->
+      </div>
+      <div *ngSwitchCase="'recurring-deposits'">
+        <div *ngIf="recurringDepositsData?.recurringDeposits?.length">
+          <p-table
+            [value]="recurringDepositsData?.recurringDeposits"
+            [paginator]="true"
+            [rows]="100"
+            [totalRecords]="recurringDepositsData?.recurringDeposits?.length"
+            [rowsPerPageOptions]="[20, 50, 100, 200, 500]"
+            [responsiveLayout]="'scroll'"
+            class="p-datatable-sm"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Emi Payments"
+          >
+            <!-- Header -->
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Particulars</th>
+                <th>Counterparty</th>
+                <th>Amount</th>
+                <th>Txn Count</th>
+                <th>Interval</th>
+                <th>Misses</th>
+              </tr>
+            </ng-template>
+
+            <!-- Body -->
+            <ng-template pTemplate="body" let-row>
+              <tr>
+                <td>{{ row.startDate }}</td>
+                <td>{{ row.endDate }}</td>
+                <td>{{ row.particulars }}</td>
+                <td>{{ row.counterparty }}</td>
+                <td>{{ row.amount | number : "1.2-2" }}</td>
+                <td>{{ row.transactionCount || "-" }}</td>
+                <td>{{ row.interval }}</td>
+                <td>{{ row.misses }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+        <!-- {{ recurringPaymentsData | json }} -->
+      </div>
+
+      <div *ngSwitchCase="'salary'">
+        <div>
+          <p-table
+            [value]="salaryData?.salary"
+            [paginator]="true"
+            [rows]="100"
+            [totalRecords]="salaryData?.salary?.length"
+            [rowsPerPageOptions]="[20, 50, 100, 200, 500]"
+            [responsiveLayout]="'scroll'"
+            class="p-datatable-sm"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Loans"
+          >
+            <!-- Header -->
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Particulars</th>
+                <th>Counterparty</th>
+                <th>Debit</th>
+                <th>Credit</th>
+                <th>Txn Count</th>
+                <!-- <th>Interval</th> -->
+                <th>Misses</th>
+              </tr>
+            </ng-template>
+            <!-- Body -->
+            <ng-template pTemplate="body" let-row>
+              <tr>
+                <td>{{ row.startDate }}</td>
+                <td>{{ row.endDate }}</td>
+                <td>{{ row.particulars }}</td>
+                <td>{{ row.counterparty }}</td>
+                <td>
+                  <span *ngIf="row.transactionType === 'DB'">
+                    {{ row.amount | number : "1.2-2" }}
+                  </span>
+                </td>
+                <td>
+                  <span *ngIf="row.transactionType === 'CR'">
+                    {{ row.amount | number : "1.2-2" }}
+                  </span>
+                </td>
+                <td>{{ row.transactionCount || "-" }}</td>
+                <!-- <td>{{ row.interval }}</td> -->
+                <td>{{ row.misses }}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr class="text-center">
+                <td colspan="10" class="text-center fw-bold">
+                  <p style="color: #535ab4; font-weight: 400; font-size: 18px">
+                    No Data Found
+                  </p>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+        <!-- {{ recurringPaymentsData | json }} -->
+      </div>
+
+      <div *ngSwitchCase="'od-cc-utilization'">
+        <div>
+          <p-table
+            [value]="odccUtilizationData?.utilization"
+            [paginator]="true"
+            [rows]="100"
+            [totalRecords]="odccUtilizationData?.utilization?.length"
+            [rowsPerPageOptions]="[20, 50, 100, 200, 500]"
+            [responsiveLayout]="'scroll'"
+            class="p-datatable-sm"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Loans"
+          >
+            <!-- Header -->
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Month</th>
+                <th>Sanction Limit</th>
+                <th>Overdrawn Days</th>
+                <th>Avg Utilization (rupee)</th>
+                <th>Avg Utilization %</th>
+                <th>Max Utilization (R)</th>
+                <th>Max Utilization %</th>
+                <th>Sanction Limit Exceeded Days</th>
+              </tr>
+            </ng-template>
+            <!-- Body -->
+            <ng-template pTemplate="body" let-row>
+              <tr>
+                <td>{{ row.month }}</td>
+                <td>{{ row.sanctionedLimit }}</td>
+                <td>{{ row.overdrawnDays }}</td>
+                <td>{{ row.avgUtilization }}</td>
+                <td>{{ row.avgUtilizationPct }}</td>
+                <td>{{ row.maxUtilization }}</td>
+                <td>{{ row.maxUtilizationPct || "-" }}</td>
+                <!-- <td>{{ row.interval }}</td> -->
+                <td>{{ row.misses }}</td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr class="text-center">
+                <td colspan="10" class="text-center fw-bold">
+                  <p style="color: #535ab4; font-weight: 400; font-size: 18px">
+                    No Data Found
+                  </p>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+        <!-- {{ recurringPaymentsData | json }} -->
+      </div>
+
+      <div *ngSwitchCase="'available-balance'">
+        <div *ngIf="chartOptions">
+          <app-apex-charts [chartOptions]="chartOptions"></app-apex-charts>
+        </div>
+        <!-- {{avaliableBalanceData |json}} -->
+      </div>
+
+      <div *ngSwitchCase="'monthly-summary'">
+        <div style="overflow-x: auto; white-space: nowrap">
+          <p-treeTable
+            [value]="monthlySummaryData"
+            tableStyleClass="table-sm table-bordered text-center"
+          >
+            <!-- Header -->
+            <ng-template pTemplate="header">
+              <!-- Row 1: Category + Months -->
+              <tr>
+                <th rowspan="2" class="text-start">Category</th>
+                <th
+                  *ngFor="let m of months"
+                  colspan="2"
+                  class="text-center text-nowrap"
+                  style="width: 320px"
+                >
+                  {{ m }}
+                </th>
+              </tr>
+
+              <!-- Row 2: Amount + Txn count -->
+              <tr>
+                <ng-container *ngFor="let m of months">
+                  <th class="text-nowrap">Amount (₹)</th>
+                  <th class="text-nowrap">Txn count</th>
+                </ng-container>
+              </tr>
+            </ng-template>
+
+            <!-- Body -->
+            <ng-template pTemplate="body" let-rowNode let-rowData="rowData">
+              <tr>
+                <!-- Category / Subcategory -->
+                {{
+                  rowData | json
+                }}
+                <td class="text-start">
+                  <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
+                  {{ rowData.data.name }}
+                </td>
+
+                <!-- Amount + Txn count for each month -->
+                <ng-container *ngFor="let m of months">
+                  <td class="text-end">
+                    {{ rowData.data[m]?.amount || "-" }}
+                  </td>
+                  <td class="text-end">
+                    {{ rowData.data[m]?.txn || "-" }}
+                  </td>
+                </ng-container>
+              </tr>
+            </ng-template>
+          </p-treeTable>
+        </div>
+      </div>
+      <div *ngSwitchCase="'aml-analysis'">
+        <div *ngIf="overviewLoading" class="text-center my-4">
+          <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        </div>
+
+        <div *ngIf="amlAnalysisData && !overviewLoading">
+          <div class="metric-card d-flex justify-content-between flex-wrap p-3">
+            <div class="metric-item text-center">
+              <h4>
+                {{
+                  amlAnalysisData.amlRiskIndicators.amlScore | number : "1.0-0"
+                }}
+              </h4>
+              <small>AML RISK SCORE</small>
+            </div>
+
+            <div class="metric-item text-center">
+              <h4>
+                {{
+                  amlAnalysisData.amlRiskIndicators.monthlyAvgBalance
+                    | number : "1.0-0"
+                }}
+              </h4>
+              <small>DAILY AVG BALANCE</small>
+            </div>
+
+            <div class="metric-item text-center">
+              <h4>
+                {{
+                  amlAnalysisData.amlRiskIndicators.maxBalance
+                    | number : "1.0-0"
+                }}
+              </h4>
+              <small>MAX BALANCE</small>
+            </div>
+
+            <div class="metric-item text-center">
+              <h4>
+                {{
+                  amlAnalysisData.amlRiskIndicators.minBalance
+                    | number : "1.0-0"
+                }}
+              </h4>
+              <small>MIN BALANCE</small>
+            </div>
+
+            <div class="metric-item text-center">
+              <h4>
+                {{
+                  amlAnalysisData.amlRiskIndicators.daysGap | number : "1.0-0"
+                }}
+              </h4>
+              <small>DAYS GAP B/W MAX & MIN BALANCE</small>
+            </div>
+
+            <div class="metric-item text-center">
+              <h4>
+                {{
+                  amlAnalysisData.amlRiskIndicators.txnCount | number : "1.0-0"
+                }}
+              </h4>
+              <small>TRANSACTIONS</small>
+              <br />
+              <small class="text-nowrap">
+                {{ amlAnalysisData.amlRiskIndicators.txnStartDate }} -
+                {{ amlAnalysisData.amlRiskIndicators.txnEndDate }}
+              </small>
+            </div>
+
+            <div class="metric-item text-center">
+              <h4>
+                {{
+                  amlAnalysisData.amlRiskIndicators.maxDaysDormant
+                    | number : "1.0-0"
+                }}
+              </h4>
+              <small class="text-nowrap">MAX DORMANT DAYS</small>
+              <br />
+              <small class="text-nowrap">
+                {{ amlAnalysisData.amlRiskIndicators.dormatStartDate }} -
+                {{ amlAnalysisData.amlRiskIndicators.dormatEndDate }}
+              </small>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <p-table
+                *ngIf="!overviewLoading && amlAnalysisData"
+                [value]="amlAnalysisData.suspiciousActivities"
+                [paginator]="true"
+                [rows]="10"
+                responsiveLayout="scroll"
+              >
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Activity</th>
+                    <th>Incidences</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-row>
+                  <tr>
+                    <td>{{ row.activity }}</td>
+                    <td>{{ row.incidences }}</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <p-table
+                *ngIf="!overviewLoading && amlAnalysisData"
+                [value]="amlAnalysisData.top10CreditCounterparty"
+                [paginator]="true"
+                [rows]="10"
+                responsiveLayout="scroll"
+              >
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Counterparty</th>
+                    <th>Amount</th>
+                    <th>Amount %</th>
+                    <th>Txn Count</th>
+                    <th>Txn %</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-row>
+                  <tr>
+                    <td>{{ row.counterparty }}</td>
+                    <td>{{ row.amount }}</td>
+                    <td>{{ row.amountPercentage }}</td>
+                    <td>{{ row.transactionCount }}</td>
+                    <td>{{ row.transactionPercentage }}</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+
+            <div class="col-md-6">
+              <p-table
+                *ngIf="!overviewLoading && amlAnalysisData"
+                [value]="amlAnalysisData.top10CreditCounterparty"
+                [paginator]="true"
+                [rows]="10"
+                responsiveLayout="scroll"
+              >
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Counterparty</th>
+                    <th>Amount</th>
+                    <th>Amount %</th>
+                    <th>Txn Count</th>
+                    <th>Txn %</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-row>
+                  <tr>
+                    <td>{{ row.counterparty }}</td>
+                    <td>{{ row.amount }}</td>
+                    <td>{{ row.amountPercentage }}</td>
+                    <td>{{ row.transactionCount }}</td>
+                    <td>{{ row.transactionPercentage }}</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </div>
+          <p-table
+            *ngIf="!overviewLoading && amlAnalysisData"
+            [value]="amlAnalysisData.monthlyMaxMinBalance"
+            [paginator]="true"
+            [rows]="10"
+            responsiveLayout="scroll"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Month</th>
+                <th>Max Balance</th>
+                <th>Min Balance</th>
+                <th>Min to Max balance %</th>
+                <th>Debit Txn Count</th>
+                <th>Days Gap</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-row>
+              <tr>
+                <td>{{ row.month }}</td>
+                <td>{{ row.maxBalance }}</td>
+                <td>{{ row.minBalance }}</td>
+                <td>{{ row.maxBalancePct }}</td>
+                <td>{{ row.transactions.length }}</td>
+                <td>{{ row.daysGap }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+
+        <div
+          *ngIf="
+            !overviewLoading &&
+            (!amlAnalysisData || amlAnalysisData.length === 0)
+          "
+          class="text-center text-muted"
+        >
+          No AML Analysis data available.
+        </div>
+      </div>
+      <div *ngSwitchCase="'upi-txns-analysis'">
+        <div *ngIf="overviewLoading" class="text-center my-4">
+          <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        </div>
+
+        <!-- Table -->
+        <p-table
+          *ngIf="!overviewLoading && upiTxnsData"
+          [value]="upiTxnsData.summary"
+          [paginator]="true"
+          [rows]="10"
+          responsiveLayout="scroll"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Txn Type</th>
+              <th>First Txn Date</th>
+              <th>Last Txn date</th>
+              <th>Txn Amount</th>
+              <th>% Total Txn Amount</th>
+              <th>Avg Txn Amount</th>
+              <th>Txn Count</th>
+              <th>% Total Txn Count</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-row>
+            <tr>
+              <td>{{ row.txnType }}</td>
+              <td>{{ row.startDate | date : "dd-MMM-yyyy" }}</td>
+              <td>{{ row.endDate }}</td>
+              <td>₹{{ row.amount | number : "1.0-2" }}</td>
+              <td>{{ row.amountPt }}</td>
+              <td>{{ row.avgAmount }}</td>
+              <td>{{ row.transactionCount }}</td>
+              <td>{{ row.transactionPercentage }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+
+        <!-- If no data -->
+        <div
+          *ngIf="!overviewLoading && (!upiTxnsData || upiTxnsData.length === 0)"
+          class="text-center text-muted"
+        >
+          No UPI Transactions data available.
+        </div>
+      </div>
+
+      <div *ngSwitchCase="'cash-flow-analysis'">
+        <div *ngIf="overviewLoading" class="text-center my-4">
+          <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <!-- Table -->
+            <p-table
+              *ngIf="!overviewLoading && cashFlowAnalysisData"
+              [value]="cashFlowAnalysisData.cashflowAnalysis.topCreditTxns"
+              [paginator]="true"
+              [rows]="10"
+              responsiveLayout="scroll"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Date</th>
+                  <th>Particulars</th>
+                  <th>Amount</th>
+                  <th>Category</th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-row>
+                <tr>
+                  <td>{{ row.date }}</td>
+                  <td>{{ row.particular }}</td>
+                  <td>{{ row.amount }}</td>
+                  <td>{{ row.categories }}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+
+          <div class="col-md-6">
+            <p-table
+              *ngIf="!overviewLoading && cashFlowAnalysisData"
+              [value]="cashFlowAnalysisData.cashflowAnalysis.topDebitTxns"
+              [paginator]="true"
+              [rows]="10"
+              responsiveLayout="scroll"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Date</th>
+                  <th>Particulars</th>
+                  <th>Amount</th>
+                  <th>Category</th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-row>
+                <tr>
+                  <td>{{ row.date }}</td>
+                  <td>{{ row.particular }}</td>
+                  <td>{{ row.amount }}</td>
+                  <td>{{ row.categories }}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+
+          <div class="col-md-6">
+            <p-table
+              *ngIf="!overviewLoading && cashFlowAnalysisData"
+              [value]="cashFlowAnalysisData.cashflowAnalysis.topUsers"
+              [paginator]="true"
+              [rows]="10"
+              responsiveLayout="scroll"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Counterparty</th>
+                  <th>Total Txn Amount</th>
+                  <th>Total Txn Count</th>
+                  <th>Recurring Txn Amount</th>
+                  <th>Recurring Txn Count</th>
+                  <th>Primary Txn Category</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-row>
+                <tr>
+                  <td>{{ row.counterparty }}</td>
+                  <td>{{ row.totalTxnAmt }}</td>
+                  <td>{{ row.totalTxnCount }}</td>
+                  <td>{{ row.recurringTxnAmt }}</td>
+                  <td>{{ row.recurringTxnCount }}</td>
+                  <td>{{ row.primaryTxnCategory }}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+
+          <div class="col-md-6">
+            <p-table
+              *ngIf="!overviewLoading && cashFlowAnalysisData"
+              [value]="cashFlowAnalysisData.cashflowAnalysis.topSources"
+              [paginator]="true"
+              [rows]="10"
+              responsiveLayout="scroll"
+            >
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Counterparty</th>
+                  <th>Total Txn Amount</th>
+                  <th>Total Txn Count</th>
+                  <th>Recurring Txn Amount</th>
+                  <th>Recurring Txn Count</th>
+                  <th>Primary Txn Category</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-row>
+                <tr>
+                  <td>{{ row.counterparty }}</td>
+                  <td>{{ row.totalTxnAmt }}</td>
+                  <td>{{ row.totalTxnCount }}</td>
+                  <td>{{ row.recurringTxnAmt }}</td>
+                  <td>{{ row.recurringTxnCount }}</td>
+                  <td>{{ row.primaryTxnCategory }}</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+        <!-- If no data -->
+        <div
+          *ngIf="
+            !overviewLoading &&
+            (!cashFlowAnalysisData || cashFlowAnalysisData.length === 0)
+          "
+          class="text-center text-muted"
+        >
+          No Cash Flow Analysis data available.
+        </div>
+      </div>
+    </ng-container>
+    <!-- </p-tabPanel> -->
+    <!-- <p-tabPanel *ngIf="overflowTabs.length">
+      <ng-template pTemplate="header">
+        <i
+          class="overflow-icon fas"
+          [ngClass]="menuOpen ? 'fa-angle-up' : 'fa-angle-down'"
+          #menuButton
+          (click)="toggleOverflowMenu()"
+        ></i>
+      </ng-template>
+    </p-tabPanel> -->
+    <!-- </p-tabView> -->
+    <!-- <p-menu
+    #overflowMenu
+    [model]="overflowMenuItems"
+    [popup]="true"
+    appendTo="body"
+    styleClass="overflow-menu-right"
+    (onShow)="menuOpen = true"
+    (onHide)="menuOpen = false"
+  ></p-menu> -->
+  </div>
+</div>

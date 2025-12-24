@@ -29,7 +29,6 @@
       [lazy]="true"
       (onLazyLoad)="loadAccounts($event)"
       (onRowSelect)="viewAccount($event)"
-      selectionMode="single"
       dataKey="id"
       [showCurrentPageReport]="true"
       [rowsPerPageOptions]="[10, 25, 50]"
@@ -98,7 +97,6 @@
       </ng-template>
       <ng-template pTemplate="body" let-team>
         <tr
-          [pSelectableRow]="team"
           class="text-capitalize"
           [ngClass]="{ 'disabled-row': team.disabled }"
         >

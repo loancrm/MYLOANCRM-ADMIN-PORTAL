@@ -11,7 +11,7 @@ import { MessageService } from 'primeng/api';
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
-  providers: [MessageService]
+  providers: [MessageService],
 })
 export class DashboardComponent implements OnInit {
   leadsCallbacksChartOptions: any;
@@ -84,9 +84,13 @@ export class DashboardComponent implements OnInit {
   userName: string | null = null;
   sanctionedAmounts: number[] = [];
   disbursedAmounts: number[] = [];
-  monthLabels: any = []
+  monthLabels: any = [];
   currentTableEvent: any;
   selectedDropdownOption: any = null;
+  accounts: any = [];
+  accountsCount: any = 0;
+  selectedFollowupDate: any = new Date(); // default today
+
   dateOptions = [
     { label: 'Total', value: 'total' },
     { label: 'Today', value: 'today' },
@@ -107,8 +111,6 @@ export class DashboardComponent implements OnInit {
     private messageService: MessageService
   ) {
     this.moment = this.dateTimeProcessor.getMoment();
-
-
   }
   ngOnInit(): void {
     this.currentMonth = this.getMonthName(0);
@@ -136,7 +138,7 @@ export class DashboardComponent implements OnInit {
       this.greetingMessage = 'Good Evening';
     }
     this.updateCountsAnalytics();
-    this.loadCounts(); 
+    this.loadCounts();
   }
 
   getMonthName(offset: number): string {
@@ -148,22 +150,62 @@ export class DashboardComponent implements OnInit {
     // You can also open a dialog or navigate based on `event.data`
   }
 
+  onLazyLoadData(event) {
+    this.currentTableEvent = event;
+    let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
+    if (this.selectedFollowupDate) {
+      const startOfMonth = this.moment(this.selectedFollowupDate);
+      const endOfMonth = this.moment(this.selectedFollowupDate).add(1, 'day');
+      api_filter['followupDate-gte'] = startOfMonth.format('YYYY-MM-DD'); // e.g. '2025-07-01'
+      api_filter['followupDate-lte'] = endOfMonth.format('YYYY-MM-DD'); // e.g. '2025-07-31'
+    }
+    console.log(api_filter);
+    this.loadAccounts(api_filter);
+  }
+  getTeamCount(filter) {
+    this.leadsService.getAccountsCount(filter).subscribe(
+      (teamsCount) => {
+        this.accountsCount = teamsCount;
+        // console.log(this.accountsCount);
+      },
+      (error: any) => {
+        this.toastService.showError(error);
+      }
+    );
+  }
+  viewAccount(event) {
+    const lead = event.data;
+    this.routingService.handleRoute('accounts/profile/' + lead.accountId, null);
+  }
+  getTeam(filter) {
+    this.apiLoading = true;
+    this.leadsService.getAccounts(filter).subscribe(
+      (team) => {
+        this.accounts = team;
+        this.apiLoading = false;
+      },
+      (error: any) => {
+        this.toastService.showError(error);
+        this.apiLoading = false;
+      }
+    );
+  }
+  loadAccounts(api_filter) {
+    // console.log(event);
 
+    api_filter = Object.assign(
+      {},
+      api_filter
+      // this.searchFilter,
+      // this.appliedFilter
+    );
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    if (api_filter) {
+      // console.log(api_filter);
+      this.getTeamCount(api_filter);
+      this.getTeam(api_filter);
+    }
+  }
 
   updateCountsAnalytics() {
     this.countsAnalytics = [
@@ -176,7 +218,7 @@ export class DashboardComponent implements OnInit {
         backgroundColor: '#EBF3FE',
         color: '#EE7846',
         icon: '../../../assets/images/icons/leads.svg',
-        apiCall: () => this.leadsService.getAccountsCount()
+        apiCall: () => this.leadsService.getAccountsCount(),
       },
       {
         name: 'subscription-plans',
@@ -187,7 +229,7 @@ export class DashboardComponent implements OnInit {
         backgroundColor: '#FBF2EF',
         color: '#FFC001',
         icon: '../../../assets/images/icons/files.svg',
-        apiCall: () => this.leadsService.getPlansCount()
+        apiCall: () => this.leadsService.getPlansCount(),
       },
       {
         name: 'contact-submissions',
@@ -198,7 +240,7 @@ export class DashboardComponent implements OnInit {
         backgroundColor: '#EBF3FE',
         color: '#EE7846',
         icon: '../../../assets/images/icons/leads.svg',
-        apiCall: () => this.leadsService.getContactsCount()
+        apiCall: () => this.leadsService.getContactsCount(),
       },
       {
         name: 'subscribers',
@@ -209,7 +251,7 @@ export class DashboardComponent implements OnInit {
         backgroundColor: '#FBF2EF',
         color: '#FFC001',
         icon: '../../../assets/images/icons/files.svg',
-        apiCall: () => this.leadsService.getSubscibersCount()
+        apiCall: () => this.leadsService.getSubscibersCount(),
       },
       {
         name: 'cibil-reports',
@@ -220,28 +262,28 @@ export class DashboardComponent implements OnInit {
         backgroundColor: '#FBF2EF',
         color: '#FFC001',
         icon: '../../../assets/images/icons/files.svg',
-        apiCall: () => this.leadsService.getFetchedCibilReportsCount()
+        apiCall: () => this.leadsService.getFetchedCibilReportsCount(),
       },
     ];
   }
 
   loadCounts() {
-  const observables = this.countsAnalytics
-    .filter(card => card.apiCall)
-    .map(card => card.apiCall());
+    const observables = this.countsAnalytics
+      .filter((card) => card.apiCall)
+      .map((card) => card.apiCall());
 
-  forkJoin(observables).subscribe({
-    next: (results: any[]) => {
-      results.forEach((res, index) => {
-        this.countsAnalytics[index].count = res?.total || res || 0;
-      });
-      console.log('Dashboard counts:', this.countsAnalytics);
-    },
-    error: (err) => {
-      console.error('Error fetching counts:', err);
-    }
-  });
-}
+    forkJoin(observables).subscribe({
+      next: (results: any[]) => {
+        results.forEach((res, index) => {
+          this.countsAnalytics[index].count = res?.total || res || 0;
+        });
+        console.log('Dashboard counts:', this.countsAnalytics);
+      },
+      error: (err) => {
+        console.error('Error fetching counts:', err);
+      },
+    });
+  }
 
   goToRoute(route) {
     this.routingService.setFeatureRoute('admin');

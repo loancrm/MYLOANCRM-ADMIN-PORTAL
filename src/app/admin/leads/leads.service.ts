@@ -5,8 +5,10 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import axios from 'axios';
 import { io, Socket } from 'socket.io-client';
 import { projectConstantsLocal } from 'src/app/constants/project-constants';
-import { BehaviorSubject } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Router } from '@angular/router';
+
 @Injectable({
   providedIn: 'root',
 })
@@ -15,14 +17,15 @@ export class LeadsService {
   status: any;
   private sidebarVisible = new BehaviorSubject<boolean>(true);
   sidebarVisible$ = this.sidebarVisible.asObservable();
-
+  baseUrl = projectConstantsLocal.BASE_URL;
   // private socket: Socket;
   private readonly IP_CACHE_DURATION = 5 * 60 * 1000;
   constructor(
     private dateTimeProcessor: DateTimeProcessorService,
     private serviceMeta: ServiceMeta,
     private localStorageService: LocalStorageService,
-    private http: HttpClient
+    private http: HttpClient,
+    private router: Router
   ) {
     this.moment = this.dateTimeProcessor.getMoment();
   }
@@ -122,7 +125,9 @@ export class LeadsService {
     return phoneStr.replace(/^(\d{6})(\d{4})$/, '******$2');
   }
   checkPhoneNumberExists(phone: string) {
-    return this.http.get<{ exists: boolean }>(`/api/leads/check-phone?phone=${phone}`);
+    return this.http.get<{ exists: boolean }>(
+      `/api/leads/check-phone?phone=${phone}`
+    );
   }
   createLead(data) {
     const url = 'leads';
@@ -153,7 +158,7 @@ export class LeadsService {
     return this.serviceMeta.httpGet(url, null, filters);
   }
   getActivitiesCount(filters) {
-    const url = 'accounts/activity/total'
+    const url = 'accounts/activity/total';
     return this.serviceMeta.httpGet(url, null, filters);
   }
 
@@ -163,7 +168,7 @@ export class LeadsService {
     return this.serviceMeta.httpGet(url, null, filters);
   }
   getSubscriptionsCount(filters) {
-    const url = 'accounts/subscriptions/total'
+    const url = 'accounts/subscriptions/total';
     return this.serviceMeta.httpGet(url, null, filters);
   }
 
@@ -173,13 +178,16 @@ export class LeadsService {
     return this.serviceMeta.httpGet(url, null, filters);
   }
   addRemarks(accountId, note: any) {
-    return this.serviceMeta.httpPost(`accounts/remarks/${accountId}/notes`, note);
+    return this.serviceMeta.httpPost(
+      `accounts/remarks/${accountId}/notes`,
+      note
+    );
   }
   getNotes(accountId) {
     return this.serviceMeta.httpGet(`accounts/remarks/${accountId}/notes`);
   }
   getTransactionsCount(filters) {
-    const url = 'accounts/transactions/total'
+    const url = 'accounts/transactions/total';
     return this.serviceMeta.httpGet(url, null, filters);
   }
   getAccountsCount(filter = {}) {
@@ -220,7 +228,7 @@ export class LeadsService {
     return this.serviceMeta.httpGet(url, null, filter);
   }
   getSocilaMediaCount(filter = {}) {
-    const url = 'social-media-leads/socialmedialeadsCount'
+    const url = 'social-media-leads/socialmedialeadsCount';
     return this.serviceMeta.httpGet(url, null, filter);
   }
 
@@ -251,14 +259,10 @@ export class LeadsService {
     return this.serviceMeta.httpGet(url, null, filter);
   }
 
-
   getPlanById(leadId, filter = {}) {
     const url = 'subscriptionPlans/' + leadId;
     return this.serviceMeta.httpGet(url, null, filter);
   }
-
-
-
 
   getReportsCount(filter = {}) {
     const url = 'reports/reportsCount';
@@ -287,7 +291,7 @@ export class LeadsService {
   //   const url = `files/upload?type=${type}&leadId=${leadId}`;
   //   return this.serviceMeta.httpPost(url, data);
   // }
-  uploadFiles(data: FormData, leadId, type = 'default', accountId: string,) {
+  uploadFiles(data: FormData, leadId, type = 'default', accountId: string) {
     // console.log(FormData);
     // console.log(data);
     // const url = `http://localhost/files?type=${type}&leadId=${leadId}&accountId=${accountId}`
@@ -426,5 +430,269 @@ export class LeadsService {
       }
     }
     return api_filter;
+  }
+  getBSAReports(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}api/admin-reports`);
+  }
+
+  searchBanks(search: string) {
+    return this.http.get<any[]>('api/banks?search=' + search);
+  }
+
+  // extractBankDetails(file: File) {
+  //   const formData = new FormData();
+  //   formData.append('file', file);
+
+  //   return this.http.post<any>('api/extract-bank-details', formData);
+  // }
+  extractSummaryDetails(params) {
+    return this.http.get<any>(`${this.baseUrl}api/summary`, {
+      params,
+    });
+  }
+
+  extractOverviewDetails(params) {
+    return this.http.get<any>(`${this.baseUrl}api/overview`, {
+      params,
+    });
+  }
+  extractTransactions(params, filters) {
+    return this.http.post<any>(`${this.baseUrl}api/transactions`, filters, {
+      params,
+    });
+  }
+  extractIrregularities(params) {
+    return this.http.get<any>(`${this.baseUrl}api/irregularities`, {
+      params,
+    });
+  }
+
+  extractCounterparty(params) {
+    return this.http.get<any>(`${this.baseUrl}api/counterparty`, {
+      params,
+    });
+  }
+  extractDailyBalance(params) {
+    return this.http.get<any>(`${this.baseUrl}api/dailyBalance`, {
+      params,
+    });
+  }
+  extractCategories(params) {
+    return this.http.get<any>(`${this.baseUrl}api/categories`, {
+      params,
+    });
+  }
+  extractBouncedChequeDetails(params) {
+    return this.http.get<any>(`${this.baseUrl}api/bouncedCheque`, {
+      params,
+    });
+  }
+  extractCashFlowDetails(params) {
+    return this.http.get<any>(`${this.baseUrl}api/cashflow`, {
+      params,
+    });
+  }
+
+  extractBusinessCashFlowDetails(params) {
+    return this.http.get<any>(`${this.baseUrl}api/businessCashFlow`, {
+      params,
+    });
+  }
+  extractDuplicateTransactions(params) {
+    return this.http.get<any>(`${this.baseUrl}api/duplicateTxns`, {
+      params,
+    });
+  }
+
+  extractPatternDetails(params) {
+    return this.http.get<any>(`${this.baseUrl}api/patterns`, {
+      params,
+    });
+  }
+  extractOdCCUtilization(params) {
+    return this.http.get<any>(`${this.baseUrl}api/utilization`, {
+      params,
+    });
+  }
+  extractAvailableBalance(params) {
+    return this.http.get<any>(`${this.baseUrl}api/closingBalance`, {
+      params,
+    });
+  }
+  extractTransactionSummary(params) {
+    return this.http.get<any>(`${this.baseUrl}api/transactionSummary`, {
+      params,
+    });
+  }
+
+  extractAMLAnalysis(params) {
+    return this.http.get<any>(`${this.baseUrl}api/amlAnalysis`, {
+      params,
+    });
+  }
+  extractUPIAnalysis(params) {
+    return this.http.get<any>(`${this.baseUrl}api/UPIAnalysis`, {
+      params,
+    });
+  }
+
+  extractLoanAnalysis(params) {
+    return this.http.get<any>(`${this.baseUrl}api/loanAnalysis`, {
+      params,
+    });
+  }
+  extractCashFlowAnalysis(params) {
+    return this.http.get<any>(`${this.baseUrl}api/cashflowAnalysis`, {
+      params,
+    });
+  }
+  extractInterBankTransfers(params) {
+    return this.http.get<any>(`${this.baseUrl}api/intraBankFundTransfer`, {
+      params,
+    });
+  }
+  extractCircularTransactions(params) {
+    return this.http.get<any>(`${this.baseUrl}api/circularTransactions`, {
+      params,
+    });
+  }
+
+  extractMonthlyCounterParty(params) {
+    return this.http.get<any>(`${this.baseUrl}api/monthlyCounterparty`, {
+      params,
+    });
+  }
+  // downloadCamFile(accountId?: string) {
+  //   return this.http.get(`${this.baseUrl}api/camdownload`, {
+  //     params: {
+  //       accountId: accountId ?? '',
+  //     },
+  //     responseType: 'arraybuffer' // 👈 important for file download
+  //   });
+  // }
+  downloadCamFile(accountReferenceNumber) {
+    return `${this.baseUrl}api/camdownload?accountReferenceNumber=${accountReferenceNumber}`;
+  }
+  // extractBankDetails(files: File[],params: { password: string }): Observable<any> {
+  //   const formData = new FormData();
+  //   files.forEach(file => {
+  //     formData.append('file', file);
+  //   });
+
+  //   return this.http.post<any>(`${this.baseUrl}api/extract-bank-details`, formData,  { params });
+  // }
+  extractBankDetails(
+    files: File[],
+    params?: { password?: string }
+  ): Observable<any> {
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append('file', file);
+    });
+
+    let httpParams = new HttpParams();
+    if (params?.password) {
+      httpParams = httpParams.set('password', params.password); // ✅ only if exists
+    }
+
+    return this.http.post<any>(
+      `${this.baseUrl}api/extract-bank-details`,
+      formData,
+      { params: httpParams }
+    );
+  }
+
+  /**
+   * Searches banks by query string
+   */
+  fetchBanks(query: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}api/extract-bank`, {
+      params: { q: query },
+    });
+  }
+
+  /**
+   * Creates a report with JSON + attached files
+   */
+  createReport(report: any, files: File[]): Observable<any> {
+    const formData = new FormData();
+
+    // JSON → plain string field
+    formData.append('report', JSON.stringify(report));
+
+    // Files
+    files.forEach((f) => {
+      formData.append('file', f, f.name);
+    });
+
+    return this.http.post<any>(`${this.baseUrl}api/create-report`, formData, {
+      reportProgress: true,
+      observe: 'body',
+    });
+  }
+  updateReport(report: any, files: File[]): Observable<any> {
+    const formData = new FormData();
+
+    // JSON → plain string field
+    formData.append('report', JSON.stringify(report));
+
+    // Files
+    files.forEach((f) => {
+      formData.append('file', f, f.name);
+    });
+
+    // Use PUT or PATCH depending on backend API
+    return this.http.post<any>(`${this.baseUrl}api/update-report`, formData, {
+      reportProgress: true,
+      observe: 'body',
+    });
+  }
+  fetchReport(params): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}api/fetch-report`, { params });
+  }
+
+  loginAsProvider(accountId: string): Observable<any> {
+    const url = 'admin/provider-login';
+    const body = { accountId };
+    return this.serviceMeta.httpPost(url, body);
+  }
+  updateAccountFollowupDate(accountId, data) {
+    return this.serviceMeta.httpPut('accounts/followup-date/' + accountId, data);
+  }
+  loginAsProviderAndRedirect(
+    accountId: string,
+    targetDomain: string = 'app.myloancrm.com'
+  ): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      this.loginAsProvider(accountId).subscribe(
+        (response: any) => {
+          if (response.success && response.accessToken) {
+            // Encode token and user data for URL
+            const token = encodeURIComponent(response.accessToken);
+            const userData = response.user
+              ? encodeURIComponent(JSON.stringify(response.user))
+              : '';
+
+            // Build redirect URL with token
+            let redirectUrl = `http://localhost:4200/user/dashboard`;
+            redirectUrl += `?token=${token}`;
+            if (userData) {
+              redirectUrl += `&user=${userData}`;
+            }
+
+            // Redirect to external domain
+            window.location.href = redirectUrl;
+
+            resolve(true);
+          } else {
+            reject(new Error(response.message || 'Login failed'));
+          }
+        },
+        (error) => {
+          console.error('Provider login error:', error);
+          reject(error);
+        }
+      );
+    });
   }
 }
