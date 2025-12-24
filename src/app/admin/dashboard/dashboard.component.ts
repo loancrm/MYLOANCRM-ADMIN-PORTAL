@@ -135,7 +135,8 @@ export class DashboardComponent implements OnInit {
     } else {
       this.greetingMessage = 'Good Evening';
     }
-    this.updateCountsAnalytics()
+    this.updateCountsAnalytics();
+    this.loadCounts(); 
   }
 
   getMonthName(offset: number): string {
@@ -174,7 +175,8 @@ export class DashboardComponent implements OnInit {
         condition: true,
         backgroundColor: '#EBF3FE',
         color: '#EE7846',
-        icon: '../../../assets/images/icons/leads.svg'
+        icon: '../../../assets/images/icons/leads.svg',
+        apiCall: () => this.leadsService.getAccountsCount()
       },
       {
         name: 'subscription-plans',
@@ -184,7 +186,8 @@ export class DashboardComponent implements OnInit {
         condition: true,
         backgroundColor: '#FBF2EF',
         color: '#FFC001',
-        icon: '../../../assets/images/icons/files.svg'
+        icon: '../../../assets/images/icons/files.svg',
+        apiCall: () => this.leadsService.getPlansCount()
       },
       {
         name: 'contact-submissions',
@@ -194,7 +197,8 @@ export class DashboardComponent implements OnInit {
         condition: true,
         backgroundColor: '#EBF3FE',
         color: '#EE7846',
-        icon: '../../../assets/images/icons/leads.svg'
+        icon: '../../../assets/images/icons/leads.svg',
+        apiCall: () => this.leadsService.getContactsCount()
       },
       {
         name: 'subscribers',
@@ -204,7 +208,8 @@ export class DashboardComponent implements OnInit {
         condition: true,
         backgroundColor: '#FBF2EF',
         color: '#FFC001',
-        icon: '../../../assets/images/icons/files.svg'
+        icon: '../../../assets/images/icons/files.svg',
+        apiCall: () => this.leadsService.getSubscibersCount()
       },
       {
         name: 'cibil-reports',
@@ -214,13 +219,29 @@ export class DashboardComponent implements OnInit {
         condition: true,
         backgroundColor: '#FBF2EF',
         color: '#FFC001',
-        icon: '../../../assets/images/icons/files.svg'
+        icon: '../../../assets/images/icons/files.svg',
+        apiCall: () => this.leadsService.getFetchedCibilReportsCount()
       },
     ];
   }
 
+  loadCounts() {
+  const observables = this.countsAnalytics
+    .filter(card => card.apiCall)
+    .map(card => card.apiCall());
 
-
+  forkJoin(observables).subscribe({
+    next: (results: any[]) => {
+      results.forEach((res, index) => {
+        this.countsAnalytics[index].count = res?.total || res || 0;
+      });
+      console.log('Dashboard counts:', this.countsAnalytics);
+    },
+    error: (err) => {
+      console.error('Error fetching counts:', err);
+    }
+  });
+}
 
   goToRoute(route) {
     this.routingService.setFeatureRoute('admin');
