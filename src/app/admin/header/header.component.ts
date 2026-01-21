@@ -10,7 +10,7 @@ import { RoutingService } from 'src/app/services/routing-service';
 import { ConfirmationService } from 'primeng/api';
 import { DateTimeProcessorService } from 'src/app/services/date-time-processor.service';
 import { MatDialog } from '@angular/material/dialog';
-import { BulkWhatsappModalComponent } from 'src/app/admin/bulk-whatsapp-modal/bulk-whatsapp-modal.component';
+// import { BulkWhatsappModalComponent } from 'src/app/admin/bulk-whatsapp-modal/bulk-whatsapp-modal.component';
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
