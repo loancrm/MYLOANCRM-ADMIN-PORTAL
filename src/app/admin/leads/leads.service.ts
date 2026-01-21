@@ -177,6 +177,17 @@ export class LeadsService {
     console.log('Fetching activities with filters:', filters);
     return this.serviceMeta.httpGet(url, null, filters);
   }
+  // getWalletTransactions(accountId, filter = {}) {
+  //   const url = 'wallet/transactions/' + accountId;
+  //   console.log('Fetching wallet transactions with filters:', filter);
+  //   return this.serviceMeta.httpGet(url, null, filter);
+  // }
+  getWalletTransactionsByAccountId(accountId: string) {
+  return this.http.get(
+    `wallet/transactions/${accountId}`
+  );
+}
+
   addRemarks(accountId, note: any) {
     return this.serviceMeta.httpPost(
       `accounts/remarks/${accountId}/notes`,
@@ -196,6 +207,10 @@ export class LeadsService {
   }
   getContactsCount(filter = {}) {
     const url = 'contactus/total';
+    return this.serviceMeta.httpGet(url, null, filter);
+  }
+  getTeamCounts(filter = {}) {
+    const url = 'adminusers/total';
     return this.serviceMeta.httpGet(url, null, filter);
   }
   getSubscibersCount(filter = {}) {
@@ -696,4 +711,51 @@ export class LeadsService {
       );
     });
   }
+
+     getWhatsAppTemplates() {
+    const url = 'emovur/templates';
+    return this.serviceMeta.httpGet(url);
+  }
+  postSingleWhatsAppMsg(data) {
+    const url = 'emovur/send-message';
+    return this.serviceMeta.httpPost(url,data);
+  }
+
+  postWhatsAppMsgBulk(data) {
+    const url = 'emovur/send-message/bulk';
+    return this.serviceMeta.httpPost(url,data);
+  }
+
+  getWhatsAppMessages() {
+    const url = 'emovur/templates';
+    return this.serviceMeta.httpGet(url);
+  }
+
+  changeAccountInternalStatus(accountId: number, statusId: number) {
+    const url = `accounts/${accountId}/changestatus/${statusId}`;
+    return this.serviceMeta.httpPut(url, null);
+  }
+
+   getUsers(filter = {}) {
+    const url = 'adminusers';
+    return this.serviceMeta.httpGet(url, null, filter);
+  }
+
+  getUserById(id: number) {
+    const url = 'adminusers/' + id;
+    return this.serviceMeta.httpGet(url);
+  }
+
+
+
+  createUser(data: any) {
+    const url = 'adminusers';
+    return this.serviceMeta.httpPost(url, data);
+  }
+
+  updateUser(id: number, data: any) {
+    const url = 'adminusers/' + id;
+    return this.serviceMeta.httpPut(url, data);
+  }
+  
 }

@@ -55,6 +55,7 @@ export class DashboardComponent implements OnInit {
   totalRejectsCount: any = 0;
   totalMonthLeadsCount: any = 0;
   totalMonthCallbacksCount: any = 0;
+  createdAccountsCount: number = 0;
   countsAnalytics: any[] = [];
   dropdownOptions: any[] = [];
   bardropdownOptions: any[] = [];
@@ -90,7 +91,16 @@ export class DashboardComponent implements OnInit {
   accounts: any = [];
   accountsCount: any = 0;
   selectedFollowupDate: any = new Date(); // default today
-
+  selectedCreatedDate: any = new Date();
+  todayAccounts: any= [];
+  createdAccounts: any = [];
+  todayContacts: any= [];
+  todayContactsCount: number = 0;
+  selectedSubmittedDate: any = new Date(); 
+  todaySubscribers: any = [];
+  todaySubscribersCount: number = 0;
+  selectedSubscribedDate: any = new Date(); // today
+  
   dateOptions = [
     { label: 'Total', value: 'total' },
     { label: 'Today', value: 'today' },
@@ -139,6 +149,7 @@ export class DashboardComponent implements OnInit {
     }
     this.updateCountsAnalytics();
     this.loadCounts();
+    this.onLazyLoadCreated({ first: 0, rows: 10 });
   }
 
   getMonthName(offset: number): string {
@@ -150,18 +161,243 @@ export class DashboardComponent implements OnInit {
     // You can also open a dialog or navigate based on `event.data`
   }
 
+  // onLazyLoadData(event) {
+  //   this.currentTableEvent = event;
+  //   let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
+  //   if (this.selectedFollowupDate) {
+  //     const startOfMonth = this.moment(this.selectedFollowupDate);
+  //     const endOfMonth = this.moment(this.selectedFollowupDate).add(1, 'day');
+  //     api_filter['followupDate-gte'] = startOfMonth.format('YYYY-MM-DD'); // e.g. '2025-07-01'
+  //     api_filter['followupDate-lte'] = endOfMonth.format('YYYY-MM-DD'); // e.g. '2025-07-31'
+      
+  //   }
+  //   console.log(api_filter);
+  //   this.loadAccounts(api_filter);
+  // }
+
   onLazyLoadData(event) {
-    this.currentTableEvent = event;
-    let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
-    if (this.selectedFollowupDate) {
-      const startOfMonth = this.moment(this.selectedFollowupDate);
-      const endOfMonth = this.moment(this.selectedFollowupDate).add(1, 'day');
-      api_filter['followupDate-gte'] = startOfMonth.format('YYYY-MM-DD'); // e.g. '2025-07-01'
-      api_filter['followupDate-lte'] = endOfMonth.format('YYYY-MM-DD'); // e.g. '2025-07-31'
-    }
-    console.log(api_filter);
-    this.loadAccounts(api_filter);
+  this.currentTableEvent = event;
+  let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
+
+  if (this.selectedFollowupDate) {
+    const start = this.moment(this.selectedFollowupDate);
+    const end = this.moment(this.selectedFollowupDate).add(1, 'day');
+
+    api_filter['followupDate-gte'] = start.format('YYYY-MM-DD');
+    api_filter['followupDate-lte'] = end.format('YYYY-MM-DD');
   }
+
+  console.log('FOLLOWUP API FILTER:', api_filter); // ✅ console check
+  this.loadFollowupAccounts(api_filter);
+}
+
+  // onLazyLoadCreated(event) {
+  //   this.currentTableEvent = event;
+  //   let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
+  //   if (this.selectedCreatedDate) {
+  //     const startOfMonth = this.moment(this.selectedCreatedDate);
+  //     const endOfMonth = this.moment(this.selectedCreatedDate).add(1, 'day');
+  //     api_filter['createdOn-gte'] = startOfMonth.format('YYYY-MM-DD'); // e.g. '2025-07-01'
+  //     api_filter['createdOn-lte'] = endOfMonth.format('YYYY-MM-DD'); // e.g. '2025-07-31'
+      
+  //   }
+  //   console.log(api_filter);
+  //   this.loadAccounts(api_filter);
+  // }
+  onLazyLoadCreated(event) {
+  this.currentTableEvent = event;
+  let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
+
+  if (this.selectedCreatedDate) {
+    const start = this.moment(this.selectedCreatedDate);
+    const end = this.moment(this.selectedCreatedDate).add(1, 'day');
+
+    api_filter['createdOn-gte'] = start.format('YYYY-MM-DD');
+    api_filter['createdOn-lte'] = end.format('YYYY-MM-DD');
+  }
+
+  console.log('CREATED API FILTER:', api_filter); // ✅ console first check
+  this.loadCreatedAccounts(api_filter);
+}
+loadFollowupAccounts(api_filter) {
+  this.apiLoading = true;
+
+  this.leadsService.getAccountsCount(api_filter).subscribe(
+    (countRes: any) => {
+      this.accountsCount = Number(countRes) || 0;
+    }
+  );
+
+  this.leadsService.getAccounts(api_filter).subscribe(
+    (res) => {
+      this.accounts = res;
+      this.apiLoading = false;
+    },
+    (err) => {
+      this.toastService.showError(err);
+      this.apiLoading = false;
+    }
+  );
+}
+
+
+// loadFollowupAccounts(api_filter) {
+//   this.apiLoading = true;
+
+//   this.leadsService.getAccounts(api_filter).subscribe(
+//     (res) => {
+//       console.log('FOLLOWUP DATA:', res); // ✅ confirm data
+//       this.accounts = res;
+//       this.apiLoading = false;
+//     },
+//     (err) => {
+//       this.toastService.showError(err);
+//       this.apiLoading = false;
+//     }
+//   );
+// }
+loadCreatedAccounts(api_filter) {
+  this.apiLoading = true;
+
+  this.leadsService.getAccountsCount(api_filter).subscribe(
+    (countRes: any) => {
+      this.createdAccountsCount = Number(countRes) || 0;
+    }
+  );
+
+  this.leadsService.getAccounts(api_filter).subscribe(
+    (res) => {
+      this.createdAccounts = res;
+      this.apiLoading = false;
+    },
+    (err) => {
+      this.toastService.showError(err);
+      this.apiLoading = false;
+    }
+  );
+}
+
+// loadCreatedAccounts(api_filter) {
+//   this.apiLoading = true;
+
+//   this.leadsService.getAccounts(api_filter).subscribe(
+//     (res) => {
+//       console.log('CREATED DATA:', res); // ✅ FIRST data check
+//       this.createdAccounts = res;       // ✅ FIX
+//       this.apiLoading = false;
+//     },
+//     (err) => {
+//       this.toastService.showError(err);
+//       this.apiLoading = false;
+//     }
+//   );
+// }
+onLazyLoadTodayContacts(event) {
+  let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
+
+  if (this.selectedSubmittedDate) {
+    const start = this.moment(this.selectedSubmittedDate);
+    const end = this.moment(this.selectedSubmittedDate).add(1, 'day');
+
+    api_filter['submitted_on-gte'] = start.format('YYYY-MM-DD');
+    api_filter['submitted_on-lte'] = end.format('YYYY-MM-DD');
+  }
+
+  console.log('TODAY CONTACTS FILTER:', api_filter); // ✅ console check
+  this.loadTodayContacts(api_filter);
+}
+loadTodayContacts(api_filter) {
+  this.apiLoading = true;
+
+  // ✅ COUNT API
+  this.leadsService.getContactsCount(api_filter).subscribe(
+    (countRes: any) => {
+      this.todayContactsCount = Number(countRes) || 0;
+    }
+  );
+
+  // ✅ DATA API
+  this.leadsService.getContacts(api_filter).subscribe(
+    (res) => {
+      this.todayContacts = res;
+      this.apiLoading = false;
+    },
+    (err) => {
+      this.toastService.showError(err);
+      this.apiLoading = false;
+    }
+  );
+}
+
+// loadTodayContacts(api_filter) {
+//   this.apiLoading = true;
+
+//   this.leadsService.getContacts(api_filter).subscribe(
+//     (res) => {
+//       console.log('TODAY CONTACTS DATA:', res); // ✅ data check
+//       this.todayContacts = res;
+//       this.apiLoading = false;
+//     },
+//     (err) => {
+//       this.toastService.showError(err);
+//       this.apiLoading = false;
+//     }
+//   );
+// }
+onLazyLoadTodaySubscribers(event) {
+  let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
+
+  if (this.selectedSubscribedDate) {
+    const start = this.moment(this.selectedSubscribedDate);
+    const end = this.moment(this.selectedSubscribedDate).add(1, 'day');
+
+    api_filter['subscribed_on-gte'] = start.format('YYYY-MM-DD');
+    api_filter['subscribed_on-lte'] = end.format('YYYY-MM-DD');
+  }
+
+  console.log('TODAY SUBSCRIBERS FILTER:', api_filter); // ✅ debug
+  this.loadTodaySubscribers(api_filter);
+}
+loadTodaySubscribers(api_filter) {
+  this.apiLoading = true;
+
+  // ✅ COUNT API
+  this.leadsService.getSubscibersCount(api_filter).subscribe(
+    (countRes: any) => {
+      this.todaySubscribersCount = Number(countRes) || 0;
+    }
+  );
+
+  // ✅ DATA API
+  this.leadsService.getsubscribers(api_filter).subscribe(
+    (res) => {
+      this.todaySubscribers = res;
+      this.apiLoading = false;
+    },
+    (err) => {
+      this.toastService.showError(err);
+      this.apiLoading = false;
+    }
+  );
+}
+
+// loadTodaySubscribers(api_filter) {
+//   this.apiLoading = true;
+
+//   this.leadsService.getsubscribers(api_filter).subscribe(
+//     (res) => {
+//       console.log('TODAY SUBSCRIBERS DATA:', res); // ✅ confirm data
+//       this.todaySubscribers = res;
+//       this.apiLoading = false;
+//     },
+//     (err) => {
+//       this.toastService.showError(err);
+//       this.apiLoading = false;
+//     }
+//   );
+// }
+
+
   getTeamCount(filter) {
     this.leadsService.getAccountsCount(filter).subscribe(
       (teamsCount) => {

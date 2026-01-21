@@ -38,6 +38,7 @@ export class ProfileComponent implements OnInit {
   currentTableEvent: any;
   subscriptions: any[] = [];
   activities: any[] = [];
+  walletTransactions: any[] = [];
   filterConfig: any[] = [];
   loading: boolean = false;
   searchFilter: any = {};
@@ -189,6 +190,25 @@ export class ProfileComponent implements OnInit {
       }
     );
   }
+  loadWalletTransactions(event: any) {
+  this.loading = true;
+
+  this.leadService
+    .getWalletTransactionsByAccountId(this.accountId)
+    .subscribe(
+      (res: any) => {
+        this.walletTransactions = res.transactions || [];
+        console.log(this.walletTransactions);
+        
+        // this.walletTransactionsCount = res.count || 0;
+        this.loading = false;
+      },
+      (error: any) => {
+        this.loading = false;
+        this.toastService.showError(error);
+      }
+    );
+}
 
   loadSubscriptions(event: any) {
     this.currentTableEvent = event;

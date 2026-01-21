@@ -9,7 +9,8 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { RoutingService } from 'src/app/services/routing-service';
 import { ConfirmationService } from 'primeng/api';
 import { DateTimeProcessorService } from 'src/app/services/date-time-processor.service';
-
+import { MatDialog } from '@angular/material/dialog';
+import { BulkWhatsappModalComponent } from 'src/app/admin/bulk-whatsapp-modal/bulk-whatsapp-modal.component';
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
@@ -50,6 +51,7 @@ export class HeaderComponent implements OnInit {
     private subscriptionService: SubscriptionService,
     private routingService: RoutingService,
     private dateTimeProcessor: DateTimeProcessorService,
+    private dialog: MatDialog,
   ) {
     this.moment = this.dateTimeProcessor.getMoment();
     this.leadsService.sidebarVisible$.subscribe((collapsed) => {
@@ -135,9 +137,17 @@ export class HeaderComponent implements OnInit {
   //   this.notifications = [];
   //   this.notificationCount = 0;
   // }
+  openModalBulk(): void {
+    this.router.navigate(['bulk-whatsapp']);
+  }
 
-
-
+//  openModalBulk(): void {
+//       this.dialog.open(BulkWhatsappModalComponent, {
+//         width: '80%',
+//         height:'80%',
+//         data: {},
+//       });
+//     }
 
   showSidebarMenu() {
     this.showSidebar = !this.showSidebar;

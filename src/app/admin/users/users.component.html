@@ -1,0 +1,131 @@
+<div>
+  <!-- Header -->
+  <div class="p-1 m-2 fixed-card">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <b><span class="back-btn-text">Users</span></b>
+      </div>
+
+      <button
+        pButton
+        pRipple
+        type="button"
+        class="p-button-primary"
+        icon="pi pi-plus"
+        (click)="goToCreate()"
+      >
+        &nbsp;Add User
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="m-2">
+    <p-table
+      #userTable
+      [value]="users"
+      [paginator]="true"
+      [rows]="10"
+      (onLazyLoad)="loadAccounts($event)"
+      [rowsPerPageOptions]="[10,25,50]"
+      [loading]="apiLoading"
+      class="p-datatable-striped"
+      responsiveLayout="scroll"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Users"
+      [showCurrentPageReport]="true"
+      [globalFilterFields]="[
+        'name',
+        'phone',
+        'email'
+      ]"
+    >
+      <!-- Search -->
+      <ng-template pTemplate="caption">
+        <div class="row">
+          <div class="col-md-3 mt-2">
+            <input
+              type="text"
+              pInputText
+              placeholder="Search by Name"
+              [(ngModel)]="userNameToSearch"
+              (ngModelChange)="
+                  inputValueChangeEvent('loanId', userNameToSearch)
+                "
+              (keyup.enter)="filterWithName()"
+            />
+            <button
+              type="button"
+              pButton
+              class="p-button-primary search-btn"
+              [disabled]="!userNameToSearch"
+              (click)="filterWithName()"
+            >
+              <img
+                src="assets/images/icons/search.svg"
+                alt="Search"
+                width="16"
+                height="16"
+                style="vertical-align: middle"
+              />
+            </button>
+          </div>
+        </div>
+      </ng-template>
+
+      <!-- Header -->
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Role</th>
+          <th>Created Date</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+
+      <!-- Body -->
+      <ng-template pTemplate="body" let-user>
+        <tr>
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.phone }}</td>
+          <td>{{ user.role === '1' ? 'Admin' : 'Sales' }}</td>
+          <td>{{ user.created_on | date }}</td>
+          <td>
+            <img
+              src="../../../assets/images/icons/edit.svg"
+              width="22"
+              class="pointer-cursor me-2"
+              pTooltip="Edit User"
+              (click)="editUser(user.id)"
+            />
+          </td>
+        </tr>
+      </ng-template>
+
+      <!-- Empty -->
+      <ng-template pTemplate="emptymessage">
+        <tr class="text-center">
+          <td colspan="10" class="text-center fw-bold">
+            <p
+              style="
+                color: #535ab4;
+                font-weight: 400;
+                font-size: 18px;
+              "
+            >
+              No Data Found
+            </p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

@@ -66,11 +66,6 @@ export class ContactSubmissionsComponent {
     return menuItems;
   }
 
-
-
-
-
-
   getStatusColor(status: string): {
     textColor: string;
     backgroundColor: string;
@@ -168,7 +163,7 @@ export class ContactSubmissionsComponent {
   }
 
   filterWithName() {
-    let searchFilter = { 'name-like': this.userNameToSearch };
+    let searchFilter = { 'full_name-like': this.userNameToSearch };
     this.applyFilters(searchFilter);
   }
 

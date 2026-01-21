@@ -99,4 +99,60 @@ export class CamReportsComponent {
       this.dt.filterGlobal(target.value, 'contains');
     }
   }
+
+  exportBSAReportsToCSV() {
+  const headers = [
+    'Account ID',
+    'Report ID',
+    'Report Name',
+    'Account Number',
+    'Account Type',
+    'Bank ID',
+    'Status',
+    'Lead ID',
+    'Created On',
+    'Updated On',
+    'Created By'
+  ];
+
+  const rows = this.reports.map((report: any) => [
+    report.accountId || '',
+    report.reportId || '',
+    report.reportName || '',
+    report.accountNumber || '',
+    this.getAccountTypeName(report.accountType),
+    report.bankId || '',
+    report.reportStatus || '',
+    report.leadId || '',
+    report.createdOn
+      ? new Date(report.createdOn).toLocaleString()
+      : '',
+    report.updatedOn
+      ? new Date(report.updatedOn).toLocaleString()
+      : '',
+    report.createdBy || ''
+  ]);
+
+  const csvContent =
+    headers.join(',') +
+    '\n' +
+    rows.map(r => r.map(this.escapeCSVValue).join(',')).join('\n');
+
+  const blob = new Blob([csvContent], {
+    type: 'text/csv;charset=utf-8;'
+  });
+
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'BSA_Reports.csv';
+  link.click();
+}
+
+escapeCSVValue(value: any) {
+  if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+    value = `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+}
+
 }

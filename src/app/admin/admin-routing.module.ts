@@ -24,6 +24,11 @@ const routes: Routes = [
         loadChildren: () =>
           import('./accounts/accounts.module').then((m) => m.AccountsModule),
       },
+    //   {
+    //   path: 'bulk-whatsapp',
+    //   loadChildren: () =>
+    //     import('./bulk-whatsapp-modal/bulk-whatsapp-modal.module').then((m) => m.BulkWhatsappModalModule),
+    // },
       {
         path: 'subscription-plans',
         loadChildren: () =>
@@ -70,6 +75,12 @@ const routes: Routes = [
         loadChildren: () =>
           import('./social-media-leads/social-media-leads.module').then((m) => m.SocialMediaLeadsModule),
       },
+      {
+        path: 'users',
+        loadChildren: () =>
+          import('./users/users.module').then(m => m.UsersModule),
+      },
+
     ],
   },
 ];

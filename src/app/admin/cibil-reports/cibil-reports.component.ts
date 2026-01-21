@@ -173,4 +173,115 @@ export class CibilReportsComponent {
     );
     this.loadCibilReports(this.currentTableEvent);
   }
+
+  exportCibilReportsToCSV() {
+  const headers = [
+    'Account Id',
+    'Name',
+    'Mobile',
+    'Pan',
+    'City',
+    'Aadhar',
+    'Gender',
+    'Consent',
+    'Credit Score',
+    'Status',
+    'Download URL',
+    'Created On'
+  ];
+
+  const rows = this.accounts.map((report: any) => [
+    report.accountId || '',
+    report.name || '',
+    report.mobile || '',
+    report.pan || '',
+    report.city || '',
+    report.aadhar_number || '',
+    report.gender || '',
+    report.consent || '',
+    report.credit_score || '',
+    report.status || '',
+    report.uploaded_url ? `https://${report.uploaded_url}` : '',
+    report.created_at
+      ? new Date(report.created_at).toLocaleDateString()
+      : ''
+  ]);
+
+  const csvContent =
+    headers.join(',') +
+    '\n' +
+    rows.map(r => r.map(this.escapeCSVValue).join(',')).join('\n');
+
+  const blob = new Blob([csvContent], {
+    type: 'text/csv;charset=utf-8;'
+  });
+
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'Cibil_Reports.csv';
+  link.click();
+}
+escapeCSVValue(value: any) {
+  if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+    value = `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+}
+
+//   exportCibilReportsToCSV() {
+//   const headers = [
+//     'Account Id',
+//     'Name',
+//     'Mobile',
+//     'Pan',
+//     'City',
+//     'Aadhar',
+//     'Gender',
+//     'Consent',
+//     'Credit Score',
+//     'Status',
+//     'Created On'
+//   ];
+
+//   const rows = this.accounts.map((report: any) => [
+//     report.accountId || '',
+//     report.name || '',
+//     report.mobile || '',
+//     report.pan || '',
+//     report.city || '',
+//     report.aadhar_number || '',
+//     report.gender || '',
+//     report.consent || '',
+//     report.credit_score || '',
+//     report.status || '',
+//     report.created_at
+//       ? new Date(report.created_at).toLocaleDateString()
+//       : ''
+//   ]);
+
+//   const csvContent =
+//     headers.join(',') +
+//     '\n' +
+//     rows.map(row => row.map(this.escapeCSVValue).join(',')).join('\n');
+
+//   const blob = new Blob([csvContent], {
+//     type: 'text/csv;charset=utf-8;'
+//   });
+
+//   const link = document.createElement('a');
+//   link.href = URL.createObjectURL(blob);
+//   link.download = 'Cibil_Reports.csv';
+//   link.click();
+// }
+// escapeCSVValue(value: any) {
+//   if (
+//     typeof value === 'string' &&
+//     (value.includes(',') || value.includes('"'))
+//   ) {
+//     value = `"${value.replace(/"/g, '""')}"`;
+//   }
+//   return value;
+// }
+
+
 }

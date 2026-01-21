@@ -57,6 +57,7 @@ export class SidebarMenuComponent implements OnChanges {
   @Output() toggle = new EventEmitter<boolean>();
   @Input() isSidebarVisible = true;
   isMobile = false;
+  loggedInUserRole!: number;
   constructor(
     private confirmationService: ConfirmationService,
     private subscriptionService: SubscriptionService,
@@ -100,13 +101,6 @@ export class SidebarMenuComponent implements OnChanges {
     this.toggle.emit(this.isSidebarVisible);
   }
 
-
-
-
-
-
-
-
   closeMenu() {
     const screenWidth = window.innerWidth;
     if (screenWidth <= 767) {
@@ -134,6 +128,12 @@ export class SidebarMenuComponent implements OnChanges {
     // console.log(this.userDetails);
     // this.capabilities = this.leadsService.getUserRbac();
     // console.log(this.capabilities);
+    const adminDetails =
+      this.localStorageService.getItemFromLocalStorage('adminDetails');
+
+    if (adminDetails && adminDetails.user) {
+      this.loggedInUserRole = Number(adminDetails.user.role);
+    }
   }
 
   setMenuItems() {
@@ -148,6 +148,14 @@ export class SidebarMenuComponent implements OnChanges {
       { label: 'Cibil Reports', icon: '../../../assets/images/icons/callbacks.svg', route: 'cibil-reports', condition: true },
       { label: 'CAM Reports', icon: '../../../assets/images/icons/callbacks.svg', route: 'cam-reports', condition: true },
       { label: 'Social Media Leads', icon: '../../../assets/images/icons/callbacks.svg', route: 'social-media-leads', condition: true },
+      // { label: 'Users', icon: '../../../assets/images/icons/users.svg', route: 'users', condition: true },
+      {
+      label: 'Users',
+      icon: '../../../assets/images/icons/users.svg',
+      route: 'users',
+      condition: this.loggedInUserRole === 1
+    },
+
     ];
   }
 

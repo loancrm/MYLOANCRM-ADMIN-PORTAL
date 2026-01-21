@@ -93,8 +93,22 @@
               class="form-control"
             /> -->
           </div>
-          <div class="col-md-5 no-padding-small"></div>
-          <div class="col-md-4 mt-2 no-padding-small text-right">
+          <div class="col-md-3 mt-2 no-padding-small text-right">
+            <p-dropdown
+              styleClass="text-left"
+              [style]="{ width: '100%' }"
+              [options]="accountInternalStatusList"
+              (onChange)="statusChange($event)"
+              [dropdownIcon]="'pi pi-chevron-down'"
+              [(ngModel)]="selectedAccountStatus"
+              optionLabel="displayName"
+              appendTo="body"
+              dataKey="name"
+            >
+            </p-dropdown>
+          </div>
+          <div class="col-md-3 no-padding-small"></div>
+          <div class="col-md-3 mt-2 no-padding-small text-right">
             <div class="d-flex">
               <div class="flex-grow-1 me-2"></div>
               <div class="d-flex align-items-center pointer-cursor">
@@ -120,15 +134,17 @@
           <th>Business Name</th>
           <th>Person Name</th>
           <th class="text-nowrap">Mobile</th>
-          <th class="text-nowrap">Email</th>
-          <th class="text-nowrap">City</th>
+          <!-- <th class="text-nowrap">Email</th>
+          <th class="text-nowrap">City</th> -->
           <th class="text-nowrap">Wallet Balance</th>
           <th class="text-nowrap">Plan</th>
-          <th class="text-nowrap">Status</th>
+          <th class="text-nowrap">Plan Status</th>
           <th class="text-nowrap">Remarks</th>
+          <th class="text-nowrap">Status</th>
 
           <th>Created Date</th>
           <!-- <th>Status</th> -->
+          <th>Last Updated</th>
           <th>Actions</th>
         </tr>
       </ng-template>
@@ -143,22 +159,26 @@
               team.accountId
             }}</span>
           </td>
+
           <td>
             <span *ngIf="team.businessName" class="table-column-data">
               {{ team.businessName | capitalizeFirst }}
             </span>
           </td>
+
           <td>
             <span *ngIf="team.name" class="table-column-data">
               {{ team.name | capitalizeFirst }}
             </span>
           </td>
+
           <td>
             <span class="table-column-data" *ngIf="team.mobile">{{
               team.mobile
             }}</span>
           </td>
-          <td>
+
+          <!-- <td>
             <span
               class="table-column-data text-lowercase"
               *ngIf="team.emailId"
@@ -170,46 +190,171 @@
             <span class="table-column-data" *ngIf="team.city">{{
               team.city
             }}</span>
-          </td>
+          </td> -->
+
           <td>
             <span class="table-column-data" *ngIf="team.walletBalance">{{
               team.walletBalance
             }}</span>
           </td>
+
           <td>
             <span class="table-column-data" *ngIf="team.latest_plan_name">{{
               team.latest_plan_name
             }}</span>
           </td>
+
           <td>
             <span class="table-column-data" *ngIf="team.latest_status">{{
               team.latest_status
             }}</span>
           </td>
+
           <td>
             <span class="table-column-data" *ngIf="team.latest_remark">{{
               team.latest_remark
             }}</span>
           </td>
+
+          <!-- <td>
+            <span
+              class="table-column-data fw-bold"
+              *ngIf="team.status"
+              [ngStyle]="{
+                color: team.status === '1' ? 'green' : team.status === '2' ? 'red' : ''
+              }"
+            >
+              {{ team.status === '1' ? 'Active' : team.status === '2' ? 'Inactive' : '' }}
+            </span>
+          </td> -->
+          <td>
+            <span
+              class="table-column-data fw-bold d-inline-flex align-items-center gap-2"
+              *ngIf="team.status"
+              [ngStyle]="{
+                backgroundColor: team.status === '1' ? '#E6F4EA' : '#FDECEA',
+                color: team.status === '1' ? '#1E7E34' : '#C82333',
+                height: '22px',
+                borderRadius: '16px',
+                fontSize: '12px',
+                fontWeight: 500,
+                padding: '0 10px'
+              }"
+            >
+              <!-- Dot -->
+              <span
+                class="rounded-circle"
+                [ngStyle]="{
+                  backgroundColor: team.status === '1' ? '#28A745' : '#DC3545',
+                  width: '8px',
+                  height: '8px',
+                  display: 'inline-block'
+                }"
+              ></span>
+
+              <!-- Status Text -->
+              {{ team.status === '1' ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+
           <td>
             <span class="table-column-data" *ngIf="team.createdOn">{{
               team.createdOn | date
             }}</span>
           </td>
+
           <td>
-            <button
-              pButton
-              type="button"
-              label="Login"
-              icon="pi pi-sign-in"
-              class="p-button-sm p-button-primary"
-              [loading]="loadingProviderLogin[team.accountId]"
-              [disabled]="loadingProviderLogin[team.accountId]"
-              (click)="onLoginAsProvider(team)"
-              pTooltip="Login as provider for this account"
-              tooltipPosition="top"
-            ></button>
+            <span class="table-column-data" *ngIf="team.lastUpdatedOn">{{
+              team.lastUpdatedOn | date
+            }}</span>
           </td>
+
+          <td>
+            <div class="d-flex">
+              <div >
+                <button
+                  *ngIf="loggedInUserRole == 1"
+                  pButton
+                  type="button"
+                  label="Login"
+                  icon="pi pi-sign-in"
+                  class="p-button-sm p-button-primary"
+                  [loading]="loadingProviderLogin[team.accountId]"
+                  [disabled]="loadingProviderLogin[team.accountId]"
+                  (click)="onLoginAsProvider(team)"
+                  pTooltip="Login as provider for this account"
+                  tooltipPosition="top"
+                ></button>
+              </div>
+              <div class="d-flex tableimage pointer-cursor">
+                <div *ngIf="team.status == 1">
+                  <button
+                    [matMenuTriggerFor]="menu"
+                    aria-label="Actions"
+                    pTooltip="Actions"
+                    tooltipPosition="top"
+                    style="all: unset; cursor: pointer"
+                  >
+                    <img
+                      alt="Actions"
+                      src="assets/images/icons/menu.svg"
+                      width="24"
+                      height="24"
+                    />
+                  </button>
+                  <mat-menu #menu="matMenu">
+                    <button
+                      mat-menu-item
+                      (click)="sendAccountToArchive(team)"
+                      class="matmenuimg"
+                    >
+                      <img
+                        alt="Actions"
+                        src="assets/images/Archive.svg"
+                        width="24"
+                        height="24"
+                        class="mr-2 image-icon"
+                      />
+                      <span>Send To Archive</span>
+                    </button>
+                  </mat-menu>
+                </div>
+                <div *ngIf="team.status == 2">
+                  <button
+                    [matMenuTriggerFor]="menu"
+                    aria-label="Actions"
+                    pTooltip="Actions"
+                    tooltipPosition="top"
+                    style="all: unset; cursor: pointer"
+                  >
+                    <img
+                      alt="Actions"
+                      src="assets/images/icons/menu.svg"
+                      width="24"
+                      height="24"
+                    />
+                  </button>
+                  <mat-menu #menu="matMenu">
+                    <button
+                      mat-menu-item
+                      (click)="revertAccountToNew(team)"
+                      class="matmenuimg"
+                    >
+                      <img
+                        alt="Actions"
+                        src="assets/images/icons/leads.svg"
+                        width="24"
+                        height="24"
+                        class="mr-2 image-icon"
+                      />
+                      <span>Send to New Account</span>
+                    </button>
+                  </mat-menu>
+                </div>
+              </div>
+              </div>
+          </td>
+
           <!-- <td>
             <span
               class="table-column-data fw-bold statusdata"

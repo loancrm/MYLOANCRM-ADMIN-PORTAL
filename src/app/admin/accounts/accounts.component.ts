@@ -32,7 +32,9 @@ export class AccountsComponent implements AfterViewInit {
   version = projectConstantsLocal.VERSION_DESKTOP;
   @ViewChild('accountTable') accountTable!: Table;
   loadingProviderLogin: { [accountId: string]: boolean } = {};
-
+  accountInternalStatusList: any = projectConstantsLocal.ACCOUNTS_STATUS;
+  selectedAccountStatus = this.accountInternalStatusList[1];
+  loggedInUserRole!: number;
   constructor(
     private routingService: RoutingService,
     private location: Location,
@@ -54,12 +56,25 @@ export class AccountsComponent implements AfterViewInit {
   ngOnInit(): void {
     this.restorePaginationState();
 
+    // Default → Active
+    // this.searchFilter['status-eq'] = 1;
     this.setFilterConfig();
     const storedAppliedFilter =
       this.localStorageService.getItemFromLocalStorage('accountAppliedFilter');
     if (storedAppliedFilter) {
       this.appliedFilter = storedAppliedFilter;
     }
+
+   const adminDetails = this.localStorageService.getItemFromLocalStorage('adminDetails');
+   console.log(adminDetails);
+   
+
+  if (adminDetails && adminDetails.user) {
+    this.loggedInUserRole = Number(adminDetails.user.role);
+    console.log(this.loggedInUserRole);
+    
+  }
+    
   }
   ngAfterViewInit(): void {
     // Trigger initial load with restored pagination state after view is ready
@@ -431,40 +446,73 @@ export class AccountsComponent implements AfterViewInit {
   }
 
   filterWithName() {
-    let searchFilter = {};
+  let searchFilter = {};
+  const trimmedInput = this.userNameToSearch?.trim() || '';
 
-    const trimmedInput = this.userNameToSearch?.trim() || '';
-
-    if (!trimmedInput) {
-      this.applyFilters({});
-      return;
-    }
-
-    if (this.isPhoneNumber(trimmedInput)) {
-      // Mobile number search
-      searchFilter = { 'mobile-like': trimmedInput };
-    } else {
-      // Search by business name OR person name
-      searchFilter = {
-        'businessName-like': trimmedInput,
-      };
-    }
-
-    this.applyFilters(searchFilter);
+  if (!trimmedInput) {
+    this.applyFilters({});
+    return;
   }
+
+  // ✅ Account ID (numeric but NOT 10-digit mobile)
+  if (this.isNumeric(trimmedInput) && trimmedInput.length !== 10) {
+    searchFilter = { 'accountId-like': trimmedInput };
+  }
+
+  // ✅ Mobile Number (10-digit)
+  else if (this.isPhoneNumber(trimmedInput)) {
+    searchFilter = { 'mobile-like': trimmedInput };
+  }
+
+  // ✅ Business Name
+  else {
+    searchFilter = {
+      'businessName-like': trimmedInput,
+    };
+  }
+
+  this.applyFilters(searchFilter);
+}
+
+  // filterWithName() {
+  //   let searchFilter = {};
+
+  //   const trimmedInput = this.userNameToSearch?.trim() || '';
+
+  //   if (!trimmedInput) {
+  //     this.applyFilters({});
+  //     return;
+  //   }
+
+  //   if (this.isPhoneNumber(trimmedInput)) {
+  //     // Mobile number search
+  //     searchFilter = { 'mobile-like': trimmedInput };
+  //   } else {
+  //     // Search by business name OR person name
+  //     searchFilter = {
+  //       'businessName-like': trimmedInput,
+  //     };
+  //   }
+
+  //   this.applyFilters(searchFilter);
+  // }
+
+  isNumeric(value: string): boolean {
+  return /^\d+$/.test(value);
+}
 
   isPhoneNumber(value: string): boolean {
     const phoneNumberPattern = /^[6-9]\d{9}$/;
     return phoneNumberPattern.test(value.trim());
   }
 
-  statusChange(event) {
-    this.localStorageService.setItemOnLocalStorage(
-      'selectedTeamStatus',
-      event.value
-    );
-    this.loadAccounts(this.currentTableEvent);
-  }
+  // statusChange(event) {
+  //   this.localStorageService.setItemOnLocalStorage(
+  //     'selectedTeamStatus',
+  //     event.value
+  //   );
+  //   this.loadAccounts(this.currentTableEvent);
+  // }
 
   onLoginAsProvider(account: any): void {
     const accountId = account.accountId;
@@ -503,4 +551,100 @@ export class AccountsComponent implements AfterViewInit {
         console.error('Provider login error:', error);
       });
   }
+
+  sendAccountToArchive(team) {
+    this.changeAccountInternalStatus(team.accountId, 2);
+  }
+
+  changeAccountInternalStatus(accountId, statusId) {
+    this.loading = true;
+    this.leadsService.changeAccountInternalStatus(accountId, statusId).subscribe(
+      (remarks) => {
+        this.toastService.showSuccess('Account Status Changed Successfully');
+        this.loading = false;
+        this.loadAccounts(this.currentTableEvent);
+      },
+      (error: any) => {
+        this.loading = false;
+        this.toastService.showError(error);
+      }
+    );
+  }
+  
+  revertAccountToNew(team) {
+    this.changeAccountInternalStatus(team.accountId, 1);
+  }
+
+  loadRemarks(event) {
+    this.currentTableEvent = event;
+    let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
+    // if (this.selectedRemarksStatus) {
+    //   if (this.selectedRemarksStatus && this.selectedRemarksStatus.name) {
+    //     if (this.selectedRemarksStatus.name != 'all') {
+    //       api_filter['remarkInternalStatus-eq'] = this.selectedRemarksStatus.id;
+    //     } else {
+    //       api_filter['remarkInternalStatus-or'] = '1,2';
+    //     }
+    //   }
+    // } else {
+    //   api_filter['remarkInternalStatus-or'] = '1,2';
+    // }
+    // api_filter = Object.assign({}, api_filter, this.searchFilter);
+    // if (api_filter) {
+    //   this.getRemarksCount(api_filter);
+    //   this.getRemarks(api_filter);
+    // }
+  }
+
+  getStatusName(statusId) {
+    if (this.accountInternalStatusList && this.accountInternalStatusList.length > 0) {
+      let leadStatusName = this.accountInternalStatusList.filter(
+        (leadStatus) => leadStatus.id == statusId
+      );
+      return (
+        (leadStatusName &&
+          leadStatusName[0] &&
+          leadStatusName[0].name) ||
+        ''
+      );
+    }
+    return '';
+  }
+
+  statusChange(event) {
+  const selectedStatus = event.value.id; // 0, 1, 2
+
+  // Clear old filters
+  delete this.searchFilter['status-eq'];
+  delete this.searchFilter['status-or'];
+
+  if (selectedStatus === 0) {
+    // ALL → show 1 and 2
+    this.searchFilter['status-or'] = '1,2';
+  } else {
+    // Active or Inactive
+    this.searchFilter['status-eq'] = selectedStatus;
+  }
+
+  this.loadAccounts(this.currentTableEvent);
+}
+
+//   statusChange(event) {
+//   const selected = event.value;
+
+//   // Clear old status filter
+//   delete this.searchFilter['status-eq'];
+//   delete this.searchFilter['status-or'];
+
+//   if (selected.id === 'all') {
+//     // All → Active + Inactive
+//     this.searchFilter['status-or'] = '1,2';
+//   } else {
+//     // Active or Inactive
+//     this.searchFilter['status-eq'] = selected.id;
+//   }
+
+//   this.loadAccounts(this.currentTableEvent);
+// }
+
 }

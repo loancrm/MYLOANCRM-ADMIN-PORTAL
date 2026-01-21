@@ -51,9 +51,10 @@
         </ng-container>
       </div>
 
-      <div class="row gap-2 mt-2">
-        <div class="col-md-6 col-12">
+      <div class="row  mt-2">
+        <div class="col-md-6 no-padding-small">
           <br class="d-lg-none d-md-none" />
+          <!--Today FallowUp date-->
           <div class="card">
             <div class="text-capitalize" style="height: 350px">
               <p-table
@@ -74,6 +75,9 @@
                 [loading]="apiLoading"
                 scrollHeight="240px"
                 styleClass="p-datatable-customers "
+                responsiveLayout="scroll"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Users"
+                [showCurrentPageReport]="true"
               >
                 <ng-template pTemplate="caption">
                   <div
@@ -119,6 +123,236 @@
                 </ng-template>
 
                 <ng-template pTemplate="emptymessage">
+                  <tr class="text-center">
+                    <td colspan="10" class="text-center fw-bold">
+                      <p
+                        style="
+                          color: #535ab4;
+                          font-weight: 400;
+                          font-size: 18px;
+                        "
+                      >
+                        No Data Found
+                      </p>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </div>
+        </div>
+        <!--Accounts Table-->
+        <div class="col-md-6 no-padding-small">
+          <br class="d-lg-none d-md-none" />
+          <div class="card">
+            <div class="text-capitalize" style="height: 350px">
+              <p-table
+                [value]="createdAccounts"
+                class="custom-scrollbar"
+                [paginator]="true"
+                [totalRecords]="createdAccountsCount"
+                [sortOrder]="-1"
+                [lazy]="true"
+                selectionMode="single"
+                (onLazyLoad)="onLazyLoadCreated($event)"
+                (onRowSelect)="viewAccount($event)"
+                dataKey="id"
+                [showCurrentPageReport]="false"
+                [rowsPerPageOptions]="[10, 25, 50]"
+                [paginator]="true"
+                [rows]="10"
+                class="p-datatable-striped"
+                [loading]="apiLoading"
+                scrollHeight="240px"
+                styleClass="p-datatable-customers "
+                responsiveLayout="scroll"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Users"
+                [showCurrentPageReport]="true"
+              >
+                <ng-template pTemplate="caption">
+                  <div
+                    class="d-flex align-items-center justify-content-between gap-3 flex-nowrap"
+                    style="overflow: hidden"
+                  >
+                    <div>Today Accounts</div>
+                  </div>
+                </ng-template>
+
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Business Name</th>
+                    <th>Mobile Number</th>
+                    <!-- <th>FollowUp Date</th> -->
+                    <th>Plan</th>
+                    <th>Status</th>
+                  </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-lead>
+                  <tr [pSelectableRow]="lead">
+                    <td>
+                      {{ lead.businessName || "-" }}
+                    </td>
+
+                    <td>
+                      {{ lead.mobile || "-" }}
+                    </td>
+                    <!-- <td>
+                    {{
+                      (lead.filefollowupDate ? lead.filefollowupDate : "-")
+                        | date : "MMM d, y, h:mm a"
+                    }}
+                  </td> -->
+                    <td>
+                      {{ lead.latest_plan_name | capitalizeFirst }}
+                    </td>
+                    <td>
+                      {{ lead.latest_status | capitalizeFirst }}
+                    </td>
+                  </tr>
+                </ng-template>
+
+                <ng-template pTemplate="emptymessage">
+                  <tr class="text-center">
+                    <td colspan="10" class="text-center fw-bold">
+                      <p
+                        style="
+                          color: #535ab4;
+                          font-weight: 400;
+                          font-size: 18px;
+                        "
+                      >
+                        No Data Found
+                      </p>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row mt-2">
+        <!-- Today Contacts Table -->
+        <div class="col-md-6 no-padding-small mt-3">
+          <div class="card">
+            <div class="text-capitalize" style="height: 350px">
+              <p-table
+                [value]="todayContacts"
+                [lazy]="true"
+                [totalRecords]="todayContactsCount"
+                (onLazyLoad)="onLazyLoadTodayContacts($event)"
+                dataKey="id"
+                [paginator]="true"
+                [rows]="10"
+                [loading]="apiLoading"
+                scrollHeight="240px"
+                [showCurrentPageReport]="false"
+                [rowsPerPageOptions]="[10, 25, 50]"
+                class="p-datatable-striped"
+                responsiveLayout="scroll"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Users"
+                [showCurrentPageReport]="true"
+              >
+                <ng-template pTemplate="caption">
+                  <div class="d-flex justify-content-between">
+                    <div>Today Contacts</div>
+                  </div>
+                </ng-template>
+
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Business Name</th>
+                    <th>Person Name</th>
+                    <th>Mobile</th>
+                    <th>Email</th>
+                  </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-contact>
+                  <tr>
+                    <td>{{ contact.company_name || '-' }}</td>
+                    <td>{{ contact.full_name || '-' }}</td>
+                    <td>{{ contact.phone || '-' }}</td>
+                    <td>{{ contact.email || '-' }}</td>
+                  </tr>
+                </ng-template>
+
+                <!-- <ng-template pTemplate="emptymessage">
+                  <tr class="text-center">
+                    <td colspan="10">No Data Found</td>
+                  </tr>
+                </ng-template> -->
+                 <ng-template pTemplate="emptymessage">
+                  <tr class="text-center">
+                    <td colspan="10" class="text-center fw-bold">
+                      <p
+                        style="
+                          color: #535ab4;
+                          font-weight: 400;
+                          font-size: 18px;
+                        "
+                      >
+                        No Data Found
+                      </p>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </div>
+        </div>
+        <!-- Today Subscribers Table -->
+        <div class="col-md-6 no-padding-small mt-3">
+          <div class="card">
+            <div class="text-capitalize" style="height: 350px">
+              <p-table
+                [value]="todaySubscribers"
+                [lazy]="true"
+                (onLazyLoad)="onLazyLoadTodaySubscribers($event)"
+                dataKey="id"
+                [paginator]="true"
+                [rows]="10"
+                [totalRecords]="todaySubscribersCount"
+                [loading]="apiLoading"
+                [showCurrentPageReport]="false"
+                [rowsPerPageOptions]="[10, 25, 50]"
+                scrollHeight="240px"
+                class="p-datatable-striped"
+                responsiveLayout="scroll"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Users"
+                [showCurrentPageReport]="true"
+              >
+                <ng-template pTemplate="caption">
+                  <div class="d-flex justify-content-between">
+                    <div>Today Subscribers</div>
+                  </div>
+                </ng-template>
+
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Id</th>
+                    <th>Email</th>
+                    <th>Subscribed On</th>
+                  </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-subscriber>
+                  <tr>
+                    <td>{{ subscriber.id || '-' }}</td>
+                    <td>{{ subscriber.email || '-' }}</td>
+                    <td>
+                      {{ subscriber.subscribed_on ? (subscriber.subscribed_on | date) : '-' }}
+                    </td>
+                  </tr>
+                </ng-template>
+
+                <!-- <ng-template pTemplate="emptymessage">
+                  <tr class="text-center">
+                    <td colspan="10">No Data Found</td>
+                  </tr>
+                </ng-template> -->
+                 <ng-template pTemplate="emptymessage">
                   <tr class="text-center">
                     <td colspan="10" class="text-center fw-bold">
                       <p

@@ -650,4 +650,69 @@
       </p-table>
     </div>
   </p-tabPanel>
+
+  <!-- TAB 4 - WALLET TRANSACTIONS -->
+   <p-tabPanel header="Wallet Transactions">
+      <div class="m-2">
+        <p-table
+          [value]="walletTransactions"
+          [lazy]="true"
+          [sortField]="'created_on'"
+          [sortOrder]="-1"
+          (onLazyLoad)="loadWalletTransactions($event)"
+          dataKey="id"
+          [paginator]="true"
+          [rows]="10"
+          [loading]="loading"
+          responsiveLayout="scroll"
+          scrollHeight="flex"
+          styleClass="p-datatable-customers"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} wallet transactions"
+        >
+
+          <!-- HEADER -->
+          <ng-template pTemplate="header">
+            <tr>
+              <th>ID</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>GST %</th>
+              <th>GST Amt</th>
+              <th>Net Amt</th>
+              <th>Currency</th>
+              <th>Category</th>
+              <th>Status</th>
+              <th>Description</th>
+              <th>Date</th>
+            </tr>
+          </ng-template>
+
+          <!-- BODY -->
+          <ng-template pTemplate="body" let-tx let-rowIndex="rowIndex">
+            <tr>
+              <td>{{ rowIndex + 1 }}</td>
+              <td>{{ tx.transactionType }}</td>
+              <td>₹{{ tx.amount }}</td>
+              <td>{{ tx.gst_percentage }}%</td>
+              <td>₹{{ tx.gstAmount }}</td>
+              <td>₹{{ tx.netAmount }}</td>
+              <td>{{ tx.currency }}</td>
+              <td>{{ tx.debitCategory || '-' }}</td>
+              <td>{{ tx.paymentStatus }}</td>
+              <td>{{ tx.description || '-' }}</td>
+              <td>{{ tx.createdOn | date:'short' }}</td>
+            </tr>
+          </ng-template>
+
+          <!-- EMPTY -->
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="11" class="text-center">No transactions found</td>
+            </tr>
+          </ng-template>
+
+        </p-table>
+      </div>
+    </p-tabPanel>
+
 </p-tabView>
