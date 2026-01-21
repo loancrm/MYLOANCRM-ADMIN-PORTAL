@@ -29,27 +29,29 @@
   <div class="m-2">
     <p-table
       #userTable
-      [value]="users"
+      [value]="accounts"
       [paginator]="true"
       [rows]="10"
+      [lazy]="true"
+       [totalRecords]="accountsCount"
       (onLazyLoad)="loadAccounts($event)"
-      [rowsPerPageOptions]="[10,25,50]"
+      [rowsPerPageOptions]="[10, 25, 50]"
       [loading]="apiLoading"
       class="p-datatable-striped"
       responsiveLayout="scroll"
+      scrollHeight="flex"
+      dataKey="id"
+      styleClass="p-datatable-customers "
       currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Users"
       [showCurrentPageReport]="true"
-      [globalFilterFields]="[
-        'name',
-        'phone',
-        'email'
-      ]"
+      [globalFilterFields]="['name', 'phone', 'email']"
     >
       <!-- Search -->
       <ng-template pTemplate="caption">
         <div class="row">
-          <div class="col-md-3 mt-2">
-            <input
+          <div class="col-md-3 mt-2 no-padding-small">
+            <div class="p-inputgroup">
+              <input
               type="text"
               pInputText
               placeholder="Search by Name"
@@ -74,6 +76,7 @@
                 style="vertical-align: middle"
               />
             </button>
+            </div>
           </div>
         </div>
       </ng-template>
