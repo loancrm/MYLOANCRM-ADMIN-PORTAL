@@ -144,7 +144,7 @@
 
           <th>Created Date</th>
           <!-- <th>Status</th> -->
-          <th>Last Updated</th>
+          <th>Updated Date</th>
           <th>Actions</th>
         </tr>
       </ng-template>
@@ -264,8 +264,8 @@
           </td>
 
           <td>
-            <span class="table-column-data" *ngIf="team.lastUpdatedOn">{{
-              team.lastUpdatedOn | date
+            <span class="table-column-data" *ngIf="team.updatedOn">{{
+              team.updatedOn | date
             }}</span>
           </td>
 
