@@ -1,5 +1,3 @@
-
-
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -9,12 +7,10 @@ import { LeadsService } from '../leads/leads.service';
 import { ToastService } from 'src/app/services/toast.service';
 @Component({
   selector: 'app-users',
-  templateUrl: './users.component.html'
+  templateUrl: './users.component.html',
 })
-
 export class UsersComponent implements OnInit {
-
-   users: any = [];
+  users: any = [];
   loading = false;
   userNameToSearch: any;
   apiLoading: any;
@@ -22,7 +18,7 @@ export class UsersComponent implements OnInit {
   searchFilter: any = {};
   appliedFilter: {};
   accounts: any = [];
-   accountsCount: any = 0;
+  accountsCount: any = 0;
   @ViewChild('userTable') userTable!: Table;
 
   constructor(
@@ -30,11 +26,11 @@ export class UsersComponent implements OnInit {
     private router: Router,
     private location: Location,
     private leadsService: LeadsService,
-    private toastService: ToastService
+    private toastService: ToastService,
   ) {}
 
   ngOnInit(): void {
-    this.loadUsers();
+    // this.loadUsers();
   }
 
   // loadUsers() {
@@ -46,34 +42,34 @@ export class UsersComponent implements OnInit {
   //     });
   // }
 
-   loadUsers() {
-    this.loading = true;
-    this.leadsService.getUsers().subscribe(res => {
-      this.users = res;
-      this.loading = false;
-    });
-  }
+  //  loadUsers() {
+  //   this.loading = true;
+  //   this.leadsService.getUsers().subscribe(res => {
+  //     this.users = res;
+  //     this.loading = false;
+  //   });
+  // }
 
   applyFilters(searchFilter = {}) {
     this.searchFilter = searchFilter;
     this.loadAccounts(this.currentTableEvent);
   }
 
-   inputValueChangeEvent(dataType, value) {
+  inputValueChangeEvent(dataType, value) {
     console.log(value);
-    
+
     if (value == '') {
       this.searchFilter = {};
       this.userTable.reset();
     }
   }
-  
+
   filterWithName() {
     let searchFilter = { 'name-like': this.userNameToSearch };
     this.applyFilters(searchFilter);
   }
 
-   loadAccounts(event) {
+  loadAccounts(event) {
     // console.log(event);
     this.currentTableEvent = event;
     let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
@@ -82,7 +78,7 @@ export class UsersComponent implements OnInit {
       {},
       api_filter,
       this.searchFilter,
-      this.appliedFilter
+      this.appliedFilter,
     );
 
     if (api_filter) {
@@ -92,7 +88,7 @@ export class UsersComponent implements OnInit {
     }
   }
 
-   getTeamCount(filter = {}) {
+  getTeamCount(filter = {}) {
     this.leadsService.getTeamCounts(filter).subscribe(
       (teamsCount) => {
         this.accountsCount = teamsCount;
@@ -100,7 +96,7 @@ export class UsersComponent implements OnInit {
       },
       (error: any) => {
         this.toastService.showError(error);
-      }
+      },
     );
   }
 
@@ -114,10 +110,9 @@ export class UsersComponent implements OnInit {
       (error: any) => {
         this.toastService.showError(error);
         this.apiLoading = false;
-      }
+      },
     );
   }
-
 
   goToCreate() {
     this.router.navigate(['admin/users/create']);
