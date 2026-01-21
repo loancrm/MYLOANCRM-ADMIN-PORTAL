@@ -35,6 +35,7 @@ const routes: Routes = [{ path: '', component: UsersComponent },
     ButtonModule,
     DropdownModule,
     FormsModule,
+    InputTextModule,
     [RouterModule.forChild(routes)],
   ]
 })
