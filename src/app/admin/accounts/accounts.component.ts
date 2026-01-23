@@ -56,8 +56,6 @@ export class AccountsComponent implements AfterViewInit {
   ngOnInit(): void {
     this.restorePaginationState();
 
-    // Default → Active
-    // this.searchFilter['status-eq'] = 1;
     this.setFilterConfig();
     const storedAppliedFilter =
       this.localStorageService.getItemFromLocalStorage('accountAppliedFilter');
@@ -211,53 +209,36 @@ export class AccountsComponent implements AfterViewInit {
   }
 
   loadAccounts(event) {
-    if (!event) {
-      // If no event provided, use current stored state
-      event = {
-        first: this.initialFirst,
-        rows: this.initialRows,
-
-        sortOrder: -1,
-      };
-    }
-
-    this.currentTableEvent = event;
-
-    // Save current page to localStorage whenever pagination changes
-    if (event && (event.first !== undefined || event.first === 0)) {
-      const rows = event.rows || 10;
-      // Calculate current page number (1-based)
-      const currentPage =
-        event.first === 0 ? 1 : Math.floor(event.first / rows) + 1;
-      this.localStorageService.setItemOnLocalStorage(
-        'disbursalsCurrentPage',
-        currentPage.toString()
-      );
-      this.localStorageService.setItemOnLocalStorage(
-        'disbursalsRowsPerPage',
-        rows.toString()
-      );
-
-      // Update initial values for future reference
-      this.initialFirst = event.first;
-      this.initialRows = rows;
-    }
-
-    let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
-
-    api_filter = Object.assign(
-      {},
-      api_filter,
-      this.searchFilter,
-      this.appliedFilter
-    );
-
-    if (api_filter) {
-      console.log(api_filter);
-      this.getTeamCount(api_filter);
-      this.getTeam(api_filter);
-    }
+  if (!event) {
+    event = {
+      first: this.initialFirst,
+      rows: this.initialRows,
+      sortOrder: -1,
+    };
   }
+
+  this.currentTableEvent = event;
+
+  // 1️⃣ CREATE api_filter
+  let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
+
+  // 2️⃣ 👉 ADD THIS EXACTLY HERE
+  if (!this.selectedAccountStatus || this.selectedAccountStatus.id === 1) {
+    api_filter['status-eq'] = 1;
+  }
+
+  // 3️⃣ MERGE OTHER FILTERS
+  api_filter = Object.assign(
+    {},
+    api_filter,
+    this.searchFilter,
+    this.appliedFilter
+  );
+
+  // 4️⃣ CALL APIs
+  this.getTeamCount(api_filter);
+  this.getTeam(api_filter);
+}
   onSearchInput(event: Event) {
     const target = event.target as HTMLInputElement;
     if (target && this.accountTable) {
@@ -404,6 +385,24 @@ export class AccountsComponent implements AfterViewInit {
           },
         ],
       },
+
+      {
+        header: 'Last Updated Date Range',
+        data: [
+          {
+            field: 'updatedOn',
+            title: 'From',
+            type: 'date',
+            filterType: 'gte',
+          },
+          {
+            field: 'updatedOn',
+            title: 'To',
+            type: 'date',
+            filterType: 'lte',
+          },
+        ],
+      },
     ];
   }
 
@@ -474,28 +473,6 @@ export class AccountsComponent implements AfterViewInit {
   this.applyFilters(searchFilter);
 }
 
-  // filterWithName() {
-  //   let searchFilter = {};
-
-  //   const trimmedInput = this.userNameToSearch?.trim() || '';
-
-  //   if (!trimmedInput) {
-  //     this.applyFilters({});
-  //     return;
-  //   }
-
-  //   if (this.isPhoneNumber(trimmedInput)) {
-  //     // Mobile number search
-  //     searchFilter = { 'mobile-like': trimmedInput };
-  //   } else {
-  //     // Search by business name OR person name
-  //     searchFilter = {
-  //       'businessName-like': trimmedInput,
-  //     };
-  //   }
-
-  //   this.applyFilters(searchFilter);
-  // }
 
   isNumeric(value: string): boolean {
   return /^\d+$/.test(value);
@@ -629,22 +606,5 @@ export class AccountsComponent implements AfterViewInit {
   this.loadAccounts(this.currentTableEvent);
 }
 
-//   statusChange(event) {
-//   const selected = event.value;
-
-//   // Clear old status filter
-//   delete this.searchFilter['status-eq'];
-//   delete this.searchFilter['status-or'];
-
-//   if (selected.id === 'all') {
-//     // All → Active + Inactive
-//     this.searchFilter['status-or'] = '1,2';
-//   } else {
-//     // Active or Inactive
-//     this.searchFilter['status-eq'] = selected.id;
-//   }
-
-//   this.loadAccounts(this.currentTableEvent);
-// }
 
 }

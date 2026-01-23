@@ -56,7 +56,7 @@
           <br class="d-lg-none d-md-none" />
           <!--Today FallowUp date-->
           <div class="card">
-            <div class="text-capitalize" style="height: 350px">
+            <div class="text-capitalize" style="height: 420px">
               <p-table
                 [value]="accounts"
                 class="custom-scrollbar"
@@ -76,7 +76,7 @@
                 scrollHeight="240px"
                 styleClass="p-datatable-customers "
                 responsiveLayout="scroll"
-                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Users"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Followups"
                 [showCurrentPageReport]="true"
               >
                 <ng-template pTemplate="caption">
@@ -145,7 +145,7 @@
         <div class="col-md-6 no-padding-small">
           <br class="d-lg-none d-md-none" />
           <div class="card">
-            <div class="text-capitalize" style="height: 350px">
+            <div class="text-capitalize" style="height: 420px">
               <p-table
                 [value]="createdAccounts"
                 class="custom-scrollbar"
@@ -166,7 +166,7 @@
                 scrollHeight="240px"
                 styleClass="p-datatable-customers "
                 responsiveLayout="scroll"
-                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Users"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Accounts"
                 [showCurrentPageReport]="true"
               >
                 <ng-template pTemplate="caption">
@@ -236,7 +236,7 @@
         <!-- Today Contacts Table -->
         <div class="col-md-6 no-padding-small mt-3">
           <div class="card">
-            <div class="text-capitalize" style="height: 350px">
+            <div class="text-capitalize" style="height: 420px">
               <p-table
                 [value]="todayContacts"
                 [lazy]="true"
@@ -251,7 +251,7 @@
                 [rowsPerPageOptions]="[10, 25, 50]"
                 class="p-datatable-striped"
                 responsiveLayout="scroll"
-                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Users"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Contacts"
                 [showCurrentPageReport]="true"
               >
                 <ng-template pTemplate="caption">
@@ -305,7 +305,7 @@
         <!-- Today Subscribers Table -->
         <div class="col-md-6 no-padding-small mt-3">
           <div class="card">
-            <div class="text-capitalize" style="height: 350px">
+            <div class="text-capitalize" style="height: 420px">
               <p-table
                 [value]="todaySubscribers"
                 [lazy]="true"
@@ -320,7 +320,7 @@
                 scrollHeight="240px"
                 class="p-datatable-striped"
                 responsiveLayout="scroll"
-                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Users"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Subscribers"
                 [showCurrentPageReport]="true"
               >
                 <ng-template pTemplate="caption">

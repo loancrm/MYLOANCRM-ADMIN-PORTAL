@@ -157,6 +157,24 @@ export class ContactSubmissionsComponent {
     );
   }
 
+  saveRemark(team: any, event: Event) {
+  const input = event.target as HTMLInputElement;
+  const remark = input.value?.trim();
+
+  if (!remark) return;
+
+  this.leadsService.updateContactRemark(team.id, remark).subscribe(
+    () => {
+      team.remarks = remark; // update UI instantly
+      this.toastService.showSuccess('Remark saved');
+    },
+    (error) => {
+      this.toastService.showError('Failed to save remark');
+    }
+  );
+}
+
+
   applyFilters(searchFilter = {}) {
     this.searchFilter = searchFilter;
     this.loadAccounts(this.currentTableEvent);

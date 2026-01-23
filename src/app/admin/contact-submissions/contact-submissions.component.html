@@ -46,7 +46,7 @@
         'status'
       ]"
       styleClass="p-datatable-customers "
-      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Accounts"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Contacts"
     >
       <ng-template pTemplate="caption">
         <div class="row">
@@ -91,6 +91,7 @@
           <th class="text-nowrap">Email</th>
           <th class="text-nowrap">City</th>
           <th class="text-nowrap">Message</th>
+          <th class="text-nowrap">Remarks</th>
           <th>Created Date</th>
           <!-- <th>Actions</th> -->
         </tr>
@@ -137,6 +138,23 @@
               *ngIf="team.message"
               >{{ team.message }}</span
             >
+          </td>
+          <td>
+            <!-- <input
+              type="text"
+              class="form-control form-control-sm"
+              placeholder="Add remark"
+              [value]="team.remarks"
+              (keydown.enter)="saveRemark(team, $event)"
+            /> -->
+            <textarea
+                class="form-control form-control-sm"
+                rows="2"
+                placeholder="Add remark"
+                (keydown.enter)="saveRemark(team, $event)"
+              >{{ team.remarks }}
+            </textarea>
+
           </td>
           <td>
             <span class="table-column-data" *ngIf="team.submitted_on">{{

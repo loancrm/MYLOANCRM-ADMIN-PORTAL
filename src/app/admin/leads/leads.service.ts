@@ -255,6 +255,11 @@ export class LeadsService {
     const url = 'contactus';
     return this.serviceMeta.httpGet(url, null, filter);
   }
+  updateContactRemark(contactId: number, remarks: string) {
+  const url = `contactus/${contactId}/remark`;
+  return this.serviceMeta.httpPut(url, { remarks });
+}
+
 
   getFetchedCibilReports(filter = {}) {
     const url = 'admin/fetched-cibil-reports';

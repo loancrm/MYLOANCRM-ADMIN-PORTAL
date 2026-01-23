@@ -13,7 +13,6 @@ import { TabMenuModule } from 'primeng/tabmenu';
 import { FilterModule } from 'src/app/filter/filter.module';
 import { CapitalizeFirstPipe } from 'src/app/pipes/capitalize.pipe';
 
-
 const routes: Routes = [
   { path: '', component: CibilReportsComponent },
 

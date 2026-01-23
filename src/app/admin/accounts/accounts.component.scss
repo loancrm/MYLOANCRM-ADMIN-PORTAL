@@ -6,3 +6,19 @@
   border-bottom-left-radius: 0 !important;
   border-top-left-radius: 0 !important;
 }
+
+.custom-menu-item {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+/* Hover effect */
+.custom-menu-item:hover {
+  background-color: #dfe5ef;
+}
+
+.custom-menu-item:hover .menu-label,
+.custom-menu-item:hover .svg-icon {
+  filter: brightness(0) saturate(100%) invert(33%) sepia(18%) saturate(3314%)
+    hue-rotate(216deg) brightness(95%) contrast(94%);
+}
