@@ -50,7 +50,7 @@
         'walletBalance',
         'latest_plan_name',
         'latest_status',
-        'latest_remark'
+        'latest_remark',
       ]"
       styleClass="p-datatable-customers "
       currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Accounts"
@@ -145,7 +145,7 @@
           <th>Created Date</th>
           <!-- <th>Status</th> -->
           <th>Updated Date</th>
-          <th>Actions</th>
+          <th class="text-nowrap">Quick Actions</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-team>
@@ -238,7 +238,7 @@
                 borderRadius: '16px',
                 fontSize: '12px',
                 fontWeight: 500,
-                padding: '0 10px'
+                padding: '0 10px',
               }"
             >
               <!-- Dot -->
@@ -248,12 +248,12 @@
                   backgroundColor: team.status === '1' ? '#28A745' : '#DC3545',
                   width: '8px',
                   height: '8px',
-                  display: 'inline-block'
+                  display: 'inline-block',
                 }"
               ></span>
 
               <!-- Status Text -->
-              {{ team.status === '1' ? 'Active' : 'Inactive' }}
+              {{ team.status === "1" ? "Active" : "Inactive" }}
             </span>
           </td>
 
@@ -271,12 +271,12 @@
 
           <td>
             <div class="d-flex">
-              <div >
+              <div>
                 <button
                   *ngIf="loggedInUserRole == 1"
                   pButton
                   type="button"
-                  label="Login"
+               
                   icon="pi pi-sign-in"
                   class="p-button-sm p-button-primary"
                   [loading]="loadingProviderLogin[team.accountId]"
@@ -352,7 +352,7 @@
                   </mat-menu>
                 </div>
               </div>
-              </div>
+            </div>
           </td>
 
           <!-- <td>

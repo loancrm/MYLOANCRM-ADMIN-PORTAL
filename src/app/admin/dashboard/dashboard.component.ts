@@ -96,11 +96,11 @@ export class DashboardComponent implements OnInit {
   createdAccounts: any = [];
   todayContacts: any= [];
   todayContactsCount: number = 0;
-  selectedSubmittedDate: any = new Date(); 
+  selectedSubmittedDate: any = new Date();
   todaySubscribers: any = [];
   todaySubscribersCount: number = 0;
   selectedSubscribedDate: any = new Date(); // today
-  
+
   dateOptions = [
     { label: 'Total', value: 'total' },
     { label: 'Today', value: 'today' },
@@ -169,7 +169,7 @@ export class DashboardComponent implements OnInit {
   //     const endOfMonth = this.moment(this.selectedFollowupDate).add(1, 'day');
   //     api_filter['followupDate-gte'] = startOfMonth.format('YYYY-MM-DD'); // e.g. '2025-07-01'
   //     api_filter['followupDate-lte'] = endOfMonth.format('YYYY-MM-DD'); // e.g. '2025-07-31'
-      
+
   //   }
   //   console.log(api_filter);
   //   this.loadAccounts(api_filter);
@@ -199,7 +199,7 @@ export class DashboardComponent implements OnInit {
   //     const endOfMonth = this.moment(this.selectedCreatedDate).add(1, 'day');
   //     api_filter['createdOn-gte'] = startOfMonth.format('YYYY-MM-DD'); // e.g. '2025-07-01'
   //     api_filter['createdOn-lte'] = endOfMonth.format('YYYY-MM-DD'); // e.g. '2025-07-31'
-      
+
   //   }
   //   console.log(api_filter);
   //   this.loadAccounts(api_filter);
@@ -427,6 +427,7 @@ loadTodaySubscribers(api_filter) {
     );
   }
   loadAccounts(api_filter) {
+    
     // console.log(event);
 
     api_filter = Object.assign(
@@ -454,7 +455,7 @@ loadTodaySubscribers(api_filter) {
         backgroundColor: '#EBF3FE',
         color: '#EE7846',
         icon: '../../../assets/images/icons/leads.svg',
-        apiCall: () => this.leadsService.getAccountsCount(),
+        apiCall: () => this.leadsService.getAccountsCount({"status-eq": 1}), // Only Active Accounts
       },
       {
         name: 'subscription-plans',

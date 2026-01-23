@@ -146,7 +146,7 @@ export class FilterComponent {
                 this.filter[data.field + '-' + data.filterType]
               ).format('YYYY-MM-DD');
             } else {
-              if (data.field == 'createdOn' && data.filterType == 'lte') {
+              if ((data.field == 'createdOn' || data.field == 'updatedOn' ) && data.filterType == 'lte') {
                 api_filter[data.field + '-' + data.filterType] = this.moment(
                   this.filter[data.field + '-' + data.filterType]
                 )
