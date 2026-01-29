@@ -208,7 +208,39 @@ export class AccountsComponent implements AfterViewInit {
     this.location.back();
   }
 
-  loadAccounts(event) {
+//   loadAccounts(event) {
+//   if (!event) {
+//     event = {
+//       first: this.initialFirst,
+//       rows: this.initialRows,
+//       sortOrder: -1,
+//     };
+//   }
+
+//   this.currentTableEvent = event;
+
+//   // 1️⃣ CREATE api_filter
+//   let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
+
+//   // 2️⃣ 👉 ADD THIS EXACTLY HERE
+//   if (!this.selectedAccountStatus || this.selectedAccountStatus.id === 1) {
+//     api_filter['status-eq'] = 1;
+//   }
+
+//   // 3️⃣ MERGE OTHER FILTERS
+//   api_filter = Object.assign(
+//     {},
+//     api_filter,
+//     this.searchFilter,
+//     this.appliedFilter
+//   );
+
+//   // 4️⃣ CALL APIs
+//   this.getTeamCount(api_filter);
+//   this.getTeam(api_filter);
+// }
+loadAccounts(event) {
+  // 1️⃣ Use event or fallback to saved state
   if (!event) {
     event = {
       first: this.initialFirst,
@@ -219,26 +251,43 @@ export class AccountsComponent implements AfterViewInit {
 
   this.currentTableEvent = event;
 
-  // 1️⃣ CREATE api_filter
+  // 2️⃣ Save current page and rows to localStorage
+  if (event && (event.first !== undefined || event.first === 0)) {
+    const rows = event.rows || 10;
+    const currentPage =
+      event.first === 0 ? 1 : Math.floor(event.first / rows) + 1;
+
+    this.localStorageService.setItemOnLocalStorage(
+      'disbursalsCurrentPage',
+      currentPage.toString()
+    );
+    this.localStorageService.setItemOnLocalStorage(
+      'disbursalsRowsPerPage',
+      rows.toString()
+    );
+
+    // Update initial values for future fallback
+    this.initialFirst = event.first;
+    this.initialRows = rows;
+  }
+
+  // 3️⃣ Create API filter from Prime table event
   let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
 
-  // 2️⃣ 👉 ADD THIS EXACTLY HERE
+  // 4️⃣ Add default account status filter
   if (!this.selectedAccountStatus || this.selectedAccountStatus.id === 1) {
     api_filter['status-eq'] = 1;
   }
 
-  // 3️⃣ MERGE OTHER FILTERS
-  api_filter = Object.assign(
-    {},
-    api_filter,
-    this.searchFilter,
-    this.appliedFilter
-  );
+  // 5️⃣ Merge other filters
+  api_filter = Object.assign({}, api_filter, this.searchFilter, this.appliedFilter);
 
-  // 4️⃣ CALL APIs
+  // 6️⃣ Call APIs
+  console.log('API Filter:', api_filter); // <-- for debugging
   this.getTeamCount(api_filter);
   this.getTeam(api_filter);
 }
+
   onSearchInput(event: Event) {
     const target = event.target as HTMLInputElement;
     if (target && this.accountTable) {

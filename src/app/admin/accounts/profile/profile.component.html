@@ -661,8 +661,11 @@
           [sortOrder]="-1"
           (onLazyLoad)="loadWalletTransactions($event)"
           dataKey="id"
+          [showCurrentPageReport]="true"
+          [rowsPerPageOptions]="[10, 25, 50, 100]"
           [paginator]="true"
           [rows]="10"
+          [totalRecords]="wallettransactionsCount"
           [loading]="loading"
           responsiveLayout="scroll"
           scrollHeight="flex"
@@ -706,8 +709,12 @@
 
           <!-- EMPTY -->
           <ng-template pTemplate="emptymessage">
-            <tr>
-              <td colspan="11" class="text-center">No transactions found</td>
+            <tr class="text-center">
+              <td colspan="9" class="text-center fw-bold">
+                <p style="color: #535ab4; font-weight: 400; font-size: 18px">
+                    No Wallet transactions found
+                </p>
+              </td>
             </tr>
           </ng-template>
 

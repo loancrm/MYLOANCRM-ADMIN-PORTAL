@@ -20,6 +20,7 @@ export class ProfileComponent implements OnInit {
   accountId: any;
   appliedFilter: any = {};
   activitiesCount: any = 0;
+  wallettransactionsCount: any = 0
   subscriptionCount: any = 0;
   newNote: FollowUpNote = { date: new Date(), remarks: '', updatedBy: '' };
   transactionsCount: any = 0;
@@ -191,21 +192,20 @@ export class ProfileComponent implements OnInit {
     );
   }
   loadWalletTransactions(event: any) {
-  this.loading = true;
+    this.currentTableEvent = event;
+    this.loading = true;
 
-  this.leadService
-    .getWalletTransactionsByAccountId(this.accountId)
-    .subscribe(
+    this.leadService.getWalletTransactionsByAccountId(this.accountId).subscribe(
       (res: any) => {
         this.walletTransactions = res.transactions || [];
-        console.log(this.walletTransactions);
+        // console.log(this.walletTransactions);
         
-        // this.walletTransactionsCount = res.count || 0;
+        this.wallettransactionsCount = res.count || 0;
         this.loading = false;
       },
-      (error: any) => {
+      (err) => {
         this.loading = false;
-        this.toastService.showError(error);
+        this.toastService.showError(err);
       }
     );
 }
