@@ -182,11 +182,22 @@ export class LeadsService {
   //   console.log('Fetching wallet transactions with filters:', filter);
   //   return this.serviceMeta.httpGet(url, null, filter);
   // }
-  getWalletTransactionsByAccountId(accountId: string) {
-  return this.http.get(
-    `wallet/transactions/${accountId}`
-  );
+//   getWalletTransactionsByAccountId(accountId: string) {
+//   return this.http.get(
+//     `wallet/transactions/${accountId}`
+//   );
+// }
+getWalletTransactions(filters) {
+  console.log("calling")
+  const url = 'accounts/wallettransactions';
+  return this.serviceMeta.httpGet(url, null, filters);
 }
+
+getWalletTransactionsCount(filters) {
+  const url = 'accounts/wallettransactions/total';
+  return this.serviceMeta.httpGet(url, null, filters);
+}
+
 
   addRemarks(accountId, note: any) {
     return this.serviceMeta.httpPost(

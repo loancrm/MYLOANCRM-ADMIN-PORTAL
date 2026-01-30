@@ -191,23 +191,49 @@ export class ProfileComponent implements OnInit {
       }
     );
   }
-  loadWalletTransactions(event: any) {
-    this.currentTableEvent = event;
-    this.loading = true;
+//   loadWalletTransactions(event: any) {
+//     this.currentTableEvent = event;
+//     this.loading = true;
 
-    this.leadService.getWalletTransactionsByAccountId(this.accountId).subscribe(
-      (res: any) => {
-        this.walletTransactions = res.transactions || [];
-        // console.log(this.walletTransactions);
+//     this.leadService.getWalletTransactionsByAccountId(this.accountId).subscribe(
+//       (res: any) => {
+//         this.walletTransactions = res.transactions || [];
+//         // console.log(this.walletTransactions);
         
-        this.wallettransactionsCount = res.count || 0;
-        this.loading = false;
-      },
-      (err) => {
-        this.loading = false;
-        this.toastService.showError(err);
-      }
-    );
+//         this.wallettransactionsCount = res.count || 0;
+//         this.loading = false;
+//       },
+//       (err) => {
+//         this.loading = false;
+//         this.toastService.showError(err);
+//       }
+//     );
+// }
+loadWalletTransactions(event: any) {
+  this.currentTableEvent = event;
+
+  let api_filter = this.leadService.setFiltersFromPrimeTable(event);
+   api_filter = Object.assign({}, api_filter, this.searchFilter);
+  api_filter['accountId-eq'] = this.accountId;
+
+  this.loading = true;
+
+  this.leadService.getWalletTransactions(api_filter).subscribe(
+  (res: any) => {
+    this.walletTransactions = res || [];
+    this.loading = false;
+  },
+  (err) => {
+    this.loading = false;
+    this.toastService.showError(err);
+  }
+);
+  this.leadService.getWalletTransactionsCount(api_filter).subscribe(
+    (count: any) => {
+      this.wallettransactionsCount = parseInt(count) || 0;
+    },
+    (err) => console.error(err)
+  );
 }
 
   loadSubscriptions(event: any) {
