@@ -1,9 +1,9 @@
 export const projectConstantsLocal = {
 
     ACCOUNTS_STATUS: [
-    { id: 0, name: 'all', displayName: 'All Remarks' },
-    { id: 1, name: 'Active', displayName: 'Active Remarks' },
-    { id: 2, name: 'In Active', displayName: 'In Active Remarks' },
+    { id: 0, name: 'all', displayName: 'All Accounts' },
+    { id: 1, name: 'Active', displayName: 'Active Accounts' },
+    { id: 2, name: 'In Active', displayName: 'In Active Accounts' },
   ],
   
   // BASE_URL: 'http://localhost:5002/',
