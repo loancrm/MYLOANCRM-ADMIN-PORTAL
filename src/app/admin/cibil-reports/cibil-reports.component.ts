@@ -28,6 +28,15 @@ export class CibilReportsComponent {
   capabilities: any;
   version = projectConstantsLocal.VERSION_DESKTOP;
   @ViewChild('accountTable') accountTable!: Table;
+  selectedReportType: string = 'ALL';
+
+    reportTypeOptions = [
+      { label: 'All', value: 'ALL' },
+      { label: 'Experian', value: 'experian' },
+      { label: 'CIBIL', value: 'cibil' },
+      { label: 'CRIF', value: 'crif' },
+      { label: 'Equifax', value: 'equifax' }
+    ];
 
   constructor(
     private routingService: RoutingService,
@@ -161,9 +170,45 @@ export class CibilReportsComponent {
     this.loadCibilReports(this.currentTableEvent);
   }
 
-  filterWithName() {
-    let searchFilter = { 'name-like': this.userNameToSearch };
-    this.applyFilters(searchFilter);
+  // filterWithName() {
+  //   let searchFilter = { 'name-like': this.userNameToSearch };
+  //   this.applyFilters(searchFilter);
+  // }
+   filterWithName() {
+  let searchFilter = {};
+  const trimmedInput = this.userNameToSearch?.trim() || '';
+
+  if (!trimmedInput) {
+    this.applyFilters({});
+    return;
+  }
+
+  // ✅ Account ID (numeric but NOT 10-digit mobile)
+  if (this.isNumeric(trimmedInput) && trimmedInput.length !== 10) {
+    searchFilter = { 'accountId-like': trimmedInput };
+  }
+
+  // ✅ Mobile Number (10-digit)
+  else if (this.isPhoneNumber(trimmedInput)) {
+    searchFilter = { 'mobile-like': trimmedInput };
+  }
+
+  // ✅ Business Name
+  else {
+    searchFilter = {
+      'name-like': trimmedInput,
+    };
+  }
+
+  this.applyFilters(searchFilter);
+}
+ isNumeric(value: string): boolean {
+  return /^\d+$/.test(value);
+}
+
+  isPhoneNumber(value: string): boolean {
+    const phoneNumberPattern = /^[6-9]\d{9}$/;
+    return phoneNumberPattern.test(value.trim());
   }
 
   statusChange(event) {
@@ -227,6 +272,20 @@ escapeCSVValue(value: any) {
   }
   return value;
 }
+
+onReportTypeChange(event: any) {
+  // remove both filters first
+  delete this.searchFilter['report_type-eq'];
+  delete this.searchFilter['report_type-nin'];
+
+  // apply filter only if NOT ALL
+  if (event.value !== 'ALL') {
+    this.searchFilter['report_type-eq'] = event.value;
+  }
+
+  this.accountTable.reset(); // reload table + API
+}
+
 
 //   exportCibilReportsToCSV() {
 //   const headers = [

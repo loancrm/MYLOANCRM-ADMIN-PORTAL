@@ -24,6 +24,7 @@ export class DashboardComponent implements OnInit {
   barChartOptions: any;
   totalLeadsCount: any = 0;
   apiLoading: any;
+  fallowupLoading: any;
   filesInProcessCount: any = 0;
   filesInProcessleads: any = [];
   leadsCountforFilter: any = 0;
@@ -111,6 +112,13 @@ export class DashboardComponent implements OnInit {
   ];
 
   selectedDateOption: string = 'thisMonth';
+  selectedTodayTable: 'accounts' | 'contacts' | 'subscribers' = 'accounts';
+  selectedtableoptions = [
+    { label: 'Today Accounts', value: 'accounts' },
+    { label: 'Today Contacts', value: 'contacts' },
+    { label: 'Today Subscribers', value: 'subscribers' },
+  ]
+
   constructor(
     private routingService: RoutingService,
     private leadsService: LeadsService,
@@ -220,7 +228,7 @@ export class DashboardComponent implements OnInit {
   this.loadCreatedAccounts(api_filter);
 }
 loadFollowupAccounts(api_filter) {
-  this.apiLoading = true;
+  this.fallowupLoading = true;
 
   this.leadsService.getAccountsCount(api_filter).subscribe(
     (countRes: any) => {
@@ -231,11 +239,11 @@ loadFollowupAccounts(api_filter) {
   this.leadsService.getAccounts(api_filter).subscribe(
     (res) => {
       this.accounts = res;
-      this.apiLoading = false;
+      this.fallowupLoading = false;
     },
     (err) => {
       this.toastService.showError(err);
-      this.apiLoading = false;
+      this.fallowupLoading = false;
     }
   );
 }

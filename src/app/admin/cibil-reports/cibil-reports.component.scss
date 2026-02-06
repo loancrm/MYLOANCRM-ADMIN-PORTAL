@@ -6,3 +6,32 @@
   border-bottom-left-radius: 0 !important;
   border-top-left-radius: 0 !important;
 }
+
+
+.report-type-badge,
+.credit-score-badge {
+  color: #fff;
+  background-color: #007bff;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+
+  &.report-equifax,
+  &.credit-score-equifax {
+    background-color: #9E1C33;
+  }
+  &.report-crif,
+  &.credit-score-crif {
+    background-color: #002246;
+  }
+  &.report-experian,
+  &.credit-score-experian {
+    background-color: #AF1685;
+  }
+  &.report-cibil,
+  &.credit-score-cibil {
+    background-color: #00A6CA;
+  }
+}

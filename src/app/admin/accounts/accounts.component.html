@@ -107,7 +107,21 @@
             >
             </p-dropdown>
           </div>
-          <div class="col-md-3 no-padding-small"></div>
+          <div class="col-md-3 mt-2 no-padding-small text-right">
+            <p-dropdown
+              styleClass="text-left"
+              [style]="{ width: '100%' }"
+              [options]="planTypeOptions"
+              [(ngModel)]="selectedPlanType"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select Plan"
+              (onChange)="onPlanTypeChange($event)"
+              appendTo="body"
+            >
+            </p-dropdown>
+          </div>
+          <!-- <div class="col-md-3 no-padding-small"></div> -->
           <div class="col-md-3 mt-2 no-padding-small text-right">
             <div class="d-flex">
               <div class="flex-grow-1 me-2"></div>
@@ -131,20 +145,20 @@
       <ng-template pTemplate="header" let-columns>
         <tr>
           <th class="text-nowrap">Account Id</th>
-          <th>Business Name</th>
-          <th>Person Name</th>
+          <th class="text-nowrap">Business Name</th>
+          <th class="text-nowrap">Person Name</th>
           <th class="text-nowrap">Mobile</th>
           <!-- <th class="text-nowrap">Email</th>
           <th class="text-nowrap">City</th> -->
           <th class="text-nowrap">Wallet Balance</th>
-          <th class="text-nowrap">Plan</th>
+          <!-- <th class="text-nowrap">Plan</th> -->
           <th class="text-nowrap">Plan Status</th>
           <th class="text-nowrap">Remarks</th>
-          <th class="text-nowrap">Status</th>
+          <!-- <th class="text-nowrap">Status</th> -->
 
-          <th>Created Date</th>
+          <th class="text-nowrap">Created Date</th>
           <!-- <th>Status</th> -->
-          <th>Updated Date</th>
+          <th class="text-nowrap">Updated Date</th>
           <th class="text-nowrap">Quick Actions</th>
         </tr>
       </ng-template>
@@ -198,11 +212,11 @@
             }}</span>
           </td>
 
-          <td>
+          <!-- <td>
             <span class="table-column-data" *ngIf="team.latest_plan_name">{{
               team.latest_plan_name
             }}</span>
-          </td>
+          </td> -->
 
           <td>
             <span class="table-column-data" *ngIf="team.latest_status">{{
@@ -227,7 +241,7 @@
               {{ team.status === '1' ? 'Active' : team.status === '2' ? 'Inactive' : '' }}
             </span>
           </td> -->
-          <td>
+          <!-- <td>
             <span
               class="table-column-data fw-bold d-inline-flex align-items-center gap-2"
               *ngIf="team.status"
@@ -241,7 +255,6 @@
                 padding: '0 10px',
               }"
             >
-              <!-- Dot -->
               <span
                 class="rounded-circle"
                 [ngStyle]="{
@@ -252,10 +265,9 @@
                 }"
               ></span>
 
-              <!-- Status Text -->
               {{ team.status === "1" ? "Active" : "Inactive" }}
             </span>
-          </td>
+          </td> -->
 
           <td>
             <span class="table-column-data" *ngIf="team.createdOn">{{

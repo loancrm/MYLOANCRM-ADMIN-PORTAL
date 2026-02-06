@@ -35,6 +35,16 @@ export class AccountsComponent implements AfterViewInit {
   accountInternalStatusList: any = projectConstantsLocal.ACCOUNTS_STATUS;
   selectedAccountStatus = this.accountInternalStatusList[1];
   loggedInUserRole!: number;
+  selectedPlanType: string = 'ALL';
+
+    planTypeOptions = [
+      { label: 'All', value: 'ALL' },
+      { label: 'Free Trial', value: 'Free Trial' },
+      { label: 'Basic', value: 'Basic' },
+      { label: 'Premium', value: 'Premium' },
+      { label: 'Professional', value: 'Professional' }
+    ];
+
   constructor(
     private routingService: RoutingService,
     private location: Location,
@@ -281,7 +291,10 @@ loadAccounts(event) {
 
   // 5️⃣ Merge other filters
   api_filter = Object.assign({}, api_filter, this.searchFilter, this.appliedFilter);
-
+  // ✅ APPLY PLAN FILTER ONLY HERE
+  if (this.selectedPlanType && this.selectedPlanType !== 'ALL') {
+    api_filter['latest_plan_name-eq'] = this.selectedPlanType;
+  }
   // 6️⃣ Call APIs
   console.log('API Filter:', api_filter); // <-- for debugging
   this.getTeamCount(api_filter);
@@ -654,6 +667,12 @@ loadAccounts(event) {
 
   this.loadAccounts(this.currentTableEvent);
 }
+
+onPlanTypeChange(event: any) {
+  this.selectedPlanType = event.value;
+  this.accountTable.reset(); // reload table + API
+}
+
 
 
 }

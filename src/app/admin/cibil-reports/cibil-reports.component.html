@@ -81,6 +81,17 @@
               </button>
             </div>
           </div>
+          <div class="col-md-3 mt-2 no-padding-small">
+            <p-dropdown
+              [options]="reportTypeOptions"
+              [(ngModel)]="selectedReportType"
+              placeholder="Select Credit Bureau"
+              optionLabel="label"
+              optionValue="value"
+              (onChange)="onReportTypeChange($event)"
+              styleClass="w-100"
+            ></p-dropdown>
+          </div>
           <div class="col-md-6 no-padding-small"></div>
         </div>
       </ng-template>
@@ -88,6 +99,7 @@
         <tr>
           <th class="text-nowrap">Account Id</th>
           <th>Name</th>
+          <th>Credit Type</th>
           <th>Mobile</th>
           <th class="text-nowrap">Pan</th>
           <th class="text-nowrap">City</th>
@@ -106,13 +118,14 @@
           <td>{{ report.accountId }}</td>
           <!-- <td>{{ report.client_id }}</td> -->
           <td>{{ report.name }}</td>
+          <td class="text-capitalize"><span class="report-type-badge" [class]="'report-' + report.report_type">{{ report.report_type }}</span></td>
           <td>{{ report.mobile }}</td>
           <td>{{ report.pan }}</td>
           <td>{{ report.city }}</td>
           <td>{{ report.aadhar_number }}</td>
           <td>{{ report.gender }}</td>
-          <td>{{ report.consent }}</td>
-          <td>{{ report.credit_score }}</td>
+          <td>{{ report.consent === 'Y' ? 'Yes' : 'No' }}</td>
+          <td><span class="credit-score-badge" [class]="'credit-score-' + report.report_type">{{ report.credit_score }}</span></td>
           <td>{{ report.status }}</td>
 
           <!-- Downloadable Report -->
