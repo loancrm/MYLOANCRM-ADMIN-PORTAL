@@ -199,32 +199,45 @@ export class DashboardComponent implements OnInit {
   this.loadFollowupAccounts(api_filter);
 }
 
-  // onLazyLoadCreated(event) {
-  //   this.currentTableEvent = event;
-  //   let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
-  //   if (this.selectedCreatedDate) {
-  //     const startOfMonth = this.moment(this.selectedCreatedDate);
-  //     const endOfMonth = this.moment(this.selectedCreatedDate).add(1, 'day');
-  //     api_filter['createdOn-gte'] = startOfMonth.format('YYYY-MM-DD'); // e.g. '2025-07-01'
-  //     api_filter['createdOn-lte'] = endOfMonth.format('YYYY-MM-DD'); // e.g. '2025-07-31'
+// onLazyLoadCreated(event) {
+//   this.currentTableEvent = event;
+//   let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
 
-  //   }
-  //   console.log(api_filter);
-  //   this.loadAccounts(api_filter);
-  // }
-  onLazyLoadCreated(event) {
+//   // TEST DATE (10 Feb 2026 IST)
+//   const testDate = this.moment('2026-02-10', 'YYYY-MM-DD');
+
+//   // IST full day
+//   const startIST = testDate.clone().startOf('day');
+//   const endIST = testDate.clone().endOf('day');
+
+//   // Convert IST → UTC
+//   const startUTC = startIST.clone().utc();
+//   const endUTC = endIST.clone().utc();
+
+//   console.log('UTC Start:', startUTC.format());
+//   console.log('UTC End:', endUTC.format());
+
+//   api_filter['createdOn-gte'] = startUTC.format();
+//   api_filter['createdOn-lte'] = endUTC.format();
+
+//   this.loadCreatedAccounts(api_filter);
+// }
+
+onLazyLoadCreated(event) {
   this.currentTableEvent = event;
   let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
 
-  if (this.selectedCreatedDate) {
-    const start = this.moment(this.selectedCreatedDate);
-    const end = this.moment(this.selectedCreatedDate).add(1, 'day');
+  // Today in IST
+  const startIST = this.moment().startOf('day');
+  const endIST = this.moment().endOf('day');
 
-    api_filter['createdOn-gte'] = start.format('YYYY-MM-DD');
-    api_filter['createdOn-lte'] = end.format('YYYY-MM-DD');
-  }
+  // Convert IST → UTC (because DB is UTC)
+  const startUTC = startIST.clone().utc();
+  const endUTC = endIST.clone().utc();
 
-  console.log('CREATED API FILTER:', api_filter); // ✅ console first check
+  api_filter['createdOn-gte'] = startUTC.format();
+  api_filter['createdOn-lte'] = endUTC.format();
+
   this.loadCreatedAccounts(api_filter);
 }
 loadFollowupAccounts(api_filter) {
@@ -247,7 +260,6 @@ loadFollowupAccounts(api_filter) {
     }
   );
 }
-
 
 // loadFollowupAccounts(api_filter) {
 //   this.apiLoading = true;
