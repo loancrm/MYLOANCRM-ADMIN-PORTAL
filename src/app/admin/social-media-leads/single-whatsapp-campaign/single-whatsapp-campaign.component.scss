@@ -1,0 +1,287 @@
+// ── Layout ─────────────────────────────────────────────
+.campaign-wrapper {
+  padding: 0;
+}
+
+// ── Step Badge ──────────────────────────────────────────
+.step-badge {
+  width: 22px;
+  height: 22px;
+  font-size: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// ── Phone Frame ─────────────────────────────────────────
+.phone-frame-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.phone-frame {
+  width: 380px;
+  background: #000;
+  border-radius: 36px;
+  padding: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+.phone-top-bar {
+  background: #000;
+  border-radius: 28px 28px 0 0;
+  padding: 8px 16px 4px;
+  display: flex;
+  justify-content: center;
+
+  .phone-notch {
+    width: 60px;
+    height: 6px;
+    background: #333;
+    border-radius: 3px;
+  }
+}
+
+.phone-bottom-bar {
+  background: #000;
+  border-radius: 0 0 28px 28px;
+  padding: 8px 16px 10px;
+  display: flex;
+  justify-content: center;
+
+  .phone-home-bar {
+    width: 100px;
+    height: 4px;
+    background: #333;
+    border-radius: 2px;
+  }
+}
+
+// ── WhatsApp Screen ─────────────────────────────────────
+.whatsapp-screen {
+  background: #ece5dd;
+  border-radius: 16px;
+  overflow: hidden;
+  min-height: 380px;
+}
+
+// ── WhatsApp Header ─────────────────────────────────────
+.whatsapp-header {
+  background: #075e54;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .whatsapp-avatar {
+    width: 34px;
+    height: 34px;
+    background: #25d366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: white;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+
+  .whatsapp-contact-name {
+    color: white;
+    font-weight: bold;
+    font-size: 13px;
+  }
+
+  .whatsapp-online {
+    color: #b2dfdb;
+    font-size: 10px;
+  }
+}
+
+// ── Chat Area ───────────────────────────────────────────
+.whatsapp-chat-area {
+  padding: 12px 8px;
+  background: #ece5dd;
+  min-height: 280px;    
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+// ── Message Bubble ──────────────────────────────────────
+.whatsapp-message-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 4px;
+}
+
+.whatsapp-bubble {
+  background: #dcf8c6;
+  border-radius: 12px 0 12px 12px;
+  padding: 8px 10px;
+  max-width: 220px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  position: relative;
+
+  .bubble-triangle {
+    position: absolute;
+    top: 0;
+    right: -8px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid #dcf8c6;
+    border-bottom: 8px solid transparent;
+  }
+
+  .bubble-text {
+    font-size: 12px;
+    color: #303030;
+    line-height: 1.5;
+    // white-space: pre-wrap;
+    // word-break: break-word;
+  }
+
+  .bubble-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 3px;
+    margin-top: 4px;
+
+    .bubble-time {
+      font-size: 9px;
+      color: #7b8b8b;
+    }
+  }
+}
+
+// ── WhatsApp Bottom Input Bar ───────────────────────────
+.whatsapp-input-bar {
+  background: #f0f0f0;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .whatsapp-input-placeholder {
+    flex: 1;
+    background: white;
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 11px;
+    color: #999;
+  }
+
+  .whatsapp-send-btn {
+    width: 32px;
+    height: 32px;
+    background: #25d366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    i {
+      color: white;
+      font-size: 12px;
+    }
+  }
+}
+
+// ── Preview Label ───────────────────────────────────────
+.preview-label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8px;
+}
+
+// ── Result Summary Cards ────────────────────────────────
+.result-card {
+  text-align: center;
+  padding: 8px;
+
+  h4 {
+    margin-bottom: 0;
+    font-weight: bold;
+  }
+}
+
+/* ───────── CARD DESIGN ───────── */
+.card {
+  border: none;
+  transition: 0.3s;
+  background: #ffffff;
+  border-radius: 0% !important;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.08);
+}
+
+/* ───────── CARD HEADER ───────── */
+.card-header {
+  background: #e2ecf6 !important;
+  color: #334155 !important;
+//   border-radius: 14px 14px 0 0 !important;
+  font-weight: 600;
+  border-bottom: 1px solid #e2e8f0;
+  border-radius: 0% !important;
+}
+
+/* ───────── INPUTS ───────── */
+input[pInputText],
+.p-dropdown {
+  border-radius: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  padding: 10px !important;
+  transition: 0.2s;
+}
+
+input[pInputText]:focus,
+.p-dropdown:focus {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2) !important;
+}
+
+/* ───────── BADGES ───────── */
+.badge {
+  border-radius: 8px;
+  font-size: 11px;
+  padding: 4px 8px;
+}
+
+/* ───────── LEAD AVATAR ───────── */
+.lead-avatar {
+  width: 45px;
+  height: 45px;
+  background: linear-gradient(135deg, #93c5fd, #60a5fa);
+  border-radius: 50%;
+  color: white;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.no-preview-box {
+  height: 350px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  text-align: center;
+
+  i {
+    font-size: 32px;
+    margin-bottom: 10px;
+    opacity: 0.6;
+  }
+
+  p {
+    font-size: 14px;
+    margin: 0;
+  }
+}

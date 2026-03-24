@@ -155,7 +155,10 @@ export class SidebarMenuComponent implements OnChanges {
       route: 'users',
       condition: this.loggedInUserRole === 1
     },
-
+    // ✅ ADD THESE TWO
+    { label: 'Campaign', icon: '../../../assets/images/icons/callbacks.svg', route: 'campaign', condition: true },
+    { label: 'Logs', icon: '../../../assets/images/icons/callbacks.svg', route: 'logs', condition: true },
+    { label: 'Tempaltes', icon: '../../../assets/images/icons/callbacks.svg', route: 'templates', condition: true },
     ];
   }
 

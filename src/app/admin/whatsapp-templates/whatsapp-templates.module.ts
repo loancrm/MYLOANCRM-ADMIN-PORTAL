@@ -1,9 +1,11 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+// import { CreateTemplateComponent } from './create-template/create-template.component';
+import { WhatsappTemplatesComponent } from './whatsapp-templates.component';
+import { CreateTemplateModule } from './create-template/create-template.module'; // ✅
+
+import { FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
-import { SocialMediaLeadsComponent } from './social-media-leads.component';
-import { BreadcrumbModule } from 'primeng/breadcrumb';
-import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { MenuModule } from 'primeng/menu';
@@ -16,35 +18,22 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { AccordionModule } from 'primeng/accordion';
 import { RippleModule } from 'primeng/ripple';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { FormsModule } from '@angular/forms';
-// const routes: Routes = [
-//   { path: '', component: SocialMediaLeadsComponent },
-
-// ];
+import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 const routes: Routes = [
-  { path: '', component: SocialMediaLeadsComponent },
-  {
-    path: 'create',
-    loadChildren: () =>
-      import('./create-social-media-lead/create-social-media-lead.module').then((m) => m.CreateSocialMediaLeadModule),
-  },
-  {
-    path: 'update/:id',
-    loadChildren: () =>
-      import('./create-social-media-lead/create-social-media-lead.module').then((m) => m.CreateSocialMediaLeadModule),
-  },
-  { path: 'single-campaign',
-    loadChildren: () =>
-      import('./single-whatsapp-campaign/single-whatsapp-campaign.module').then((m) => m.SingleWhatsappCampaignModule),
-  }
+  { path: '', component: WhatsappTemplatesComponent }
 ];
+
+
 @NgModule({
-  declarations: [SocialMediaLeadsComponent],
+  declarations: [
+    WhatsappTemplatesComponent
+  ],
   imports: [
     CommonModule,
-    BreadcrumbModule,
-    ButtonModule,
+    FormsModule,
     DropdownModule,
+    ButtonModule,
     InputTextModule,
     MenuModule,
     TableModule,
@@ -56,8 +45,14 @@ const routes: Routes = [
     AccordionModule,
     RippleModule,
     MultiSelectModule,
-    FormsModule,
-    [RouterModule.forChild(routes)],
+    TooltipModule,
+    CreateTemplateModule,
+    RouterModule.forChild(routes)
+  ],
+    exports: [
+    WhatsappTemplatesComponent,  // ✅ Export so CampaignModule can use it
+    // CreateTemplateComponent      // ✅ Export so CampaignModule can use it
+    CreateTemplateModule
   ]
 })
-export class SocialMediaLeadsModule { }
+export class WhatsappTemplatesModule { }

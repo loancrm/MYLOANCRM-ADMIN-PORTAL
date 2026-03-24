@@ -80,6 +80,21 @@ const routes: Routes = [
         loadChildren: () =>
           import('./users/users.module').then(m => m.UsersModule),
       },
+      {
+        path: 'campaign',
+        loadChildren: () =>
+          import('./campaign/campaign.module').then((m) => m.CampaignModule),
+      },
+      {
+        path: 'logs',
+        loadChildren: () =>
+          import('./logs/logs.module').then((m) => m.LogsModule),
+      },
+      {
+        path: 'templates',
+        loadChildren: () =>
+          import('./whatsapp-templates/whatsapp-templates.module').then((m) => m.WhatsappTemplatesModule),
+      },
 
     ],
   },

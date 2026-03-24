@@ -1,0 +1,136 @@
+<div>
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-3 px-2 pt-2">
+    <small class="text-muted">{{ templates.length }} template(s)</small>
+    <div class="d-flex gap-2">
+      <button
+        pButton type="button"
+        label="Sync All"
+        icon="pi pi-sync"
+        class="p-button-sm p-button-outlined p-button-info"
+        (click)="syncAllTemplateStatus()"
+        [loading]="isSyncing"
+      ></button>
+      <button
+        pButton type="button"
+        label="Create Template"
+        icon="pi pi-plus"
+        class="p-button-sm p-button-primary"
+        (click)="openCreateDialog()"
+      ></button>
+    </div>
+  </div>
+
+  <!-- Templates Table -->
+  <p-table
+    [value]="templates"
+    styleClass="p-datatable-striped p-datatable-sm"
+    responsiveLayout="scroll"
+    [paginator]="templates.length > 10"
+    [rows]="10"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 60px;">ID</th>
+        <th>Template Name</th>
+        <th style="width: 150px;">Status</th>
+        <th style="width: 130px;">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-t>
+      <tr>
+        <!-- ID -->
+        <td>{{ t.id }}</td>
+
+        <!-- Template Name -->
+        <td>
+          <span class="fw-semibold">{{ t.name }}</span>
+          <span class="badge bg-secondary ms-2" style="font-size: 0.65rem;">
+            {{ t.language }}
+          </span>
+        </td>
+
+        <!-- Status -->
+        <td>
+          <span
+            class="badge"
+            [ngClass]="{
+              'bg-success':           t.approval_status === 'APPROVED',
+              'bg-danger':            t.approval_status === 'REJECTED',
+              'bg-warning text-dark': t.approval_status === 'PENDING' || !t.approval_status,
+              'bg-secondary':         t.approval_status === 'PAUSED' || t.approval_status === 'DISABLED'
+            }"
+          >
+            <i class="pi me-1"
+              [ngClass]="{
+                'pi-check-circle': t.approval_status === 'APPROVED',
+                'pi-times-circle': t.approval_status === 'REJECTED',
+                'pi-clock':        t.approval_status === 'PENDING' || !t.approval_status,
+                'pi-pause':        t.approval_status === 'PAUSED'
+              }"
+            ></i>
+            {{ t.approval_status || 'PENDING' }}
+          </span>
+
+          <!-- Rejection reason tooltip -->
+          <span
+            *ngIf="t.approval_status === 'REJECTED' && t.rejection_reason"
+            class="ms-1"
+            [pTooltip]="t.rejection_reason"
+            tooltipPosition="top"
+          >
+            <i class="pi pi-info-circle text-danger" style="font-size: 11px;"></i>
+          </span>
+        </td>
+
+        <!-- Actions -->
+        <td>
+          <div class="d-flex gap-1">
+            <button
+              pButton type="button"
+              icon="pi pi-refresh"
+              class="p-button-text p-button-sm p-button-info"
+              (click)="refreshTemplateStatus(t)"
+              pTooltip="Refresh Status"
+              tooltipPosition="top"
+            ></button>
+            <button
+              pButton type="button"
+              icon="pi pi-pencil"
+              class="p-button-text p-button-sm p-button-warning"
+              (click)="openEditDialog(t)"
+              pTooltip="Edit"
+              tooltipPosition="top"
+            ></button>
+            <button
+              pButton type="button"
+              icon="pi pi-trash"
+              class="p-button-text p-button-sm p-button-danger"
+              (click)="deleteTemplate(t)"
+              pTooltip="Delete"
+              tooltipPosition="top"
+            ></button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="4" class="text-center p-4 text-muted">
+          <i class="pi pi-inbox me-2" style="font-size: 1.5rem;"></i>
+          <p class="mt-2 mb-0">No templates yet. Click "Create Template" to add one.</p>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <!-- Create/Edit Dialog -->
+  <app-create-template
+    [(visible)]="showCreateDialog"
+    [editTemplate]="editTemplateData"
+    (templateSaved)="onTemplateSaved()"
+    (visibleChange)="onDialogClose()"
+  ></app-create-template>
+</div>

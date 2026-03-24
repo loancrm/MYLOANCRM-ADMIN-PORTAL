@@ -1,0 +1,139 @@
+<div>
+  <div class="p-1 m-2 fixed-card">
+    <div class="d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center pointer-cursor" (click)="goBack()">
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <b><span class="back-btn-text">{{ isEditMode ? 'Edit Lead' : 'Add Lead' }}</span></b>
+      </div>
+    </div>
+  </div>
+
+  <div class="m-2">
+    <div class="card">
+      <div class="card-body">
+        <div class="row g-3">
+
+          <!-- Name -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">
+              Name <span class="text-danger">*</span>
+            </label>
+            <input
+              pInputText
+              [(ngModel)]="form.Name"
+              placeholder="Enter full name"
+              class="w-100"
+            />
+          </div>
+
+          <!-- Email -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">Email</label>
+            <input
+              pInputText
+              [(ngModel)]="form.Email"
+              placeholder="Enter email address"
+              class="w-100"
+            />
+          </div>
+
+          <!-- Phone -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">
+              Phone <span class="text-danger">*</span>
+            </label>
+            <input
+              pInputText
+              [(ngModel)]="form.PhoneNumber"
+              placeholder="Enter phone number"
+              class="w-100"
+            />
+          </div>
+
+          <!-- Company -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">Company</label>
+            <input
+              pInputText
+              [(ngModel)]="form.Company"
+              placeholder="Enter company name"
+              class="w-100"
+            />
+          </div>
+
+          <!-- City -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">City</label>
+            <input
+              pInputText
+              [(ngModel)]="form.City"
+              placeholder="Enter city"
+              class="w-100"
+            />
+          </div>
+
+          <!-- State -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">State</label>
+            <input
+              pInputText
+              [(ngModel)]="form.State"
+              placeholder="Enter state"
+              class="w-100"
+            />
+          </div>
+
+          <!-- Pincode -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">Pincode</label>
+            <input
+              pInputText
+              [(ngModel)]="form.pinCode"
+              placeholder="Enter pincode"
+              class="w-100"
+            />
+          </div>
+
+          <!-- Platform -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">Platform</label>
+            <p-dropdown
+              [options]="platformOptions"
+              [(ngModel)]="form.Platform"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="-- Select Platform --"
+              [style]="{ width: '100%' }"
+              appendTo="body"
+            ></p-dropdown>
+          </div>
+
+        </div>
+
+        <!-- Buttons -->
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          <button
+            pButton
+            type="button"
+            label="Cancel"
+            class="p-button-text"
+            (click)="goBack()"
+          ></button>
+          <button
+            pButton
+            type="button"
+            [label]="saving ? 'Saving...' : (isEditMode ? 'Update' : 'Save')"
+            icon="pi pi-check"
+            class="p-button-primary "
+            (click)="save()"
+            [disabled]="saving"
+            [loading]="saving"
+          ></button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

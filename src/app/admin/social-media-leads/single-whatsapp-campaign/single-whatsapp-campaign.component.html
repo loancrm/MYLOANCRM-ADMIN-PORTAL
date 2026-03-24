@@ -1,0 +1,351 @@
+<div>
+  <!-- Header -->
+  <div class="p-1 m-2 fixed-card">
+    <div class="d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center pointer-cursor" (click)="goBack()">
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <b><span class="back-btn-text">Send WhatsApp Message</span></b>
+      </div>
+    </div>
+  </div>
+
+  <div class="m-2">
+    <div class="row g-3">
+
+      <!-- LEFT: Form -->
+      <div class="col-md-6">
+
+        <!-- Lead Card -->
+        <div class="card mb-3" *ngIf="lead">
+          <div class="card-header custom-card-header text-white py-2">
+            <h6 class="mb-0">
+              <i class="pi pi-user me-2"></i>Sending To
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="d-flex align-items-center gap-3">
+              <div class="lead-avatar">
+                {{ lead.name ? lead.name[0].toUpperCase() : '?' }}
+              </div>
+              <div class="flex-grow-1">
+                <div class="fw-semibold fs-6">{{ lead.name || 'N/A' }}</div>
+                <div class="text-muted small">
+                  <i class="pi pi-phone me-1"></i>{{ lead.mobileNumber }}
+                </div>
+                <div class="text-muted small" *ngIf="lead.email">
+                  <i class="pi pi-envelope me-1"></i>{{ lead.email }}
+                </div>
+                
+                <div class="text-muted small" *ngIf="lead.city">
+                  <i class="pi pi-map-marker me-1"></i>
+                  {{ lead.city }}<span *ngIf="lead.state">, {{ lead.state }}</span>
+                </div>
+              </div>
+              <div class="mt-2">
+                    <span 
+                        class="badge"
+                        [ngClass]="isActive24h ? 'bg-success' : 'bg-danger'">
+
+                        <i class="pi"
+                        [ngClass]="isActive24h ? 'pi-check-circle' : 'pi-times-circle'"></i>
+
+                        {{ isActive24h ? 'Active (24h Open)' : 'Window Closed' }}
+                    </span>
+
+                    <small class="text-muted ms-2" *ngIf="lastSeenText">
+                        Last interaction: {{ lastSeenText }}
+                    </small>
+                </div>
+              <span class="badge"
+                [ngClass]="{
+                  'bg-primary':   lead.platform === 'Facebook',
+                  'bg-danger':    lead.platform === 'Instagram',
+                  'bg-success':   lead.platform === 'WhatsApp' || lead.platform === 'Manual',
+                  'bg-info':      lead.platform === 'Google',
+                  'bg-secondary': !lead.platform
+                }">
+                {{ lead.platform || 'Manual' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Campaign Name -->
+        <div class="card mb-3">
+          <div class="card-header custom-card-header text-white py-2">
+            <h6 class="mb-0">
+              <span class="badge bg-white text-primary rounded-circle me-2">1</span>
+              Campaign Name
+            </h6>
+          </div>
+          <div class="card-body">
+            <input
+              pInputText
+              [(ngModel)]="campaignName"
+              placeholder="e.g. March Offer Campaign"
+              class="w-100"
+            />
+          </div>
+        </div>
+        
+        <!-- Step 2: Message -->
+        <div class="card mb-3">
+        <div class="card-header bg-primary text-white py-2">
+            <h6 class="mb-0">
+            <span class="badge bg-white text-primary rounded-circle me-2 step-badge">2</span>
+            Message
+            </h6>
+        </div>
+        <div class="card-body">
+
+            <!-- ✅ Toggle -->
+            <div class="d-flex gap-2 mb-3">
+            <button
+                pButton type="button"
+                label="Use Template"
+                icon="pi pi-list"
+                [class]="messageMode === 'template' ? 'p-button-primary p-button-sm' : 'p-button-outlined p-button-sm'"
+                (click)="messageMode = 'template'"
+            ></button>
+            <button
+                pButton type="button"
+                label="Custom Message"
+                icon="pi pi-pencil"
+                [class]="messageMode === 'custom' ? 'p-button-primary p-button-sm' : 'p-button-outlined p-button-sm'"
+                (click)="messageMode = 'custom'"
+            ></button>
+            </div>
+
+            <!-- ✅ Template Mode -->
+            <ng-container *ngIf="messageMode === 'template'">
+            <p-dropdown
+                [options]="templates"
+                [(ngModel)]="selectedTemplate"
+                optionLabel="name"
+                placeholder="-- Select Template --"
+                [style]="{ width: '100%' }"
+                appendTo="body"
+                (onChange)="onTemplateSelect()"
+                [showClear]="true"
+            >
+                <ng-template let-t pTemplate="item">
+                <div class="d-flex align-items-center gap-2">
+                    <span>{{ t.name }}</span>
+                    <span class="badge bg-secondary" style="font-size:0.65rem;">{{ t.language }}</span>
+                    <span
+                    class="badge"
+                    [ngClass]="{
+                        'bg-success':           t.approval_status === 'APPROVED',
+                        'bg-danger':            t.approval_status === 'REJECTED',
+                        'bg-warning text-dark': t.approval_status === 'PENDING' || !t.approval_status
+                    }"
+                    style="font-size:0.65rem;"
+                    >{{ t.approval_status || 'PENDING' }}</span>
+                </div>
+                </ng-template>
+            </p-dropdown>
+            </ng-container>
+
+            <!-- ✅ Custom Message Mode -->
+            <ng-container *ngIf="messageMode === 'custom'">
+
+            <div class="alert alert-warning py-2 mb-3">
+                <i class="pi pi-exclamation-triangle me-2"></i>
+                <small>Only works within <strong>24-hour window</strong> after contact messages you first.</small>
+            </div>
+
+            <textarea
+                [(ngModel)]="customMessage"
+                placeholder="Type your custom message here..."
+                class="form-control"
+                rows="5"
+                style="font-size: 13px; resize: vertical;"
+            ></textarea>
+            <small class="text-muted d-block mt-1">
+                {{ customMessage.length }} characters
+            </small>
+            </ng-container>
+
+        </div>
+        </div>
+
+        <!-- Parameter Mapping -->
+        <div class="card mb-3" *ngIf="templateParams.length > 0">
+          <div class="card-header custom-card-header text-white py-2">
+            <h6 class="mb-0">
+              <span class="badge bg-white text-primary rounded-circle me-2">3</span>
+              Set Parameter Values
+            </h6>
+          </div>
+          <div class="card-body">
+            <div *ngFor="let param of templateParams; let i = index"
+              class="mb-3 p-2 border rounded bg-light">
+              <label class="fw-semibold small mb-2 d-block">{{ param }}</label>
+              <div class="d-flex gap-3 mb-2">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio"
+                    [(ngModel)]="paramMappings[i].type" value="db"
+                    [name]="'param_' + i" />
+                  <label class="form-check-label small">From Lead Field</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio"
+                    [(ngModel)]="paramMappings[i].type" value="manual"
+                    [name]="'param_' + i" />
+                  <label class="form-check-label small">Custom Value</label>
+                </div>
+              </div>
+              <p-dropdown
+                *ngIf="paramMappings[i].type === 'db'"
+                [options]="dbFieldOptions"
+                [(ngModel)]="paramMappings[i].dbField"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="-- Select Field --"
+                [style]="{ width: '100%' }"
+                appendTo="body"
+              ></p-dropdown>
+              <input
+                *ngIf="paramMappings[i].type === 'manual'"
+                pInputText
+                [(ngModel)]="paramMappings[i].manualValue"
+                placeholder="e.g. 20% OFF"
+                class="w-100"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Send Button -->
+        <div class="card">
+          <div class="card-header bg-success text-white py-2">
+            <h6 class="mb-0">
+              <span class="badge bg-white text-success rounded-circle me-2">3</span>
+              Send Message
+            </h6>
+          </div>
+          <div class="card-body">
+            <button
+              pButton
+              [label]="sending ? 'Sending...' : '🚀 Send WhatsApp Message'"
+              icon="pi pi-send"
+              class="p-button-success w-100"
+              (click)="sendCampaign()"
+              [disabled]="!canSend() || sending || sent"
+              [loading]="sending"
+            ></button>
+
+            <!-- Validation hints -->
+            <div class="mt-2">
+              <small class="text-danger d-block" *ngIf="!campaignName">
+                <i class="pi pi-times-circle me-1"></i>Campaign name required
+              </small>
+              <small class="text-danger d-block" *ngIf="!selectedTemplate">
+                <i class="pi pi-times-circle me-1"></i>Select a template
+              </small>
+            </div>
+
+            <!-- Success Result -->
+            <div *ngIf="result" class="mt-3">
+              <div class="alert alert-success d-flex align-items-center mb-0 py-2">
+                <i class="pi pi-check-circle me-2" style="font-size:1.2rem"></i>
+                <div>
+                  <strong>Message Sent!</strong>
+                  <div class="small mt-1">
+                    To: {{ lead.name }} ({{ lead.mobileNumber }})
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+        <!-- RIGHT: WhatsApp Preview -->
+<div class="col-md-6">
+  <div class="card">
+    <div class="card-header custom-card-header text-white py-2">
+      <h6 class="mb-0">
+        <i class="pi pi-eye me-2"></i>Message Preview
+      </h6>
+    </div>
+
+    <div class="card-body">
+
+      <!-- ✅ Show preview for template or custom -->
+      <ng-container *ngIf="(messageMode === 'template' && templateBodyText) || (messageMode === 'custom' && customMessage); else noMessagePreview">
+        <div class="phone-frame-wrapper">
+          <div class="phone-frame">
+
+            <!-- Top -->
+            <div class="phone-top-bar"><div class="phone-notch"></div></div>
+
+            <!-- Screen -->
+            <div class="whatsapp-screen">
+
+              <!-- Header -->
+              <div class="whatsapp-header">
+                <div class="whatsapp-avatar">
+                  {{ lead?.name ? lead.name[0].toUpperCase() : 'C' }}
+                </div>
+                <div>
+                  <div class="whatsapp-contact-name">
+                    {{ lead?.name || campaignName || 'Contact' }}
+                  </div>
+                  <div class="whatsapp-online">
+                    {{ lead?.mobileNumber || 'online' }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Chat -->
+              <div class="whatsapp-chat-area">
+                <div class="whatsapp-message-row">
+                  <div class="whatsapp-bubble">
+
+                    <div class="bubble-text">
+                      {{ messageMode === 'template' ? previewText : customMessage }}
+                    </div>
+
+                    <div class="bubble-footer">
+                      <span class="bubble-time">{{ getCurrentTime() }}</span>
+                      <!-- Tick SVG here -->
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+              <!-- Input -->
+              <div class="whatsapp-input-bar">
+                <div class="whatsapp-input-placeholder">Type a message</div>
+                <div class="whatsapp-send-btn"><i class="pi pi-send"></i></div>
+              </div>
+
+            </div>
+
+            <!-- Bottom -->
+            <div class="phone-bottom-bar"><div class="phone-home-bar"></div></div>
+
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ❌ No message to preview -->
+      <ng-template #noMessagePreview>
+        <div class="no-preview-box">
+          <i class="pi pi-eye-slash"></i>
+          <p>Select a template or type a custom message to preview</p>
+        </div>
+      </ng-template>
+
+    </div>
+  </div>
+</div>
+    </div> 
+  </div> 
+</div>

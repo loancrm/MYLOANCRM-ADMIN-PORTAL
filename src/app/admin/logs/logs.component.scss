@@ -1,0 +1,157 @@
+.logs-container {
+  display: flex;
+  max-width: 1100px;
+  margin: auto;
+  height: 80vh;
+  font-family: Arial, sans-serif;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+
+  .contacts-panel {
+    width: 35%;
+    border-right: 1px solid #ddd;
+    padding: 16px;
+    overflow-y: auto;
+    background: #f9f9f9;
+
+    h3 {
+      margin-bottom: 12px;
+    }
+
+    .contact-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+
+      &.active {
+        background: #d0eaff;
+      }
+
+      &:hover {
+        background: #e6f2ff;
+      }
+
+      .contact-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .avatar {
+          width: 36px;
+          height: 36px;
+          background: #007bff;
+          color: #fff;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: bold;
+        }
+
+        .contact-details {
+          .contact-name {
+            font-weight: 600;
+          }
+          .contact-number {
+            font-size: 12px;
+            color: #555;
+          }
+        }
+      }
+
+      .status {
+        font-size: 12px;
+
+        &.sent {
+          color: green;
+        }
+        &.failed {
+          color: red;
+        }
+      }
+    }
+  }
+
+  .chat-panel {
+    width: 65%;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+
+      .avatar {
+        width: 40px;
+        height: 40px;
+        background: #007bff;
+        color: #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+      }
+
+      .contact-details {
+        .contact-name {
+          font-weight: 600;
+        }
+        .contact-number {
+          font-size: 12px;
+          color: #555;
+        }
+      }
+    }
+
+    .chat-body {
+      flex-grow: 1;
+      padding: 16px;
+      overflow-y: auto;
+
+      .message-row {
+        margin-bottom: 12px;
+
+        &.sent {
+          display: flex;
+          justify-content: flex-end;
+        }
+
+        .message-bubble {
+          max-width: 70%;
+          background: #dcf8c6;
+          padding: 8px 12px;
+          border-radius: 12px;
+          position: relative;
+          font-size: 13px;
+
+          .message-text {
+            margin-bottom: 4px;
+          }
+
+          .message-time {
+            font-size: 10px;
+            color: #555;
+            text-align: right;
+          }
+        }
+
+        &.id {
+          text-align: right;
+          font-size: 10px;
+          color: #888;
+        }
+      }
+    }
+  }
+}

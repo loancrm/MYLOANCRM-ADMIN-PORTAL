@@ -1,0 +1,370 @@
+
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [style]="{ width: '75vw' }"
+  [header]="isEditMode ? 'Edit Template' : 'Create WhatsApp Template'"
+  [closable]="true"
+  (onHide)="closeDialog()"
+  [draggable]="false"
+  [appendTo]="'body'"
+  [baseZIndex]="10001"
+  [resizable]="false"
+>
+  <div class="p-fluid">
+    <div class="row g-3">
+
+      <!-- Left: Form -->
+      <div class="col-md-6">
+
+        <!-- Template Name -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold small">
+            Template Name <span class="text-danger">*</span>
+          </label>
+          <input
+            pInputText
+            [(ngModel)]="newTemplate.name"
+            placeholder="e.g. loan_offer_march"
+            class="w-100"
+          />
+          <small class="text-muted">Lowercase letters, numbers, underscores only</small>
+        </div>
+
+        <!-- Language -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold small">Language</label>
+          <p-dropdown
+            [options]="languageOptions"
+            [(ngModel)]="newTemplate.language"
+            optionLabel="label"
+            optionValue="value"
+            [style]="{ width: '100%' }"
+            appendTo="body"
+          ></p-dropdown>
+        </div>
+
+        <!-- Category -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold small">Category</label>
+          <p-dropdown
+            [options]="categoryOptions"
+            [(ngModel)]="newTemplate.category"
+            optionLabel="label"
+            optionValue="value"
+            [style]="{ width: '100%' }"
+            appendTo="body"
+          ></p-dropdown>
+        </div>
+
+        <!-- Header Type -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold small">
+            <i class="pi pi-image me-1"></i>Header
+            <span class="badge bg-secondary ms-1">Optional</span>
+          </label>
+          <p-dropdown
+            [options]="headerTypeOptions"
+            [(ngModel)]="newTemplate.header_type"
+            optionLabel="label"
+            optionValue="value"
+            [style]="{ width: '100%' }"
+            appendTo="body"
+          ></p-dropdown>
+
+          <!-- Text Header -->
+          <div class="mt-2" *ngIf="newTemplate.header_type === 'TEXT'">
+            <input
+              pInputText
+              [(ngModel)]="newTemplate.header_text"
+              placeholder="e.g. Special Loan Offer 🎉"
+              class="w-100"
+            />
+            <small class="text-muted d-block mt-1">
+              <i class="pi pi-info-circle me-1"></i>Max 60 characters.
+            </small>
+          </div>
+
+          <!-- Image Header -->
+          <div class="mt-2" *ngIf="newTemplate.header_type === 'IMAGE'">
+            <input
+              type="file"
+              id="headerImageFile"
+              accept=".jpg,.jpeg,.png"
+              (change)="onHeaderFileSelected($event, 'IMAGE')"
+              class="form-control"
+            />
+            <small class="text-muted d-block mt-1">
+              <i class="pi pi-info-circle me-1"></i>JPG, PNG | Max 5MB
+            </small>
+            <div *ngIf="newTemplate.header_file_name"
+              class="d-flex align-items-center border rounded p-2 bg-light mt-2">
+              <i class="pi pi-image text-success me-2"></i>
+              <div class="flex-grow-1 small fw-semibold">{{ newTemplate.header_file_name }}</div>
+              <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-2"
+                (click)="clearHeaderFile()">
+                <i class="pi pi-times"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Video Header -->
+          <div class="mt-2" *ngIf="newTemplate.header_type === 'VIDEO'">
+            <input
+              type="file"
+              id="headerVideoFile"
+              accept=".mp4"
+              (change)="onHeaderFileSelected($event, 'VIDEO')"
+              class="form-control"
+            />
+            <small class="text-muted d-block mt-1">
+              <i class="pi pi-info-circle me-1"></i>MP4 | Max 16MB
+            </small>
+            <div *ngIf="newTemplate.header_file_name"
+              class="d-flex align-items-center border rounded p-2 bg-light mt-2">
+              <i class="pi pi-video text-success me-2"></i>
+              <div class="flex-grow-1 small fw-semibold">{{ newTemplate.header_file_name }}</div>
+              <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-2"
+                (click)="clearHeaderFile()">
+                <i class="pi pi-times"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Document Header -->
+          <div class="mt-2" *ngIf="newTemplate.header_type === 'DOCUMENT'">
+            <input
+              type="file"
+              id="headerDocumentFile"
+              accept=".pdf"
+              (change)="onHeaderFileSelected($event, 'DOCUMENT')"
+              class="form-control"
+            />
+            <small class="text-muted d-block mt-1">
+              <i class="pi pi-info-circle me-1"></i>PDF | Max 100MB
+            </small>
+            <div *ngIf="newTemplate.header_file_name"
+              class="d-flex align-items-center border rounded p-2 bg-light mt-2">
+              <i class="pi pi-file-pdf text-success me-2"></i>
+              <div class="flex-grow-1 small fw-semibold">{{ newTemplate.header_file_name }}</div>
+              <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-2"
+                (click)="clearHeaderFile()">
+                <i class="pi pi-times"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Body Text -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold small">
+            Message Body <span class="text-danger">*</span>
+          </label>
+          <textarea
+            [(ngModel)]="newTemplate.body_text"
+            placeholder="Hi {{1}}, your loan offer is ready!"
+            class="form-control template-textarea"
+            rows="6"
+          ></textarea>
+          <small class="text-muted">
+            <i class="pi pi-info-circle me-1"></i>
+            Use <code>{{1}}</code>, <code>{{2}}</code> for dynamic values
+          </small>
+        </div>
+
+        <!-- Buttons Section -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold small">
+            <i class="pi pi-external-link me-1"></i>Buttons
+            <span class="badge bg-secondary ms-1">Optional</span>
+          </label>
+          <div class="card">
+            <div class="card-body p-2">
+              <div
+                *ngFor="let btn of newTemplate.buttons; let bi = index"
+                class="mb-2 p-2 border rounded bg-light"
+              >
+                <div class="row g-2 align-items-center">
+                  <div class="col-md-4">
+                    <p-dropdown
+                      [options]="buttonTypes"
+                      [(ngModel)]="btn.type"
+                      optionLabel="label"
+                      optionValue="value"
+                      [style]="{ width: '100%' }"
+                      appendTo="body"
+                      placeholder="Type"
+                    ></p-dropdown>
+                  </div>
+                  <div class="col-md-4">
+                    <input pInputText [(ngModel)]="btn.text" placeholder="Button Label" class="w-100" />
+                  </div>
+                  <div class="col-md-3" *ngIf="btn.type === 'URL'">
+                    <input pInputText [(ngModel)]="btn.url" placeholder="https://..." class="w-100" />
+                  </div>
+                  <div class="col-md-3" *ngIf="btn.type === 'PHONE_NUMBER'">
+                    <input pInputText [(ngModel)]="btn.phone" placeholder="+91XXXXXXXXXX" class="w-100" />
+                  </div>
+                  <div class="col-md-3" *ngIf="btn.type === 'QUICK_REPLY'">
+                    <small class="text-muted">
+                      <i class="pi pi-info-circle me-1"></i>Reply button
+                    </small>
+                  </div>
+                  <div class="col-md-1">
+                    <button pButton type="button" icon="pi pi-trash"
+                      class="p-button-danger p-button-sm p-button-text"
+                      (click)="removeButton(bi)"></button>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                pButton type="button" label="Add Button" icon="pi pi-plus"
+                class="p-button-outlined p-button-sm mt-1"
+                (click)="addButton()"
+                [disabled]="newTemplate.buttons.length >= 3"
+              ></button>
+              <small class="text-muted d-block mt-1">
+                <i class="pi pi-info-circle me-1"></i>Max 3 buttons.
+              </small>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right: WhatsApp Preview -->
+      <div class="col-md-6">
+        <label class="form-label fw-semibold small">
+          <i class="pi pi-eye me-1"></i>Live Preview
+        </label>
+
+        <div class="phone-frame-wrapper">
+          <div class="phone-frame">
+            <div class="phone-top-bar">
+              <div class="phone-notch"></div>
+            </div>
+
+            <div class="whatsapp-screen">
+              <div class="whatsapp-header">
+                <div class="whatsapp-avatar">
+                  {{ newTemplate.name ? newTemplate.name[0].toUpperCase() : 'T' }}
+                </div>
+                <div>
+                  <div class="whatsapp-contact-name">
+                    {{ newTemplate.name || 'Template Preview' }}
+                  </div>
+                  <div class="whatsapp-online">online</div>
+                </div>
+              </div>
+
+              <div class="whatsapp-chat-area">
+
+                <!-- Header Preview -->
+                <div class="whatsapp-message-row" *ngIf="newTemplate.header_type !== 'NONE'">
+                  <div class="whatsapp-bubble whatsapp-bubble--header">
+                    <div class="bubble-triangle"></div>
+                    <div class="bubble-header-text" *ngIf="newTemplate.header_type === 'TEXT'">
+                      {{ newTemplate.header_text || 'Header Text' }}
+                    </div>
+                    <div class="bubble-header-media" *ngIf="newTemplate.header_type === 'IMAGE'">
+                      <img *ngIf="headerImagePreview" [src]="headerImagePreview"
+                        class="bubble-header-image" alt="Header" />
+                      <div *ngIf="!headerImagePreview" class="bubble-header-media-placeholder">
+                        <i class="pi pi-image"></i>
+                        <span>Upload Image</span>
+                      </div>
+                    </div>
+                    <div class="bubble-header-media" *ngIf="newTemplate.header_type === 'VIDEO'">
+                      <i class="pi pi-video"></i>
+                      <span>Video</span>
+                    </div>
+                    <div class="bubble-header-media" *ngIf="newTemplate.header_type === 'DOCUMENT'">
+                      <i class="pi pi-file-pdf"></i>
+                      <span>Document</span>
+                    </div>
+                    <div class="bubble-text mt-1" *ngIf="newTemplate.body_text">
+                      {{ templatePreviewText }}
+                    </div>
+                    <div class="bubble-footer" *ngIf="newTemplate.body_text">
+                      <span class="bubble-time">{{ getCurrentTime() }}</span>
+                      <svg width="15" height="11" viewBox="0 0 15 11">
+                        <path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36035L1.99377 6.05469C1.8111 5.87402 1.59839 5.78369 1.35557 5.78369C1.10168 5.78369 0.887817 5.87402 0.714233 6.05469L0.658936 6.10999C0.495883 6.28564 0.414357 6.50635 0.414357 6.77002C0.414357 7.03369 0.495883 7.25439 0.658936 7.43005L3.78516 10.7032C3.9502 10.8789 4.15137 10.9668 4.39014 10.9668C4.60339 10.9668 4.79541 10.8789 4.9668 10.7032L11.8325 2.3545C11.9979 2.17383 12.0806 1.96069 12.0806 1.71484C12.0806 1.49902 12.001 1.30713 11.8418 1.13904L11.0714 0.652832Z" fill="#4FC3F7"/>
+                        <path d="M14.1069 0.652832C14.0264 0.585124 13.9249 0.55127 13.8022 0.55127C13.6541 0.55127 13.527 0.610514 13.4213 0.729004L7.67773 8.36035C7.60144 8.43945 7.5127 8.47412 7.41162 8.47412C7.31055 8.47412 7.22181 8.43945 7.14552 8.36035L6.89893 8.08203C6.72900 7.89893 6.51953 7.80811 6.27051 7.80811L6.21240 7.80811C6.05420 7.80811 5.90503 7.84961 5.77441 7.93262L8.89063 11.0635C9.05566 11.2393 9.25684 11.3271 9.49561 11.3271C9.70886 11.3271 9.90088 11.2393 10.0723 11.0635L14.8979 2.3545C15.0632 2.17383 15.146 1.96069 15.146 1.71484C15.146 1.49902 15.0664 1.30713 14.9072 1.13904L14.1069 0.652832Z" fill="#4FC3F7"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Normal Bubble (no header) -->
+                <div class="whatsapp-message-row"
+                  *ngIf="newTemplate.body_text && newTemplate.header_type === 'NONE'">
+                  <div class="whatsapp-bubble">
+                    <div class="bubble-triangle"></div>
+                    <div class="bubble-text">{{ templatePreviewText }}</div>
+                    <div class="bubble-footer">
+                      <span class="bubble-time">{{ getCurrentTime() }}</span>
+                      <svg width="15" height="11" viewBox="0 0 15 11">
+                        <path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36035L1.99377 6.05469C1.8111 5.87402 1.59839 5.78369 1.35557 5.78369C1.10168 5.78369 0.887817 5.87402 0.714233 6.05469L0.658936 6.10999C0.495883 6.28564 0.414357 6.50635 0.414357 6.77002C0.414357 7.03369 0.495883 7.25439 0.658936 7.43005L3.78516 10.7032C3.9502 10.8789 4.15137 10.9668 4.39014 10.9668C4.60339 10.9668 4.79541 10.8789 4.9668 10.7032L11.8325 2.3545C11.9979 2.17383 12.0806 1.96069 12.0806 1.71484C12.0806 1.49902 12.001 1.30713 11.8418 1.13904L11.0714 0.652832Z" fill="#4FC3F7"/>
+                        <path d="M14.1069 0.652832C14.0264 0.585124 13.9249 0.55127 13.8022 0.55127C13.6541 0.55127 13.527 0.610514 13.4213 0.729004L7.67773 8.36035C7.60144 8.43945 7.5127 8.47412 7.41162 8.47412C7.31055 8.47412 7.22181 8.43945 7.14552 8.36035L6.89893 8.08203C6.72900 7.89893 6.51953 7.80811 6.27051 7.80811L6.21240 7.80811C6.05420 7.80811 5.90503 7.84961 5.77441 7.93262L8.89063 11.0635C9.05566 11.2393 9.25684 11.3271 9.49561 11.3271C9.70886 11.3271 9.90088 11.2393 10.0723 11.0635L14.8979 2.3545C15.0632 2.17383 15.146 1.96069 15.146 1.71484C15.146 1.49902 15.0664 1.30713 14.9072 1.13904L14.1069 0.652832Z" fill="#4FC3F7"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Button Previews -->
+                <div class="whatsapp-buttons-preview"
+                  *ngIf="newTemplate.buttons && newTemplate.buttons.length > 0">
+                  <div *ngFor="let btn of newTemplate.buttons" class="whatsapp-button-preview">
+                    <i class="pi me-1"
+                      [ngClass]="{
+                        'pi-reply':         btn.type === 'QUICK_REPLY',
+                        'pi-external-link': btn.type === 'URL',
+                        'pi-phone':         btn.type === 'PHONE_NUMBER'
+                      }"
+                    ></i>
+                    {{ btn.text || 'Button' }}
+                  </div>
+                </div>
+
+                <!-- Empty State -->
+                <div class="template-empty-preview"
+                  *ngIf="!newTemplate.body_text && newTemplate.header_type === 'NONE'">
+                  <i class="pi pi-comment"></i>
+                  <p>Type your message to see preview</p>
+                </div>
+
+              </div>
+
+              <div class="whatsapp-input-bar">
+                <div class="whatsapp-input-placeholder">Type a message</div>
+                <div class="whatsapp-send-btn">
+                  <i class="pi pi-send"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="phone-bottom-bar">
+              <div class="phone-home-bar"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Cancel"
+      class="p-button-text" (click)="closeDialog()"></button>
+    <button
+      pButton type="button"
+      [label]="templateSaving ? 'Saving...' : (isEditMode ? 'Update Template' : 'Save Template')"
+      icon="pi pi-check"
+      class="p-button-success"
+      (click)="saveTemplate()"
+      [disabled]="!newTemplate.name || !newTemplate.body_text || templateSaving"
+      [loading]="templateSaving"
+    ></button>
+  </ng-template>
+</p-dialog>
