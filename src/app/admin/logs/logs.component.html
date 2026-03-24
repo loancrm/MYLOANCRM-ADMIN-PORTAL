@@ -1,0 +1,50 @@
+<div class="logs-container">
+  <!-- LEFT PANEL: Contacts -->
+  <div class="contacts-panel">
+    <h3>📋 Campaign Logs</h3>
+    <div *ngIf="loading" class="loading">Loading logs...</div>
+    <div *ngIf="!loading && logs.length === 0" class="loading">No logs found</div>
+
+    <div *ngFor="let log of logs" class="contact-card" 
+         [class.active]="selectedLog === log"
+         (click)="selectLog(log)">
+      <div class="contact-info">
+        <div class="avatar">{{ log.campaign_name[0] || '?' }}</div>
+        <div class="contact-details">
+          <div class="contact-name">{{ log.campaign_name }}</div>
+          <div class="contact-number">{{ log.mobile_number }}</div>
+        </div>
+      </div>
+      <div class="status" [class.sent]="log.status==='sent'" [class.failed]="log.status!=='sent'">
+        {{ log.status === 'sent' ? '✅ Sent' : '❌ Failed' }}
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL: Chat/Message Preview -->
+  <div class="chat-panel" *ngIf="selectedLog">
+    <div class="chat-header">
+      <div class="avatar">{{ selectedLog.campaign_name[0] || '?' }}</div>
+      <div class="contact-details">
+        <div class="contact-name">{{ selectedLog.campaign_name }}</div>
+        <div class="contact-number">{{ selectedLog.mobile_number }}</div>
+      </div>
+    </div>
+
+    <div class="chat-body">
+      <div class="message-row sent">
+        <div class="message-bubble">
+          <div class="message-text">
+            Template: {{ selectedLog.template_name || 'Custom Message' }}
+          </div>
+          <div class="message-time">
+            {{ selectedLog.sent_at | date:'shortTime' }}
+          </div>
+        </div>
+      </div>
+      <div class="message-row id">
+        <small class="message-id">WhatsApp ID: {{ selectedLog.whatsapp_message_id }}</small>
+      </div>
+    </div>
+  </div>
+</div>

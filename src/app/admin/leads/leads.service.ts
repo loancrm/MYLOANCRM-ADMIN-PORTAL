@@ -5,8 +5,8 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import axios from 'axios';
 import { io, Socket } from 'socket.io-client';
 import { projectConstantsLocal } from 'src/app/constants/project-constants';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { BehaviorSubject, Observable,from } from 'rxjs';
+import { HttpClient, HttpParams,HttpResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -257,6 +257,58 @@ getWalletTransactionsCount(filters) {
     const url = 'social-media-leads/socialmedialeadsCount';
     return this.serviceMeta.httpGet(url, null, filter);
   }
+  bulkUploadSocialMediaLeads(leads: any[]) {
+  const url = 'social-media-leads/bulk-upload';
+  return this.serviceMeta.httpPost(url, { leads });
+}
+validateSocialMediaLeadsBulk(formData: FormData) {
+  const url = 'social-media-leads/validate-bulk';
+  return this.serviceMeta.httpPost(url, formData);
+}
+
+bulkUploadSocialMediaLeadsFile(formData: FormData) {
+  const url = 'social-media-leads/bulk-upload';
+  return this.serviceMeta.httpPost(url, formData);
+}
+
+ downloadSocialLeadsTemplate(): Observable<HttpResponse<Blob>> {
+  const fullUrl = projectConstantsLocal.BASE_URL + 'social-media-leads/download-template';
+
+  const authToken = this.localStorageService.getItemFromLocalStorage('accessToken');
+  const clientIp = this.localStorageService.getItemFromLocalStorage('clientIp') || '';
+
+  const fetchPromise = fetch(fullUrl, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${authToken}`,
+      'mysystem-IP': clientIp,
+    },
+  }).then(async (response) => {
+    if (!response.ok) {
+      const errorText = await response.text();
+      let errorData: any;
+      try {
+        errorData = JSON.parse(errorText);
+      } catch {
+        errorData = { error: errorText || 'Failed to download template' };
+      }
+      throw new Error(JSON.stringify(errorData));
+    }
+
+    const blob = await response.blob();
+    return new HttpResponse<Blob>({
+      body: blob,
+      status: response.status,
+      statusText: response.statusText,
+    });
+  });
+
+  return from(fetchPromise);
+}
+// downloadSocialLeadsTemplate() {
+//   const url = 'social-media-leads/download-template';
+//   return this.serviceMeta.httpGet(url, { responseType: 'blob' });
+// }
 
   getAccounts(filter = {}) {
     const url = 'accounts';
@@ -773,5 +825,51 @@ getWalletTransactionsCount(filters) {
     const url = 'adminusers/' + id;
     return this.serviceMeta.httpPut(url, data);
   }
-  
+
+  // ── WhatsApp Templates (DB) ────────────────────────────
+
+getWhatsappTemplatesFromDB() {
+  const url = 'whatsapp-templates';
+  return this.serviceMeta.httpGet(url);
+}
+
+createWhatsappTemplate(data: any) {
+  const url = 'whatsapp-templates';
+  return this.serviceMeta.httpPost(url, data);
+}
+
+updateWhatsappTemplate(id: number, data: any) {
+  const url = 'whatsapp-templates/' + id;
+  return this.serviceMeta.httpPut(url, data);
+}
+
+deleteWhatsappTemplate(id: number) {
+  const url = 'whatsapp-templates/' + id;
+  return this.serviceMeta.httpDelete(url);
+}
+syncWhatsappTemplateStatus() {
+  const url = 'whatsapp-templates/sync-status';
+  return this.serviceMeta.httpGet(url);
+}
+
+checkWhatsappTemplateStatus(id: number) {
+  const url = 'whatsapp-templates/check-status/' + id;
+  return this.serviceMeta.httpGet(url);
+}
+// ── Social Media Lead CRUD ─────────────────────────────
+
+getSocialMediaLeadById(id: any) {
+  const url = 'social-media-leads/' + id;
+  return this.serviceMeta.httpGet(url);
+}
+
+createSocialMediaLead(data: any) {
+  const url = 'social-media-leads/create';
+  return this.serviceMeta.httpPost(url, data);
+}
+
+updateSocialMediaLead(id: any, data: any) {
+  const url = 'social-media-leads/' + id;
+  return this.serviceMeta.httpPut(url, data);
+}
 }

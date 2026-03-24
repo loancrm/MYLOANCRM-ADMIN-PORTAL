@@ -218,37 +218,6 @@ export class AccountsComponent implements AfterViewInit {
     this.location.back();
   }
 
-//   loadAccounts(event) {
-//   if (!event) {
-//     event = {
-//       first: this.initialFirst,
-//       rows: this.initialRows,
-//       sortOrder: -1,
-//     };
-//   }
-
-//   this.currentTableEvent = event;
-
-//   // 1️⃣ CREATE api_filter
-//   let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
-
-//   // 2️⃣ 👉 ADD THIS EXACTLY HERE
-//   if (!this.selectedAccountStatus || this.selectedAccountStatus.id === 1) {
-//     api_filter['status-eq'] = 1;
-//   }
-
-//   // 3️⃣ MERGE OTHER FILTERS
-//   api_filter = Object.assign(
-//     {},
-//     api_filter,
-//     this.searchFilter,
-//     this.appliedFilter
-//   );
-
-//   // 4️⃣ CALL APIs
-//   this.getTeamCount(api_filter);
-//   this.getTeam(api_filter);
-// }
 loadAccounts(event) {
   // 1️⃣ Use event or fallback to saved state
   if (!event) {
@@ -544,14 +513,6 @@ loadAccounts(event) {
     const phoneNumberPattern = /^[6-9]\d{9}$/;
     return phoneNumberPattern.test(value.trim());
   }
-
-  // statusChange(event) {
-  //   this.localStorageService.setItemOnLocalStorage(
-  //     'selectedTeamStatus',
-  //     event.value
-  //   );
-  //   this.loadAccounts(this.currentTableEvent);
-  // }
 
   onLoginAsProvider(account: any): void {
     const accountId = account.accountId;

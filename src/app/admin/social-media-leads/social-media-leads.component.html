@@ -1,37 +1,3 @@
-<!-- <div class="p-3">
-  <h2>Social Media Leads</h2>
-
-  <div *ngIf="loading">Loading leads...</div>
-
-  <table *ngIf="!loading && socialMediaLeads.length > 0" border="1" class="table table-striped">
-    <thead>
-      <tr>
-        <th>Lead ID</th>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Phone</th>
-        <th>City</th>
-        <th>Platform</th>
-        <th>Created Time</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let lead of socialMediaLeads; let i = index">
-        <td>{{ lead.id }}</td>
-        <td>{{ lead.Name }}</td>
-        <td>{{ lead.Email }}</td>
-        <td>{{ lead.PhoneNumber }}</td>
-        <td>{{ lead. City}}</td>
-        <td>{{ lead. Platform}}</td>
-        <td>{{ lead.CreatedOn }}</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div *ngIf="!loading && socialMediaLeads.length === 0">
-    No leads found.
-  </div>
-</div> -->
 
 <div>
   <div class="p-1 m-2 fixed-card">
@@ -48,14 +14,505 @@
         </b>
       </div>
 
-      <button
-        pButton
-        label="Export CSV"
-        icon="pi pi-download"
-        class="p-button-info"
-        (click)="exportSocialLeadsToCSV()"
-      ></button>
+      <div>
+        <button
+          pButton
+          label="Export CSV"
+          icon="pi pi-download"
+          class="p-button-info m-1"
+          (click)="exportSocialLeadsToCSV()"
+        ></button>
+         <button
+          pButton
+          label="Bulk Upload"
+          icon="pi pi-upload"
+          class="p-button-info  m-1"
+          (click)="showBulkUploadDialog()"
+        ></button>
+        <button
+          pButton
+          label="Add Enquiries"
+          icon="pi pi-plus"
+          class="p-button-info m-1"
+          (click)="addLead()"
+        ></button>
+      </div>
     </div>
+    <!-- ✅ Bulk Upload Dialog — same as existing bulk-upload.component -->
+    <p-dialog
+      [(visible)]="bulkUploadVisible"
+      [modal]="true"
+      [style]="{ width: '95vw', maxWidth: '700px' }"
+      [closable]="true"
+      header="Bulk Upload Social Media Leads"
+      (onHide)="closeBulkUploadDialog()"
+      [draggable]="false"
+      [appendTo]="'body'"
+      [baseZIndex]="10000"
+      [resizable]="false"
+    >
+      <div class="p-fluid">
+
+        <!-- Step 1: Upload File -->
+        <div class="mb-3">
+          <h6 class="mb-2 d-flex align-items-center">
+            <span
+              class="badge bg-primary rounded-circle me-2 d-flex align-items-center justify-content-center"
+              style="width: 24px; height: 24px; font-size: 0.75rem"
+            >1</span>
+            Upload Excel File
+          </h6>
+          <div class="border rounded p-3">
+
+            <!-- Download Template -->
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <label class="small fw-semibold mb-0">
+                Upload Excel File <span class="text-danger">*</span>
+              </label>
+              <button
+                pButton
+                type="button"
+                label="Download Template"
+                icon="pi pi-download"
+                class="p-button-text p-button-sm"
+                (click)="downloadSocialLeadsTemplate()"
+              ></button>
+            </div>
+
+            <!-- File Input -->
+            <div *ngIf="!selectedBulkFile">
+              <input
+                type="file"
+                id="socialLeadsExcelFile"
+                accept=".xlsx,.xls"
+                (change)="onBulkFileSelected($event)"
+                class="form-control"
+              />
+            </div>
+
+            <!-- Selected File Display -->
+            <div
+              *ngIf="selectedBulkFile"
+              class="d-flex align-items-center border rounded p-2 bg-light"
+            >
+              <i
+                class="pi pi-file-excel text-success me-2"
+                style="font-size: 1.2rem"
+              ></i>
+              <div class="flex-grow-1">
+                <div class="small fw-semibold">{{ selectedBulkFile.name }}</div>
+                <div class="text-muted" style="font-size: 0.75rem">
+                  {{ formatFileSize(selectedBulkFile.size) }}
+                </div>
+              </div>
+              <button
+                type="button"
+                class="btn btn-sm btn-link text-danger p-0 ms-2"
+                (click)="clearBulkFile()"
+                title="Remove file"
+              >
+                <i class="pi pi-times" style="font-size: 1.2rem"></i>
+              </button>
+            </div>
+
+            <div class="mt-2">
+              <small class="text-muted">
+                <i class="pi pi-info-circle me-1"></i>
+                Supported formats: .xlsx, .xls | Max 1000 rows
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Validation Results -->
+        <div class="mb-3" *ngIf="bulkValidationData">
+          <h6 class="mb-2 d-flex align-items-center">
+            <span
+              class="badge bg-info rounded-circle me-2 d-flex align-items-center justify-content-center"
+              style="width: 24px; height: 24px; font-size: 0.75rem"
+            >2</span>
+            Duplicate Validation
+          </h6>
+
+          <!-- Summary Cards -->
+          <div
+            class="row mb-2 g-2"
+            *ngIf="
+              bulkValidationData.hasExcelDuplicates ||
+              bulkValidationData.hasDbDuplicates
+            "
+          >
+            <div class="col-md-4" *ngIf="bulkValidationData.hasExcelDuplicates">
+              <div class="card border-warning h-100">
+                <div class="card-body text-center p-2">
+                  <i
+                    class="pi pi-exclamation-triangle text-warning"
+                    style="font-size: 1.2rem"
+                  ></i>
+                  <h5 class="mt-1 mb-0 fw-bold">
+                    {{ bulkValidationData.excelDuplicates?.length || 0 }}
+                  </h5>
+                  <p class="text-muted mb-0" style="font-size: 0.75rem">
+                    Duplicates in Excel
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4" *ngIf="bulkValidationData.hasDbDuplicates">
+              <div class="card border-danger h-100">
+                <div class="card-body text-center p-2">
+                  <i
+                    class="pi pi-ban text-danger"
+                    style="font-size: 1.2rem"
+                  ></i>
+                  <h5 class="mt-1 mb-0 fw-bold">
+                    {{ bulkValidationData.dbDuplicates?.length || 0 }}
+                  </h5>
+                  <p class="text-muted mb-0" style="font-size: 0.75rem">
+                    Already in Database
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card border-info h-100">
+                <div class="card-body text-center p-2">
+                  <i
+                    class="pi pi-file text-info"
+                    style="font-size: 1.2rem"
+                  ></i>
+                  <h5 class="mt-1 mb-0 fw-bold">
+                    {{ bulkValidationData.totalRows || 0 }}
+                  </h5>
+                  <p class="text-muted mb-0" style="font-size: 0.75rem">
+                    Total Rows
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Template Error -->
+          <div
+            class="alert alert-danger mb-3"
+            *ngIf="bulkValidationData.hasTemplateError"
+          >
+            <div class="d-flex align-items-start">
+              <i class="pi pi-exclamation-triangle me-2 mt-1" style="font-size: 1.5rem"></i>
+              <div class="flex-grow-1">
+                <strong>Incorrect Template Format</strong>
+                <p class="mb-2 small">{{ bulkValidationData.error }}</p>
+                <p class="mb-2 small text-danger">
+                  <i class="pi pi-ban me-1"></i>
+                  <strong>Upload is blocked. Please download the correct template.</strong>
+                </p>
+                <div *ngIf="bulkValidationData.missingHeaders?.length > 0" class="mb-2">
+                  <p class="mb-1 small"><strong>Missing Headers:</strong></p>
+                  <div class="d-flex flex-wrap gap-1">
+                    <span
+                      *ngFor="let header of bulkValidationData.missingHeaders"
+                      class="badge bg-danger"
+                    >{{ header }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- No Issues -->
+          <div
+            class="alert alert-success d-flex align-items-center mb-3 py-2"
+            *ngIf="
+              !bulkValidationData.hasExcelDuplicates &&
+              !bulkValidationData.hasDbDuplicates &&
+              !bulkValidationData.hasTemplateError
+            "
+          >
+            <i class="pi pi-check-circle me-2"></i>
+            <small>
+              <strong>Great!</strong> No duplicate phone numbers found. You can
+              proceed with the upload.
+            </small>
+          </div>
+
+          <!-- Excel Duplicates — Block Upload -->
+          <div
+            *ngIf="bulkValidationData.hasExcelDuplicates"
+            class="alert alert-danger mb-3"
+          >
+            <div class="d-flex align-items-start">
+              <i class="pi pi-exclamation-triangle me-2 mt-1" style="font-size: 1.5rem"></i>
+              <div class="flex-grow-1">
+                <strong>Excel File Contains Duplicates</strong>
+                <p class="mb-2 small">
+                  Your Excel file contains duplicate phone numbers. Please remove
+                  all duplicates before uploading.
+                </p>
+                <p class="mb-2 small text-danger">
+                  <i class="pi pi-ban me-1"></i>
+                  <strong>Upload is blocked until duplicates are removed.</strong>
+                </p>
+                <div class="table-responsive">
+                  <table class="table table-sm table-hover">
+                    <thead class="table-warning">
+                      <tr>
+                        <th>Phone Number</th>
+                        <th>Occurrences</th>
+                        <th>Row Numbers</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let dup of bulkValidationData.excelDuplicates">
+                        <td><strong>{{ dup.phone }}</strong></td>
+                        <td>
+                          <span class="badge bg-warning text-dark">{{ dup.count }}</span>
+                        </td>
+                        <td>
+                          <span
+                            *ngFor="let row of dup.rows"
+                            class="badge bg-secondary me-1"
+                          >Row {{ row }}</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DB Duplicates — Show Options -->
+          <div
+            *ngIf="bulkValidationData.hasDbDuplicates"
+            class="alert alert-warning mb-3"
+          >
+            <div class="d-flex align-items-start">
+              <i class="pi pi-exclamation-circle me-2 mt-1" style="font-size: 1.5rem"></i>
+              <div class="flex-grow-1">
+                <strong>Phone Numbers Already Exist in Database</strong>
+                <p class="mb-2 small">
+                  Choose how to handle these duplicates:
+                </p>
+                <div class="table-responsive mb-3">
+                  <table class="table table-sm table-hover">
+                    <thead class="table-danger">
+                      <tr>
+                        <th>Phone Number</th>
+                        <th>Existing Lead</th>
+                        <th>Excel Row Numbers</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let dup of bulkValidationData.dbDuplicates">
+                        <td><strong>{{ dup.phone }}</strong></td>
+                        <td>
+                          {{ dup.name }}
+                          <small class="text-muted">({{ dup.leadId }})</small>
+                        </td>
+                        <td>
+                          <span
+                            *ngFor="let row of dup.rowsInExcel"
+                            class="badge bg-secondary me-1"
+                          >Row {{ row }}</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Duplicate Options -->
+                <div class="card border-primary">
+                  <div class="card-header bg-primary text-white py-2">
+                    <h6 class="mb-0 small">
+                      <i class="pi pi-cog me-2"></i>
+                      How would you like to handle database duplicates?
+                    </h6>
+                  </div>
+                  <div class="card-body p-3">
+                    <div class="form-check mb-2">
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        name="handleDuplicates"
+                        id="skipDuplicates"
+                        value="skip"
+                        [(ngModel)]="handleDuplicates"
+                      />
+                      <label class="form-check-label small" for="skipDuplicates">
+                        <strong>Skip Duplicates (Insert Only New Records)</strong>
+                        <span class="badge bg-success ms-1">Recommended</span>
+                        <span class="d-block text-muted mt-1 small">
+                          Duplicate phone numbers will be skipped. Only new unique
+                          records will be imported.
+                        </span>
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        name="handleDuplicates"
+                        id="allowDuplicates"
+                        value="allow"
+                        [(ngModel)]="handleDuplicates"
+                      />
+                      <label class="form-check-label small" for="allowDuplicates">
+                        <strong>Allow Duplicates (Insert All Records)</strong>
+                        <span class="d-block text-muted mt-1 small">
+                          All rows will be imported including duplicates.
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div *ngIf="bulkUploadProgress > 0" class="mb-3">
+          <p-progressBar [value]="bulkUploadProgress"></p-progressBar>
+          <div class="d-flex justify-content-between mt-1">
+            <small class="text-muted" *ngIf="bulkUploadProgress < 100">
+              <i class="pi pi-upload me-1"></i>Uploading... {{ bulkUploadProgress }}%
+            </small>
+            <small class="text-muted" *ngIf="bulkUploadProgress >= 100">
+              <i class="pi pi-cog pi-spin me-1"></i>Processing... {{ bulkUploadProgress }}%
+            </small>
+          </div>
+        </div>
+
+        <!-- Validating Spinner -->
+        <div *ngIf="isBulkValidating" class="mb-3">
+          <div
+            class="d-flex align-items-center justify-content-center p-4 border rounded bg-light"
+          >
+            <i class="pi pi-spin pi-spinner me-3" style="font-size: 1.5rem"></i>
+            <div>
+              <h6 class="mb-1">Validating File</h6>
+              <p class="text-muted mb-0 small">
+                Checking for duplicate phone numbers...
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upload Results -->
+        <div *ngIf="bulkUploadResults" class="mb-3">
+          <div
+            class="alert alert-success d-flex align-items-center"
+            *ngIf="bulkUploadResults.success > 0"
+          >
+            <i class="pi pi-check-circle me-2" style="font-size: 1.5rem"></i>
+            <div>
+              <strong>Success:</strong> {{ bulkUploadResults.success }} lead(s)
+              imported successfully
+              <span
+                *ngIf="bulkUploadResults.skipped > 0"
+                class="d-block mt-1 small"
+              >
+                <i class="pi pi-info-circle me-1"></i>
+                {{ bulkUploadResults.skipped }} duplicate(s) skipped
+              </span>
+            </div>
+          </div>
+          <div
+            class="alert alert-warning d-flex align-items-center"
+            *ngIf="
+              bulkUploadResults.skipped > 0 &&
+              bulkUploadResults.success === 0 &&
+              bulkUploadResults.failed === 0
+            "
+          >
+            <i class="pi pi-info-circle me-2" style="font-size: 1.5rem"></i>
+            <div>
+              <strong>No leads imported:</strong>
+              {{ bulkUploadResults.skipped }} duplicate(s) skipped
+            </div>
+          </div>
+          <div
+            class="alert alert-danger d-flex align-items-center"
+            *ngIf="bulkUploadResults.failed > 0"
+          >
+            <i
+              class="pi pi-exclamation-triangle me-2"
+              style="font-size: 1.5rem"
+            ></i>
+            <div>
+              <strong>Failed:</strong> {{ bulkUploadResults.failed }} lead(s)
+              failed to import
+            </div>
+          </div>
+
+          <!-- Row-wise errors -->
+          <div
+            *ngIf="bulkUploadResults.errors && bulkUploadResults.errors.length > 0"
+            class="mt-3"
+          >
+            <details [open]="true">
+              <summary class="fw-bold" style="cursor: pointer">
+                <i class="pi pi-list me-2"></i>
+                View Errors ({{ bulkUploadResults.errors.length }})
+              </summary>
+              <div
+                class="mt-2 border rounded p-3"
+                style="max-height: 200px; overflow-y: auto"
+              >
+                <div
+                  *ngFor="let error of bulkUploadResults.errors"
+                  class="mb-2 p-2 border-start border-danger border-3 ps-3"
+                >
+                  <strong>Row {{ error.row }}:</strong> {{ error.error }}
+                </div>
+              </div>
+            </details>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <ng-template pTemplate="footer">
+        <button
+          pButton
+          type="button"
+          label="Cancel"
+          (click)="closeBulkUploadDialog()"
+          class="p-button-text"
+        ></button>
+
+        <!-- Validate Button -->
+        <button
+          pButton
+          type="button"
+          label="Validate & Check Duplicates"
+          icon="pi pi-check-circle"
+          (click)="validateSocialLeadsFile()"
+          [disabled]="!selectedBulkFile || isBulkValidating"
+          class="p-button-primary"
+          *ngIf="!bulkValidationData"
+        ></button>
+
+        <!-- Upload Button -->
+        <button
+          pButton
+          type="button"
+          label="Upload"
+          icon="pi pi-upload"
+          (click)="proceedWithBulkUpload()"
+          [disabled]="
+            !bulkValidationData ||
+            bulkValidationData.hasTemplateError ||
+            bulkValidationData.hasExcelDuplicates ||
+            (bulkUploadProgress > 0 && bulkUploadProgress < 100)
+          "
+          class="p-button-success"
+          *ngIf="bulkValidationData"
+        ></button>
+      </ng-template>
+    </p-dialog>
   </div>
   <div></div>
   <div class="m-2">
@@ -63,6 +520,7 @@
       #SocialMediaLeadsTable
       [value]="socialMediaLeads"
       [lazy]="true"
+      (onRowSelect)="viewLead($event)"
       (onLazyLoad)="loadsocialmediaLeads($event)"
       selectionMode="single"
       dataKey="id"
@@ -95,22 +553,155 @@
           <th>Phone</th>
           <th>Company</th>
           <th>City</th>
+          <th>State</th>
+          <th>Pin Code</th>
           <th>Platform</th>
           <th>Created Time</th>
+          <th>Actions</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-team>
-        <tr>
+        <tr
+          [pSelectableRow]="team"
+          class="text-capitalize"
+        >
           <td>{{ team.id }}</td>
           <td>{{ team.Name }}</td>
           <td>{{ team.Email }}</td>
           <td>{{ team.PhoneNumber }}</td>
           <td>{{ team.Company }}</td>
           <td>{{ team.City }}</td>
+          <td>{{ team.State }}</td>
+          <td>{{ team.pinCode }}</td>
           <td>{{ team.Platform }}</td>
           <td>{{ team.CreatedOn | date }}</td>
+          <td>
+            <div class="text-center d-flex">
+              <div class="d-flex">
+                <img
+                  alt="Update User"
+                  src="../../../assets/images/icons/edit.svg"
+                  width="24px"
+                  height="24px"
+                  class="me-2"
+                  (click)="editLead(team)"
+                  pTooltip="Update User"
+                  tooltipPosition="top"
+                />
+              </div>
+            </div>
+            <!-- <button
+              pButton
+              type="button"
+              icon="pi pi-pencil"
+              class="p-button-text p-button-sm p-button-warning"
+              (click)="editLead(team)"
+              pTooltip="Edit"
+            ></button> -->
+          </td>
         </tr>
       </ng-template>
     </p-table>
   </div>
+
+  <!-- ✅ View Lead Dialog -->
+<p-dialog
+  [(visible)]="viewDialogVisible"
+  [modal]="true"
+  [style]="{width: '95vw', maxWidth: '520px' }"
+  [closable]="true"
+  [draggable]="false"
+  [appendTo]="'body'"
+  [baseZIndex]="10000"
+  [resizable]="false"
+  [showHeader]="false"
+>
+  <div *ngIf="selectedLead" class="lead-card">
+
+    <!-- Header -->
+    <div class="lead-card__header">
+      <button class="lead-card__close" (click)="viewDialogVisible = false">
+        <i class="pi pi-times"></i>
+      </button>
+      <div class="lead-card__avatar">
+        {{ selectedLead.Name ? selectedLead.Name[0].toUpperCase() : '?' }}
+      </div>
+      <div class="lead-card__name">{{ selectedLead.Name || 'N/A' }}</div>
+      <span class="lead-card__platform-badge">{{ selectedLead.Platform || 'Manual' }}</span>
+    </div>
+    
+    <!-- Action Row -->
+    <div class="lead-card__actions">
+      <button class="lead-card__action-btn" (click)="goToCampaign(selectedLead)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="color:#25d366">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+          <path d="M12 0C5.373 0 0 5.373 0 12c0 2.124.555 4.122 1.528 5.857L0 24l6.341-1.502A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.797 9.797 0 01-5.001-1.374l-.359-.214-3.724.882.898-3.618-.234-.372A9.768 9.768 0 012.182 12C2.182 6.575 6.575 2.182 12 2.182S21.818 6.575 21.818 12 17.425 21.818 12 21.818z"/>
+        </svg>
+        <span>WhatsApp</span>
+      </button>
+      <button class="lead-card__action-btn" (click)="sendEmail(selectedLead)">
+        <i class="pi pi-envelope" style="color: #ea4335; font-size: 18px;"></i>
+        <span>Email</span>
+      </button>
+      <button class="lead-card__action-btn" (click)="editLead(selectedLead); viewDialogVisible = false">
+        <!-- <i class="pi pi-pencil" style="font-size: 17px;"></i>
+        <span>Edit</span> -->
+        <img
+                  alt="Update User"
+                  src="../../../assets/images/icons/edit.svg"
+                  width="24px"
+                  height="24px"
+                  class="me-2"
+                  
+                  pTooltip="Update User"
+                  tooltipPosition="top"
+                />
+      </button>
+    </div>
+
+    <!-- Detail Rows -->
+    <div class="lead-card__details">
+      <div class="lead-card__row">
+        <i class="pi pi-phone lead-card__icon"></i>
+        <div>
+          <div class="lead-card__label">Phone</div>
+          <div class="lead-card__value">{{ selectedLead.PhoneNumber || 'N/A' }}</div>
+        </div>
+      </div>
+      <div class="lead-card__row">
+        <i class="pi pi-envelope lead-card__icon"></i>
+        <div>
+          <div class="lead-card__label">Email</div>
+          <div class="lead-card__value">{{ selectedLead.Email || 'N/A' }}</div>
+        </div>
+      </div>
+      <div class="lead-card__row">
+        <i class="pi pi-briefcase lead-card__icon"></i>
+        <div>
+          <div class="lead-card__label">Company</div>
+          <div class="lead-card__value">{{ selectedLead.Company || 'N/A' }}</div>
+        </div>
+      </div>
+      <div class="lead-card__row">
+        <i class="pi pi-map-marker lead-card__icon"></i>
+        <div>
+          <div class="lead-card__label">Location</div>
+          <div class="lead-card__value">
+            {{ selectedLead.City || 'N/A' }}
+            <span *ngIf="selectedLead.State">, {{ selectedLead.State }}</span>
+            <span *ngIf="selectedLead.pinCode"> — {{ selectedLead.pinCode }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="lead-card__row" style="border-bottom: none;">
+        <i class="pi pi-calendar lead-card__icon"></i>
+        <div>
+          <div class="lead-card__label">Created on</div>
+          <div class="lead-card__value">{{ selectedLead.CreatedOn | date:'mediumDate' }}</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</p-dialog>
 </div>

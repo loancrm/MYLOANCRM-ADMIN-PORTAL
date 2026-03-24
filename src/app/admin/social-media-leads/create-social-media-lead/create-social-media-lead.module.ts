@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { CreateSocialMediaLeadComponent } from './create-social-media-lead.component';
 import { RouterModule, Routes } from '@angular/router';
-import { SocialMediaLeadsComponent } from './social-media-leads.component';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
@@ -17,32 +17,16 @@ import { AccordionModule } from 'primeng/accordion';
 import { RippleModule } from 'primeng/ripple';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FormsModule } from '@angular/forms';
-// const routes: Routes = [
-//   { path: '', component: SocialMediaLeadsComponent },
+const routes: Routes = [{ path: '', component: CreateSocialMediaLeadComponent }];
 
-// ];
-const routes: Routes = [
-  { path: '', component: SocialMediaLeadsComponent },
-  {
-    path: 'create',
-    loadChildren: () =>
-      import('./create-social-media-lead/create-social-media-lead.module').then((m) => m.CreateSocialMediaLeadModule),
-  },
-  {
-    path: 'update/:id',
-    loadChildren: () =>
-      import('./create-social-media-lead/create-social-media-lead.module').then((m) => m.CreateSocialMediaLeadModule),
-  },
-  { path: 'single-campaign',
-    loadChildren: () =>
-      import('./single-whatsapp-campaign/single-whatsapp-campaign.module').then((m) => m.SingleWhatsappCampaignModule),
-  }
-];
+
 @NgModule({
-  declarations: [SocialMediaLeadsComponent],
+  declarations: [
+    CreateSocialMediaLeadComponent
+  ],
   imports: [
     CommonModule,
-    BreadcrumbModule,
+     BreadcrumbModule,
     ButtonModule,
     DropdownModule,
     InputTextModule,
@@ -60,4 +44,4 @@ const routes: Routes = [
     [RouterModule.forChild(routes)],
   ]
 })
-export class SocialMediaLeadsModule { }
+export class CreateSocialMediaLeadModule { }
