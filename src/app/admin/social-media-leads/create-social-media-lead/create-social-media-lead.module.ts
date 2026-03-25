@@ -17,6 +17,7 @@ import { AccordionModule } from 'primeng/accordion';
 import { RippleModule } from 'primeng/ripple';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FormsModule } from '@angular/forms';
+import { CalendarModule } from 'primeng/calendar';
 const routes: Routes = [{ path: '', component: CreateSocialMediaLeadComponent }];
 
 
@@ -41,6 +42,7 @@ const routes: Routes = [{ path: '', component: CreateSocialMediaLeadComponent }]
     RippleModule,
     MultiSelectModule,
     FormsModule,
+    CalendarModule,
     [RouterModule.forChild(routes)],
   ]
 })

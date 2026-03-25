@@ -524,6 +524,8 @@
       (onLazyLoad)="loadsocialmediaLeads($event)"
       selectionMode="single"
       dataKey="id"
+      [sortField]="'CreatedOn'"  
+      [sortOrder]="-1"   
       [showCurrentPageReport]="true"
       [rowsPerPageOptions]="[10, 25, 50]"
       [paginator]="true"
@@ -545,62 +547,151 @@
       styleClass="p-datatable-customers "
       currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Social Media Leads"
     >
+    <ng-template pTemplate="caption">
+      <div class="row">
+        <div class="col-md-3 mt-2 no-padding-small">
+          <div class="p-inputgroup">
+            <input
+                pInputText
+                type="text"
+                [(ngModel)]="globalSearchValue"
+                (ngModelChange)="onGlobalSearchChange($event)"
+                (keyup.enter)="onGlobalSearchSubmit()"
+                placeholder="Search by Name, Email, Phone ..."
+              />
+              <button
+                type="button"
+                pButton
+                class="p-button-primary search-btn"
+                (click)="onGlobalSearchSubmit()"
+              >
+                <img
+                  src="assets/images/icons/search.svg"
+                  alt="Search"
+                  width="16"
+                  height="16"
+                  style="vertical-align: middle"
+                />
+              </button>
+          </div>
+        </div>
+        <div class="col-md-3 mt-2 no-padding-small">
+          <p-dropdown
+              [options]="platformOptions"
+              [(ngModel)]="selectedPlatform"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="All Platforms"
+              (onChange)="onPlatformFilterChange($event)"
+              [style]="{ minWidth: '180px' }"
+            ></p-dropdown>
+        </div>
+      </div>
+    </ng-template>
       <ng-template pTemplate="header" let-columns>
         <tr>
-          <th>Lead ID</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Phone</th>
-          <th>Company</th>
-          <th>City</th>
-          <th>State</th>
-          <th>Pin Code</th>
-          <th>Platform</th>
-          <th>Created Time</th>
-          <th>Actions</th>
+          <th class="text-nowrap">Lead ID</th>
+          <th class="text-nowrap">Name</th>
+          <!-- <th>Website</th> -->
+          <th class="text-nowrap">Email</th>
+          <th class="text-nowrap">Phone</th>
+          <th class="text-nowrap">Company</th>
+          <th class="text-nowrap">City</th>
+          <th class="text-nowrap">State</th>
+          <th class="text-nowrap">Pin Code</th>
+          <th class="text-nowrap">Platform</th>
+          <th class="text-nowrap">Callback Date</th>
+          <th class="text-nowrap">Created Time</th>
+          <th class="text-nowrap">Actions</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-team>
-        <tr
-          [pSelectableRow]="team"
-          class="text-capitalize"
-        >
-          <td>{{ team.id }}</td>
-          <td>{{ team.Name }}</td>
-          <td>{{ team.Email }}</td>
-          <td>{{ team.PhoneNumber }}</td>
-          <td>{{ team.Company }}</td>
-          <td>{{ team.City }}</td>
-          <td>{{ team.State }}</td>
-          <td>{{ team.pinCode }}</td>
-          <td>{{ team.Platform }}</td>
-          <td>{{ team.CreatedOn | date }}</td>
-          <td>
-            <div class="text-center d-flex">
-              <div class="d-flex">
-                <img
-                  alt="Update User"
-                  src="../../../assets/images/icons/edit.svg"
-                  width="24px"
-                  height="24px"
-                  class="me-2"
-                  (click)="editLead(team)"
-                  pTooltip="Update User"
-                  tooltipPosition="top"
-                />
-              </div>
-            </div>
-            <!-- <button
-              pButton
-              type="button"
-              icon="pi pi-pencil"
-              class="p-button-text p-button-sm p-button-warning"
-              (click)="editLead(team)"
-              pTooltip="Edit"
-            ></button> -->
-          </td>
-        </tr>
-      </ng-template>
+  <tr [pSelectableRow]="team" class="text-capitalize">
+
+    <td>{{ team.id || '-' }}</td>
+
+    <td>
+      <span *ngIf="team.Name; else dash">
+        {{ team.Name | capitalizeFirst }}
+      </span>
+    </td>
+
+    <td>
+      <span *ngIf="team.Email; else dash">
+        {{ team.Email }}
+      </span>
+    </td>
+
+    <td>
+      <span *ngIf="team.PhoneNumber; else dash">
+        {{ team.PhoneNumber }}
+      </span>
+    </td>
+
+    <td>
+      <span *ngIf="team.Company; else dash">
+        {{ team.Company | capitalizeFirst }}
+      </span>
+    </td>
+
+    <td>
+      <span *ngIf="team.City; else dash">
+        {{ team.City | capitalizeFirst }}
+      </span>
+    </td>
+
+    <td>
+      <span *ngIf="team.State; else dash">
+        {{ team.State | capitalizeFirst }}
+      </span>
+    </td>
+
+    <td>
+      <span *ngIf="team.pinCode; else dash">
+        {{ team.pinCode }}
+      </span>
+    </td>
+
+    <td>
+      <span *ngIf="team.Platform; else dash">
+        {{ team.Platform }}
+      </span>
+    </td>
+
+    <td>
+      <span *ngIf="team.CallbackDate; else dash">
+        {{ team.CallbackDate | date:'MMM d, y, h:mm a' }}
+      </span>
+    </td>
+
+    <td>
+      <span *ngIf="team.CreatedOn; else dash">
+        {{ team.CreatedOn | date }}
+      </span>
+    </td>
+
+    <td>
+      <div class="text-center d-flex">
+        <div class="d-flex">
+          <img
+            alt="Update User"
+            src="../../../assets/images/icons/edit.svg"
+            width="24px"
+            height="24px"
+            class="me-2"
+            (click)="editLead(team)"
+            pTooltip="Update User"
+            tooltipPosition="top"
+          />
+        </div>
+      </div>
+    </td>
+
+  </tr>
+
+  <!-- ✅ Reusable dash template -->
+  <ng-template #dash>-</ng-template>
+</ng-template>
     </p-table>
   </div>
 
@@ -657,6 +748,20 @@
                   tooltipPosition="top"
                 />
       </button>
+      <!-- <button>
+        <div class="lead-card__row">
+        <i class="pi pi-globe lead-card__icon"></i>
+        <div>
+          <div class="lead-card__label">Website</div>
+          <div class="lead-card__value">
+            <a *ngIf="selectedLead.Website" [href]="selectedLead.Website" target="_blank">
+              {{ selectedLead.Website }}
+            </a>
+            <span *ngIf="!selectedLead.Website">N/A</span>
+          </div>
+        </div>
+      </div>
+      </button> -->
     </div>
 
     <!-- Detail Rows -->
@@ -682,6 +787,7 @@
           <div class="lead-card__value">{{ selectedLead.Company || 'N/A' }}</div>
         </div>
       </div>
+      
       <div class="lead-card__row">
         <i class="pi pi-map-marker lead-card__icon"></i>
         <div>
@@ -693,6 +799,23 @@
           </div>
         </div>
       </div>
+      <!-- ✅ Website row — icon only, click opens link -->
+  <div class="lead-card__row" *ngIf="selectedLead.Website">
+    <i class="pi pi-globe lead-card__icon" style="cursor:pointer; color: #1976d2;"
+       (click)="openWebsite(selectedLead.Website)"
+       pTooltip="Open Website"
+       tooltipPosition="top">
+    </i>
+    <div>
+      <div class="lead-card__label">Website</div>
+      <div class="lead-card__value">
+        <a [href]="selectedLead.Website" target="_blank"
+           style="color: #1976d2; text-decoration: none; word-break: break-all;">
+          {{ selectedLead.Website }}
+        </a>
+      </div>
+    </div>
+  </div>
       <div class="lead-card__row" style="border-bottom: none;">
         <i class="pi pi-calendar lead-card__icon"></i>
         <div>
