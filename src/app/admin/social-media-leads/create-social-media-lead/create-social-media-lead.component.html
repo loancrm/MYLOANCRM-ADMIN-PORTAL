@@ -109,7 +109,32 @@
               appendTo="body"
             ></p-dropdown>
           </div>
+          <!-- Website -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">Website</label>
+            <input
+              pInputText
+              [(ngModel)]="form.Website"
+              placeholder="Enter website URL"
+              class="w-100"
+            />
+          </div>
 
+          <!-- Callback Date & Time -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold small">Callback Date & Time</label>
+            <p-calendar
+              [(ngModel)]="form.CallbackDate"
+              [showTime]="true"
+              [showSeconds]="false"
+              dateFormat="dd/mm/yy"
+              hourFormat="12"
+              placeholder="Select date & time"
+              [style]="{ width: '100%' }"
+              appendTo="body"
+              [showIcon]="true"
+            ></p-calendar>
+          </div>
         </div>
 
         <!-- Buttons -->
@@ -132,7 +157,6 @@
             [loading]="saving"
           ></button>
         </div>
-
       </div>
     </div>
   </div>

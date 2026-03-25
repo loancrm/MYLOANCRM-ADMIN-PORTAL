@@ -3,6 +3,7 @@ import { Location } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { LeadsService } from '../../leads/leads.service';
 import { ToastService } from 'src/app/services/toast.service';
+import moment from 'moment-timezone';
 
 @Component({
   selector: 'app-create-social-media-lead',
@@ -23,7 +24,9 @@ export class CreateSocialMediaLeadComponent implements OnInit {
     City: '',
     State: '',
     pinCode: '',
-    Platform: 'Manual'
+    Platform: 'Manual',
+    Website: '',
+    CallbackDate: null as Date | null
   };
 
   platformOptions = [
@@ -32,6 +35,7 @@ export class CreateSocialMediaLeadComponent implements OnInit {
     { label: 'WhatsApp',  value: 'WhatsApp' },
     // { label: 'Google',    value: 'Google' },
     { label: 'Manual',    value: 'Manual' },
+    { label: 'Others', value: 'Others'}
   ];
 
   constructor(
@@ -63,48 +67,97 @@ export class CreateSocialMediaLeadComponent implements OnInit {
           City:        data.City || '',
           State:       data.State || '',
           pinCode:     data.pinCode || '',
-          Platform:    data.Platform || 'Manual'
+          Platform:    data.Platform || 'Manual',
+          Website:     data.Website || '',
+          // CallbackDate: data.CallbackDate ? new Date(data.CallbackDate) : null
+          CallbackDate: data.CallbackDate
+          ? moment.utc(data.CallbackDate).tz('Asia/Kolkata').toDate()  // ← UTC → IST for display
+          : null
         };
       },
       () => this.toastService.showError('Failed to load lead')
     );
   }
 
+  // save(): void {
+  //   if (!this.form.Name.trim() || !this.form.PhoneNumber.trim()) {
+  //     this.toastService.showError('Name and Phone are required');
+  //     return;
+  //   }
+
+  //   this.saving = true;
+
+  //   if (this.isEditMode) {
+  //     this.leadsService.updateSocialMediaLead(this.leadId, this.form).subscribe(
+  //       () => {
+  //         this.saving = false;
+  //         this.toastService.showSuccess('Lead updated successfully');
+  //         this.goBack();
+  //       },
+  //       () => {
+  //         this.saving = false;
+  //         this.toastService.showError('Failed to update lead');
+  //       }
+  //     );
+  //   } else {
+  //     this.leadsService.createSocialMediaLead(this.form).subscribe(
+  //       () => {
+  //         this.saving = false;
+  //         this.toastService.showSuccess('Lead created successfully');
+  //         this.goBack();
+  //       },
+  //       () => {
+  //         this.saving = false;
+  //         this.toastService.showError('Failed to create lead');
+  //       }
+  //     );
+  //   }
+  // }
+
   save(): void {
-    if (!this.form.Name.trim() || !this.form.PhoneNumber.trim()) {
-      this.toastService.showError('Name and Phone are required');
-      return;
-    }
-
-    this.saving = true;
-
-    if (this.isEditMode) {
-      this.leadsService.updateSocialMediaLead(this.leadId, this.form).subscribe(
-        () => {
-          this.saving = false;
-          this.toastService.showSuccess('Lead updated successfully');
-          this.goBack();
-        },
-        () => {
-          this.saving = false;
-          this.toastService.showError('Failed to update lead');
-        }
-      );
-    } else {
-      this.leadsService.createSocialMediaLead(this.form).subscribe(
-        () => {
-          this.saving = false;
-          this.toastService.showSuccess('Lead created successfully');
-          this.goBack();
-        },
-        () => {
-          this.saving = false;
-          this.toastService.showError('Failed to create lead');
-        }
-      );
-    }
+  if (!this.form.Name.trim() || !this.form.PhoneNumber.trim()) {
+    this.toastService.showError('Name and Phone are required');
+    return;
   }
 
+  this.saving = true;
+
+  const payload = {
+    ...this.form,
+    CallbackDate: this.form.CallbackDate
+      ? moment(this.form.CallbackDate)
+          .tz('Asia/Kolkata')
+          .utc()
+          .format('YYYY-MM-DD HH:mm:ss')   // ← IST → UTC before saving
+      : null
+  };
+
+  if (this.isEditMode) {
+    this.leadsService.updateSocialMediaLead(this.leadId, payload).subscribe(
+      () => {
+        this.saving = false;
+        this.toastService.showSuccess('Lead updated successfully');
+        this.goBack();
+      },
+      () => {
+        this.saving = false;
+        this.toastService.showError('Failed to update lead');
+      }
+    );
+  } else {
+    this.leadsService.createSocialMediaLead(payload).subscribe(
+      () => {
+        this.saving = false;
+        this.toastService.showSuccess('Lead created successfully');
+        this.goBack();
+      },
+      () => {
+        this.saving = false;
+        this.toastService.showError('Failed to create lead');
+      }
+    );
+  }
+}
   goBack(): void {
     this.location.back();
   }

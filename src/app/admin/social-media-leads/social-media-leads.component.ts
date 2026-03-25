@@ -39,6 +39,21 @@ selectedLead: any = null;
   bulkUploadProgress: number = 0;
   isBulkValidating: boolean = false;
   handleDuplicates: string = 'skip';
+  globalSearchValue: string = '';
+
+selectedPlatform: string = 'all';
+
+platformOptions: { label: string; value: string }[] = [
+  { label: 'All Platforms', value: 'all' },
+  { label: 'Facebook',      value: 'Facebook' },
+  { label: 'Instagram',     value: 'Instagram' },
+  { label: 'Manual', value: 'Manual'},
+  { label: 'Others', value: 'Others'}
+  // { label: 'LinkedIn',      value: 'LinkedIn' },
+  // { label: 'Twitter',       value: 'Twitter' },
+  // { label: 'YouTube',       value: 'YouTube' },
+  // ← Add / remove platforms to match your actual data
+];
 
   constructor(
     private location: Location,
@@ -62,9 +77,11 @@ selectedLead: any = null;
   // ── Table Methods ──────────────────────────────────────
 
   loadsocialmediaLeads(event: any) {
+    console.log('TABLE EVENT:', event);
     this.currentTableEvent = event;
     let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
     api_filter = Object.assign({}, api_filter, this.searchFilter, this.appliedFilter);
+      console.log('API Filter being sent:', api_filter);
     if (api_filter) {
       this.getSocilaMediaCount(api_filter);
       this.getSocialMediaLeads(api_filter);
@@ -85,25 +102,36 @@ selectedLead: any = null;
     );
   }
 
+  // getSocilaMediaCount(filter = {}) {
+  //   this.leadsService.getSocilaMediaCount().subscribe(
+  //     (socialmediaCount) => {
+  //       this.socialMediaLeadsCount = socialmediaCount;
+  //     },
+  //     (error: any) => {
+  //       this.toastService.showError(error);
+  //     }
+  //   );
+  // }
   getSocilaMediaCount(filter = {}) {
-    this.leadsService.getSocilaMediaCount().subscribe(
-      (socialmediaCount) => {
-        this.socialMediaLeadsCount = socialmediaCount;
-      },
-      (error: any) => {
-        this.toastService.showError(error);
-      }
-    );
-  }
+  this.leadsService.getSocilaMediaCount(filter).subscribe(  // ✅ PASS FILTER
+    (socialmediaCount) => {
+      this.socialMediaLeadsCount = socialmediaCount;
+    },
+    (error: any) => {
+      this.toastService.showError(error);
+    }
+  );
+}
 
   exportSocialLeadsToCSV() {
     const headers = [
-      'Lead ID', 'Name', 'Email', 'Phone',
+      'Lead ID', 'Name', 'Website','Email', 'Phone',
       'Company', 'City', 'State', 'PinCode', 'Platform', 'Created Time'
     ];
     const rows = this.socialMediaLeads.map((lead: any) => [
       lead.id || '',
       lead.Name || '',
+      lead.Website || '',
       lead.Email || '',
       lead.PhoneNumber || '',
       lead.Company || '',
@@ -352,5 +380,61 @@ sendEmail(lead: any): void {
   } else {
     this.toastService.showError('No email address found for this lead');
   }
+}
+
+openWebsite(url: string): void {
+  if (url) {
+    window.open(url, '_blank');
+  }
+}
+// ── Search ─────────────────────────────────────────────
+
+onGlobalSearchChange(value: string): void {
+  if (!value || !value.trim()) {
+    this.searchFilter = {};
+    this.reloadTable();
+  }
+}
+
+onGlobalSearchSubmit(): void {
+  const trimmed = (this.globalSearchValue || '').trim();
+
+  if (!trimmed) {
+    this.searchFilter = {};
+  } else {
+    // ✅ Backend expects a single 'search' param
+    this.searchFilter = { search: trimmed };
+  }
+
+  this.reloadTable();
+}
+
+// ── Platform Dropdown ──────────────────────────────────
+
+onPlatformFilterChange(event: any): void {
+  const value = event.value;
+
+  if (!value || value === 'all') {
+    // ✅ Remove platform filter — backend uses handleGlobalFilters for 'Platform-eq'
+    delete this.appliedFilter['Platform-eq'];
+  } else {
+    this.appliedFilter['Platform-eq'] = value;
+  }
+
+  this.reloadTable();
+}
+
+// ── Reload ─────────────────────────────────────────────
+
+private reloadTable(): void {
+  if (this.socialMediaLeadsTable) {
+    this.socialMediaLeadsTable.first = 0;
+  }
+
+  const event = this.currentTableEvent
+    ? { ...this.currentTableEvent, first: 0 }
+    : { first: 0, rows: 10 };
+
+  this.loadsocialmediaLeads(event);
 }
 }
