@@ -672,9 +672,28 @@
   }
 }
 
+// .sidebaricon {
+//   color: #fd7e14;
+//   width: 20px !important;
+// }
 .sidebaricon {
-  color: #fd7e14;
+  color: #707070;
   width: 20px !important;
+
+  ::ng-deep lucide-icon {
+    opacity: 0.08 !important;
+    display: block;
+
+    svg {
+      width: 90px !important;
+      height: 90px !important;
+    }
+  }
+
+   &.active {
+    color: #fff !important;
+  }
+  
 }
 
 .sidebar-header {
@@ -708,6 +727,9 @@
     color: #fff !important;
     font-weight: 500;
     border-radius: 8px;
+     .sidebaricon {
+    color: #ffffff !important;
+  }
 
     img {
       filter: brightness(0) invert(1);

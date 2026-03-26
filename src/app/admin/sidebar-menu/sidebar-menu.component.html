@@ -70,13 +70,18 @@
           (click)="showMenuSection()"
           *ngIf="item.condition"
         >
-          <img
+          <!-- <img
             [src]="item.icon"
             class="sidebaricon"
             width="24"
             height="24"
             alt="icon"
-          />
+          /> -->
+          <lucide-icon
+            [name]="item.icon"
+            [size]="20"
+            class="sidebaricon"
+          ></lucide-icon>
           <span class="sidebar-label ms-2" *ngIf="isSidebarVisible">
             {{ item.label }}
           </span>
@@ -91,11 +96,16 @@
       class="nav-link d-flex align-items-center"
       (click)="confirmLogout($event)"
     >
-      <img
+      <!-- <img
         alt="Logout"
         src="../../../assets/images/icons/logout.svg"
         class="me-3 sidebaricon"
-      />
+      /> -->
+       <lucide-icon
+          name=log-out
+          [size]="20"
+          class="sidebaricon"
+        ></lucide-icon>
       <span class="sidebar-label">Logout</span>
     </a>
   </div>

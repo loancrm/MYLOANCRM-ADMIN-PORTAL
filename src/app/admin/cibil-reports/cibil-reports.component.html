@@ -28,6 +28,8 @@
       #accountTable
       [value]="accounts"
       [lazy]="true"
+       [sortField]="'created_at'"
+      [sortOrder]="-1"
       (onLazyLoad)="loadCibilReports($event)"
       (onRowSelect)="viewAccount($event)"
       selectionMode="single"
@@ -98,19 +100,40 @@
       <ng-template pTemplate="header" let-columns>
         <tr>
           <th class="text-nowrap">Account Id</th>
-          <th>Name</th>
-          <th>Credit Type</th>
+          <th  class="text-nowrap">Name</th>
+          <th  class="text-nowrap">Credit Type</th>
           <th>Mobile</th>
           <th class="text-nowrap">Pan</th>
           <th class="text-nowrap">City</th>
           <th>Aadhar</th>
           <th>Gender</th>
           <th>Consent</th>
-          <th>Credit Score</th>
+          <th  class="text-nowrap">Credit Score</th>
           <th>status</th>
           <th>Download</th>
 
-          <th>Created on</th>
+          <th  class="text-nowrap">Created on</th>
+          <!-- <th pSortableColumn="accountId"  class="text-nowrap">Account Id <p-sortIcon field="accountId"></p-sortIcon></th>
+
+          <th pSortableColumn="name"  class="text-nowrap">Name <p-sortIcon field="name"></p-sortIcon></th>
+
+          <th pSortableColumn="report_type"  class="text-nowrap">Credit Type <p-sortIcon field="report_type"></p-sortIcon></th>
+
+          <th pSortableColumn="mobile"  class="text-nowrap">Mobile <p-sortIcon field="mobile"></p-sortIcon></th>
+
+          <th pSortableColumn="pan"  class="text-nowrap">Pan <p-sortIcon field="pan"></p-sortIcon></th>
+
+          <th pSortableColumn="city"  class="text-nowrap">City <p-sortIcon field="city"></p-sortIcon></th>
+
+          <th pSortableColumn="aadhar_number"  class="text-nowrap">Aadhar <p-sortIcon field="aadhar_number"></p-sortIcon></th>
+
+          <th pSortableColumn="gender"  class="text-nowrap">Gender <p-sortIcon field="gender"></p-sortIcon></th>
+          <th pSortableColumn="Consent"  class="text-nowrap">Consent <p-sortIcon field="consent"></p-sortIcon></th>
+          <th pSortableColumn="credit_score"  class="text-nowrap">Credit Score <p-sortIcon field="credit_score"></p-sortIcon></th>
+
+          <th pSortableColumn="status"  class="text-nowrap">Status <p-sortIcon field="status"></p-sortIcon></th>
+          <th class="text-nowrap">Download</th>
+          <th pSortableColumn="created_at"  class="text-nowrap">Created On <p-sortIcon field="created_at"></p-sortIcon></th> -->
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-report let-rowIndex="rowIndex">

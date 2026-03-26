@@ -1,0 +1,92 @@
+<div class="quick-links-wrapper">
+  <div class="p-1 m-2 fixed-card">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <b>
+          <span class="back-btn-text">Quick Links </span>
+        </b>
+      </div>
+    </div>
+  </div>
+
+  <div class="m-2">
+    <div class="row g-3">
+
+      <!-- SurePass -->
+      <div class="col-md-6 col-lg-3">
+        <div class="link-card" (click)="openLink(links[0])">
+          <div class="card-icon surepass-icon">
+            <i class="pi pi-shield"></i>
+          </div>
+          <div class="card-content">
+            <div class="card-title">SurePass</div>
+            <div class="card-desc">API Console & Product Catalogue</div>
+            <div class="card-url">console.surepass.app</div>
+          </div>
+          <div class="card-arrow">
+            <i class="pi pi-external-link"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- VerifyAL -->
+      <div class="col-md-6 col-lg-3">
+        <div class="link-card" (click)="openLink(links[1])">
+          <div class="card-icon verifyal-icon">
+            <i class="pi pi-verified"></i>
+          </div>
+          <div class="card-content">
+            <div class="card-title">VerifyAL</div>
+            <div class="card-desc">Verification Dashboard</div>
+            <div class="card-url">dashboardnew.verifyal.com</div>
+          </div>
+          <div class="card-arrow">
+            <i class="pi pi-external-link"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Precisa -->
+      <div class="col-md-6 col-lg-3">
+        <div class="link-card" (click)="openLink(links[2])">
+          <div class="card-icon precisa-icon">
+            <i class="pi pi-chart-bar"></i>
+          </div>
+          <div class="card-content">
+            <div class="card-title">Precisa</div>
+            <div class="card-desc">Bank Statement Analyser</div>
+            <div class="card-url">webapp.precisa.in</div>
+          </div>
+          <div class="card-arrow">
+            <i class="pi pi-external-link"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Airtel -->
+      <div class="col-md-6 col-lg-3">
+        <div class="link-card" (click)="openLink(links[3])">
+          <div class="card-icon airtel-icon">
+            <i class="pi pi-mobile"></i>
+          </div>
+          <div class="card-content">
+            <div class="card-title">Airtel Business</div>
+            <div class="card-desc">Commercial Communication</div>
+            <div class="card-url">airtel.in/business</div>
+          </div>
+          <div class="card-arrow">
+            <i class="pi pi-external-link"></i>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

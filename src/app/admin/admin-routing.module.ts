@@ -95,6 +95,11 @@ const routes: Routes = [
         loadChildren: () =>
           import('./whatsapp-templates/whatsapp-templates.module').then((m) => m.WhatsappTemplatesModule),
       },
+      {
+        path: 'quick-links',
+        loadChildren: () =>
+          import('./quick-links/quick-links.module').then((m) => m.QuickLinksModule),
+      },
 
     ],
   },

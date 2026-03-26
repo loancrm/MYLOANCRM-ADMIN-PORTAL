@@ -591,24 +591,29 @@
       <ng-template pTemplate="header" let-columns>
         <tr>
           <th class="text-nowrap">Lead ID</th>
-          <th class="text-nowrap">Name</th>
-          <!-- <th>Website</th> -->
-          <th class="text-nowrap">Email</th>
-          <th class="text-nowrap">Phone</th>
-          <th class="text-nowrap">Company</th>
-          <th class="text-nowrap">City</th>
-          <th class="text-nowrap">State</th>
-          <th class="text-nowrap">Pin Code</th>
-          <th class="text-nowrap">Platform</th>
-          <th class="text-nowrap">Callback Date</th>
-          <th class="text-nowrap">Created Time</th>
+          <th pSortableColumn="Name" class="text-nowrap">Name <p-sortIcon field="Name"></p-sortIcon></th>
+
+          <th pSortableColumn="Email" class="text-nowrap">Email <p-sortIcon field="Email"></p-sortIcon></th>
+
+          <th pSortableColumn="PhoneNumber" class="text-nowrap">Phone <p-sortIcon field="PhoneNumber"></p-sortIcon></th>
+
+          <th pSortableColumn="Company" class="text-nowrap">Company <p-sortIcon field="Company"></p-sortIcon></th>
+
+          <th pSortableColumn="City" class="text-nowrap">City <p-sortIcon field="City"></p-sortIcon></th>
+           <th pSortableColumn="State" class="text-nowrap">State <p-sortIcon field="State"></p-sortIcon></th>
+          <th pSortableColumn="pinCode" class="text-nowrap">Pin Code <p-sortIcon field="pinCode"></p-sortIcon></th>
+
+          <th pSortableColumn="Platform" class="text-nowrap">Platform <p-sortIcon field="Platform"></p-sortIcon></th>
+          <th pSortableColumn="CallbackDate" class="text-nowrap">Callback Date <p-sortIcon field="CallbackDate"></p-sortIcon></th>
+
+          <th pSortableColumn="CreatedOn" class="text-nowrap">Created Time <p-sortIcon field="CreatedOn"></p-sortIcon></th>
           <th class="text-nowrap">Actions</th>
         </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-team>
+      <ng-template pTemplate="body" let-team  let-rowIndex="rowIndex">
   <tr [pSelectableRow]="team" class="text-capitalize">
 
-    <td>{{ team.id || '-' }}</td>
+    <td>{{ rowIndex + 1 }}</td>
 
     <td>
       <span *ngIf="team.Name; else dash">
@@ -748,20 +753,6 @@
                   tooltipPosition="top"
                 />
       </button>
-      <!-- <button>
-        <div class="lead-card__row">
-        <i class="pi pi-globe lead-card__icon"></i>
-        <div>
-          <div class="lead-card__label">Website</div>
-          <div class="lead-card__value">
-            <a *ngIf="selectedLead.Website" [href]="selectedLead.Website" target="_blank">
-              {{ selectedLead.Website }}
-            </a>
-            <span *ngIf="!selectedLead.Website">N/A</span>
-          </div>
-        </div>
-      </div>
-      </button> -->
     </div>
 
     <!-- Detail Rows -->

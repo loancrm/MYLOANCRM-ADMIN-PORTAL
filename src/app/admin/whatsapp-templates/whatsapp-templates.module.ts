@@ -20,6 +20,7 @@ import { RippleModule } from 'primeng/ripple';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
+import { LucideAngularModule, RefreshCw, SquarePen, Trash2 } from 'lucide-angular';
 const routes: Routes = [
   { path: '', component: WhatsappTemplatesComponent }
 ];
@@ -47,7 +48,8 @@ const routes: Routes = [
     MultiSelectModule,
     TooltipModule,
     CreateTemplateModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
+    LucideAngularModule.pick({ RefreshCw, SquarePen, Trash2 })
   ],
     exports: [
     WhatsappTemplatesComponent,  // ✅ Export so CampaignModule can use it

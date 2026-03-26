@@ -828,10 +828,10 @@ bulkUploadSocialMediaLeadsFile(formData: FormData) {
 
   // ── WhatsApp Templates (DB) ────────────────────────────
 
-getWhatsappTemplatesFromDB() {
-  const url = 'whatsapp-templates';
-  return this.serviceMeta.httpGet(url);
-}
+// getWhatsappTemplatesFromDB() {
+//   const url = 'whatsapp-templates';
+//   return this.serviceMeta.httpGet(url);
+// }
 
 createWhatsappTemplate(data: any) {
   const url = 'whatsapp-templates';
@@ -872,4 +872,15 @@ updateSocialMediaLead(id: any, data: any) {
   const url = 'social-media-leads/' + id;
   return this.serviceMeta.httpPut(url, data);
 }
+getWhatsappTemplatesFromDB(filter = {}) {
+  const url = 'whatsapp-templates';
+  return this.serviceMeta.httpGet(url, null, filter);   // ✅ pass filter
+}
+ 
+getWhatsappTemplatesCount(filter = {}) {
+  const url = 'whatsapp-templates/total';
+  return this.serviceMeta.httpGet(url, null, filter);
+}
+ 
+ 
 }

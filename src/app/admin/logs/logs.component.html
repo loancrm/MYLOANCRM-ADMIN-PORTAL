@@ -1,50 +1,301 @@
-<div class="logs-container">
-  <!-- LEFT PANEL: Contacts -->
+
+
+<div class="logs-wrapper">
+
+  <!-- ── LEFT PANEL: One row per number ──────────────────────────────────── -->
   <div class="contacts-panel">
-    <h3>📋 Campaign Logs</h3>
-    <div *ngIf="loading" class="loading">Loading logs...</div>
-    <div *ngIf="!loading && logs.length === 0" class="loading">No logs found</div>
 
-    <div *ngFor="let log of logs" class="contact-card" 
-         [class.active]="selectedLog === log"
-         (click)="selectLog(log)">
-      <div class="contact-info">
-        <div class="avatar">{{ log.campaign_name[0] || '?' }}</div>
-        <div class="contact-details">
-          <div class="contact-name">{{ log.campaign_name }}</div>
-          <div class="contact-number">{{ log.mobile_number }}</div>
-        </div>
-      </div>
-      <div class="status" [class.sent]="log.status==='sent'" [class.failed]="log.status!=='sent'">
-        {{ log.status === 'sent' ? '✅ Sent' : '❌ Failed' }}
-      </div>
+    <div class="contacts-header">
+      <h3>📋 Campaign Logs</h3>
+      <input
+        pInputText
+        [(ngModel)]="searchText"
+        (input)="applySearch()"
+        placeholder="Search name or number..."
+        class="search-input"
+      />
     </div>
-  </div>
 
-  <!-- RIGHT PANEL: Chat/Message Preview -->
-  <div class="chat-panel" *ngIf="selectedLog">
-    <div class="chat-header">
-      <div class="avatar">{{ selectedLog.campaign_name[0] || '?' }}</div>
+    <div *ngIf="loading" class="empty-state">
+      <i class="pi pi-spin pi-spinner"></i> Loading...
+    </div>
+
+    <div *ngIf="!loading && filteredLogs.length === 0" class="empty-state">
+      No logs found
+    </div>
+
+    <div
+      *ngFor="let log of filteredLogs"
+      class="contact-card"
+      [class.active]="selectedLog?.mobile_number === log.mobile_number"
+      [class.has-reply]="isLastMessageReply(log)"
+      (click)="selectLog(log)"
+    >
+      <div class="avatar">
+        {{ log.name ? log.name[0].toUpperCase() : '?' }}
+      </div>
+
       <div class="contact-details">
-        <div class="contact-name">{{ selectedLog.campaign_name }}</div>
-        <div class="contact-number">{{ selectedLog.mobile_number }}</div>
+        <div class="contact-name">{{ log.name || 'Unknown' }}</div>
+        <div class="contact-preview">
+          <!-- Show arrow icon based on direction -->
+          <i
+            class="pi me-1"
+            [class.pi-arrow-up-right]="!isLastMessageReply(log)"
+            [class.pi-arrow-down-left]="isLastMessageReply(log)"
+            [style.color]="isLastMessageReply(log) ? '#25d366' : '#888'"
+          ></i>
+          {{ getLastMessage(log) }}
+        </div>
+        <div class="contact-number">{{ log.mobile_number }}</div>
+      </div>
+
+      <div class="contact-meta">
+        <div class="contact-time">{{ log.last_sent_at | date:'d MMM, h:mm a' }}</div>
+        <!-- <span class="msg-count">{{ log.messages?.length || 0 }} msgs</span> -->
+        <!-- Status badge: reply = 💬, sent = ✅, failed = ❌ -->
+        <!-- <span class="status-badge"
+          [class.reply]="isLastMessageReply(log)"
+          [class.sent]="!isLastMessageReply(log) && getLastStatus(log) === 'sent'"
+          [class.failed]="!isLastMessageReply(log) && getLastStatus(log) !== 'sent'">
+          {{ isLastMessageReply(log) ? '💬' : getLastStatus(log) === 'sent' ? '✅' : '❌' }}
+        </span> -->
+        <span class="status-badge"
+          [class.reply]="isLastMessageReply(log)"
+          [class.sent]="!isLastMessageReply(log) && getLastStatus(log) === 'sent'"
+          [class.failed]="!isLastMessageReply(log) && getLastStatus(log) !== 'sent'">
+
+          <i
+            class="pi"
+            [ngClass]="{
+              'pi-comments': isLastMessageReply(log),
+              'pi-check': !isLastMessageReply(log) && getLastStatus(log) === 'sent',
+              'pi-exclamation-circle': !isLastMessageReply(log) && getLastStatus(log) !== 'sent'
+            }">
+          </i>
+
+        </span>
       </div>
     </div>
 
-    <div class="chat-body">
-      <div class="message-row sent">
-        <div class="message-bubble">
-          <div class="message-text">
-            Template: {{ selectedLog.template_name || 'Custom Message' }}
-          </div>
-          <div class="message-time">
-            {{ selectedLog.sent_at | date:'shortTime' }}
-          </div>
-        </div>
+  </div>
+
+  <!-- ── RIGHT PANEL: WhatsApp style chat ────────────────────────────────── -->
+  <div class="chat-panel" *ngIf="selectedLog; else noSelection">
+
+    <!-- Chat Header -->
+    <div class="chat-header">
+      <div class="avatar large">
+        {{ selectedLog.name ? selectedLog.name[0].toUpperCase() : '?' }}
       </div>
-      <div class="message-row id">
-        <small class="message-id">WhatsApp ID: {{ selectedLog.whatsapp_message_id }}</small>
+      <div class="header-details">
+        <div class="header-name">{{ selectedLog.name || 'Unknown' }}</div>
+        <div class="header-number">{{ selectedLog.mobile_number }}</div>
+      </div>
+      <div class="header-stats">
+        <span class="stat-badge">
+          <i class="pi pi-send me-1"></i>
+          {{ selectedLog.messages?.length || 0 }} messages
+        </span>
       </div>
     </div>
+
+    <!-- Chat Body -->
+    <div class="chat-body" #chatBody>
+
+      <ng-container *ngFor="let msg of selectedLog.messages; let i = index">
+
+        <!-- Date separator -->
+        <div class="date-separator"
+          *ngIf="i === 0 || (selectedLog.messages[i-1].sent_at | date:'d MMM') !== (msg.sent_at | date:'d MMM')">
+          <span>{{ msg.sent_at | date:'MMMM d, yyyy' }}</span>
+        </div>
+
+        <!-- ── INCOMING REPLY (left side) ──────────────────────────────── -->
+        <ng-container *ngIf="msg.type === 'reply'; else outgoingMsg">
+
+          <div class="message-row incoming-row">
+            <div class="message-bubble incoming-bubble">
+
+              <div class="type-tag">
+                <span class="reply-tag">
+                  <i class="pi pi-reply me-1"></i>
+                  Incoming Reply
+                </span>
+              </div>
+
+              <div class="message-text">{{ msg.messageSent || '(No message content)' }}</div>
+
+              <div class="message-footer">
+                <span class="message-time">{{ msg.sent_at | date:'h:mm a' }}</span>
+                <span class="message-status received">📩</span>
+              </div>
+
+            </div>
+          </div>
+
+        </ng-container>
+
+        <!-- ── OUTGOING MESSAGE (right side) ───────────────────────────── -->
+        <ng-template #outgoingMsg>
+
+          <div class="message-row outgoing-row">
+            <div class="message-bubble"
+              [class.failed-bubble]="msg.status !== 'sent'">
+
+              <div class="type-tag">
+                <span
+                  [class.bulk-tag]="msg.type === 'bulk'"
+                  [class.single-tag]="msg.type === 'single'">
+                  <i class="pi"
+                    [class.pi-users]="msg.type === 'bulk'"
+                    [class.pi-user]="msg.type === 'single'"></i>
+                  {{ msg.type === 'bulk' ? 'Bulk Campaign' : 'Single Message' }}
+                </span>
+                <span class="campaign-name-tag">{{ msg.campaignName }}</span>
+              </div>
+
+              <div class="template-tag">
+                <i class="pi pi-list me-1"   *ngIf="msg.templateName !== 'CUSTOM_MESSAGE'"></i>
+                <i class="pi pi-pencil me-1" *ngIf="msg.templateName === 'CUSTOM_MESSAGE'"></i>
+                {{ msg.templateName }}
+              </div>
+
+              <div class="message-text">{{ msg.messageSent || '(No message content)' }}</div>
+
+              <div class="message-footer">
+                <span class="message-time">{{ msg.sent_at | date:'h:mm a' }}</span>
+                <!-- <span class="message-status" *ngIf="msg.status === 'sent'">✅</span>
+                <span class="message-status failed" *ngIf="msg.status !== 'sent'">❌</span> -->
+                <span class="message-status">
+                  <i
+                    class="pi"
+                    [ngClass]="{
+                      'pi-check': msg.status === 'sent',
+                      'pi-exclamation-circle': msg.status !== 'sent'
+                    }"
+                    [style.color]="msg.status === 'sent' ? '#9aa0a6' : '#e53935'">
+                  </i>
+                </span>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="meta-row" *ngIf="msg.whatsappMessageId">
+            <small><i class="pi pi-tag me-1"></i>ID: {{ msg.whatsappMessageId }}</small>
+          </div>
+
+          <div class="error-box" *ngIf="msg.status !== 'sent' && msg.error">
+            <i class="pi pi-exclamation-triangle me-1"></i>
+            {{ getErrorMessage(msg.error) }}
+          </div>
+
+        </ng-template>
+
+      </ng-container>
+
+    </div>
+
+    <!-- ── WHATSAPP STYLE INPUT BOX ─────────────────────────────────────── -->
+    <div class="chat-input-area">
+
+      <!-- Toggle buttons -->
+      <div class="input-toggle">
+        <button type="button"
+          [class.active-toggle]="inputMode === 'template'"
+          (click)="inputMode = 'template'">
+          <i class="pi pi-list me-1"></i>Template
+        </button>
+        <button type="button"
+          [class.active-toggle]="inputMode === 'custom'"
+          (click)="inputMode = 'custom'">
+          <i class="pi pi-pencil me-1"></i>Custom
+        </button>
+      </div>
+
+      <!-- ── TEMPLATE MODE ─────────────────────────────────────────────── -->
+      <ng-container *ngIf="inputMode === 'template'">
+
+        <div class="template-input-row">
+          <p-dropdown
+            [options]="templates"
+            [(ngModel)]="quickTemplate"
+            optionLabel="name"
+            placeholder="Select template..."
+            appendTo="body"
+            (onChange)="onQuickTemplateSelect()"
+            [showClear]="true"
+            [style]="{ flex: 1, minWidth: 0 }"
+          >
+            <ng-template let-t pTemplate="item">
+              <div class="d-flex align-items-center gap-2">
+                <span>{{ t.name }}</span>
+                <span class="badge bg-secondary" style="font-size:0.65rem;">{{ t.language }}</span>
+              </div>
+            </ng-template>
+          </p-dropdown>
+          <button class="send-btn" (click)="sendQuickMessage()"
+            [disabled]="!quickTemplate || sending">
+            <i class="pi"
+              [class.pi-send]="!sending"
+              [class.pi-spin]="sending"
+              [class.pi-spinner]="sending"></i>
+          </button>
+        </div>
+
+        <!-- Param inputs -->
+        <div *ngIf="quickParams.length > 0" class="quick-params">
+          <div *ngFor="let p of quickParams; let i = index" class="quick-param-row">
+            <label class="small fw-semibold">{{ p }}</label>
+            <input pInputText [(ngModel)]="quickParamValues[i]"
+              [placeholder]="'Value for ' + p" class="w-100 mt-1"
+              (input)="updateQuickPreview()" />
+          </div>
+        </div>
+
+        <!-- Preview -->
+        <div *ngIf="quickTemplatePreview" class="template-preview">
+          <small class="text-muted"><i class="pi pi-eye me-1"></i>Preview:</small>
+          <div class="preview-text">{{ quickTemplatePreview }}</div>
+        </div>
+
+      </ng-container>
+
+      <!-- ── CUSTOM MODE ───────────────────────────────────────────────── -->
+      <ng-container *ngIf="inputMode === 'custom'">
+        <div class="custom-input-row">
+          <textarea
+            [(ngModel)]="quickCustomMessage"
+            placeholder="Type a message..."
+            class="custom-textarea"
+            rows="2"
+          ></textarea>
+          <button class="send-btn" (click)="sendQuickMessage()"
+            [disabled]="!quickCustomMessage.trim() || sending">
+            <i class="pi"
+              [class.pi-send]="!sending"
+              [class.pi-spin]="sending"
+              [class.pi-spinner]="sending"></i>
+          </button>
+        </div>
+        <small class="text-muted px-2">
+          {{ quickCustomMessage.length }} chars &nbsp;·&nbsp; Shift+Enter for new line, Enter to send
+        </small>
+      </ng-container>
+
+    </div>
+
   </div>
+
+  <!-- No selection placeholder -->
+  <ng-template #noSelection>
+    <div class="chat-panel empty-chat">
+      <div class="empty-chat-content">
+        <i class="pi pi-comments" style="font-size:3rem; color:#ccc;"></i>
+        <p>Select a contact to view message history</p>
+      </div>
+    </div>
+  </ng-template>
+
 </div>

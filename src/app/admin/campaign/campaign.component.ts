@@ -100,27 +100,6 @@ export class CampaignComponent implements OnInit {
       }
     );
   }
-
-  // ── APPLY FILTERS (SAME AS SAMPLE STYLE) ────────────────
-  // applyFilters(): void {
-
-  //   // SEARCH
-  //   if (this.searchText) {
-  //     this.searchFilter['search'] = this.searchText;
-  //   } else {
-  //     delete this.searchFilter['search'];
-  //   }
-
-  //   // PLATFORM
-  //   if (this.selectedPlatform && this.selectedPlatform !== 'ALL') {
-  //     this.searchFilter['platform-eq'] = this.selectedPlatform;
-  //   } else {
-  //     delete this.searchFilter['platform-eq'];
-  //   }
-
-  //   // CALL API AGAIN
-  //   this.loadSocialMediaLeads();
-  // }
   applyFilters(): void {
 
   // ❌ CLEAR OLD FILTERS
@@ -221,9 +200,14 @@ export class CampaignComponent implements OnInit {
   }
 
   allSelected(): boolean {
-    return this.filteredContacts.length > 0 &&
-      this.selectedContacts.length === this.filteredContacts.length;
-  }
+  return this.filteredContacts.length > 0 &&
+    this.filteredContacts.every(c => this.isSelected(c));
+}
+
+  // allSelected(): boolean {
+  //   return this.filteredContacts.length > 0 &&
+  //     this.selectedContacts.length === this.filteredContacts.length;
+  // }
 
   // ── PARAMS ─────────────────────────────────────────────
   resolveParam(contact: any, index: number): string {
@@ -287,7 +271,9 @@ export class CampaignComponent implements OnInit {
       campaignName: this.campaignName,
       contacts: contactsWithParams,
       templateName: this.selectedTemplate.name,
+      templateBodyText: this.templateBodyText, 
       languageCode: this.languageCode,
+      sendType:'bulk',    
     }).subscribe({
       next: (res) => {
         this.result = res;
