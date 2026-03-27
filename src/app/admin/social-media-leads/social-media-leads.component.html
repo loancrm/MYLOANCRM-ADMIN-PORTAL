@@ -233,26 +233,21 @@
               <strong>Great!</strong> No duplicate phone numbers found. You can
               proceed with the upload.
             </small>
-          </div>
-
-          <!-- Excel Duplicates — Block Upload -->
+          </div>    
+          <!-- Excel Duplicates — Show Options (same as DB duplicates) -->
           <div
             *ngIf="bulkValidationData.hasExcelDuplicates"
-            class="alert alert-danger mb-3"
+            class="alert alert-warning mb-3"
           >
             <div class="d-flex align-items-start">
               <i class="pi pi-exclamation-triangle me-2 mt-1" style="font-size: 1.5rem"></i>
               <div class="flex-grow-1">
-                <strong>Excel File Contains Duplicates</strong>
+                <strong>Excel File Contains Duplicate Phone Numbers</strong>
                 <p class="mb-2 small">
-                  Your Excel file contains duplicate phone numbers. Please remove
-                  all duplicates before uploading.
+                  Your Excel file has duplicate phone numbers. Choose how to handle them:
                 </p>
-                <p class="mb-2 small text-danger">
-                  <i class="pi pi-ban me-1"></i>
-                  <strong>Upload is blocked until duplicates are removed.</strong>
-                </p>
-                <div class="table-responsive">
+                <!-- Duplicates Table -->
+                <div class="table-responsive mb-3">
                   <table class="table table-sm table-hover">
                     <thead class="table-warning">
                       <tr>
@@ -277,10 +272,54 @@
                     </tbody>
                   </table>
                 </div>
+                <!-- Options -->
+                <div class="card border-warning">
+                  <div class="card-header bg-warning text-dark py-2">
+                    <h6 class="mb-0 small">
+                      <i class="pi pi-cog me-2"></i>
+                      How would you like to handle Excel duplicates?
+                    </h6>
+                  </div>
+                  <div class="card-body p-3">
+                    <div class="form-check mb-2">
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        name="handleExcelDuplicates"
+                        id="skipExcelDuplicates"
+                        value="skip"
+                        [(ngModel)]="handleExcelDuplicates"
+                      />
+                      <label class="form-check-label small" for="skipExcelDuplicates">
+                        <strong>Keep First Occurrence Only</strong>
+                        <span class="badge bg-success ms-1">Recommended</span>
+                        <span class="d-block text-muted mt-1 small">
+                          Only the first occurrence of each duplicate phone number
+                          will be inserted. All other duplicates will be skipped.
+                        </span>
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        name="handleExcelDuplicates"
+                        id="allowExcelDuplicates"
+                        value="allow"
+                        [(ngModel)]="handleExcelDuplicates"
+                      />
+                      <label class="form-check-label small" for="allowExcelDuplicates">
+                        <strong>Allow All Duplicates (Insert All Rows)</strong>
+                        <span class="d-block text-muted mt-1 small">
+                          All rows including duplicates will be inserted.
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-
           <!-- DB Duplicates — Show Options -->
           <div
             *ngIf="bulkValidationData.hasDbDuplicates"
@@ -496,7 +535,7 @@
         ></button>
 
         <!-- Upload Button -->
-        <button
+        <!-- <button
           pButton
           type="button"
           label="Upload"
@@ -510,7 +549,21 @@
           "
           class="p-button-success"
           *ngIf="bulkValidationData"
-        ></button>
+        ></button> -->
+        <button
+            pButton
+            type="button"
+            label="Upload"
+            icon="pi pi-upload"
+            (click)="proceedWithBulkUpload()"
+            [disabled]="
+              !bulkValidationData ||
+              bulkValidationData.hasTemplateError ||
+              (bulkUploadProgress > 0 && bulkUploadProgress < 100)
+            "
+            class="p-button-success"
+            *ngIf="bulkValidationData"
+          ></button>
       </ng-template>
     </p-dialog>
   </div>
@@ -583,8 +636,19 @@
               optionValue="value"
               placeholder="All Platforms"
               (onChange)="onPlatformFilterChange($event)"
-              [style]="{ minWidth: '180px' }"
+              [style]="{ width: '100%' }"
             ></p-dropdown>
+        </div>
+        <div class="col-md-3 mt-2 no-padding-small">
+          <p-dropdown
+            [options]="statusOptions"
+            [(ngModel)]="selectedStatus"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select Status"
+            (onChange)="onStatusFilterChange($event)"
+            [style]="{ width: '100%' }"
+          ></p-dropdown>
         </div>
       </div>
     </ng-template>
@@ -607,96 +671,172 @@
           <th pSortableColumn="CallbackDate" class="text-nowrap">Callback Date <p-sortIcon field="CallbackDate"></p-sortIcon></th>
 
           <th pSortableColumn="CreatedOn" class="text-nowrap">Created Time <p-sortIcon field="CreatedOn"></p-sortIcon></th>
+          <th class="text-nowrap">Status</th>
           <th class="text-nowrap">Actions</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-team  let-rowIndex="rowIndex">
-  <tr [pSelectableRow]="team" class="text-capitalize">
+        <tr [pSelectableRow]="team" class="text-capitalize">
 
-    <td>{{ rowIndex + 1 }}</td>
+          <td>{{ rowIndex + 1 }}</td>
 
-    <td>
-      <span *ngIf="team.Name; else dash">
-        {{ team.Name | capitalizeFirst }}
-      </span>
-    </td>
+          <td>
+            <span *ngIf="team.Name; else dash">
+              {{ team.Name | capitalizeFirst }}
+            </span>
+          </td>
 
-    <td>
-      <span *ngIf="team.Email; else dash">
-        {{ team.Email }}
-      </span>
-    </td>
+          <td>
+            <span *ngIf="team.Email; else dash">
+              {{ team.Email }}
+            </span>
+          </td>
 
-    <td>
-      <span *ngIf="team.PhoneNumber; else dash">
-        {{ team.PhoneNumber }}
-      </span>
-    </td>
+          <td>
+            <span *ngIf="team.PhoneNumber; else dash">
+              {{ team.PhoneNumber }}
+            </span>
+          </td>
 
-    <td>
-      <span *ngIf="team.Company; else dash">
-        {{ team.Company | capitalizeFirst }}
-      </span>
-    </td>
+          <td>
+            <span *ngIf="team.Company; else dash">
+              {{ team.Company | capitalizeFirst }}
+            </span>
+          </td>
 
-    <td>
-      <span *ngIf="team.City; else dash">
-        {{ team.City | capitalizeFirst }}
-      </span>
-    </td>
+          <td>
+            <span *ngIf="team.City; else dash">
+              {{ team.City | capitalizeFirst }}
+            </span>
+          </td>
 
-    <td>
-      <span *ngIf="team.State; else dash">
-        {{ team.State | capitalizeFirst }}
-      </span>
-    </td>
+          <td>
+            <span *ngIf="team.State; else dash">
+              {{ team.State | capitalizeFirst }}
+            </span>
+          </td>
 
-    <td>
-      <span *ngIf="team.pinCode; else dash">
-        {{ team.pinCode }}
-      </span>
-    </td>
+          <td>
+            <span *ngIf="team.pinCode; else dash">
+              {{ team.pinCode }}
+            </span>
+          </td>
 
-    <td>
-      <span *ngIf="team.Platform; else dash">
-        {{ team.Platform }}
-      </span>
-    </td>
+          <td>
+            <span *ngIf="team.Platform; else dash">
+              {{ team.Platform }}
+            </span>
+          </td>
 
-    <td>
-      <span *ngIf="team.CallbackDate; else dash">
-        {{ team.CallbackDate | date:'MMM d, y, h:mm a' }}
-      </span>
-    </td>
+          <td>
+            <span *ngIf="team.CallbackDate; else dash">
+              {{ team.CallbackDate | date:'MMM d, y, h:mm a' }}
+            </span>
+          </td>
 
-    <td>
-      <span *ngIf="team.CreatedOn; else dash">
-        {{ team.CreatedOn | date }}
-      </span>
-    </td>
+          <td>
+            <span *ngIf="team.CreatedOn; else dash">
+              {{ team.CreatedOn | date }}
+            </span>
+          </td>
+          <!-- <td>
+            <span
+              class="fw-bold"
+              [ngStyle]="{
+                color: team.status === 1 ? 'green' : 'red'
+              }"
+            >
+              {{ team.status === 1 ? 'Active' : 'Inactive' }}
+            </span>
+          </td> -->
+          <td>
+  <span
+    class="status-badge"
+    [ngClass]="{
+      'status-active': team.status === 1,
+      'status-inactive': team.status === 2
+    }"
+  >
+    <span class="status-dot"></span>
+    {{ team.status === 1 ? 'Active' : 'Inactive' }}
+  </span>
+</td>
+          <!-- <td>
+            <div class="text-center d-flex">
+              <div class="d-flex">
+                <img
+                  alt="Update User"
+                  src="../../../assets/images/icons/edit.svg"
+                  width="24px"
+                  height="24px"
+                  class="me-2"
+                  (click)="editLead(team)"
+                  pTooltip="Update User"
+                  tooltipPosition="top"
+                />
+              </div>
+            </div>
+          </td> -->
 
-    <td>
-      <div class="text-center d-flex">
-        <div class="d-flex">
-          <img
-            alt="Update User"
-            src="../../../assets/images/icons/edit.svg"
-            width="24px"
-            height="24px"
-            class="me-2"
-            (click)="editLead(team)"
-            pTooltip="Update User"
-            tooltipPosition="top"
-          />
-        </div>
-      </div>
-    </td>
+          <td>
+            <div class="d-flex align-items-center">
 
-  </tr>
+              <!-- ✏️ EDIT BUTTON -->
+              <img
+                alt="Update User"
+                src="../../../assets/images/icons/edit.svg"
+                width="24px"
+                height="24px"
+                class="me-2"
+                (click)="editLead(team)"
+                pTooltip="Update User"
+                tooltipPosition="top"
+              />
 
-  <!-- ✅ Reusable dash template -->
-  <ng-template #dash>-</ng-template>
-</ng-template>
+              <!-- ☰ MENU BUTTON -->
+              <button
+                [matMenuTriggerFor]="menu"
+                style="all: unset; cursor: pointer"
+                (click)="$event.stopPropagation()"
+                pTooltip="Actions"
+                tooltipPosition="top"
+              >
+                <img
+                  src="assets/images/icons/menu.svg"
+                  width="24"
+                  height="24"
+                />
+              </button>
+
+              <!-- 📌 MENU -->
+              <mat-menu #menu="matMenu">
+
+                <!-- ✅ IF ACTIVE → SHOW INACTIVE OPTION -->
+                <button
+                  mat-menu-item
+                  *ngIf="team.status == 1"
+                  (click)="changeStatus(team, 2)"
+                >
+                  <span>Mark as Inactive</span>
+                </button>
+
+                <!-- ✅ IF INACTIVE → SHOW ACTIVE OPTION -->
+                <button
+                  mat-menu-item
+                  *ngIf="team.status == 2"
+                  (click)="changeStatus(team, 1)"
+                >
+                  <span>Mark as Active</span>
+                </button>
+
+              </mat-menu>
+
+            </div>
+          </td>
+        </tr>
+        <!-- ✅ Reusable dash template -->
+        <ng-template #dash>-</ng-template>
+      </ng-template>
     </p-table>
   </div>
 

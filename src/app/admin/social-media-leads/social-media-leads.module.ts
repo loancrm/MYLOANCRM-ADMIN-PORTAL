@@ -17,6 +17,9 @@ import { AccordionModule } from 'primeng/accordion';
 import { RippleModule } from 'primeng/ripple';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { FormsModule } from '@angular/forms';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatButtonModule } from '@angular/material/button';
 // const routes: Routes = [
 //   { path: '', component: SocialMediaLeadsComponent },
 
@@ -57,6 +60,9 @@ const routes: Routes = [
     RippleModule,
     MultiSelectModule,
     FormsModule,
+    InputSwitchModule,
+    MatMenuModule,
+    MatButtonModule,
     [RouterModule.forChild(routes)],
   ]
 })
