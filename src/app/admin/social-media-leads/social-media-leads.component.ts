@@ -40,7 +40,8 @@ selectedLead: any = null;
   isBulkValidating: boolean = false;
   handleDuplicates: string = 'skip';
   globalSearchValue: string = '';
-
+// Add this new property alongside handleDuplicates
+handleExcelDuplicates: string = 'skip';
 selectedPlatform: string = 'all';
 
 platformOptions: { label: string; value: string }[] = [
@@ -54,7 +55,12 @@ platformOptions: { label: string; value: string }[] = [
   // { label: 'YouTube',       value: 'YouTube' },
   // ← Add / remove platforms to match your actual data
 ];
-
+selectedStatus: number = 1;
+statusOptions = [
+  { label: 'Active', value: 1 },
+  { label: 'Inactive', value: 2 },
+  { label: 'All', value: 'all' }
+];
   constructor(
     private location: Location,
     private routingService: RoutingService,
@@ -73,11 +79,14 @@ platformOptions: { label: string; value: string }[] = [
       { label: 'Social Media Leads' },
     ];
   }
-
+  ngOnInit(): void {
+  // ✅ Default = Active
+  this.appliedFilter['status-eq'] = 1;
+}
   // ── Table Methods ──────────────────────────────────────
 
   loadsocialmediaLeads(event: any) {
-    console.log('TABLE EVENT:', event);
+    // console.log('TABLE EVENT:', event);
     this.currentTableEvent = event;
     let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
     api_filter = Object.assign({}, api_filter, this.searchFilter, this.appliedFilter);
@@ -175,15 +184,27 @@ platformOptions: { label: string; value: string }[] = [
   }
 
   resetBulkUploadForm() {
-    this.selectedBulkFile = null;
-    this.bulkValidationData = null;
-    this.bulkUploadResults = null;
-    this.bulkUploadProgress = 0;
-    this.isBulkValidating = false;
-    this.handleDuplicates = 'skip';
-    const fileInput = document.getElementById('socialLeadsExcelFile') as HTMLInputElement;
-    if (fileInput) fileInput.value = '';
-  }
+  this.selectedBulkFile = null;
+  this.bulkValidationData = null;
+  this.bulkUploadResults = null;
+  this.bulkUploadProgress = 0;
+  this.isBulkValidating = false;
+  this.handleDuplicates = 'skip';
+  this.handleExcelDuplicates = 'skip'; // ✅ add this
+  const fileInput = document.getElementById('socialLeadsExcelFile') as HTMLInputElement;
+  if (fileInput) fileInput.value = '';
+}
+
+  // resetBulkUploadForm() {
+  //   this.selectedBulkFile = null;
+  //   this.bulkValidationData = null;
+  //   this.bulkUploadResults = null;
+  //   this.bulkUploadProgress = 0;
+  //   this.isBulkValidating = false;
+  //   this.handleDuplicates = 'skip';
+  //   const fileInput = document.getElementById('socialLeadsExcelFile') as HTMLInputElement;
+  //   if (fileInput) fileInput.value = '';
+  // }
 
   onBulkFileSelected(event: any) {
     const file = event.target.files[0];
@@ -282,7 +303,7 @@ platformOptions: { label: string; value: string }[] = [
     const formData = new FormData();
     formData.append('file', this.selectedBulkFile);
     formData.append('handleDuplicates', this.handleDuplicates);
-
+    formData.append('handleExcelDuplicates', this.handleExcelDuplicates);
     this.leadsService.bulkUploadSocialMediaLeadsFile(formData).subscribe(
       (response: any) => {
         this.bulkUploadProgress = 100;
@@ -437,4 +458,33 @@ private reloadTable(): void {
 
   this.loadsocialmediaLeads(event);
 }
+changeStatus(lead: any, status: number) {
+  this.leadsService.updateLeadStatus(lead.id, { status }).subscribe(
+    () => {
+      lead.status = status;
+
+      this.toastService.showSuccess(
+        status === 1 ? 'Activated successfully' : 'Deactivated successfully'
+      );
+    },
+    () => {
+      this.toastService.showError('Failed to update status');
+    }
+  );
+}
+
+onStatusFilterChange(event: any): void {
+  const value = event.value;
+
+  if (!value || value === 'all') {
+    // ✅ Remove filter
+    delete this.appliedFilter['status-eq'];
+  } else {
+    // ✅ Apply filter
+    this.appliedFilter['status-eq'] = value;
+  }
+
+  this.reloadTable();
+}
+
 }

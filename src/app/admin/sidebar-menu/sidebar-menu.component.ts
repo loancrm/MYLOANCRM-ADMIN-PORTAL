@@ -136,31 +136,57 @@ export class SidebarMenuComponent implements OnChanges {
     }
   }
 
-  setMenuItems() {
+  // setMenuItems() {
 
-    // console.log("hello")
-    this.menuItems = [
-      { label: 'Home', icon: '../../../assets/images/icons/home.svg', route: 'dashboard', condition: true, },
-      { label: 'Accounts', icon: '../../../assets/images/icons/leads.svg', route: 'accounts', condition: true },
-      { label: 'Subscriptions', icon: '../../../assets/images/icons/callbacks.svg', route: 'subscription-plans', condition: true },
-      { label: 'Contacts', icon: '../../../assets/images/icons/callbacks.svg', route: 'contact-submissions', condition: true },
-      { label: 'Subscribers', icon: '../../../assets/images/icons/callbacks.svg', route: 'subscribers', condition: true },
-      { label: 'Cibil Reports', icon: '../../../assets/images/icons/callbacks.svg', route: 'cibil-reports', condition: true },
-      { label: 'CAM Reports', icon: '../../../assets/images/icons/callbacks.svg', route: 'cam-reports', condition: true },
-      { label: 'Social Media Leads', icon: '../../../assets/images/icons/callbacks.svg', route: 'social-media-leads', condition: true },
-      // { label: 'Users', icon: '../../../assets/images/icons/users.svg', route: 'users', condition: true },
-      {
+  //   // console.log("hello")
+  //   this.menuItems = [
+  //     { label: 'Home', icon: '../../../assets/images/icons/home.svg', route: 'dashboard', condition: true, },
+  //     { label: 'Accounts', icon: '../../../assets/images/icons/leads.svg', route: 'accounts', condition: true },
+  //     { label: 'Subscriptions', icon: '../../../assets/images/icons/callbacks.svg', route: 'subscription-plans', condition: true },
+  //     { label: 'Contacts', icon: '../../../assets/images/icons/callbacks.svg', route: 'contact-submissions', condition: true },
+  //     { label: 'Subscribers', icon: '../../../assets/images/icons/callbacks.svg', route: 'subscribers', condition: true },
+  //     { label: 'Cibil Reports', icon: '../../../assets/images/icons/callbacks.svg', route: 'cibil-reports', condition: true },
+  //     { label: 'CAM Reports', icon: '../../../assets/images/icons/callbacks.svg', route: 'cam-reports', condition: true },
+  //     { label: 'Social Media Leads', icon: '../../../assets/images/icons/callbacks.svg', route: 'social-media-leads', condition: true },
+  //     // { label: 'Users', icon: '../../../assets/images/icons/users.svg', route: 'users', condition: true },
+  //     {
+  //     label: 'Users',
+  //     icon: '../../../assets/images/icons/users.svg',
+  //     route: 'users',
+  //     condition: this.loggedInUserRole === 1
+  //   },
+  //   // ✅ ADD THESE TWO
+  //   { label: 'Campaign', icon: '../../../assets/images/icons/callbacks.svg', route: 'campaign', condition: true },
+  //   { label: 'Logs', icon: '../../../assets/images/icons/callbacks.svg', route: 'logs', condition: true },
+  //   { label: 'Tempaltes', icon: '../../../assets/images/icons/callbacks.svg', route: 'templates', condition: true },
+  //   { label: 'Quick Links', icon: '../../../assets/images/icons/callbacks.svg', route: 'quick-links', condition: true },
+  //   ];
+  // }
+
+  setMenuItems() {
+  this.menuItems = [
+    { label: 'Home', icon: 'Home', route: 'dashboard', condition: true },
+    { label: 'Accounts', icon: 'book-user', route: 'accounts', condition: true },
+    { label: 'Subscriptions', icon: 'wallet-cards', route: 'subscription-plans', condition: true },
+    { label: 'Contacts', icon: 'phone', route: 'contact-submissions', condition: true },
+    { label: 'Subscribers', icon: 'Users', route: 'subscribers', condition: true },
+    { label: 'Cibil Reports', icon: 'scroll-text', route: 'cibil-reports', condition: true },
+    { label: 'CAM Reports', icon: 'file-text', route: 'cam-reports', condition: true },
+    { label: 'Social Media Leads', icon: 'user-round-search', route: 'social-media-leads', condition: true },
+
+    {
       label: 'Users',
-      icon: '../../../assets/images/icons/users.svg',
+      icon: 'users',
       route: 'users',
       condition: this.loggedInUserRole === 1
     },
-    // ✅ ADD THESE TWO
-    { label: 'Campaign', icon: '../../../assets/images/icons/callbacks.svg', route: 'campaign', condition: true },
-    { label: 'Logs', icon: '../../../assets/images/icons/callbacks.svg', route: 'logs', condition: true },
-    { label: 'Tempaltes', icon: '../../../assets/images/icons/callbacks.svg', route: 'templates', condition: true },
-    ];
-  }
+
+    { label: 'Campaign', icon: 'Send', route: 'campaign', condition: true },
+    { label: 'Logs', icon: 'logs', route: 'logs', condition: true },
+    { label: 'Templates', icon: 'layout-template', route: 'templates', condition: true },
+    { label: 'Quick Links', icon: 'link', route: 'quick-links', condition: true },
+  ];
+}
 
   ngOnDestroy() {
     if (this.subscription) {

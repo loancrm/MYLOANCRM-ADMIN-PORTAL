@@ -224,11 +224,13 @@ loadAccounts(event) {
     event = {
       first: this.initialFirst,
       rows: this.initialRows,
+      sortField: 'createdOn',
       sortOrder: -1,
     };
   }
 
   this.currentTableEvent = event;
+  
 
   // 2️⃣ Save current page and rows to localStorage
   if (event && (event.first !== undefined || event.first === 0)) {
@@ -578,6 +580,7 @@ loadAccounts(event) {
   loadRemarks(event) {
     this.currentTableEvent = event;
     let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
+    
     // if (this.selectedRemarksStatus) {
     //   if (this.selectedRemarksStatus && this.selectedRemarksStatus.name) {
     //     if (this.selectedRemarksStatus.name != 'all') {
@@ -633,7 +636,5 @@ onPlanTypeChange(event: any) {
   this.selectedPlanType = event.value;
   this.accountTable.reset(); // reload table + API
 }
-
-
 
 }

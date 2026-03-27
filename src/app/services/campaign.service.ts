@@ -30,4 +30,9 @@ export class CampaignService {
     const url = 'campaign/last-interaction';
     return this.serviceMeta.httpGet(url, null, { mobileNumber });
   }
+
+  getContactLogs(mobileNumber: string): any {
+  const url = 'campaign/contact-logs';
+  return this.serviceMeta.httpGet(url, null, { mobileNumber });
+}
 }

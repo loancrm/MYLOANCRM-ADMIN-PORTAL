@@ -8,7 +8,21 @@ import { ButtonModule } from 'primeng/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { CapitalizeFirstPipe } from 'src/app/pipes/capitalize.pipe';
 import { FormsModule } from '@angular/forms';
-
+import { LucideAngularModule,
+        Home,
+        User,
+        Users,
+        Send,
+        Logs,
+        LayoutTemplate,
+        Link,BookUser,
+        WalletCards,
+        Phone,
+        ScrollText,
+        FileText,
+        UserRoundSearch,
+        LogOut 
+        } from 'lucide-angular';
 @NgModule({
   declarations: [SidebarMenuComponent],
   imports: [
@@ -19,7 +33,23 @@ import { FormsModule } from '@angular/forms';
     ButtonModule,
     CapitalizeFirstPipe,
     MatExpansionModule,
-    FormsModule
+    FormsModule,
+    LucideAngularModule.pick({
+      Home,
+      User,
+      Users,
+      Send,
+      Logs,
+      LayoutTemplate,
+      Link,
+      BookUser,
+      WalletCards,
+      Phone,
+      ScrollText,
+      FileText,
+      UserRoundSearch,
+      LogOut 
+    })
   ],
   exports: [SidebarMenuComponent],
 })

@@ -828,10 +828,10 @@ bulkUploadSocialMediaLeadsFile(formData: FormData) {
 
   // ── WhatsApp Templates (DB) ────────────────────────────
 
-getWhatsappTemplatesFromDB() {
-  const url = 'whatsapp-templates';
-  return this.serviceMeta.httpGet(url);
-}
+// getWhatsappTemplatesFromDB() {
+//   const url = 'whatsapp-templates';
+//   return this.serviceMeta.httpGet(url);
+// }
 
 createWhatsappTemplate(data: any) {
   const url = 'whatsapp-templates';
@@ -872,4 +872,49 @@ updateSocialMediaLead(id: any, data: any) {
   const url = 'social-media-leads/' + id;
   return this.serviceMeta.httpPut(url, data);
 }
+getWhatsappTemplatesFromDB(filter = {}) {
+  const url = 'whatsapp-templates';
+  return this.serviceMeta.httpGet(url, null, filter);   // ✅ pass filter
+}
+ 
+getWhatsappTemplatesCount(filter = {}) {
+  const url = 'whatsapp-templates/total';
+  return this.serviceMeta.httpGet(url, null, filter);
+}
+
+toggleApiAccess(accountId: string, isApiEnabled: boolean): any {
+  const url = 'credit-reports-api/credentials/toggle';
+  return this.serviceMeta.httpPut(url, { accountId, isApiEnabled });
+}
+ updateLeadStatus(id: number, data: any) {
+  const url = 'social-media-leads/status/' + id;
+  return this.serviceMeta.httpPut(url, data);
+}
+
+getAccountDashboardMetrics(accountId: any, filter: any = {}): Observable<any> {
+  const params: any = {
+    ...filter,
+    'accountId-eq': accountId
+  };
+  // Remove undefined keys
+  Object.keys(params).forEach(k => {
+    if (params[k] === undefined || params[k] === null) {
+      delete params[k];
+    }
+  });
+  const url = 'accounts/completeall-dashboard-metrics';
+  return this.serviceMeta.httpGet(url, null, params);
+}
+ 
+getGlobalDashboardMetrics(filter: any = {}): Observable<any> {
+  // ✅ No accountId — returns metrics for ALL accounts
+  const url = 'accounts/completeall-dashboard-metrics';
+  return this.serviceMeta.httpGet(url, null, filter);
+}
+// getAccountAnalytics(accountId: any): Observable<any> {
+//   return this.http.get(
+//     `${this.baseUrl}/accounts/${accountId}/analytics`
+//   );
+// }
+
 }

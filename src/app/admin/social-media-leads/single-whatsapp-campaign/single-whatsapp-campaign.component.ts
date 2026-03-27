@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Location } from '@angular/common';
 import { LeadsService } from '../../leads/leads.service';
@@ -10,31 +10,39 @@ import { ToastService } from 'src/app/services/toast.service';
   templateUrl: './single-whatsapp-campaign.component.html',
   styleUrl: './single-whatsapp-campaign.component.scss'
 })
-export class SingleWhatsappCampaignComponent implements OnInit {
+export class SingleWhatsappCampaignComponent implements OnInit, AfterViewChecked {
 
-  // ── Lead ───────────────────────────────────────────────
+  @ViewChild('chatBody') chatBody!: ElementRef;
+
+  // ── Lead ───────────────────────────────────────────────────────────────────
   lead: any = null;
 
-  // ── Templates ──────────────────────────────────────────
-  templates: any[] = [];
+  // ── Templates ──────────────────────────────────────────────────────────────
+  templates: any[]     = [];
   selectedTemplate: any = null;
-  templateBodyText = '';
+  templateBodyText      = '';
   templateParams: string[] = [];
   paramMappings: { type: 'db' | 'manual'; dbField: string; manualValue: string }[] = [];
 
-  // ── Campaign ───────────────────────────────────────────
-  campaignName = '';
-  languageCode = 'en_US';
-  sending = false;
-  sent = false;
-  result: any = null;
-  errorMsg = '';
+  // ── Message mode ───────────────────────────────────────────────────────────
   messageMode: 'template' | 'custom' = 'template';
-customMessage = '';
-isActive24h: boolean = false;
-lastSeenText: string = '';
+  customMessage = '';
 
-  // ── DB Field Options ───────────────────────────────────
+  // ── 24h window ─────────────────────────────────────────────────────────────
+  isActive24h  = false;
+  lastSeenText = '';
+
+  // ── Sending ────────────────────────────────────────────────────────────────
+  sending = false;
+  result: any = null;
+
+  // ── Sent messages — shown as bubbles immediately ───────────────────────────
+  sentMessages: any[] = [];
+
+  // ── Auto scroll ────────────────────────────────────────────────────────────
+  private shouldScroll = false;
+
+  // ── DB Field Options ───────────────────────────────────────────────────────
   dbFieldOptions = [
     { label: 'Name',     value: 'name' },
     { label: 'Phone',    value: 'mobileNumber' },
@@ -53,9 +61,47 @@ lastSeenText: string = '';
     private toastService: ToastService
   ) {}
 
+  ngOnInit(): void {
+  this.route.queryParams.subscribe(params => {
+
+    // ✅ Check phone exists first
+    if (params['phone']) {
+
+      // ✅ Set lead FIRST
+      this.lead = {
+        name:         params['name']     || '',
+        mobileNumber: params['phone']    || '',
+        email:        params['email']    || '',
+        city:         params['city']     || '',
+        company:      params['company']  || '',
+        state:        params['state']    || '',
+        platform:     params['platform'] || ''
+      };
+
+      // ✅ NOW safe to use this.lead.mobileNumber
+      this.campaignService.getLastInteraction(this.lead.mobileNumber)
+        .subscribe((res: any) => {
+          this.isActive24h  = !!res.isActive;
+          this.lastSeenText = res.hoursAgo ? res.hoursAgo + 'h ago' : '';
+        });
+
+      // ✅ Fetch previous messages
+      this.campaignService.getContactLogs(this.lead.mobileNumber)
+        .subscribe((res: any) => {
+          if (res.data?.messages) {
+            this.sentMessages = res.data.messages;
+            this.shouldScroll = true;
+          }
+        });
+    }
+
+  });
+
+  // ✅ Load templates — outside queryParams, runs independently
+  this.loadTemplates();
+}
   // ngOnInit(): void {
-  
-  //   // ✅ Read lead from query params
+    
   //   this.route.queryParams.subscribe(params => {
   //     if (params['phone']) {
   //       this.lead = {
@@ -67,74 +113,41 @@ lastSeenText: string = '';
   //         state:        params['state']    || '',
   //         platform:     params['platform'] || ''
   //       };
+
+  //       if (this.lead.mobileNumber) {
+  //         this.campaignService.getLastInteraction(this.lead.mobileNumber)
+  //           .subscribe((res: any) => {
+  //             this.isActive24h  = !!res.isActive;
+  //             this.lastSeenText = res.hoursAgo ? res.hoursAgo + 'h ago' : '';
+  //           });
+  //       }
   //     }
   //   });
 
   //   this.loadTemplates();
   // }
-  ngOnInit(): void {
-  // ✅ First, read lead from query params
-  // this.route.queryParams.subscribe(params => {
-  //   if (params['phone']) {
-  //     this.lead = {
-  //       name:         params['name']     || '',
-  //       mobileNumber: params['phone']    || '',
-  //       email:        params['email']    || '',
-  //       city:         params['city']     || '',
-  //       company:      params['company']  || '',
-  //       state:        params['state']    || '',
-  //       platform:     params['platform'] || ''
-  //     };
 
-  //     // ✅ Fetch last interaction immediately after lead exists
-  //     if (this.lead.mobileNumber) {
-  //       this.campaignService.getLastInteraction(this.lead.mobileNumber)
-  //         .subscribe((res: any) => {
-  //           this.isActive24h = !!res.isActive;          // boolean
-  //           this.lastSeenText = res.hoursAgo + 'h ago'; // text
-  //         });
-  //     }
-  //   }
-  // });
-  this.route.queryParams.subscribe(params => {
-  if (params['phone']) {
-    this.lead = {
-      name:         params['name']     || '',
-      mobileNumber: params['phone']    || '',
-      email:        params['email']    || '',
-      city:         params['city']     || '',
-      company:      params['company']  || '',
-      state:        params['state']    || '',
-      platform:     params['platform'] || ''
-    };
-
-    // ✅ Now fetch last interaction
-    if (this.lead.mobileNumber) {
-      this.campaignService.getLastInteraction(this.lead.mobileNumber)
-        .subscribe((res: any) => {
-          console.log('API Response for isActive:', res); // Debug
-          this.isActive24h = !!res.isActive;
-          this.lastSeenText = res.hoursAgo ? res.hoursAgo + 'h ago' : '';
-        });
+  ngAfterViewChecked(): void {
+    if (this.shouldScroll) {
+      this.scrollToBottom();
+      this.shouldScroll = false;
     }
   }
-});
 
-  this.loadTemplates();
-}
-
+  // ── Load templates ─────────────────────────────────────────────────────────
   loadTemplates(): void {
-    this.leadsService.getWhatsappTemplatesFromDB().subscribe(
-      (res: any) => { this.templates = res.data || []; },
-      () => { this.errorMsg = 'Failed to load templates'; }
-    );
+    this.leadsService.getWhatsappTemplatesFromDB().subscribe({
+      next: (res: any) => { this.templates = res.data || []; },
+      error: () => {}
+    });
   }
 
+  // ── Template select ────────────────────────────────────────────────────────
   onTemplateSelect(): void {
     if (!this.selectedTemplate) {
       this.templateBodyText = '';
-      this.templateParams = [];
-      this.paramMappings = [];
+      this.templateParams   = [];
+      this.paramMappings    = [];
       return;
     }
 
@@ -142,130 +155,133 @@ lastSeenText: string = '';
       (c: any) => c.type === 'BODY'
     );
     this.templateBodyText = bodyComp?.text || this.selectedTemplate.body_text || '';
-    const matches = this.templateBodyText.match(/{{\d+}}/g) || [];
-    this.templateParams = [...new Set(matches)] as string[];
-    this.languageCode = this.selectedTemplate.language || 'en_US';
-    this.paramMappings = this.templateParams.map(() => ({
-      type: 'db' as 'db',
-      dbField: '',
-      manualValue: ''
+    const matches         = this.templateBodyText.match(/{{\d+}}/g) || [];
+    this.templateParams   = [...new Set(matches)] as string[];
+    this.paramMappings    = this.templateParams.map(() => ({
+      type: 'db' as 'db', dbField: '', manualValue: ''
     }));
   }
 
+  // ── Resolve param value ────────────────────────────────────────────────────
   resolveParam(index: number): string {
-    const mapping = this.paramMappings[index];
-    if (!mapping) return '';
-    if (mapping.type === 'manual') return mapping.manualValue || '';
-    return this.lead?.[mapping.dbField] || '';
+    const m = this.paramMappings[index];
+    if (!m) return '';
+    return m.type === 'manual' ? m.manualValue || '' : this.lead?.[m.dbField] || '';
   }
 
+  // ── Preview text ───────────────────────────────────────────────────────────
   get previewText(): string {
     if (!this.templateBodyText) return '';
     let preview = this.templateBodyText;
     this.templateParams.forEach((param, i) => {
-      const val = this.resolveParam(i);
-      preview = preview.replace(param, val || param);
+      preview = preview.replace(param, this.resolveParam(i) || param);
     });
     return preview;
   }
 
-  getCurrentTime(): string {
-    const now = new Date();
-    let h = now.getHours();
-    const m = now.getMinutes().toString().padStart(2, '0');
-    const ampm = h >= 12 ? 'PM' : 'AM';
-    h = h % 12 || 12;
-    return `${h}:${m} ${ampm}`;
+  // ── Enter to send ──────────────────────────────────────────────────────────
+  onEnterSend(event: KeyboardEvent): void {
+    if (!event.shiftKey) {
+      event.preventDefault();
+      this.sendCampaign();
+    }
   }
 
-  // canSend(): boolean {
-  //   if (!this.campaignName || !this.selectedTemplate || !this.lead) return false;
-  //   return this.paramMappings.every(m =>
-  //     m.type === 'manual' ? m.manualValue.trim() !== '' : m.dbField !== ''
-  //   );
-  // }
+  // ── Can send ───────────────────────────────────────────────────────────────
   canSend(): boolean {
-  if (!this.campaignName || !this.lead) return false;
-  // if (this.messageMode === 'custom') {
-  //   return this.customMessage.trim() !== '';
-  // }
-  if (this.messageMode === 'custom') {
-  return this.isActive24h && this.customMessage.trim() !== '';
-}
-  if (!this.selectedTemplate) return false;
-  return this.paramMappings.every(m =>
-    m.type === 'manual' ? m.manualValue.trim() !== '' : m.dbField !== ''
-  );
-}
+    if (!this.lead) return false;
+    if (this.messageMode === 'custom') {
+      return this.customMessage.trim() !== '';
+    }
+    if (!this.selectedTemplate) return false;
+    return this.paramMappings.every(m =>
+      m.type === 'manual' ? m.manualValue.trim() !== '' : m.dbField !== ''
+    );
+  }
 
-  // sendCampaign(): void {
-  //   if (!this.canSend()) return;
-  //   this.sending = true;
-  //   this.result = null;
+  // ── SEND ───────────────────────────────────────────────────────────────────
+  sendCampaign(): void {
+    if (!this.canSend() || this.sending) return;
 
-  //   const contactWithParams = {
-  //     ...this.lead,
-  //     resolvedParams: this.templateParams.map((_, i) => this.resolveParam(i))
-  //   };
+    this.sending = true;
+    this.result  = null;
 
-  //   this.campaignService.sendCampaign({
-  //     campaignName: this.campaignName,
-  //     contacts: [contactWithParams],
-  //     templateName: this.selectedTemplate.name,
-  //     languageCode: this.languageCode,
-  //   }).subscribe({
-  //     next: (res: any) => {
-  //       this.result = res;
-  //       this.sending = false;
-  //       this.sent = true;
-  //       this.toastService.showSuccess('Message sent successfully!');
-  //     },
-  //     error: () => {
-  //       this.sending = false;
-  //       this.toastService.showError('Failed to send message');
-  //     }
-  //   });
-  // }
-sendCampaign(): void {
-  if (!this.canSend()) return;
-  this.sending = true;
-  this.result = null;
+    let payload: any;
+    let messageSentText = '';
 
-  if (this.messageMode === 'custom') {
-    // ✅ Send free-form custom message
-    this.campaignService.sendCampaign({
-      campaignName: this.campaignName,
-      contacts: [{ ...this.lead, resolvedParams: [] }],
-      customMessage: this.customMessage,
-      isCustomMessage: true,
-      languageCode: this.languageCode,
-    }).subscribe({
-      next: (res: any) => { this.result = res; this.sending = false; },
-      error: () => {
-        this.errorMsg = 'Failed to send message';
+    if (this.messageMode === 'custom') {
+      messageSentText = this.customMessage.trim();
+      payload = {
+        campaignName:    'Direct Message',
+        contacts:        [{ ...this.lead, resolvedParams: [] }],
+        customMessage:   messageSentText,
+        isCustomMessage: true,
+        languageCode:    'en_US',
+        sendType:        'single',
+      };
+    } else {
+      const resolvedParams = this.templateParams.map((_, i) => this.resolveParam(i));
+      messageSentText      = this.previewText;
+      payload = {
+        campaignName:     'Direct Message',
+        contacts:         [{ ...this.lead, resolvedParams }],
+        templateName:     this.selectedTemplate.name,
+        templateBodyText: this.templateBodyText,
+        languageCode:     this.selectedTemplate.language || 'en_US',
+        sendType:         'single',
+      };
+    }
+
+    this.campaignService.sendCampaign(payload).subscribe({
+      next: (res: any) => {
         this.sending = false;
-      }
-    });
-  } else {
-    const resolvedParams = this.templateParams.map((_, i) => {
-      const m = this.paramMappings[i];
-      return m.type === 'manual' ? m.manualValue : (this.lead[m.dbField] || '');
-    });
-    this.campaignService.sendCampaign({
-      campaignName: this.campaignName,
-      contacts: [{ ...this.lead, resolvedParams }],
-      templateName: this.selectedTemplate.name,
-      languageCode: this.languageCode,
-    }).subscribe({
-      next: (res: any) => { this.result = res; this.sending = false; },
+        this.result  = res;
+
+        const sentResult = res.results?.[0];
+
+        // ── Add bubble immediately ────────────────────────────────────────
+        this.sentMessages.push({
+          templateName: this.messageMode === 'custom'
+            ? 'CUSTOM_MESSAGE'
+            : this.selectedTemplate?.name,
+          messageSent:       sentResult?.messageSent || messageSentText,
+          status:            sentResult?.status      || 'failed',
+          whatsappMessageId: sentResult?.whatsappMessageId || null,
+          error:             sentResult?.error        || null,
+          sent_at:           new Date().toISOString(),
+        });
+
+        // ── Clear input ───────────────────────────────────────────────────
+        this.customMessage    = '';
+        this.selectedTemplate = null;
+        this.templateBodyText = '';
+        this.templateParams   = [];
+        this.paramMappings    = [];
+
+        this.shouldScroll = true;
+
+        if (sentResult?.status === 'sent') {
+          this.toastService.showSuccess('Message sent successfully!');
+        } else {
+          this.toastService.showError('Message failed to send');
+        }
+      },
       error: () => {
-        this.errorMsg = 'Failed to send campaign';
         this.sending = false;
+        this.toastService.showError('Failed to send message');
       }
     });
   }
-}
-  goBack(): void {
-    this.location.back();
+
+  // ── Scroll to bottom ───────────────────────────────────────────────────────
+  scrollToBottom(): void {
+    try {
+      if (this.chatBody?.nativeElement) {
+        this.chatBody.nativeElement.scrollTop =
+          this.chatBody.nativeElement.scrollHeight;
+      }
+    } catch {}
   }
+
+  goBack(): void { this.location.back(); }
 }

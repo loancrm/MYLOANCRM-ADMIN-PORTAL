@@ -27,6 +27,8 @@
       #accountTable
       [value]="accounts"
       [lazy]="true"
+      [sortField]="'submitted_on'"
+      [sortOrder]="-1"
       (onLazyLoad)="loadAccounts($event)"
       (onRowSelect)="viewAccount($event)"
       dataKey="id"
@@ -82,7 +84,7 @@
           <div class="col-md-6 no-padding-small"></div>
         </div>
       </ng-template>
-      <ng-template pTemplate="header" let-columns>
+      <!-- <ng-template pTemplate="header" let-columns>
         <tr>
           <th class="text-nowrap">Contact Id</th>
           <th>Business Name</th>
@@ -93,7 +95,45 @@
           <th class="text-nowrap">Message</th>
           <th class="text-nowrap">Remarks</th>
           <th>Created Date</th>
-          <!-- <th>Actions</th> -->
+        </tr>
+      </ng-template> -->
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="contactId"  class="text-nowrap">
+            Contact Id <p-sortIcon field="contactId"></p-sortIcon>
+          </th>
+
+          <th pSortableColumn="company_name"  class="text-nowrap">
+            Business Name <p-sortIcon field="company_name"></p-sortIcon>
+          </th>
+
+          <th pSortableColumn="full_name"  class="text-nowrap">
+            Person Name <p-sortIcon field="full_name"></p-sortIcon>
+          </th>
+
+          <th pSortableColumn="phone"  class="text-nowrap">
+            Mobile <p-sortIcon field="phone"></p-sortIcon>
+          </th>
+
+          <th pSortableColumn="email"  class="text-nowrap">
+            Email <p-sortIcon field="email"></p-sortIcon>
+          </th>
+
+          <th pSortableColumn="city"  class="text-nowrap">
+            City <p-sortIcon field="city"></p-sortIcon>
+          </th>
+
+          <th pSortableColumn="message"  class="text-nowrap">
+            Message <p-sortIcon field="message"></p-sortIcon>
+          </th>
+
+          <th pSortableColumn="remarks"  class="text-nowrap">
+            Remarks <p-sortIcon field="remarks"></p-sortIcon>
+          </th>
+
+          <th pSortableColumn="submitted_on"  class="text-nowrap">
+            Created Date <p-sortIcon field="submitted_on"></p-sortIcon>
+          </th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-team>

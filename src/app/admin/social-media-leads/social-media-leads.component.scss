@@ -155,3 +155,41 @@
   filter: brightness(0) saturate(100%) invert(33%) sepia(18%) saturate(3314%)
     hue-rotate(216deg) brightness(95%) contrast(94%);
 }
+
+/* Base Badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Dot */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* ✅ Active (Green) */
+.status-active {
+  background-color: #E6F4EA; /* light green */
+  color: #1E7E34;
+}
+
+.status-active .status-dot {
+  background-color: #28A745;
+}
+
+/* ❌ Inactive (Red) */
+.status-inactive {
+  background-color: #FDECEA; /* light red */
+  color: #C82333;
+}
+
+.status-inactive .status-dot {
+  background-color: #DC3545;
+}

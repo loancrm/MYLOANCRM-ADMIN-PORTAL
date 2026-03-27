@@ -1,136 +1,292 @@
 <div>
   <!-- Header -->
-  <div class="d-flex justify-content-between align-items-center mb-3 px-2 pt-2">
-    <small class="text-muted">{{ templates.length }} template(s)</small>
-    <div class="d-flex gap-2">
-      <button
-        pButton type="button"
-        label="Sync All"
-        icon="pi pi-sync"
-        class="p-button-sm p-button-outlined p-button-info"
-        (click)="syncAllTemplateStatus()"
-        [loading]="isSyncing"
-      ></button>
-      <button
-        pButton type="button"
-        label="Create Template"
-        icon="pi pi-plus"
-        class="p-button-sm p-button-primary"
-        (click)="openCreateDialog()"
-      ></button>
+  <div class="p-1 m-2 fixed-card">
+    <div class="d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center pointer-cursor" (click)="goBack()">
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <b><span class="back-btn-text">WhatsApp Templates</span></b>
+      </div>
+      <div class="d-flex gap-2">
+        <button
+          pButton type="button"
+          label="Sync Status"
+          icon="pi pi-sync"
+          class="p-button-outlined p-button-sm"
+          [loading]="isSyncing"
+          (click)="syncAllTemplateStatus()"
+        ></button>
+        <button
+          pButton type="button"
+          label="Create Template"
+          icon="pi pi-plus"
+          class="p-button-primary p-button-sm"
+          (click)="openCreateDialog()"
+        ></button>
+      </div>
     </div>
   </div>
 
-  <!-- Templates Table -->
-  <p-table
-    [value]="templates"
-    styleClass="p-datatable-striped p-datatable-sm"
-    responsiveLayout="scroll"
-    [paginator]="templates.length > 10"
-    [rows]="10"
-  >
-    <ng-template pTemplate="header">
-      <tr>
-        <th style="width: 60px;">ID</th>
-        <th>Template Name</th>
-        <th style="width: 150px;">Status</th>
-        <th style="width: 130px;">Actions</th>
-      </tr>
-    </ng-template>
+  <div class="m-2">
+    <p-table
+      #templateTable
+      [value]="templates"
+      [lazy]="true"
+      (onLazyLoad)="loadTemplates($event)"
+      [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[10, 25, 50, 100]"
+      [paginator]="true"
+      [rows]="initialRows"
+      [first]="initialFirst"
+      [totalRecords]="templatesCount"
+      [loading]="apiLoading"
+      selectionMode="single"
+      [(selection)]="selectedTemplate"
+      (onRowSelect)="openPreview(selectedTemplate)"
+      styleClass="p-datatable-striped p-datatable-customers"
+      responsiveLayout="scroll"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Templates"
+    >
 
-    <ng-template pTemplate="body" let-t>
-      <tr>
-        <!-- ID -->
-        <td>{{ t.id }}</td>
+      <!-- ── CAPTION: Search + Filters ───────────────────────────────────── -->
+      <ng-template pTemplate="caption">
+        <div class="row">
 
-        <!-- Template Name -->
-        <td>
-          <span class="fw-semibold">{{ t.name }}</span>
-          <span class="badge bg-secondary ms-2" style="font-size: 0.65rem;">
-            {{ t.language }}
-          </span>
-        </td>
-
-        <!-- Status -->
-        <td>
-          <span
-            class="badge"
-            [ngClass]="{
-              'bg-success':           t.approval_status === 'APPROVED',
-              'bg-danger':            t.approval_status === 'REJECTED',
-              'bg-warning text-dark': t.approval_status === 'PENDING' || !t.approval_status,
-              'bg-secondary':         t.approval_status === 'PAUSED' || t.approval_status === 'DISABLED'
-            }"
-          >
-            <i class="pi me-1"
-              [ngClass]="{
-                'pi-check-circle': t.approval_status === 'APPROVED',
-                'pi-times-circle': t.approval_status === 'REJECTED',
-                'pi-clock':        t.approval_status === 'PENDING' || !t.approval_status,
-                'pi-pause':        t.approval_status === 'PAUSED'
-              }"
-            ></i>
-            {{ t.approval_status || 'PENDING' }}
-          </span>
-
-          <!-- Rejection reason tooltip -->
-          <span
-            *ngIf="t.approval_status === 'REJECTED' && t.rejection_reason"
-            class="ms-1"
-            [pTooltip]="t.rejection_reason"
-            tooltipPosition="top"
-          >
-            <i class="pi pi-info-circle text-danger" style="font-size: 11px;"></i>
-          </span>
-        </td>
-
-        <!-- Actions -->
-        <td>
-          <div class="d-flex gap-1">
-            <button
-              pButton type="button"
-              icon="pi pi-refresh"
-              class="p-button-text p-button-sm p-button-info"
-              (click)="refreshTemplateStatus(t)"
-              pTooltip="Refresh Status"
-              tooltipPosition="top"
-            ></button>
-            <button
-              pButton type="button"
-              icon="pi pi-pencil"
-              class="p-button-text p-button-sm p-button-warning"
-              (click)="openEditDialog(t)"
-              pTooltip="Edit"
-              tooltipPosition="top"
-            ></button>
-            <button
-              pButton type="button"
-              icon="pi pi-trash"
-              class="p-button-text p-button-sm p-button-danger"
-              (click)="deleteTemplate(t)"
-              pTooltip="Delete"
-              tooltipPosition="top"
-            ></button>
+          <!-- Search -->
+          <div class="col-md-4 mt-2 no-padding-small">
+            <div class="p-inputgroup">
+              <input
+                type="text"
+                pInputText
+                placeholder="Search Template Name..."
+                [(ngModel)]="searchText"
+                (ngModelChange)="onSearchChange(searchText)"
+                (keyup.enter)="filterWithName()"
+              />
+              <button
+                type="button"
+                pButton
+                class="p-button-primary search-btn"
+                [disabled]="!searchText"
+                (click)="filterWithName()"
+              >
+                <img
+                  src="assets/images/icons/search.svg"
+                  alt="Search"
+                  width="16" height="16"
+                  style="vertical-align: middle"
+                />
+              </button>
+            </div>
           </div>
-        </td>
-      </tr>
-    </ng-template>
 
-    <ng-template pTemplate="emptymessage">
-      <tr>
-        <td colspan="4" class="text-center p-4 text-muted">
-          <i class="pi pi-inbox me-2" style="font-size: 1.5rem;"></i>
-          <p class="mt-2 mb-0">No templates yet. Click "Create Template" to add one.</p>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
+          <!-- Approval Status Filter -->
+          <div class="col-md-3 mt-2 no-padding-small">
+            <p-dropdown
+              [style]="{ width: '100%' }"
+              [options]="approvalStatusOptions"
+              [(ngModel)]="selectedApprovalStatus"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Filter by Status"
+              appendTo="body"
+              (onChange)="onApprovalStatusChange()"
+            ></p-dropdown>
+          </div>
 
-  <!-- Create/Edit Dialog -->
+          <!-- Category Filter -->
+          <div class="col-md-3 mt-2 no-padding-small">
+            <p-dropdown
+              [style]="{ width: '100%' }"
+              [options]="categoryOptions"
+              [(ngModel)]="selectedCategory"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Filter by Category"
+              appendTo="body"
+              (onChange)="onCategoryChange()"
+            ></p-dropdown>
+          </div>
+
+        </div>
+      </ng-template>
+
+      <!-- ── HEADER ────────────────────────────────────────────────────────── -->
+      <ng-template pTemplate="header">
+        <tr>
+          <th class="text-nowrap">ID</th>
+          <th class="text-nowrap">Template Name</th>
+          <th class="text-nowrap">Category</th>
+          <th class="text-nowrap">Language</th>
+          <th class="text-nowrap">Approval Status</th>
+          <th class="text-nowrap">Status</th>
+          <th class="text-nowrap">Created On</th>
+          <th class="text-nowrap">Actions</th>
+        </tr>
+      </ng-template>
+
+      <!-- ── BODY ─────────────────────────────────────────────────────────── -->
+      <ng-template pTemplate="body" let-t  let-rowIndex="rowIndex">
+        <tr [pSelectableRow]="t" class="text-capitalize">
+
+          <td>{{ rowIndex + 1 }}</td>
+
+          <td>
+            <span class="fw-semibold">{{ t.name }}</span>
+          </td>
+
+          <td>{{ t.category }}</td>
+
+          <td>
+            <span class="badge bg-secondary" style="font-size:0.72rem;">
+              {{ t.language }}
+            </span>
+          </td>
+
+          <td>
+            <span
+              class="badge"
+              [ngClass]="{
+                'bg-success':           t.approval_status === 'APPROVED',
+                'bg-danger':            t.approval_status === 'REJECTED',
+                'bg-warning text-dark': t.approval_status === 'PENDING' || !t.approval_status,
+                'bg-secondary':         t.approval_status === 'PAUSED' || t.approval_status === 'DISABLED'
+              }"
+            >
+              <i class="pi me-1"
+                [ngClass]="{
+                  'pi-check-circle': t.approval_status === 'APPROVED',
+                  'pi-times-circle': t.approval_status === 'REJECTED',
+                  'pi-clock':        t.approval_status === 'PENDING' || !t.approval_status,
+                  'pi-pause':        t.approval_status === 'PAUSED'
+                }"
+              ></i>
+              {{ t.approval_status || 'PENDING' }}
+            </span>
+            <span
+              *ngIf="t.approval_status === 'REJECTED' && t.rejection_reason"
+              class="ms-1"
+              [pTooltip]="t.rejection_reason"
+              tooltipPosition="top"
+            >
+              <i class="pi pi-info-circle text-danger" style="font-size:11px;"></i>
+            </span>
+          </td>
+
+          <td>{{ t.status }}</td>
+
+          <td>{{ t.createdOn | date }}</td>
+
+          <td (click)="$event.stopPropagation()">
+            <div class="action-icons">
+              <lucide-icon
+                name="refresh-cw"
+                class="icon refresh"
+                (click)="refreshTemplateStatus(t)"
+                pTooltip="Refresh Status"
+              ></lucide-icon>
+              <lucide-icon
+                name="square-pen"
+                class="icon edit"
+                (click)="openEditDialog(t)"
+                pTooltip="Edit"
+              ></lucide-icon>
+              <lucide-icon
+                name="trash-2"
+                class="icon delete"
+                (click)="deleteTemplate(t)"
+                pTooltip="Delete"
+              ></lucide-icon>
+            </div>
+          </td>
+
+        </tr>
+      </ng-template>
+
+      <!-- ── EMPTY ─────────────────────────────────────────────────────────── -->
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" class="text-center p-4 text-muted">
+            <img
+              alt="No Data"
+              src="../../../assets/images/menu/no-data.gif"
+              width="200" height="200"
+            />
+            <p>No templates found.</p>
+          </td>
+        </tr>
+      </ng-template>
+
+    </p-table>
+  </div>
+
+  <p-dialog
+    [(visible)]="showPreviewDialog"
+    [modal]="true"
+    [closable]="true"
+    [style]="{ width: '420px' }"
+    header="Template Preview"
+  >
+
+    <div class="phone-frame-wrapper">
+      <div class="phone-frame">
+
+        <div class="phone-top-bar">
+          <div class="phone-notch"></div>
+        </div>
+
+        <div class="whatsapp-screen">
+          <div class="whatsapp-header">
+            <div class="whatsapp-avatar">WA</div>
+            <div>
+              <div class="whatsapp-contact-name">Business</div>
+              <div class="whatsapp-online">online</div>
+            </div>
+          </div>
+          <div class="whatsapp-chat-area">
+
+            <div class="whatsapp-message-row">
+              <div class="whatsapp-bubble">                
+                  <div class="bubble-text">
+                    {{ selectedTemplate?.body_text || 'Template preview message...' }}
+                  </div>
+                <div class="bubble-footer">
+                  <span class="bubble-time">12:45</span>
+                  <i class="pi pi-check" style="font-size:10px"></i>
+                </div>
+
+                <div class="bubble-triangle"></div>
+
+              </div>
+            </div>
+
+          </div>
+          <div class="whatsapp-input-bar">
+            <div class="whatsapp-input-placeholder">
+              Type a message
+            </div>
+
+            <div class="whatsapp-send-btn">
+              <i class="pi pi-send"></i>
+            </div>
+          </div>
+        </div>
+        <div class="phone-bottom-bar">
+          <div class="phone-home-bar"></div>
+        </div>
+
+      </div>
+    </div>
+
+  </p-dialog>
+
+  <!-- ── Create/Edit Dialog ─────────────────────────────────────────────── -->
   <app-create-template
     [(visible)]="showCreateDialog"
     [editTemplate]="editTemplateData"
     (templateSaved)="onTemplateSaved()"
     (visibleChange)="onDialogClose()"
   ></app-create-template>
+
 </div>
