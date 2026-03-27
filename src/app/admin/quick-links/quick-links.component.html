@@ -1,4 +1,5 @@
 <div class="quick-links-wrapper">
+  <!-- Header -->
   <div class="p-1 m-2 fixed-card">
     <div class="d-flex justify-content-between">
       <div
@@ -18,75 +19,114 @@
   <div class="m-2">
     <div class="row g-3">
 
-      <!-- SurePass -->
-      <div class="col-md-6 col-lg-3">
-        <div class="link-card" (click)="openLink(links[0])">
-          <div class="card-icon surepass-icon">
-            <i class="pi pi-shield"></i>
-          </div>
-          <div class="card-content">
-            <div class="card-title">SurePass</div>
-            <div class="card-desc">API Console & Product Catalogue</div>
-            <div class="card-url">console.surepass.app</div>
-          </div>
-          <div class="card-arrow">
-            <i class="pi pi-external-link"></i>
-          </div>
-        </div>
-      </div>
+      <div class="col-md-6 col-lg-3" *ngFor="let link of links">
+        <div class="link-card" [ngClass]="link.colorClass">
 
-      <!-- VerifyAL -->
-      <div class="col-md-6 col-lg-3">
-        <div class="link-card" (click)="openLink(links[1])">
-          <div class="card-icon verifyal-icon">
-            <i class="pi pi-verified"></i>
+          <!-- Top: Icon + Open button -->
+          <div class="card-top">
+            <div class="card-icon">
+              <i class="pi" [ngClass]="link.icon"></i>
+            </div>
+            <button class="open-btn" (click)="openLink(link)"
+              pTooltip="Open in new tab" tooltipPosition="top">
+              <i class="pi pi-external-link"></i>
+            </button>
           </div>
-          <div class="card-content">
-            <div class="card-title">VerifyAL</div>
-            <div class="card-desc">Verification Dashboard</div>
-            <div class="card-url">dashboardnew.verifyal.com</div>
-          </div>
-          <div class="card-arrow">
-            <i class="pi pi-external-link"></i>
-          </div>
-        </div>
-      </div>
 
-      <!-- Precisa -->
-      <div class="col-md-6 col-lg-3">
-        <div class="link-card" (click)="openLink(links[2])">
-          <div class="card-icon precisa-icon">
-            <i class="pi pi-chart-bar"></i>
+          <!-- Title + Desc + Domain -->
+          <div class="card-title">{{ link.title }}</div>
+          <!-- <div class="card-desc">{{ link.desc }}</div> -->
+          <div class="card-url">
+            <i class="pi pi-globe me-1"></i>{{ link.domain }}
           </div>
-          <div class="card-content">
-            <div class="card-title">Precisa</div>
-            <div class="card-desc">Bank Statement Analyser</div>
-            <div class="card-url">webapp.precisa.in</div>
-          </div>
-          <div class="card-arrow">
-            <i class="pi pi-external-link"></i>
-          </div>
-        </div>
-      </div>
 
-      <!-- Airtel -->
-      <div class="col-md-6 col-lg-3">
-        <div class="link-card" (click)="openLink(links[3])">
-          <div class="card-icon airtel-icon">
-            <i class="pi pi-mobile"></i>
-          </div>
-          <div class="card-content">
-            <div class="card-title">Airtel Business</div>
-            <div class="card-desc">Commercial Communication</div>
-            <div class="card-url">airtel.in/business</div>
-          </div>
-          <div class="card-arrow">
-            <i class="pi pi-external-link"></i>
-          </div>
+          <!-- Divider -->
+          <div class="card-divider"></div>
+
+          <!-- Credentials -->
+            <div class="credentials">
+
+              <!-- Username — always show -->
+              <div class="cred-row">
+                <span class="cred-label">
+                  <i class="pi pi-user me-1"></i>Username
+                </span>
+                <div class="cred-value-row">
+                  <span class="cred-value">
+                    {{ link.showUsername ? link.username : maskValue(link.username) }}
+                  </span>
+                  <div class="cred-actions">
+                    <button class="icon-btn" (click)="toggleUsername(link)"
+                      [pTooltip]="link.showUsername ? 'Hide' : 'Show'" tooltipPosition="top">
+                      <i class="pi" [class.pi-eye]="!link.showUsername" [class.pi-eye-slash]="link.showUsername"></i>
+                    </button>
+                    <button class="icon-btn" (click)="copy(link.username, 'Username')"
+                      pTooltip="Copy" tooltipPosition="top">
+                      <i class="pi pi-copy"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Password — only show if not null -->
+              <div class="cred-row" *ngIf="link.password">
+                <span class="cred-label">
+                  <i class="pi pi-lock me-1"></i>Password
+                </span>
+                <div class="cred-value-row">
+                  <span class="cred-value">
+                    {{ link.showPassword ? link.password : '••••••••' }}
+                  </span>
+                  <div class="cred-actions">
+                    <button class="icon-btn" (click)="togglePassword(link)"
+                      [pTooltip]="link.showPassword ? 'Hide' : 'Show'" tooltipPosition="top">
+                      <i class="pi" [class.pi-eye]="!link.showPassword" [class.pi-eye-slash]="link.showPassword"></i>
+                    </button>
+                    <button class="icon-btn" (click)="copy(link.password, 'Password')"
+                      pTooltip="Copy" tooltipPosition="top">
+                      <i class="pi pi-copy"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mobile — only show if not null -->
+              <div class="cred-row" *ngIf="link.mobile">
+                <span class="cred-label">
+                  <i class="pi pi-phone me-1"></i>Mobile Number
+                </span>
+                <div class="cred-value-row">
+                  <span class="cred-value">
+                    {{ link.showMobile ? link.mobile : maskValue(link.mobile) }}
+                  </span>
+                  <div class="cred-actions">
+                    <button class="icon-btn" (click)="link.showMobile = !link.showMobile"
+                      [pTooltip]="link.showMobile ? 'Hide' : 'Show'" tooltipPosition="top">
+                      <i class="pi" [class.pi-eye]="!link.showMobile" [class.pi-eye-slash]="link.showMobile"></i>
+                    </button>
+                    <button class="icon-btn" (click)="copy(link.mobile, 'Mobile Number')"
+                      pTooltip="Copy" tooltipPosition="top">
+                      <i class="pi pi-copy"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          <!-- Visit Button -->
+          <button class="visit-btn" (click)="openLink(link)">
+            <i class="pi pi-arrow-up-right me-2"></i>Visit {{ link.title }}
+          </button>
+
         </div>
       </div>
 
     </div>
+  </div>
+
+  <!-- Copy Toast -->
+  <div class="copy-toast" [class.show]="showCopyToast">
+    <i class="pi pi-check-circle me-2"></i>{{ copyToastMsg }}
   </div>
 
 </div>
