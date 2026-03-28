@@ -27,7 +27,7 @@
       [value]="accounts"
       [sortOrder]="-1"
       [sortField]="'createdOn'"
-      
+      [lazy]="true"
       (onLazyLoad)="loadAccounts($event)"
       selectionMode="single"
       (onRowSelect)="viewAccount($event)"
@@ -187,8 +187,8 @@
           <th pSortableColumn="latest_status" class="text-nowrap">
             Plan Status <p-sortIcon field="latest_status"></p-sortIcon>
           </th>
-          <th pSortableColumn="latest_remark" class="text-nowrap">
-            Remarks <p-sortIcon field="latest_remark"></p-sortIcon>
+          <th class="text-nowrap">
+            Remarks
           </th>
           <th pSortableColumn="createdOn" class="text-nowrap">
             Created Date <p-sortIcon field="createdOn"></p-sortIcon>
