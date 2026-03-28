@@ -911,10 +911,21 @@ getGlobalDashboardMetrics(filter: any = {}): Observable<any> {
   const url = 'accounts/completeall-dashboard-metrics';
   return this.serviceMeta.httpGet(url, null, filter);
 }
-// getAccountAnalytics(accountId: any): Observable<any> {
-//   return this.http.get(
-//     `${this.baseUrl}/accounts/${accountId}/analytics`
-//   );
-// }
-
+getBankWiseAnalytics(
+  accountId: any,
+  loanType: string = 'all',
+  first: number = 0,       // ✅ add
+  rows: number  = 10       // ✅ add
+): Observable<any> {
+  const params: any = {
+    loanType,
+    from:  first,   // ✅ offset
+    count: rows     // ✅ limit
+  };
+  if (accountId) {
+    params['accountId-eq'] = accountId;
+  }
+  const url = 'accounts/bank-wise-analytics';
+  return this.serviceMeta.httpGet(url, null, params);
+}
 }

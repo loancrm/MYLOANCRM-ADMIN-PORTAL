@@ -16,8 +16,10 @@ import { CalendarModule } from 'primeng/calendar';
 import { CapitalizeFirstPipe } from 'src/app/pipes/capitalize.pipe';
 import { TabViewModule } from 'primeng/tabview';
 import { PreloaderModule } from 'src/app/preloader/preloader.module';
-
-
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { AnalyticsModule } from '../analytics/analytics.module'
+import { PaginatorModule } from 'primeng/paginator';
+import { DropdownModule }  from 'primeng/dropdown';
 const routes: Routes = [{ path: "", component: ProfileComponent }];
 
 @NgModule({
@@ -40,10 +42,15 @@ const routes: Routes = [{ path: "", component: ProfileComponent }];
     TabViewModule,
     PreloaderModule,
     ProgressSpinnerModule,
+    InputSwitchModule,
+    AnalyticsModule,
+    PaginatorModule,
+    DropdownModule,
     [RouterModule.forChild(routes)]
   ],
   exports: [
-    ProfileComponent
+    ProfileComponent,
+    AnalyticsModule
   ]
 })
 export class ProfileModule { }

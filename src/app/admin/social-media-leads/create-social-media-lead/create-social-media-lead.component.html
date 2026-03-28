@@ -135,6 +135,7 @@
               [showIcon]="true"
             ></p-calendar>
           </div>
+
         </div>
 
         <!-- Buttons -->
@@ -151,7 +152,7 @@
             type="button"
             [label]="saving ? 'Saving...' : (isEditMode ? 'Update' : 'Save')"
             icon="pi pi-check"
-            class="p-button-primary "
+            class="p-button-primary"
             (click)="save()"
             [disabled]="saving"
             [loading]="saving"

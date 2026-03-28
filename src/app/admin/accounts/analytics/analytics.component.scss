@@ -1,0 +1,350 @@
+.analytics-section-title {
+  font-size: 11px;
+  font-weight: 500;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 12px;
+}
+
+.analytics-filter-label {
+  font-size: 13px;
+  color: #555;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+// .analytics-filter-btn {
+//   padding: 5px 16px;
+//   font-size: 12px;
+//   border-radius: 20px;
+//   border: 1px solid #ddd;
+//   background: #fff;
+//   color: #555;
+//   cursor: pointer;
+//   transition: all 0.2s;
+//   outline: none;
+
+//   &:hover {
+//     border-color: #534AB7;
+//     color: #534AB7;
+//   }
+
+//   &.active {
+//     background: #534AB7;
+//     border-color: #534AB7;
+//     color: #fff;
+//     font-weight: 500;
+//   }
+// }
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.analytics-card {
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #c6c5c5;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  transition: box-shadow 0.2s;
+  gap: 6px;
+  height: 100px;
+
+  &:hover {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.analytics-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  i {
+    font-size: 18px;
+  }
+
+  &.callbacks-bg  { background: #EEEDFE; i { color: #534AB7; } }
+  &.enquiries-bg  { background: #E1F5EE; i { color: #0F6E56; } }
+  &.leads-bg      { background: #E6F1FB; i { color: #185FA5; } }
+  &.files-bg      { background: #FAEEDA; i { color: #BA7517; } }
+  &.credit-bg     { background: #EAF3DE; i { color: #3B6D11; } }
+  &.logins-bg     { background: #FBEAF0; i { color: #993556; } }
+  &.rejects-bg    { background: #FCEBEB; i { color: #A32D2D; } }
+  &.bankers-bg { background: #E1F5EE; i { color: #0F6E56; } }
+  &.inhouse-rejects-bg {
+  background: #FFF4E5;
+  i { color: #E67E22; }
+}
+
+&.bank-rejects-bg {
+  background: #E8F8F5;
+  i { color: #16A085; }
+}
+
+&.cni-rejects-bg {
+  background: #FDEDEC;
+  i { color: #C0392B; }
+}
+}
+
+.analytics-count {
+  font-size: 26px;
+  font-weight: 500;
+  color: #333;
+  line-height: 1;
+
+  &.rejects-count {
+    color: #A32D2D;
+  }
+}
+
+.analytics-label {
+  font-size: 12px;
+  color: #888;
+  font-weight: 500;
+}
+
+.analytics-amounts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.analytics-amount-card {
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #eee;
+  padding: 1.25rem 1.5rem;
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  }
+}
+
+.analytics-amount-label {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 6px;
+}
+
+.analytics-amount-value {
+  font-size: 26px;
+  font-weight: 500;
+
+  &.sanctioned-color { color: #3B6D11; }
+  &.disbursed-color  { color: #185FA5; }
+}
+
+.analytics-amount-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  i { font-size: 20px; }
+
+  &.sanctioned-bg { background: #EAF3DE; i { color: #3B6D11; } }
+  &.disbursed-bg  { background: #E6F1FB; i { color: #185FA5; } }
+}
+
+// Bank wise section
+.bank-card {
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #eee;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+}
+
+.bank-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1rem;
+  cursor: pointer;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  &:hover {
+    background: #fafafa;
+  }
+}
+
+.bank-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #EDE9FF;
+  color: #534AB7;
+  font-weight: 500;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.bank-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.bank-sub {
+  font-size: 11px;
+  color: #888;
+  margin-top: 2px;
+}
+
+.bank-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+
+  .chip-label {
+    font-size: 10px;
+    color: #999;
+  }
+
+  .chip-value {
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  &.sanctioned-chip .chip-value { color: #3B6D11; }
+  &.disbursed-chip  .chip-value { color: #185FA5; }
+}
+
+.bank-card__body {
+  border-top: 1px solid #f0f0f0;
+  padding: 1rem;
+  background: #fafafa;
+}
+
+.bank-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.bank-summary-item {
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  padding: 0.65rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-label {
+  font-size: 11px;
+  color: #888;
+}
+
+.summary-value {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+
+.loan-type-title {
+  font-size: 11px;
+  font-weight: 500;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.loan-type-table-wrap {
+  overflow-x: auto;
+}
+
+.loan-type-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+
+  th {
+    background: #f0f0f0;
+    padding: 7px 10px;
+    text-align: left;
+    font-weight: 500;
+    color: #555;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #333;
+    white-space: nowrap;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr:hover td {
+    background: #f7f7f7;
+  }
+}
+
+.loan-type-badge {
+  background: #EDE9FF;
+  color: #534AB7;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.sanctioned-color { color: #3B6D11; }
+.disbursed-color  { color: #185FA5; }
+
+.horizontal-card {
+  flex-direction: row;
+  align-items: center;
+  // gap: 30px;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.analytics-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; // right align text
+}
+
+.analytics-label {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+}
+
+.analytics-count {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+}

@@ -46,6 +46,26 @@ export class ProfileComponent implements OnInit {
   userDetails: any;
   moment: any;
   fileFollowupDebounce: any = null;
+  // ── ADD these 2 properties ────────────────────────────────────────────────
+  apiEnabled  = false;
+  togglingApi = false;
+// ── UPDATE these properties ──────────────────────────
+bankLoading          = false;
+banks: any[]         = [];
+banksCount           = 0;          // ✅ total count for paginator
+selectedBankLoanType = 'all';
+currentBankEvent: any;             // ✅ store last event
+
+bankLoanTypeOptions = [
+  { label: 'All',                     value: 'all'                   },
+  { label: 'Business Loan',           value: 'businessLoan'          },
+  { label: 'Personal Loan',           value: 'personalLoan'          },
+  { label: 'Home Loan',               value: 'homeLoan'              },
+  { label: 'Mortgage Loan',           value: 'lap'                   },
+  { label: 'Professional Loan',       value: 'professionalLoans'     },
+  { label: 'Car Loan',                value: 'carLoan'               },
+  { label: 'Commercial Vehicle Loan', value: 'commercialVehicleLoan' },
+];
 
   constructor(
     private route: ActivatedRoute,
@@ -68,6 +88,7 @@ export class ProfileComponent implements OnInit {
     this.accountId = this.route.snapshot.paramMap.get('id');
     this.loadoverview();
     this.loadNotes();
+    // this.loadBankAnalytics();
   }
   setFilterConfig() {
     this.filterConfig = [
@@ -145,26 +166,71 @@ export class ProfileComponent implements OnInit {
       },
     ];
   }
-  loadoverview() {
-    this.loading = true;
 
-    forkJoin({
-      account: this.leadService.getAccountById(this.accountId),
-      // subscriptions: this.leadService.getAccountById(this.accountId),
-    }).subscribe({
-      next: (res: any) => {
-        this.accountDetails = res.account;
-        (this.accountDetails.followupDate = this.accountDetails.followupDate
-          ? new Date(this.accountDetails.followupDate)
-          : null),
-          (this.loading = false);
-      },
-      error: (err) => {
-        console.error(err);
-        this.loading = false;
-      },
-    });
-  }
+  loadoverview() {
+  this.loading = true;
+  forkJoin({
+    account: this.leadService.getAccountById(this.accountId),
+  }).subscribe({
+    next: (res: any) => {
+      this.accountDetails = res.account;
+      this.accountDetails.followupDate = this.accountDetails.followupDate
+        ? new Date(this.accountDetails.followupDate)
+        : null;
+
+      // ✅ ADD THIS — set toggle state from DB value
+      this.apiEnabled = this.accountDetails.isApiEnabled === 1;
+
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error(err);
+      this.loading = false;
+    },
+  });
+}
+  // loadoverview() {
+  //   this.loading = true;
+
+  //   forkJoin({
+  //     account: this.leadService.getAccountById(this.accountId),
+  //     // subscriptions: this.leadService.getAccountById(this.accountId),
+  //   }).subscribe({
+  //     next: (res: any) => {
+  //       this.accountDetails = res.account;
+  //       (this.accountDetails.followupDate = this.accountDetails.followupDate
+  //         ? new Date(this.accountDetails.followupDate)
+  //         : null),
+  //         (this.loading = false);
+  //     },
+  //     error: (err) => {
+  //       console.error(err);
+  //       this.loading = false;
+  //     },
+  //   });
+  // }
+
+  toggleApiAccess(event: any): void {
+  this.togglingApi = true;
+
+  this.leadService.toggleApiAccess(
+    this.accountDetails.accountId,
+    this.apiEnabled          // true or false
+  ).subscribe({
+    next: () => {
+      this.togglingApi = false;
+      this.accountDetails.isApiEnabled = this.apiEnabled ? 1 : 0;
+      this.toastService.showSuccess(
+        `API access ${this.apiEnabled ? 'enabled' : 'disabled'} successfully`
+      );
+    },
+    error: () => {
+      this.togglingApi  = false;
+      this.apiEnabled   = !this.apiEnabled;   // ✅ revert toggle if API fails
+      this.toastService.showError('Failed to update API access');
+    }
+  });
+}
 
   loadActivities(event: any) {
     this.currentTableEvent = event;
@@ -481,4 +547,143 @@ loadWalletTransactions(event: any) {
       );
     }, 700);
   }
+loadBankAnalytics(event?: any): void {
+  // ✅ store event for reload on filter change
+  if (event) {
+    this.currentBankEvent = event;
+  }
+
+  const first = this.currentBankEvent?.first ?? 0;
+  const rows  = this.currentBankEvent?.rows  ?? 10;
+
+  this.bankLoading = true;
+
+  this.leadService.getBankWiseAnalytics(
+    this.accountId,
+    this.selectedBankLoanType,
+    first,    // ✅ pass offset
+    rows      // ✅ pass limit
+  ).subscribe(
+    (res: any) => {
+      const rawBanks  = res.banks  || [];
+      this.banksCount = res.total  || 0;  // ✅ total count from backend
+
+      if (this.selectedBankLoanType === 'all') {
+        const rows2: any[] = [];
+        rawBanks.forEach((bank: any) => {
+          if (bank.loanTypes && bank.loanTypes.length > 0) {
+            bank.loanTypes.forEach((lt: any) => {
+              rows2.push({
+                bankName:          bank.bankName,
+                loanType:          lt.loanType,
+                filesProcessed:    lt.filesProcessed,
+                totalSanctioned:   lt.totalSanctioned,
+                totalDisbursed:    lt.totalDisbursed,
+                highestSanctioned: lt.highestSanctioned,
+                highestDisbursed:  lt.highestDisbursed,
+                 lowestSanctioned: lt.lowestSanctioned || 0,
+  lowestDisbursed: lt.lowestDisbursed || 0,
+                avgSanctioned:     lt.avgSanctioned    || 0,  // ✅
+  avgDisbursed:      lt.avgDisbursed     || 0,  // ✅
+              });
+            });
+          } else {
+            rows2.push({
+              bankName:          bank.bankName,
+              loanType:          '-',
+              filesProcessed:    bank.filesProcessed,
+              totalSanctioned:   bank.totalSanctioned,
+              totalDisbursed:    bank.totalDisbursed,
+              highestSanctioned: bank.highestSanctioned,
+              highestDisbursed:  bank.highestDisbursed,
+              lowestSanctioned: bank.lowestSanctioned || 0,
+  lowestDisbursed: bank.lowestDisbursed || 0,
+              
+              avgSanctioned:     bank.avgSanctioned    || 0,  // ✅
+  avgDisbursed:      bank.avgDisbursed     || 0,  // ✅
+            });
+          }
+        });
+        this.banks = rows2;
+      } else {
+        this.banks = rawBanks.map((bank: any) => ({
+          bankName:          bank.bankName,
+          loanType:          this.selectedBankLoanType,
+          filesProcessed:    bank.filesProcessed,
+          totalSanctioned:   bank.totalSanctioned,
+          totalDisbursed:    bank.totalDisbursed,
+          highestSanctioned: bank.highestSanctioned,
+          highestDisbursed:  bank.highestDisbursed,
+          // ✅ ADD THESE
+  lowestSanctioned: bank.lowestSanctioned || 0,
+  lowestDisbursed: bank.lowestDisbursed || 0,
+
+  avgSanctioned: bank.avgSanctioned || 0,
+  avgDisbursed: bank.avgDisbursed || 0,
+        }));
+      }
+
+      this.bankLoading = false;
+    },
+    (error: any) => {
+      console.error('Bank analytics error:', error);
+      this.bankLoading = false;
+    }
+  );
+}
+
+onBankLoanTypeChange(): void {
+  // ✅ reset to page 1 when filter changes
+  this.currentBankEvent = { first: 0, rows: 10 };
+  this.loadBankAnalytics();
+}
+
+//   loadBankAnalytics(): void {
+//   this.bankLoading = true;
+//   this.leadService.getBankWiseAnalytics(this.accountId, this.selectedBankLoanType)
+//     .subscribe(
+//       (res: any) => {
+//         this.banks        = res.banks || [];
+//         this.bankPageFirst = 0;
+//         this.updatePagedBanks();
+//         this.bankLoading  = false;
+//       },
+//       (error: any) => {
+//         console.error('Bank analytics error:', error);
+//         this.bankLoading = false;
+//       }
+//     );
+// }
+
+// updatePagedBanks(): void {
+//   const start = this.bankPageFirst;
+//   const end   = start + this.bankPageRows;
+//   this.pagedBanks = this.banks.slice(start, end);
+// }
+
+// onBankPageChange(event: any): void {
+//   this.bankPageFirst = event.first;
+//   this.bankPageRows  = event.rows;
+//   this.expandedBank  = null; // collapse on page change
+//   this.updatePagedBanks();
+// }
+// onBankLoanTypeChange(): void {
+//   this.bankPageFirst = 0;
+//   this.expandedBank  = null;
+//   this.loadBankAnalytics();
+// }
+
+// toggleBank(bankName: string): void {
+//   this.expandedBank = this.expandedBank === bankName ? null : bankName;
+// }
+
+formatAmount(amount: number): string {
+  if (!amount || amount === 0) return '₹0';
+  if (amount >= 10000000) return '₹' + (amount / 10000000).toFixed(1) + ' Cr';
+  if (amount >= 100000)   return '₹' + (amount / 100000).toFixed(1)   + ' L';
+  if (amount >= 1000)     return '₹' + (amount / 1000).toFixed(1)     + ' K';
+  return '₹' + amount;
+}
+
+
 }

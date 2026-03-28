@@ -67,6 +67,7 @@ export class CampaignComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.searchFilter['status-eq'] = 1;
     this.loadSocialMediaLeads();
     this.loadTemplates();
   }
@@ -105,23 +106,49 @@ export class CampaignComponent implements OnInit {
   // ❌ CLEAR OLD FILTERS
   delete this.searchFilter['search'];
   delete this.searchFilter['Platform-eq'];
+  delete this.searchFilter['status-eq'];
 
   const value = this.searchText;
 
-  // ✅ ONLY ONE SEARCH PARAM (IMPORTANT)
+  // ✅ SEARCH
   if (value && value.trim() !== '') {
     this.searchFilter['search'] = value;
   }
 
-  // ✅ PLATFORM FILTER (same as your sample)
+  // ✅ PLATFORM
   if (this.selectedPlatform && this.selectedPlatform !== 'ALL') {
-    // this.searchFilter['Platform-eq'] = this.selectedPlatform;
-    this.searchFilter['platform-eq'] = this.selectedPlatform;
+    this.searchFilter['Platform-eq'] = this.selectedPlatform;
   }
+
+  // ✅ ALWAYS ONLY ACTIVE (IMPORTANT 🔥)
+  this.searchFilter['status-eq'] = 1;
 
   // ✅ CALL API
   this.loadSocialMediaLeads();
 }
+//   applyFilters(): void {
+
+//   // ❌ CLEAR OLD FILTERS
+//   delete this.searchFilter['search'];
+//   delete this.searchFilter['Platform-eq'];
+  
+
+//   const value = this.searchText;
+
+//   // ✅ ONLY ONE SEARCH PARAM (IMPORTANT)
+//   if (value && value.trim() !== '') {
+//     this.searchFilter['search'] = value;
+//   }
+
+//   // ✅ PLATFORM FILTER (same as your sample)
+//   if (this.selectedPlatform && this.selectedPlatform !== 'ALL') {
+//     // this.searchFilter['Platform-eq'] = this.selectedPlatform;
+//     this.searchFilter['platform-eq'] = this.selectedPlatform;
+//   }
+
+//   // ✅ CALL API
+//   this.loadSocialMediaLeads();
+// }
   // ── LOAD TEMPLATES ─────────────────────────────────────
   loadTemplates(): void {
     this.leadsService.getWhatsappTemplatesFromDB().subscribe(
