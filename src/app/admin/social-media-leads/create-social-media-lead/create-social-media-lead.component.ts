@@ -33,9 +33,8 @@ export class CreateSocialMediaLeadComponent implements OnInit {
     { label: 'Facebook',  value: 'Facebook' },
     { label: 'Instagram', value: 'Instagram' },
     { label: 'WhatsApp',  value: 'WhatsApp' },
-    // { label: 'Google',    value: 'Google' },
     { label: 'Manual',    value: 'Manual' },
-    { label: 'Others', value: 'Others'}
+    { label: 'Others',    value: 'Others' }
   ];
 
   constructor(
@@ -46,7 +45,6 @@ export class CreateSocialMediaLeadComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Check if edit mode — id passed as query param
     this.route.queryParams.subscribe(params => {
       if (params['id']) {
         this.isEditMode = true;
@@ -60,22 +58,21 @@ export class CreateSocialMediaLeadComponent implements OnInit {
     this.leadsService.getSocialMediaLeadById(id).subscribe(
       (data: any) => {
         this.form = {
-          Name:        data.Name || '',
-          Email:       data.Email || '',
+          Name:        data.Name        || '',
+          Email:       data.Email       || '',
           PhoneNumber: data.PhoneNumber || '',
-          Company:     data.Company || '',
-          City:        data.City || '',
-          State:       data.State || '',
-          pinCode:     data.pinCode || '',
-          Platform:    data.Platform || 'Manual',
-          Website:     data.Website || '',
-          // CallbackDate: data.CallbackDate ? new Date(data.CallbackDate) : null
+          Company:     data.Company     || '',
+          City:        data.City        || '',
+          State:       data.State       || '',
+          pinCode:     data.pinCode     || '',
+          Platform:    data.Platform    || 'Manual',
+          Website:     data.Website     || '',
           CallbackDate: data.CallbackDate
-          ? moment.utc(data.CallbackDate).tz('Asia/Kolkata').toDate()  // ← UTC → IST for display
-          : null
+            ? moment.utc(data.CallbackDate).tz('Asia/Kolkata').toDate()
+            : null
         };
       },
-      () => this.toastService.showError('Failed to load lead')
+      () => this.toastService.showError({ error:'Failed to load lead'})
     );
   }
 
@@ -87,8 +84,18 @@ export class CreateSocialMediaLeadComponent implements OnInit {
 
   //   this.saving = true;
 
+  //   const payload = {
+  //     ...this.form,
+  //     CallbackDate: this.form.CallbackDate
+  //       ? moment(this.form.CallbackDate)
+  //           .tz('Asia/Kolkata')
+  //           .utc()
+  //           .format('YYYY-MM-DD HH:mm:ss')
+  //       : null
+  //   };
+
   //   if (this.isEditMode) {
-  //     this.leadsService.updateSocialMediaLead(this.leadId, this.form).subscribe(
+  //     this.leadsService.updateSocialMediaLead(this.leadId, payload).subscribe(
   //       () => {
   //         this.saving = false;
   //         this.toastService.showSuccess('Lead updated successfully');
@@ -100,7 +107,7 @@ export class CreateSocialMediaLeadComponent implements OnInit {
   //       }
   //     );
   //   } else {
-  //     this.leadsService.createSocialMediaLead(this.form).subscribe(
+  //     this.leadsService.createSocialMediaLead(payload).subscribe(
   //       () => {
   //         this.saving = false;
   //         this.toastService.showSuccess('Lead created successfully');
@@ -113,51 +120,62 @@ export class CreateSocialMediaLeadComponent implements OnInit {
   //     );
   //   }
   // }
-
   save(): void {
-  if (!this.form.Name.trim() || !this.form.PhoneNumber.trim()) {
-    this.toastService.showError('Name and Phone are required');
-    return;
+    if (!this.form.Name.trim() || !this.form.PhoneNumber.trim()) {
+      this.toastService.showError({ error:'Name and Phone are required'});
+      return;
+    }
+ 
+    this.saving = true;
+ 
+    const payload = {
+      ...this.form,
+      CallbackDate: this.form.CallbackDate
+        ? moment(this.form.CallbackDate)
+            .tz('Asia/Kolkata')
+            .utc()
+            .format('YYYY-MM-DD HH:mm:ss')
+        : null
+    };
+ 
+    if (this.isEditMode) {
+      this.leadsService.updateSocialMediaLead(this.leadId, payload).subscribe(
+        () => {
+          this.saving = false;
+          this.toastService.showSuccess('Lead updated successfully');
+          this.goBack();
+        },
+        (error: any) => {
+          this.saving = false;
+          // ✅ Handle duplicate (409) error on update
+          if (error?.status === 409) {
+            this.toastService.showError(error?.error?.error || 'Enquiry already exists');
+          } else {
+            this.toastService.showError(error);
+          }
+        }
+      );
+    } else {
+      this.leadsService.createSocialMediaLead(payload).subscribe(
+        () => {
+          this.saving = false;
+          this.toastService.showSuccess('Lead created successfully');
+          this.goBack();
+        },
+        (error: any) => {
+          this.saving = false;
+          // ✅ Handle duplicate (409) error on create
+          if (error?.status === 409) {
+            this.toastService.showError({ error:error?.error?.error || 'Enquiry already exists'});
+          } else {
+            this.toastService.showError('Failed to create lead');
+          }
+        }
+      );
+    }
   }
+ 
 
-  this.saving = true;
-
-  const payload = {
-    ...this.form,
-    CallbackDate: this.form.CallbackDate
-      ? moment(this.form.CallbackDate)
-          .tz('Asia/Kolkata')
-          .utc()
-          .format('YYYY-MM-DD HH:mm:ss')   // ← IST → UTC before saving
-      : null
-  };
-
-  if (this.isEditMode) {
-    this.leadsService.updateSocialMediaLead(this.leadId, payload).subscribe(
-      () => {
-        this.saving = false;
-        this.toastService.showSuccess('Lead updated successfully');
-        this.goBack();
-      },
-      () => {
-        this.saving = false;
-        this.toastService.showError('Failed to update lead');
-      }
-    );
-  } else {
-    this.leadsService.createSocialMediaLead(payload).subscribe(
-      () => {
-        this.saving = false;
-        this.toastService.showSuccess('Lead created successfully');
-        this.goBack();
-      },
-      () => {
-        this.saving = false;
-        this.toastService.showError('Failed to create lead');
-      }
-    );
-  }
-}
   goBack(): void {
     this.location.back();
   }

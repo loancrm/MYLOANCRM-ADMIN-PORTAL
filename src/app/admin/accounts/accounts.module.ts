@@ -14,7 +14,7 @@ import { FilterModule } from 'src/app/filter/filter.module';
 import { CapitalizeFirstPipe } from 'src/app/pipes/capitalize.pipe';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
-
+import { AnalyticsModule } from './analytics/analytics.module'
 const routes: Routes = [
   { path: '', component: AccountsComponent },
   {
@@ -45,7 +45,12 @@ const routes: Routes = [
     TabMenuModule,
     MatMenuModule,
     MatButtonModule,
+    AnalyticsModule,
     [RouterModule.forChild(routes)],
-  ]
+  ],
+      exports: [
+      // WhatsappTemplatesComponent,
+      AnalyticsModule
+    ]
 })
 export class AccountsModule { }

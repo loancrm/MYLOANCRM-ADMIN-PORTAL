@@ -1,0 +1,173 @@
+<div *ngIf="loading" class="text-center py-5">
+  <i class="pi pi-spin pi-spinner" style="font-size: 2rem; color: #534AB7;"></i>
+  <p class="mt-2 text-muted">Loading analytics...</p>
+</div>
+
+<div *ngIf="!loading">
+
+  <!-- Loan Type Filter -->
+  <div class="d-flex align-items-center gap-3 mb-4 mt-2 flex-wrap justify-content-end">
+      <div class="d-flex align-items-center gap-3 mb-4 mt-2 flex-wrap">
+        <span class="analytics-filter-label">Loan Type :</span>
+
+        <p-dropdown
+          [options]="loanTypeOptions"
+          [(ngModel)]="selectedLoanType"
+          optionLabel="label"
+          optionValue="value"
+          [style]="{ minWidth: '220px' }"
+          appendTo="body"
+          (onChange)="onLoanTypeChange()"
+          [dropdownIcon]="'pi pi-chevron-down'"
+          placeholder="Select Loan Type"
+        >
+        </p-dropdown>
+      </div>
+    </div>
+
+  <!-- PIPELINE COUNTS -->
+  <p class="analytics-section-title">Pipeline Overview</p>
+  <div class="analytics-grid">
+
+    <div class="analytics-card horizontal-card">
+      <div class="analytics-icon-wrap leads-bg">
+        <i class="pi pi-users"></i>
+      </div>
+
+      <div class="analytics-content">
+        <div class="analytics-label">Leads</div>
+        <div class="analytics-count">{{ stats.leads }}</div>
+      </div>
+    </div>
+
+    <div class="analytics-card horizontal-card">
+      <div class="analytics-icon-wrap files-bg">
+        <i class="pi pi-folder-open"></i>
+      </div>
+
+      <div class="analytics-content">
+        <div class="analytics-label">Files</div>
+        <div class="analytics-count">{{ stats.files }}</div>
+      </div>
+    </div>
+
+    <div class="analytics-card horizontal-card">
+      <div class="analytics-icon-wrap logins-bg">
+        <i class="pi pi-sign-in"></i>
+      </div>
+
+      <div class="analytics-content">
+        <div class="analytics-label">Logins</div>
+        <div class="analytics-count">{{ stats.logins }}</div>
+      </div>
+    </div>
+
+    <div class="analytics-amount-card">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="analytics-amount-label">Sanctioned Files</div>
+          <div class="analytics-amount-value sanctioned-color">
+            {{ stats.sanctionedFiles }}
+          </div>
+        </div>
+        <div class="analytics-amount-icon sanctioned-bg">
+          <i class="pi pi-check-circle"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="analytics-amount-card">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="analytics-amount-label">Disbursed Files</div>
+          <div class="analytics-amount-value disbursed-color">
+            {{ stats.disbursedFiles }}
+          </div>
+        </div>
+        <div class="analytics-amount-icon disbursed-bg">
+          <i class="pi pi-file-export"></i>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="analytics-card horizontal-card">
+      <div class="analytics-icon-wrap inhouse-rejects-bg">
+        <i class="pi pi-home"></i>
+      </div>
+
+      <div class="analytics-content">
+        <div class="analytics-label">Inhouse Rejects</div>
+        <div class="analytics-count">{{ stats.inhouseRejects }}</div>
+      </div>
+    </div>
+
+      <div class="analytics-card horizontal-card">
+      <div class="analytics-icon-wrap bank-rejects-bg">
+        <i class="pi pi-building"></i>
+      </div>
+
+      <div class="analytics-content">
+        <div class="analytics-label">Bank Rejects</div>
+        <div class="analytics-count">{{ stats.bankRejects }}</div>
+      </div>
+    </div>
+      <div class="analytics-card horizontal-card">
+      <div class="analytics-icon-wrap cni-rejects-bg">
+        <i class="pi pi-times-circle"></i>
+      </div>
+
+      <div class="analytics-content">
+        <div class="analytics-label">CNI Rejects</div>
+        <div class="analytics-count">{{ stats.cniRejects }}</div>
+      </div>
+    </div>
+
+      <!-- CNI Rejects -->
+      <div class="analytics-card horizontal-card">
+      <div class="analytics-icon-wrap bankers-bg">
+        <i class="pi pi-building"></i>
+      </div>
+
+      <div class="analytics-content">
+        <div class="analytics-label">Bankers</div>
+        <div class="analytics-count">{{ stats.bankers }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AMOUNTS -->
+  <p class="analytics-section-title mt-4">Loan Amounts</p>
+  <div class="analytics-amounts-grid">
+
+    <div class="analytics-amount-card">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="analytics-amount-label">Total Sanctioned</div>
+          <div class="analytics-amount-value sanctioned-color">
+            {{ formatAmount(stats.sanctioned) }}
+          </div>
+        </div>
+        <div class="analytics-amount-icon sanctioned-bg">
+          <i class="pi pi-check-circle"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="analytics-amount-card">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="analytics-amount-label">Total Disbursed</div>
+          <div class="analytics-amount-value disbursed-color">
+            {{ formatAmount(stats.disbursed) }}
+          </div>
+        </div>
+        <div class="analytics-amount-icon disbursed-bg">
+          <i class="pi pi-wallet"></i>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
