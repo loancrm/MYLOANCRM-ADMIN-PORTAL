@@ -928,4 +928,66 @@ getBankWiseAnalytics(
   const url = 'accounts/bank-wise-analytics';
   return this.serviceMeta.httpGet(url, null, params);
 }
+getAccountWiseBreakdown(
+  metric: string,
+  loanType: string,
+  from: number = 0,
+  count: number = 20,
+  search: string = ''
+): Observable<any> {
+  const params: any = { metric, loanType, from, count };
+  if (search) params['search'] = search;
+  const url = 'accounts/global-breakdown';
+  return this.serviceMeta.httpGet(url, null, params);
+}
+getCibilBreakdown(
+  from: number = 0,
+  count: number = 20,
+  search: string = '',
+  cibilType: string = ''
+): Observable<any> {
+  const params: any = { from, count };
+  if (search)    params['search']    = search;
+  if (cibilType) params['cibilType'] = cibilType;
+  const url = 'admin/cibil-breakdown';
+  return this.serviceMeta.httpGet(url, null, params);
+}
+getSanctionedDisbursedBreakdown(
+  type: 'sanctioned' | 'disbursed',
+  loanType: string,
+  from: number = 0,
+  count: number = 20,
+  search: string = ''
+): Observable<any> {
+  const params: any = { type, loanType, from, count };
+  if (search) params['search'] = search;
+  const url = 'accounts/sanctioned-disbursed-breakdown';
+  return this.serviceMeta.httpGet(url, null, params);
+}
+getCityWiseAccountCount(): Observable<any> {
+  const url = 'accounts/city-count';
+  return this.serviceMeta.httpGet(url);
+}
+
+getCityWiseBreakdown(
+  from: number = 0,
+  count: number = 10,
+  search: string = ''
+): Observable<any> {
+  const params: any = { from, count };
+  if (search) params['search'] = search;
+  const url = 'accounts/city-breakdown';
+  return this.serviceMeta.httpGet(url, null, params);
+}
+getCityAccountsBreakdown(
+  city: string,
+  from: number = 0,
+  count: number = 10,
+  search: string = ''
+): Observable<any> {
+  const params: any = { city, from, count };
+  if (search) params['search'] = search;
+  const url = 'accounts/city-accounts';
+  return this.serviceMeta.httpGet(url, null, params);
+}
 }

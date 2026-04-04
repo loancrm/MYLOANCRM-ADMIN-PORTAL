@@ -34,6 +34,7 @@ export class CreateSocialMediaLeadComponent implements OnInit {
     { label: 'Instagram', value: 'Instagram' },
     { label: 'WhatsApp',  value: 'WhatsApp' },
     { label: 'Manual',    value: 'Manual' },
+     { label: 'Website', value: 'Website' },
     { label: 'Others',    value: 'Others' }
   ];
 

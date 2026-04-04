@@ -101,7 +101,9 @@ export class DashboardComponent implements OnInit {
   todaySubscribers: any = [];
   todaySubscribersCount: number = 0;
   selectedSubscribedDate: any = new Date(); // today
-
+todayExpired: any[]       = [];
+todayExpiredCount: number = 0;
+expiredLoading: boolean   = false;
   dateOptions = [
     { label: 'Total', value: 'total' },
     { label: 'Today', value: 'today' },
@@ -109,14 +111,16 @@ export class DashboardComponent implements OnInit {
     { label: 'Previous Month', value: 'previousMonth' },
     { label: 'Last 7 Days', value: 'last7' },
     { label: 'Custom Range', value: 'custom' },
+    { label: 'Today Expired',     value: 'expired'     },
   ];
 
   selectedDateOption: string = 'thisMonth';
-  selectedTodayTable: 'accounts' | 'contacts' | 'subscribers' = 'accounts';
+  selectedTodayTable: 'accounts' | 'contacts' | 'subscribers' | 'expired' = 'accounts';
   selectedtableoptions = [
     { label: 'Today Accounts', value: 'accounts' },
     { label: 'Today Contacts', value: 'contacts' },
     { label: 'Today Subscribers', value: 'subscribers' },
+    { label: 'Today Expired',     value: 'expired'     },
   ]
 
   constructor(
@@ -168,7 +172,11 @@ export class DashboardComponent implements OnInit {
     this.routingService.handleRoute('leads/profile/' + event.data.id, null);
     // You can also open a dialog or navigate based on `event.data`
   }
-
+onTableChange(event: any): void {
+  if (event.value === 'expired' && this.todayExpired.length === 0) {
+    this.onLazyLoadTodayExpired({ first: 0, rows: 10 });
+  }
+}
   // onLazyLoadData(event) {
   //   this.currentTableEvent = event;
   //   let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
@@ -546,4 +554,72 @@ loadTodaySubscribers(api_filter) {
     this.routingService.setFeatureRoute('admin');
     this.routingService.handleRoute(route, null);
   }
+
+  onLazyLoadTodayExpired(event: any): void {
+  let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
+ 
+  // Filter subscriptions whose end_date falls on TODAY
+  const startIST = this.moment().startOf('day');
+  const endIST   = this.moment().endOf('day');
+ 
+  api_filter['end_date-gte'] = startIST.format('YYYY-MM-DD');
+  api_filter['end_date-lte'] = endIST.format('YYYY-MM-DD');
+ 
+  this.loadTodayExpired(api_filter);
+}
+ 
+loadTodayExpired(api_filter: any): void {
+  this.expiredLoading = true;
+ 
+  // Step 1: get count
+  this.leadsService.getSubscriptionsCount(api_filter).subscribe(
+    (countRes: any) => {
+      this.todayExpiredCount = Number(countRes) || 0;
+    },
+    (err) => console.error('Expired count error:', err)
+  );
+ 
+  // Step 2: get subscriptions list
+  this.leadsService.getSubscriptions(api_filter).subscribe(
+    (subscriptions: any) => {
+ 
+      if (!subscriptions || subscriptions.length === 0) {
+        this.todayExpired   = [];
+        this.expiredLoading = false;
+        return;
+      }
+ 
+      // Step 3: for each subscription, call getAccountById()
+      // to fetch businessName and mobile, then merge into row
+      const accountRequests = subscriptions.map((sub: any) =>
+        this.leadsService.getAccountById(sub.accountId)
+      );
+ 
+      forkJoin(accountRequests).subscribe(
+        (accounts: any) => {
+          // Merge account data into each subscription row
+          this.todayExpired = subscriptions.map((sub: any, index: number) => {
+            const account = accounts[index] || {};
+            return {
+              ...sub,
+              businessName: account.businessName || '-',
+              mobile:       account.mobile       || '-',
+            };
+          });
+          this.expiredLoading = false;
+        },
+        (err) => {
+          this.toastService.showError(err);
+          // Even if account enrichment fails, still show subscription data
+          this.todayExpired   = subscriptions;
+          this.expiredLoading = false;
+        }
+      );
+    },
+    (err) => {
+      this.toastService.showError(err);
+      this.expiredLoading = false;
+    }
+  );
+}
 }

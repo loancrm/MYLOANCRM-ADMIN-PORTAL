@@ -62,32 +62,34 @@
       </div>
     </div>
 
-    <div class="analytics-amount-card">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <div class="analytics-amount-label">Sanctioned Files</div>
-          <div class="analytics-amount-value sanctioned-color">
-            {{ stats.sanctionedFiles }}
-          </div>
-        </div>
+    <div class="analytics-card horizontal-card">
+
         <div class="analytics-amount-icon sanctioned-bg">
           <i class="pi pi-check-circle"></i>
         </div>
+        <div class="analytics-content">
+          <div class="analytics-label">Sanctioned</div>
+          <div class="analytics-amount-value sanctioned-color">
+            {{ stats.sanctionedFiles }}
+          </div>
+
+        
       </div>
     </div>
 
-    <div class="analytics-amount-card">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <div class="analytics-amount-label">Disbursed Files</div>
+    <div class="analytics-card horizontal-card">
+
+        <div class="analytics-amount-icon disbursed-bg">
+          <i class="pi pi-file-export"></i>
+        </div>
+        <div class="analytics-content">
+          <div class="analytics-label">Disbursed</div>
           <div class="analytics-amount-value disbursed-color">
             {{ stats.disbursedFiles }}
           </div>
         </div>
-        <div class="analytics-amount-icon disbursed-bg">
-          <i class="pi pi-file-export"></i>
-        </div>
-      </div>
+        
+
     </div>
 
 

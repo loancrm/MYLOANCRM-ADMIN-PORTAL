@@ -50,6 +50,7 @@ platformOptions: { label: string; value: string }[] = [
   { label: 'Instagram',     value: 'Instagram' },
   { label: 'Manual', value: 'Manual'},
   { label: 'Excel Import', value: 'ExcelImport'},
+  { label: 'Website', value: 'Website'},
   { label: 'Others', value: 'Others'}
   // { label: 'LinkedIn',      value: 'LinkedIn' },
   // { label: 'Twitter',       value: 'Twitter' },

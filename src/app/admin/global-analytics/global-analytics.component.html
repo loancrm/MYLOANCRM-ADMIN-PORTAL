@@ -1,0 +1,984 @@
+ <div class="p-1 m-2 fixed-card">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <b>
+          <span class="back-btn-text">Analytics</span>
+        </b>
+      </div>
+       <div class="d-flex align-items-center gap-3 mb-4 mt-2 flex-wrap">
+      <span class="analytics-filter-label">Loan Type :</span>
+      <p-dropdown
+        [options]="loanTypeOptions"
+        [(ngModel)]="selectedLoanType"
+        optionLabel="label"
+        optionValue="value"
+        [style]="{ minWidth: '200px' }"
+        appendTo="body"
+        (onChange)="onLoanTypeChange()"
+        [dropdownIcon]="'pi pi-chevron-down'"
+      ></p-dropdown>
+    </div>
+    </div>
+  </div>
+
+<div class="global-analytics-wrapper">
+
+  <!-- <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h5 class="mb-0 fw-500">Platform Overview</h5>
+      <small class="text-muted">Metrics across all accounts</small>
+    </div>
+    <div class="d-flex align-items-center gap-3 mb-4 mt-2 flex-wrap">
+      <span class="analytics-filter-label">Loan Type :</span>
+      <p-dropdown
+        [options]="loanTypeOptions"
+        [(ngModel)]="selectedLoanType"
+        optionLabel="label"
+        optionValue="value"
+        [style]="{ minWidth: '200px' }"
+        appendTo="body"
+        (onChange)="onLoanTypeChange()"
+        [dropdownIcon]="'pi pi-chevron-down'"
+      ></p-dropdown>
+    </div>
+  </div> -->
+
+  <!-- LOADING -->
+  <div *ngIf="loading" class="text-center py-5">
+    <i class="pi pi-spin pi-spinner" style="font-size: 2rem; color: #534AB7;"></i>
+    <p class="mt-2 text-muted">Loading platform analytics...</p>
+  </div>
+
+  <div *ngIf="!loading">
+
+    <!-- PIPELINE COUNTS -->
+    <!-- <p class="analytics-section-title">Pipeline Overview</p> -->
+    <div class="analytics-grid">
+
+      <div class="analytics-card horizontal-card" (click)="openBreakdown('leads')">
+        <div class="analytics-icon-wrap leads-bg"><i class="pi pi-users"></i></div>
+        <div class="analytics-content">
+          <div class="analytics-label">Leads</div>
+          <div class="analytics-count">{{ stats.leads }}</div>
+        </div>
+      </div>
+
+      <div class="analytics-card horizontal-card" (click)="openBreakdown('files')">
+        <div class="analytics-icon-wrap files-bg"><i class="pi pi-folder-open"></i></div>
+        <div class="analytics-content">
+          <div class="analytics-label">Files</div>
+          <div class="analytics-count">{{ stats.files }}</div>
+        </div>
+      </div>
+
+      <div class="analytics-card horizontal-card" (click)="openBreakdown('logins')">
+        <div class="analytics-icon-wrap logins-bg"><i class="pi pi-sign-in"></i></div>
+        <div class="analytics-content">
+          <div class="analytics-label">Logins</div>
+          <div class="analytics-count">{{ stats.logins }}</div>
+        </div>
+      </div>
+
+      <div class="analytics-card horizontal-card" (click)="openBreakdown('inhouseRejects')">
+        <div class="analytics-icon-wrap inhouse-rejects-bg"><i class="pi pi-home"></i></div>
+        <div class="analytics-content">
+          <div class="analytics-label">Inhouse Rejects</div>
+          <div class="analytics-count inhouse-rejects-count">{{ stats.inhouseRejects }}</div>
+        </div>
+      </div>
+
+      <div class="analytics-card horizontal-card" (click)="openBreakdown('bankRejects')">
+        <div class="analytics-icon-wrap bank-rejects-bg"><i class="pi pi-building"></i></div>
+        <div class="analytics-content">
+          <div class="analytics-label">Lender Rejects</div>
+          <div class="analytics-count bank-rejects-count">{{ stats.bankRejects }}</div>
+        </div>
+      </div>
+
+      <div class="analytics-card horizontal-card" (click)="openBreakdown('cniRejects')">
+        <div class="analytics-icon-wrap cni-rejects-bg"><i class="pi pi-times-circle"></i></div>
+        <div class="analytics-content">
+          <div class="analytics-label">CNI Rejects</div>
+          <div class="analytics-count cni-rejects-count">{{ stats.cniRejects }}</div>
+        </div>
+      </div>
+
+      <div class="analytics-card horizontal-card" (click)="openAmountBreakdown('sanctioned')">
+        
+          <div class="analytics-amount-icon sanctioned-bg"><i class="pi pi-check-circle"></i></div>
+          <div class="analytics-content">
+            <div class="analytics-label">Sanctioned</div>
+            <div class="analytics-amount-value sanctioned-color">{{ formatAmount(stats.sanctioned) }}</div>
+          </div>
+          
+        
+      </div>
+
+      <div class="analytics-card horizontal-card" (click)="openAmountBreakdown('disbursed')">
+          <div class="analytics-amount-icon disbursed-bg"><i class="pi pi-wallet"></i></div>
+          <div class="analytics-content">
+            <div class="analytics-label">Disbursed</div>
+            <div class="analytics-amount-value disbursed-color">{{ formatAmount(stats.disbursed) }}</div>
+          </div>
+          
+      </div>
+
+      <div class="analytics-card horizontal-card">
+        <div class="analytics-icon-wrap bankers-bg"><i class="pi pi-building"></i></div>
+        <div class="analytics-content">
+          <div class="analytics-label">Lenders</div>
+          <div class="analytics-count">{{ stats.bankers }}</div>
+        </div>
+      </div>
+
+      <div class="analytics-card horizontal-card" (click)="openCibilBreakdown()">
+        <div class="analytics-icon-wrap cibil-bg">
+          <i class="pi pi-id-card"></i>
+        </div>
+        <div class="analytics-content">
+          <div class="analytics-label">Cibil Reports</div>
+          <div class="analytics-count">{{ stats.cibilReports }}</div>
+        </div>
+      </div>
+
+      <div class="analytics-card horizontal-card" (click)="openCityBreakdown()">
+        <div class="analytics-icon-wrap" style="background:#E6F1FB;">
+          <i class="pi pi-map-marker" style="color:#185FA5;"></i>
+        </div>
+        <div class="analytics-content">
+          <div class="analytics-label">Cities</div>
+          <div class="analytics-count" style="color:#185FA5;">{{ stats.cities }}</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- AMOUNTS -->
+    <!-- <p class="analytics-section-title mt-4">Loan Amounts</p>
+    <div class="analytics-amounts-grid">
+
+      <div class="analytics-amount-card" (click)="openAmountBreakdown('sanctioned')">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="analytics-amount-label">Total Sanctioned</div>
+            <div class="analytics-amount-value sanctioned-color">{{ formatAmount(stats.sanctioned) }}</div>
+          </div>
+          <div class="analytics-amount-icon sanctioned-bg"><i class="pi pi-check-circle"></i></div>
+        </div>
+      </div>
+
+      <div class="analytics-amount-card" (click)="openAmountBreakdown('disbursed')">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="analytics-amount-label">Total Disbursed</div>
+            <div class="analytics-amount-value disbursed-color">{{ formatAmount(stats.disbursed) }}</div>
+          </div>
+          <div class="analytics-amount-icon disbursed-bg"><i class="pi pi-wallet"></i></div>
+        </div>
+      </div>
+
+
+    </div> -->
+
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════
+     BREAKDOWN DIALOG  (Leads / Files / Logins / Rejects)
+══════════════════════════════════════════════════════ -->
+<p-dialog
+  [(visible)]="showBreakdownDialog"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [showHeader]="false"
+  [style]="{ width: '760px', maxWidth: '96vw', padding: '0' }"
+  styleClass="breakdown-dialog-pro"
+  appendTo="body"
+  (onHide)="onBreakdownDialogHide()"
+>
+  <div class="bpd-wrap">
+
+    <!-- Dialog Header -->
+    <div class="bpd-header">
+      <div class="bpd-header-icon">
+        <i class="pi {{ getMetricIcon() }}"></i>
+      </div>
+      <div class="bpd-header-text">
+        <h6 class="bpd-title">{{ breakdownMetricLabel }} — Account Breakdown</h6>
+        <span class="bpd-subtitle">
+          <span *ngIf="!breakdownLoading">{{ breakdownTotal }} accounts total</span>
+          <span *ngIf="breakdownLoading">Loading...</span>
+        </span>
+      </div>
+      <button class="bpd-close" (click)="showBreakdownDialog = false">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <!-- Lazy Table — caption has search + loanType filter (scoped to this dialog only) -->
+    <p-table
+      #breakdownTable
+      [value]="breakdownAccounts"
+      [loading]="breakdownLoading"
+      [lazy]="true"
+      (onLazyLoad)="onBreakdownLazyLoad($event)"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [totalRecords]="breakdownTotal"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} accounts"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-customers"
+    >
+
+      <!-- ── CAPTION: search + loan type filter ── -->
+      <ng-template pTemplate="caption">
+        <div class="row g-2 align-items-center">
+
+          <!-- Search input -->
+          <div class="col-md-6">
+            <div class="p-inputgroup">
+              <input
+                type="text"
+                pInputText
+                placeholder="Search by account name..."
+                [(ngModel)]="breakdownSearch"
+                (ngModelChange)="onSearchChange()"
+                (keyup.enter)="onBreakdownLazyLoad({ first: 0, rows: 10 })"
+              />
+              <button
+                type="button"
+                pButton
+                class="p-button-primary search-btn"
+                (click)="onBreakdownLazyLoad({ first: 0, rows: 10 })"
+              >
+                <i class="pi pi-search"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Loan Type dropdown — only filters THIS dialog's data -->
+          <div class="col-md-6">
+            <p-dropdown
+              [options]="loanTypeOptions"
+              [(ngModel)]="breakdownLoanType"
+              optionLabel="label"
+              optionValue="value"
+              [style]="{ width: '100%' }"
+              appendTo="body"
+              (onChange)="onBreakdownLoanTypeChange()"
+              [dropdownIcon]="'pi pi-chevron-down'"
+              placeholder="Select Loan Type"
+            ></p-dropdown>
+          </div>
+
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:50px">Id</th>
+          <th>Account Id</th>
+          <th>Business Name</th>
+          <th >Total</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-acc let-rowIndex="rowIndex">
+        <tr>
+          <td><span class="bpd-rank-num">{{ rowIndex + 1 }}</span></td>
+          <td><div class="bpd-acc-id">{{ acc.accountId }}</div></td>
+          <td><div class="bpd-acc-name text-capitalize">{{ acc.accountName }}</div></td>
+          <td>
+            <span class="bpd-total-num">{{ acc.total }}</span>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="4" class="text-center py-4">
+            <i class="pi pi-inbox" style="font-size:2rem;color:#ccc;display:block;margin-bottom:8px;"></i>
+            <p style="color:#888;font-size:14px;margin:0;">No accounts found</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+  </div>
+</p-dialog>
+
+
+<!-- ══════════════════════════════════════════════════════
+     CIBIL BREAKDOWN DIALOG
+     (no loanType filter — cibil is not loan-type specific)
+══════════════════════════════════════════════════════ -->
+<p-dialog
+  [(visible)]="showCibilDialog"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [showHeader]="false"
+  [style]="{ width: '760px', maxWidth: '96vw', padding: '0' }"
+  styleClass="breakdown-dialog-pro"
+  appendTo="body"
+  (onHide)="onCibilDialogHide()"
+>
+  <div class="bpd-wrap">
+
+    <!-- Dialog Header -->
+    <div class="bpd-header">
+      <div class="bpd-header-icon" style="background:#E1F5EE;">
+        <i class="pi pi-id-card" style="color:#0F6E56;font-size:16px;"></i>
+      </div>
+      <div class="bpd-header-text">
+        <h6 class="bpd-title">Cibil Reports — Account Breakdown</h6>
+        <span class="bpd-subtitle">
+          <span *ngIf="!cibilDialogLoading">
+            {{ cibilGrandTotal }} total reports
+            <span class="bpd-dot">·</span>
+            {{ cibilTotal }} accounts
+          </span>
+          <span *ngIf="cibilDialogLoading">Loading...</span>
+        </span>
+      </div>
+      <button class="bpd-close" (click)="showCibilDialog = false">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <!-- Type filter chips -->
+    <div class="cibil-type-grid" *ngIf="cibilTypeSummary.length > 0">
+      <div
+        class="cibil-type-card"
+        *ngFor="let t of cibilTypeSummary; let i = index"
+        [class.active]="cibilSelectedType === t.cibilType"
+        (click)="onCibilTypeSelect(t.cibilType)"
+        
+      >
+        <div class="cibil-type-icon" [style.background]="getCibilTypeBg(i)">
+          <i class="pi {{ getCibilTypeIcon(t.cibilType) }}"
+             [style.color]="getCibilTypeColor(i)" style="font-size:16px;"></i>
+        </div>
+        <div>
+          <div class="cibil-type-count" [style.color]="getCibilTypeColor(i)">{{ t.total }}</div>
+          <div class="cibil-type-label">{{ t.cibilType | uppercase }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active filter chip -->
+    <div class="cibil-filter-chip-wrap" *ngIf="cibilSelectedType">
+      <div class="cibil-filter-chip">
+        <i class="pi pi-filter" style="font-size:11px;"></i>
+        Filtered by: <strong>{{ cibilSelectedType }}</strong>
+        <span class="chip-clear" (click)="onCibilTypeSelect(cibilSelectedType)">
+          <i class="pi pi-times" style="font-size:10px;"></i>
+        </span>
+      </div>
+    </div>
+
+    <!-- Lazy Table — caption has search only (no loanType for cibil) -->
+    <p-table
+      #cibilTable
+      [value]="cibilAccounts"
+      [loading]="cibilDialogLoading"
+      [lazy]="true"
+      (onLazyLoad)="onCibilLazyLoad($event)"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [totalRecords]="cibilTotal"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} accounts"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-customers"
+    >
+
+      <!-- ── CAPTION: search only ── -->
+      <ng-template pTemplate="caption">
+        <div class="row g-2 align-items-center">
+          <div class="col-md-6">
+            <div class="p-inputgroup">
+              <input
+                type="text"
+                pInputText
+                placeholder="Search by business name..."
+                [(ngModel)]="cibilSearch"
+                (ngModelChange)="onCibilSearchChange()"
+                (keyup.enter)="onCibilLazyLoad({ first: 0, rows: 10 })"
+              />
+              <button
+                type="button"
+                pButton
+                class="p-button-primary search-btn"
+                (click)="onCibilLazyLoad({ first: 0, rows: 10 })"
+              >
+                <i class="pi pi-search"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:50px">Id</th>
+          <th>Account Id</th>
+          <th>Business Name</th>
+          <th>Report Types</th>
+          <th style="text-align:center">Reports</th>
+          <th style="text-align:right">Total Spent</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-acc let-rowIndex="rowIndex">
+        <tr>
+          <td><span class="bpd-rank-num">{{ rowIndex + 1 }}</span></td>
+          <td>
+            <div class="bpd-acc-id">{{ acc.accountId }}</div>
+            <!-- <div class="d-flex align-items-center gap-2">
+              <div class="bpd-avatar" style="background:#E1F5EE;color:#0F6E56;">
+                {{ acc.businessName?.charAt(0)?.toUpperCase() }}
+              </div>
+              <div>
+                <div class="bpd-acc-name">{{ acc.businessName }}</div>
+                <div class="bpd-acc-id">#{{ acc.accountId }}</div>
+              </div>
+            </div> -->
+          </td>
+          <td>
+            <div class="bpd-acc-name text-capitalize">{{ acc.businessName }}</div>
+          </td>
+          <td  class="text-capitalize">
+            <div class="cibil-types-cell">
+              <span class="cibil-mini-badge" *ngFor="let ct of acc.cibilTypes?.split(', ')">
+                {{ ct | uppercase }}
+              </span>
+            </div>
+          </td>
+          <td style="text-align:center">
+            <span class="cibil-report-count">{{ acc.totalReports }}</span>
+          </td>
+          <td style="text-align:right">
+            <span class="cibil-spent-amount">{{ formatAmount(acc.totalSpent) }}</span>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5" class="text-center py-4">
+            <i class="pi pi-inbox" style="font-size:2rem;color:#ccc;display:block;margin-bottom:8px;"></i>
+            <p style="color:#888;font-size:14px;margin:0;">No accounts found</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+  </div>
+</p-dialog>
+
+
+<!-- ══════════════════════════════════════════════════════
+     SANCTIONED / DISBURSED BREAKDOWN DIALOG
+══════════════════════════════════════════════════════ -->
+
+<p-dialog
+  [(visible)]="showAmountDialog"
+  [modal]="true"
+  [draggable]="true"
+  [resizable]="false"
+  [showHeader]="false"
+  [style]="{ width: '950px', maxWidth: '100vw', padding: '0' }"
+  styleClass="breakdown-dialog-pro"
+  appendTo="body"
+  (onHide)="onAmountDialogHide()"
+>
+  <div class="bpd-wrap">
+
+    <!-- Dialog Header -->
+    <div class="bpd-header">
+      <div class="bpd-header-icon" [style.background]="getAmountBg()">
+        <i class="pi {{ getAmountIcon() }}" [style.color]="getAmountColor()" style="font-size:16px;"></i>
+      </div>
+      <div class="bpd-header-text">
+        <h6 class="bpd-title">{{ amountDialogTitle }} — Account Breakdown</h6>
+        <span class="bpd-subtitle">
+          <span *ngIf="!amountDialogLoading">
+            {{ amountTotal }} accounts
+            <span class="bpd-dot">·</span>
+            {{ formatAmount(amountGrandTotal) }} total
+            <span class="bpd-dot">·</span>
+            {{ amountGrandFiles }} files
+          </span>
+          <span *ngIf="amountDialogLoading">Loading...</span>
+        </span>
+      </div>
+      <button class="bpd-close" (click)="showAmountDialog = false">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <!-- Loan type summary cards (read-only info) -->
+    <!-- <div class="cibil-type-grid" *ngIf="amountSummary.length > 0">
+      <div
+        class="cibil-type-card"
+        *ngFor="let s of amountSummary; let i = index"
+        style="cursor:default;"
+      >
+        <div class="cibil-type-icon" [style.background]="getLoanTypeSummaryBg(i)">
+          <i class="pi pi-credit-card" [style.color]="getLoanTypeSummaryColor(i)" style="font-size:14px;"></i>
+        </div>
+        <div class="cibil-type-count" [style.color]="getLoanTypeSummaryColor(i)" style="font-size:15px;">
+          {{ formatAmount(s.totalAmount) }}
+        </div>
+        <div class="cibil-type-label">{{ getLoanTypeLabel(s.loanType) }}</div>
+        <div style="font-size:10px;color:var(--color-text-secondary);margin-top:2px;">
+          {{ s.totalFiles }} files
+        </div>
+      </div>
+    </div> -->
+
+    <!-- Lazy Table — caption has search + loanType filter -->
+     <p-table
+      #amountTable
+      [value]="amountAccounts"
+      [loading]="amountDialogLoading"
+      [lazy]="true"
+      (onLazyLoad)="onAmountLazyLoad($event)"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [totalRecords]="amountTotal"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} accounts"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-customers"
+    >
+
+      <!-- Caption: search -->
+      <ng-template pTemplate="caption">
+        <div class="row g-4 align-items-center">
+
+          <!-- Search input -->
+          <div class="col-md-6">
+            <div class="p-inputgroup">
+              <input
+                type="text"
+                pInputText
+                placeholder="Search by business name..."
+                [(ngModel)]="amountSearch"
+                (ngModelChange)="onAmountSearchChange()"
+                (keyup.enter)="onAmountLazyLoad({ first: 0, rows: 10 })"
+              />
+              <button
+                type="button"
+                pButton
+                class="p-button-primary search-btn"
+                (click)="onAmountLazyLoad({ first: 0, rows: 10 })"
+              >
+                <i class="pi pi-search"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Loan Type dropdown — only filters THIS dialog's data -->
+          <div class="col-md-6">
+            <p-dropdown
+              [options]="loanTypeOptions"
+              [(ngModel)]="amountLoanType"
+              optionLabel="label"
+              optionValue="value"
+              [style]="{ width: '100%' }"
+              appendTo="body"
+              (onChange)="onAmountLoanTypeChange()"
+              [dropdownIcon]="'pi pi-chevron-down'"
+              placeholder="Select Loan Type"
+            ></p-dropdown>
+          </div>
+
+        </div>
+      </ng-template>
+
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th class="text-nowrap">Id</th>
+          <th class="text-nowrap">Account Id</th>
+          <th class="text-nowrap">Business Name</th>
+          <!-- <th class="text-nowrap">Loan Types</th> -->
+          <th class="text-nowrap">Files</th>
+          <th class="text-nowrap">
+            Total {{ amountType === 'sanctioned' ? 'Sanctioned' : 'Disbursed' }}
+          </th>
+          <th class="text-nowrap">
+            Highest {{ amountType === 'sanctioned' ? 'Sanctioned' : 'Disbursed' }}
+          </th>
+          <th class="text-nowrap">
+            Lowest {{ amountType === 'sanctioned' ? 'Sanctioned' : 'Disbursed' }}
+          </th>
+          <th class="text-nowrap">
+            Avg {{ amountType === 'sanctioned' ? 'Sanctioned' : 'Disbursed' }}
+          </th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-acc let-rowIndex="rowIndex">
+        <tr>
+          <td>
+            <span class="bpd-rank-num">{{ rowIndex + 1 }}</span>
+          </td>
+
+          <td>
+            <div class="bpd-acc-id">{{ acc.accountId }}</div>
+            <!-- <div class="d-flex align-items-center gap-2">
+              <div
+                class="bpd-avatar"
+                [style.background]="getAmountBg()"
+                [style.color]="getAmountColor()"
+              >
+                {{ acc.businessName?.charAt(0)?.toUpperCase() }}
+              </div>
+              <div>
+                <div class="bpd-acc-name">{{ acc.businessName }}</div>
+                <div class="bpd-acc-id">#{{ acc.accountId }}</div>
+              </div>
+            </div> -->
+          </td>
+          <td>
+            <div class="bpd-acc-id">{{ acc.businessName }}</div>
+          </td>
+          <!-- <td>
+            <div class="bpd-badges">
+              <span
+                class="bpd-badge"
+                [style.background]="getAmountBg()"
+                [style.color]="getAmountColor()"
+                *ngFor="let lt of acc.loanTypes"
+              >
+                {{ getLoanTypeShort(lt) }}
+              </span>
+            </div>
+          </td> -->
+
+          <td style="font-weight:500;">{{ acc.totalFiles }}</td>
+
+          <td [style.color]="getAmountColor()" style="font-weight:500;">
+            {{ formatAmount(acc.totalAmount) }}
+          </td>
+
+          <td style="color:#3B6D11; font-weight:500;">
+            {{ formatAmount(acc.highestAmount) }}
+          </td>
+
+          <td style="color:#BA7517; font-weight:500;">
+            {{ formatAmount(acc.lowestAmount) }}
+          </td>
+
+          <td style="color:#534AB7; font-weight:500;">
+            {{ formatAmount(acc.avgAmount) }}
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" class="text-center py-4">
+            <i class="pi pi-inbox"
+              style="font-size:2rem;color:#ccc;display:block;margin-bottom:8px;">
+            </i>
+            <p style="color:#888;font-size:14px;margin:0;">No data found</p>
+          </td>
+        </tr>
+      </ng-template>
+
+    </p-table>
+    
+  </div>
+</p-dialog>
+
+<!-- ══════════════════════════════════════════════════
+     CITY WISE BREAKDOWN DIALOG
+══════════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════════════
+     CITY WISE BREAKDOWN DIALOG — Split Panel Design
+══════════════════════════════════════════════════ -->
+<p-dialog
+  [(visible)]="showCityDialog"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [showHeader]="false"
+  [style]="{ width: '1100px', maxWidth: '98vw', padding: '0' }"
+  styleClass="breakdown-dialog-pro city-split-dialog"
+  appendTo="body"
+  (onHide)="onCityDialogHide()"
+>
+  <div class="city-dialog-wrap">
+
+    <!-- ── Dialog Header ── -->
+    <div class="bpd-header city-dialog-header">
+      <div class="bpd-header-icon" style="background:#E6F1FB;">
+        <i class="pi pi-map-marker" style="color:#185FA5; font-size:16px;"></i>
+      </div>
+      <div class="bpd-header-text">
+        <h6 class="bpd-title">City Wise — Account Breakdown</h6>
+        <span class="bpd-subtitle">
+          <span *ngIf="!cityDialogLoading">
+            {{ cityTotal }} cities
+            <span class="bpd-dot">·</span>
+            {{ cityGrandTotal }} total accounts
+          </span>
+          <span *ngIf="cityDialogLoading">Loading...</span>
+        </span>
+      </div>
+      <button class="bpd-close" (click)="showCityDialog = false">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <!-- ── Split Body ── -->
+    <div class="city-split-body">
+
+      <!-- ════════════════════════════
+           LEFT PANEL — City List
+      ════════════════════════════ -->
+      <div class="city-left-panel">
+
+        <!-- Left panel header -->
+        <!-- <div class="city-panel-header">
+          <span class="city-panel-title">
+            <i class="pi pi-list" style="font-size:12px;"></i>
+            Cities
+          </span>
+          <span class="city-panel-count">{{ cityTotal }}</span>
+        </div> -->
+
+        <!-- Left search -->
+        <div class="city-panel-search">
+          <i class="pi pi-search city-search-ico"></i>
+          <input
+            type="text"
+            class="city-search-input"
+            placeholder="Search city..."
+            [(ngModel)]="citySearch"
+            (ngModelChange)="onCitySearchChange()"
+          />
+        </div>
+
+        <!-- City table -->
+        <p-table
+          #cityTable
+          [value]="cityAccounts"
+          [loading]="cityDialogLoading"
+          [lazy]="true"
+          (onLazyLoad)="onCityLazyLoad($event)"
+          [paginator]="true"
+          [rows]="10"
+          [rowsPerPageOptions]="[10, 25]"
+          [totalRecords]="cityTotal"
+          [showCurrentPageReport]="false"
+          styleClass="city-left-table p-datatable-customers"
+          responsiveLayout="scroll"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th>City</th>
+              <th>Count</th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-city>
+            <tr
+              class="city-list-row"
+              [class.city-row-selected]="selectedCity === city.displayCity"
+              (click)="onCityRowClick(city)"
+            >
+              <td>
+                <div class="city-row-content">
+                  <div
+                    class="city-avatar"
+                    [class.city-avatar-selected]="selectedCity === city.displayCity"
+                  >
+                    {{ city.displayCity?.charAt(0)?.toUpperCase() }}
+                  </div>
+                  <div>
+                    <div class="city-name">{{ city.displayCity }}</div>
+                    <!-- <div class="city-variants-text"
+                         *ngIf="city.cityVariants"
+                         [title]="city.cityVariants">
+                      {{ city.cityVariants | slice:0:25 }}
+                      {{ city.cityVariants.length > 25 ? '...' : '' }}
+                    </div> -->
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span
+                  class="city-count-badge"
+                  [class.city-count-badge-selected]="selectedCity === city.displayCity"
+                >
+                  {{ city.totalAccounts }}
+                </span>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="2" class="text-center py-3">
+                <i class="pi pi-map" style="font-size:1.5rem;color:#ccc;display:block;margin-bottom:6px;"></i>
+                <span style="color:#888;font-size:13px;">No cities found</span>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+
+      </div>
+
+      <!-- ════════════════════════════
+           RIGHT PANEL — Accounts
+      ════════════════════════════ -->
+      <div class="city-right-panel">
+
+        <!-- Empty state — no city selected -->
+        <div *ngIf="!selectedCity" class="city-right-empty">
+          <div class="city-right-empty-icon">
+            <i class="pi pi-arrow-left"></i>
+          </div>
+          <p class="city-right-empty-title">Select a city</p>
+          <p class="city-right-empty-sub">
+            Click any city on the left to view its accounts
+          </p>
+        </div>
+
+        <!-- Accounts panel — city selected -->
+        <div *ngIf="selectedCity" class="city-right-content">
+
+          <!-- Right panel header -->
+          <div class="city-panel-header city-right-header">
+            <div class="d-flex align-items-center gap-2">
+              <div class="city-selected-dot"></div>
+              <span class="city-panel-title">{{ selectedCity }}</span>
+              <span class="city-panel-count">{{ selectedCityTotal }} accounts</span>
+            </div>
+
+            <!-- Right search -->
+            <div class="city-panel-search city-right-search">
+              <i class="pi pi-search city-search-ico"></i>
+              <input
+                type="text"
+                class="city-search-input"
+                placeholder="Search accounts..."
+                [(ngModel)]="cityPanelSearch"
+                (ngModelChange)="onCityPanelSearchChange()"
+              />
+            </div>
+          </div>
+
+          <!-- Accounts table -->
+          <p-table
+            #cityPanelTable
+            [value]="cityPanelAccounts"
+            [loading]="cityPanelLoading"
+            [lazy]="true"
+            (onLazyLoad)="onCityPanelLazyLoad($event)"
+            (onRowSelect)="viewAccount($event)"
+            selectionMode="single"
+            dataKey="accountId"
+            [(selection)]="selectedAccount"
+            [paginator]="true"
+            [rows]="10"
+            [rowsPerPageOptions]="[10, 25, 50]"
+            [totalRecords]="cityPanelTotal"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
+            styleClass="city-right-table p-datatable-customers"
+            responsiveLayout="scroll"
+            [scrollable]="true" 
+            scrollHeight="flex" 
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width:44px">ID</th>
+                <th>Account ID</th>
+                <th>Business Name</th>
+                <th>Mobile</th>
+                <th>City (as entered)</th>
+                <!-- <th>Status</th> -->
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-acc let-rowIndex="rowIndex">
+              <tr class="city-account-row" [pSelectableRow]="acc" [ngClass]="{ 'disabled-row': acc.disabled }">
+
+                <td>
+                  <span >{{ rowIndex + 1 }}</span>
+                </td>
+                <td>
+                  <span class="bpd-acc-id">{{ acc.accountId }}</span>
+                </td>
+                <td>
+                  <div class="city-acc-name text-capitalize">{{ acc.businessName }}</div>
+                  <!-- <div class="d-flex align-items-center gap-2">
+                    <div class="city-acc-avatar">
+                      {{ acc.businessName?.charAt(0)?.toUpperCase() }}
+                    </div>
+                    <div>
+                      <div class="city-acc-name">{{ acc.businessName }}</div>
+                      <div class="city-acc-sub" *ngIf="acc.name">{{ acc.name }}</div>
+                    </div>
+                  </div> -->
+                </td>
+
+                
+
+                <td>
+                  <span class="city-acc-mobile">{{ acc.mobile || '—' }}</span>
+                </td>
+
+                <td  class="text-capitalize">
+                  <!-- Show exactly what user typed — reveals the alias problem -->
+                  <span class="city-raw-badge">{{ acc.rawCity }}</span>
+                </td>
+
+                <!-- <td>
+                  <span class="city-status-badge {{ getAccountStatusClass(acc.status) }}">
+                    {{ acc.status || '—' }}
+                  </span>
+                </td> -->
+
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="6" class="text-center py-4">
+                  <i class="pi pi-inbox"
+                     style="font-size:2rem;color:#ccc;display:block;margin-bottom:8px;">
+                  </i>
+                  <p style="color:#888;font-size:14px;margin:0;">
+                    No accounts found in {{ selectedCity }}
+                  </p>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</p-dialog>

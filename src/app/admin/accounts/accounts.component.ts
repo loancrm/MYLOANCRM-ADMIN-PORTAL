@@ -266,8 +266,10 @@ loadAccounts(event) {
   if (this.selectedPlanType && this.selectedPlanType !== 'ALL') {
     api_filter['latest_plan_name-eq'] = this.selectedPlanType;
   }
-  // 6️⃣ Call APIs
-  console.log('API Filter:', api_filter); // <-- for debugging
+
+  // ✅ NO CHANGE to end_date
+  // console.log('FINAL API Filter:', api_filter);
+
   this.getTeamCount(api_filter);
   this.getTeam(api_filter);
 }
@@ -430,6 +432,24 @@ loadAccounts(event) {
           },
           {
             field: 'updatedOn',
+            title: 'To',
+            type: 'date',
+            filterType: 'lte',
+          },
+        ],
+      },
+
+      {
+        header: 'Expired Date Range',
+        data: [
+          {
+            field: 'end_date',
+            title: 'From',
+            type: 'date',
+            filterType: 'gte',
+          },
+          {
+            field: 'end_date',
             title: 'To',
             type: 'date',
             filterType: 'lte',
