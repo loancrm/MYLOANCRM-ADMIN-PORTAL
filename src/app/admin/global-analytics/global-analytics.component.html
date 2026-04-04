@@ -200,7 +200,7 @@
   [draggable]="false"
   [resizable]="false"
   [showHeader]="false"
-  [style]="{ width: '760px', maxWidth: '96vw', padding: '0' }"
+  [style]="{ width: '1100px', maxWidth: '96vw', padding: '0' }"
   styleClass="breakdown-dialog-pro"
   appendTo="body"
   (onHide)="onBreakdownDialogHide()"
@@ -246,7 +246,7 @@
         <div class="row g-2 align-items-center">
 
           <!-- Search input -->
-          <div class="col-md-6">
+          <div class="col-md-4">
             <div class="p-inputgroup">
               <input
                 type="text"
@@ -268,7 +268,7 @@
           </div>
 
           <!-- Loan Type dropdown — only filters THIS dialog's data -->
-          <div class="col-md-6">
+          <div class="col-md-4">
             <p-dropdown
               [options]="loanTypeOptions"
               [(ngModel)]="breakdownLoanType"
@@ -287,7 +287,7 @@
 
       <ng-template pTemplate="header">
         <tr>
-          <th style="width:50px">Id</th>
+          <th>Id</th>
           <th>Account Id</th>
           <th>Business Name</th>
           <th >Total</th>
@@ -329,7 +329,7 @@
   [draggable]="false"
   [resizable]="false"
   [showHeader]="false"
-  [style]="{ width: '760px', maxWidth: '96vw', padding: '0' }"
+  [style]="{ width: '1100px', maxWidth: '96vw', padding: '0' }"
   styleClass="breakdown-dialog-pro"
   appendTo="body"
   (onHide)="onCibilDialogHide()"
@@ -408,7 +408,7 @@
       <!-- ── CAPTION: search only ── -->
       <ng-template pTemplate="caption">
         <div class="row g-2 align-items-center">
-          <div class="col-md-6">
+          <div class="col-md-4">
             <div class="p-inputgroup">
               <input
                 type="text"
@@ -433,12 +433,12 @@
 
       <ng-template pTemplate="header">
         <tr>
-          <th style="width:50px">Id</th>
-          <th>Account Id</th>
-          <th>Business Name</th>
-          <th>Report Types</th>
-          <th style="text-align:center">Reports</th>
-          <th style="text-align:right">Total Spent</th>
+          <th >Id</th>
+          <th class="text-nowrap">Account Id</th>
+          <th class="text-nowrap">Business Name</th>
+          <th class="text-nowrap">Report Types</th>
+          <th >Reports</th>
+          <th class="text-nowrap">Total Spent</th>
         </tr>
       </ng-template>
 
@@ -467,10 +467,10 @@
               </span>
             </div>
           </td>
-          <td style="text-align:center">
+          <td>
             <span class="cibil-report-count">{{ acc.totalReports }}</span>
           </td>
-          <td style="text-align:right">
+          <td>
             <span class="cibil-spent-amount">{{ formatAmount(acc.totalSpent) }}</span>
           </td>
         </tr>
@@ -720,7 +720,7 @@
   [draggable]="false"
   [resizable]="false"
   [showHeader]="false"
-  [style]="{ width: '1100px', maxWidth: '98vw', padding: '0' }"
+  [style]="{ width: '1500px', maxWidth: '100vw', padding: '0' }"
   styleClass="breakdown-dialog-pro city-split-dialog"
   appendTo="body"
   (onHide)="onCityDialogHide()"

@@ -171,7 +171,7 @@
   .p-dialog-content {
     padding: 0 !important;
     border-radius: 14px !important;
-    overflow: hidden !important;
+    overflow: auto !important;
   }
 }
 
@@ -698,12 +698,12 @@
 
 // ── Left panel ──
 .city-left-panel {
-  width: 320px;
+  width: 520px;
   flex-shrink: 0;
   border-right: 0.5px solid var(--color-border-tertiary);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: auto !important;
   background: var(--color-background-secondary);
 }
 
