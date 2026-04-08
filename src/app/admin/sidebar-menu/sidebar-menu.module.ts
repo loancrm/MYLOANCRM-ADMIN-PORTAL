@@ -22,7 +22,8 @@ import { LucideAngularModule,
         FileText,
         UserRoundSearch,
         LogOut,
-        ChartNoAxesCombined
+        ChartNoAxesCombined,
+        Settings
         } from 'lucide-angular';
 @NgModule({
   declarations: [SidebarMenuComponent],
@@ -50,7 +51,8 @@ import { LucideAngularModule,
       FileText,
       UserRoundSearch,
       LogOut,
-      ChartNoAxesCombined
+      ChartNoAxesCombined,
+      Settings
     })
   ],
   exports: [SidebarMenuComponent],

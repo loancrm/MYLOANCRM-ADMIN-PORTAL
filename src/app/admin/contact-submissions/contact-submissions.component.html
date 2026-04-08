@@ -130,6 +130,9 @@
           <th pSortableColumn="remarks"  class="text-nowrap">
             Remarks <p-sortIcon field="remarks"></p-sortIcon>
           </th>
+          <th class="text-nowrap">
+            Select Remarks
+          </th>
 
           <th pSortableColumn="submitted_on"  class="text-nowrap">
             Created Date <p-sortIcon field="submitted_on"></p-sortIcon>
@@ -180,20 +183,44 @@
             >
           </td>
           <td>
-            <!-- <input
-              type="text"
-              class="form-control form-control-sm"
-              placeholder="Add remark"
-              [value]="team.remarks"
-              (keydown.enter)="saveRemark(team, $event)"
-            /> -->
-            <textarea
+            <!-- <textarea
                 class="form-control form-control-sm"
                 rows="2"
                 placeholder="Add remark"
                 (keydown.enter)="saveRemark(team, $event)"
               >{{ team.remarks }}
-            </textarea>
+            </textarea> -->
+            <textarea
+              class="form-control form-control-sm"
+              rows="2"
+              placeholder="Add remark"
+              [(ngModel)]="team.remarks"
+              (keydown.enter)="saveRemark(team, $event)"
+            ></textarea>
+
+          </td>
+          <td (click)="$event.stopPropagation()">
+            <!-- ✅ DROPDOWN -->
+            <p-dropdown
+              [options]="adminRemarkOptions"
+              [(ngModel)]="team.remarkId"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select Remark"
+              [style]="{ width: '100%', marginBottom: '6px' }"
+              (onChange)="onRemarkChange(team, team.remarkId)"
+              (click)="$event.stopPropagation()"
+              appendTo="body"
+            ></p-dropdown>
+
+            <!-- ✅ TEXTAREA -->
+            <!-- <textarea
+              class="form-control form-control-sm"
+              rows="2"
+              placeholder="Add custom remark"
+              [(ngModel)]="team.remarks"
+              (blur)="saveRemark(team)"
+            ></textarea> -->
 
           </td>
           <td>

@@ -36,6 +36,7 @@ export class AccountsComponent implements AfterViewInit {
   selectedAccountStatus = this.accountInternalStatusList[1];
   loggedInUserRole!: number;
   selectedPlanType: string = 'ALL';
+  selectedStatusType: string = 'ALL';
 
     planTypeOptions = [
       { label: 'All', value: 'ALL' },
@@ -44,7 +45,29 @@ export class AccountsComponent implements AfterViewInit {
       { label: 'Premium', value: 'Premium' },
       { label: 'Professional', value: 'Professional' }
     ];
+    statusOptions = [
+      { label: 'All', value: 'ALL' },
+      { label: 'Active', value: 'Active' },
+      { label: 'Expired', value: 'Expired' },
+    ];
+    selectedBillingCycle: string = 'ALL';
 
+billingCycleOptions = [
+  { label: 'All',     value: 'ALL'     },
+  { label: 'Monthly', value: 'Monthly' },
+  { label: 'Yearly',  value: 'Yearly'  },
+];
+  // planTypeOptions = [
+  //     { label: 'All', value: 'ALL' },
+  //     { label: 'Free Trial', value: 'Free Trial' },
+  //     { label: 'Basic', value: 'Basic' },
+  //     { label: 'Premium', value: 'Premium' },
+  //     { label: 'Professional', value: 'Professional' }
+  //   ];
+adminRemarkOptions: { label: string; value: any }[] = [];
+  adminRemarksLoaded: boolean = false;
+  adminRemarkFilterOptions: any[] = [];
+selectedRemarkFilter: any = 'ALL';
   constructor(
     private routingService: RoutingService,
     private location: Location,
@@ -65,6 +88,7 @@ export class AccountsComponent implements AfterViewInit {
 
   ngOnInit(): void {
     this.restorePaginationState();
+    this.loadAdminRemarks();
 
     this.setFilterConfig();
     const storedAppliedFilter =
@@ -84,6 +108,53 @@ export class AccountsComponent implements AfterViewInit {
   }
     
   }
+
+  loadAdminRemarks() {
+  const filter = { 'status-eq': 1, 'remarkInternalStatus-eq': 1 };
+
+  this.leadsService.getAdminRemarks(filter).subscribe(
+    (data: any) => {
+
+      // ✅ ROW DROPDOWN (NO "ALL")
+      this.adminRemarkOptions = data.map((r: any) => ({
+        label: r.displayName,
+        value: String(r.remarkId),
+      }));
+
+      // ✅ FILTER DROPDOWN (WITH "ALL")
+      this.adminRemarkFilterOptions = [
+        { label: 'All', value: 'ALL' },
+        ...this.adminRemarkOptions
+      ];
+
+      this.adminRemarksLoaded = true;
+    },
+    () => {
+      this.toastService.showError('Failed to load remarks');
+      this.adminRemarksLoaded = true;
+    }
+  );
+}
+
+  //  loadAdminRemarks() {
+  //   const filter = { 'status-eq': 1,'remarkInternalStatus-eq': 1  };
+  //   this.leadsService.getAdminRemarks(filter).subscribe(
+  //     (data: any) => {
+  //       // ✅ Convert remarkId to STRING — DB may return number,
+  //       //    but [(ngModel)] needs exact type match for pre-selection
+  //       this.adminRemarkOptions = data.map((r: any) => ({
+  //         label: r.displayName,
+  //         value: String(r.remarkId),
+  //       }));
+  //       this.adminRemarksLoaded = true;
+  //     },
+  //     (error: any) => {
+  //       this.toastService.showError('Failed to load remarks');
+  //       this.adminRemarksLoaded = true;
+  //     }
+  //   );
+  // }
+
   ngAfterViewInit(): void {
     // Trigger initial load with restored pagination state after view is ready
     if (this.accountTable) {
@@ -266,7 +337,17 @@ loadAccounts(event) {
   if (this.selectedPlanType && this.selectedPlanType !== 'ALL') {
     api_filter['latest_plan_name-eq'] = this.selectedPlanType;
   }
-
+  if (this.selectedStatusType && this.selectedStatusType !== 'ALL') {
+    api_filter['latest_status-eq'] = this.selectedStatusType;
+  }
+  // ✅ NEW
+if (this.selectedBillingCycle && this.selectedBillingCycle !== 'ALL') {
+  api_filter['latest_billing_cycle-eq'] = this.selectedBillingCycle;
+}
+// ✅ ADD THIS
+if (this.selectedRemarkFilter && this.selectedRemarkFilter !== 'ALL') {
+  api_filter['remarkId-eq'] = this.selectedRemarkFilter;
+}
   // ✅ NO CHANGE to end_date
   // console.log('FINAL API Filter:', api_filter);
 
@@ -655,6 +736,33 @@ loadAccounts(event) {
 onPlanTypeChange(event: any) {
   this.selectedPlanType = event.value;
   this.accountTable.reset(); // reload table + API
+}
+onStatusTypeChange(event: any) {
+  this.selectedStatusType = event.value;
+  this.accountTable.reset(); // reload table + API
+}
+onBillingCycleChange(event: any) {
+  this.selectedBillingCycle = event.value;
+  this.accountTable.reset();
+}
+onRemarkChange(lead: any, remarkId: any) {
+    if (!remarkId) return;
+ 
+    this.leadsService.updateLeadaccountRemark(lead.id, remarkId).subscribe(
+      () => {
+        // ✅ Keep as string so dropdown stays selected after save
+        lead.remarkId = String(remarkId);
+        this.toastService.showSuccess('Remark saved');
+      },
+      () => {
+        this.toastService.showError('Failed to save remark');
+      }
+    );
+  }
+
+  onRemarkFilterChange(event: any) {
+  this.selectedRemarkFilter = event.value;
+  this.accountTable.reset(); // reload API
 }
 
 }

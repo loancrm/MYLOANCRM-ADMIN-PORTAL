@@ -26,7 +26,8 @@ export class CreateSocialMediaLeadComponent implements OnInit {
     pinCode: '',
     Platform: 'Manual',
     Website: '',
-    CallbackDate: null as Date | null
+    CallbackDate: null as Date | null,
+    remarks: '' 
   };
 
   platformOptions = [
@@ -70,7 +71,8 @@ export class CreateSocialMediaLeadComponent implements OnInit {
           Website:     data.Website     || '',
           CallbackDate: data.CallbackDate
             ? moment.utc(data.CallbackDate).tz('Asia/Kolkata').toDate()
-            : null
+            : null,
+          remarks: data.remarks || ''
         };
       },
       () => this.toastService.showError({ error:'Failed to load lead'})

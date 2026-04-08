@@ -22,3 +22,30 @@
   filter: brightness(0) saturate(100%) invert(33%) sepia(18%) saturate(3314%)
     hue-rotate(216deg) brightness(95%) contrast(94%);
 }
+
+.fw-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+.filter-col {
+  flex: 1; 
+  min-width: 140px; 
+}
+
+// .filters{
+//   display: flex;
+//   flex-wrap: wrap;
+//   gap: 16px;
+//   padding: 16px;
+//   overflow-x: auto;
+// }

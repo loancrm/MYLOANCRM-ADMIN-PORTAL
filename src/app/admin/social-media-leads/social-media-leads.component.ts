@@ -42,10 +42,10 @@ selectedLead: any = null;
   globalSearchValue: string = '';
 // Add this new property alongside handleDuplicates
 handleExcelDuplicates: string = 'skip';
-selectedPlatform: string = 'all';
-
+// selectedPlatform: string = 'all';
+selectedPlatforms: string[] = [];
 platformOptions: { label: string; value: string }[] = [
-  { label: 'All Platforms', value: 'all' },
+  // { label: 'All Platforms', value: 'all' },
   { label: 'Facebook',      value: 'Facebook' },
   { label: 'Instagram',     value: 'Instagram' },
   { label: 'Manual', value: 'Manual'},
@@ -63,6 +63,9 @@ statusOptions = [
   { label: 'Inactive', value: 2 },
   { label: 'All', value: 'all' }
 ];
+  // ── Admin Remarks Dropdown ─────────────────────────────
+  adminRemarkOptions: { label: string; value: any }[] = [];
+  adminRemarksLoaded: boolean = false;
   constructor(
     private location: Location,
     private routingService: RoutingService,
@@ -82,10 +85,30 @@ statusOptions = [
     ];
   }
   ngOnInit(): void {
-  // ✅ Default = Active
-  this.appliedFilter['status-eq'] = 1;
-}
+    // ✅ Default = Active
+    this.appliedFilter['status-eq'] = 1;
+    this.loadAdminRemarks();
+  }
   // ── Table Methods ──────────────────────────────────────
+
+   loadAdminRemarks() {
+    const filter = { 'status-eq': 3,'remarkInternalStatus-eq': 1  };
+    this.leadsService.getAdminRemarks(filter).subscribe(
+      (data: any) => {
+        // ✅ Convert remarkId to STRING — DB may return number,
+        //    but [(ngModel)] needs exact type match for pre-selection
+        this.adminRemarkOptions = data.map((r: any) => ({
+          label: r.displayName,
+          value: String(r.remarkId),
+        }));
+        this.adminRemarksLoaded = true;
+      },
+      (error: any) => {
+        this.toastService.showError('Failed to load remarks');
+        this.adminRemarksLoaded = true;
+      }
+    );
+  }
 
   loadsocialmediaLeads(event: any) {
     // console.log('TABLE EVENT:', event);
@@ -102,8 +125,11 @@ statusOptions = [
   getSocialMediaLeads(filter = {}) {
     this.apiLoading = true;
     this.leadsService.getSocialMediaLeads(filter).subscribe(
-      (data) => {
-        this.socialMediaLeads = data;
+      (data:any) => {
+        this.socialMediaLeads =data.map((lead: any) => ({
+          ...lead,
+          remarkId: lead.remarkId != null ? String(lead.remarkId) : null,
+        }));
         this.apiLoading = false;
       },
       (error) => {
@@ -433,19 +459,30 @@ onGlobalSearchSubmit(): void {
 }
 
 // ── Platform Dropdown ──────────────────────────────────
-
 onPlatformFilterChange(event: any): void {
-  const value = event.value;
+  const values: string[] = event.value; // array from multiSelect
 
-  if (!value || value === 'all') {
-    // ✅ Remove platform filter — backend uses handleGlobalFilters for 'Platform-eq'
+  if (!values || values.length === 0) {
     delete this.appliedFilter['Platform-eq'];
   } else {
-    this.appliedFilter['Platform-eq'] = value;
+    // Send as comma-separated string → backend splits it
+    this.appliedFilter['Platform-eq'] = values.join(',');
   }
 
   this.reloadTable();
 }
+// onPlatformFilterChange(event: any): void {
+//   const value = event.value;
+
+//   if (!value || value === 'all') {
+//     // ✅ Remove platform filter — backend uses handleGlobalFilters for 'Platform-eq'
+//     delete this.appliedFilter['Platform-eq'];
+//   } else {
+//     this.appliedFilter['Platform-eq'] = value;
+//   }
+
+//   this.reloadTable();
+// }
 
 // ── Reload ─────────────────────────────────────────────
 
@@ -488,5 +525,34 @@ onStatusFilterChange(event: any): void {
 
   this.reloadTable();
 }
+saveRemark(lead: any, event: Event) {
+  const textarea = event.target as HTMLTextAreaElement;
+  const remark = textarea.value?.trim();
 
+  if (!remark) return;
+
+  this.leadsService.updateLeadRemark(lead.id, remark).subscribe(
+    () => {
+      lead.remarks = remark; // update UI instantly
+      this.toastService.showSuccess('Remark saved');
+    },
+    (error) => {
+      this.toastService.showError('Failed to save remark');
+    }
+  );
+}
+ onRemarkChange(lead: any, remarkId: any) {
+    if (!remarkId) return;
+ 
+    this.leadsService.updateLeadRemark(lead.id, remarkId).subscribe(
+      () => {
+        // ✅ Keep as string so dropdown stays selected after save
+        lead.remarkId = String(remarkId);
+        this.toastService.showSuccess('Remark saved');
+      },
+      () => {
+        this.toastService.showError('Failed to save remark');
+      }
+    );
+  }
 }

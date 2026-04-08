@@ -100,6 +100,7 @@
       <ng-template pTemplate="header" let-columns>
         <tr>
           <th class="text-nowrap">Account Id</th>
+          <th class="text-nowrap">Business Name</th>
           <th  class="text-nowrap">Name</th>
           <th  class="text-nowrap">Credit Type</th>
           <th>Mobile</th>
@@ -139,6 +140,8 @@
       <ng-template pTemplate="body" let-report let-rowIndex="rowIndex">
         <tr>
           <td>{{ report.accountId }}</td>
+          <td>{{ report.businessName || '-' }}</td>
+          
           <!-- <td>{{ report.client_id }}</td> -->
           <td>{{ report.name }}</td>
           <td class="text-capitalize"><span class="report-type-badge" [class]="'report-' + report.report_type">{{ report.report_type }}</span></td>

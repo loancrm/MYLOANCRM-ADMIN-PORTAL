@@ -318,8 +318,23 @@ bulkUploadSocialMediaLeadsFile(formData: FormData) {
     const url = 'contactus';
     return this.serviceMeta.httpGet(url, null, filter);
   }
-  updateContactRemark(contactId: number, remarks: string) {
+//   updateContactRemark(contactId: number, remarks: string) {
+//   const url = `contactus/${contactId}/remark`;
+//   return this.serviceMeta.httpPut(url, { remarks });
+// }
+//  updateContactRemarkText(contactId: number, remarks: string) {
+//   const url = `contactus/${contactId}/remark-text`;
+//   return this.serviceMeta.httpPut(url, { remarks });
+// }
+// ✅ Dropdown → remarkId
+updateContactRemark(contactId: number, remarkId: string) {
   const url = `contactus/${contactId}/remark`;
+  return this.serviceMeta.httpPut(url, { remarkId });
+}
+
+// ✅ Textarea → remarks text
+updateContactRemarkText(contactId: number, remarks: string) {
+  const url = `contactus/${contactId}/remark-text`;
   return this.serviceMeta.httpPut(url, { remarks });
 }
 
@@ -825,6 +840,10 @@ bulkUploadSocialMediaLeadsFile(formData: FormData) {
     const url = 'adminusers/' + id;
     return this.serviceMeta.httpPut(url, data);
   }
+  changeUserStatus(id: number, status: number): Observable<any> {
+  const url = 'adminusers/' + id + '/status';
+  return this.serviceMeta.httpPut(url, { status });
+}
 
   // ── WhatsApp Templates (DB) ────────────────────────────
 
@@ -990,4 +1009,61 @@ getCityAccountsBreakdown(
   const url = 'accounts/city-accounts';
   return this.serviceMeta.httpGet(url, null, params);
 }
+
+globalSearch(query: string): Observable<any> {
+  const url = 'global-search';
+  return this.serviceMeta.httpGet(url, null, { query });
+}
+
+// updateLeadRemark(leadId: number, remarks: string) {
+//   const url = `social-media-leads/${leadId}/remark`;
+//   return this.serviceMeta.httpPut(url, { remarks });
+// }
+
+updateLeadaccountRemark(leadId: number, remarkId: any) {
+  const url = `accounts/${leadId}/remark`;
+  return this.serviceMeta.httpPut(url, { remarkId });
+}
+updateLeadRemark(leadId: number, remarkId: any) {
+  const url = `social-media-leads/${leadId}/remark`;
+  return this.serviceMeta.httpPut(url, { remarkId });
+}
+
+  getAdminRemarks(filter = {}) {
+    const url = 'admin-remarks';
+    return this.serviceMeta.httpGet(url, null, filter);
+  }
+ 
+  getAdminRemarksCount(filter = {}) {
+    const url = 'admin-remarks/total';
+    return this.serviceMeta.httpGet(url, null, filter);
+  }
+ 
+  addAdminRemark(data: any) {
+    const url = 'admin-remarks';
+    return this.serviceMeta.httpPost(url, data);
+  }
+ 
+  updateAdminRemark(id: number, data: any) {
+    const url = 'admin-remarks/' + id;
+    return this.serviceMeta.httpPut(url, data);
+  }
+ 
+  deleteAdminRemark(id: number) {
+    const url = 'admin-remarks/' + id;
+    return this.serviceMeta.httpDelete(url);
+  }
+ 
+  getAdminRemarkById(id: number) {
+    const url = 'admin-remarks/' + id;
+    return this.serviceMeta.httpGet(url);
+  }
+ 
+  changeAdminRemarkInternalStatus(remarkId: number, statusId: number) {
+    const url = `admin-remarks/${remarkId}/changestatus/${statusId}`;
+    return this.serviceMeta.httpPut(url, null);
+  }
+
+ 
+
 }

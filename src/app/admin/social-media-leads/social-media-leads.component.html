@@ -610,7 +610,7 @@
               </button>
           </div>
         </div>
-        <div class="col-md-3 mt-2 no-padding-small">
+        <!-- <div class="col-md-3 mt-2 no-padding-small">
           <p-dropdown
               [options]="platformOptions"
               [(ngModel)]="selectedPlatform"
@@ -620,7 +620,21 @@
               (onChange)="onPlatformFilterChange($event)"
               [style]="{ width: '100%' }"
             ></p-dropdown>
-        </div>
+        </div> -->
+        <!-- AFTER — add this -->
+      <div class="col-md-3 mt-2 no-padding-small">
+        <p-multiSelect
+          [options]="platformOptions"
+          [(ngModel)]="selectedPlatforms"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="All Platforms"
+          (onChange)="onPlatformFilterChange($event)"
+          [style]="{ width: '100%' }"
+          [maxSelectedLabels]="2"
+          selectedItemsLabel="{0} platforms selected"
+        ></p-multiSelect>
+      </div>
         <div class="col-md-3 mt-2 no-padding-small">
           <p-dropdown
             [options]="statusOptions"
@@ -639,17 +653,18 @@
           <th class="text-nowrap">Lead ID</th>
           <th pSortableColumn="Name" class="text-nowrap">Name <p-sortIcon field="Name"></p-sortIcon></th>
 
-          <th pSortableColumn="Email" class="text-nowrap">Email <p-sortIcon field="Email"></p-sortIcon></th>
+          <!-- <th pSortableColumn="Email" class="text-nowrap">Email <p-sortIcon field="Email"></p-sortIcon></th> -->
 
           <th pSortableColumn="PhoneNumber" class="text-nowrap">Phone <p-sortIcon field="PhoneNumber"></p-sortIcon></th>
 
           <th pSortableColumn="Company" class="text-nowrap">Company <p-sortIcon field="Company"></p-sortIcon></th>
 
           <th pSortableColumn="City" class="text-nowrap">City <p-sortIcon field="City"></p-sortIcon></th>
-           <th pSortableColumn="State" class="text-nowrap">State <p-sortIcon field="State"></p-sortIcon></th>
-          <th pSortableColumn="pinCode" class="text-nowrap">Pin Code <p-sortIcon field="pinCode"></p-sortIcon></th>
+           <!-- <th pSortableColumn="State" class="text-nowrap">State <p-sortIcon field="State"></p-sortIcon></th> -->
+          <!-- <th pSortableColumn="pinCode" class="text-nowrap">Pin Code <p-sortIcon field="pinCode"></p-sortIcon></th> -->
 
           <th pSortableColumn="Platform" class="text-nowrap">Platform <p-sortIcon field="Platform"></p-sortIcon></th>
+          <th >Remarks</th>
           <th pSortableColumn="CallbackDate" class="text-nowrap">Callback Date <p-sortIcon field="CallbackDate"></p-sortIcon></th>
 
           <th pSortableColumn="CreatedOn" class="text-nowrap">Created Time <p-sortIcon field="CreatedOn"></p-sortIcon></th>
@@ -668,11 +683,11 @@
             </span>
           </td>
 
-          <td>
+          <!-- <td>
             <span *ngIf="team.Email; else dash">
               {{ team.Email }}
             </span>
-          </td>
+          </td> -->
 
           <td>
             <span *ngIf="team.PhoneNumber; else dash">
@@ -692,17 +707,17 @@
             </span>
           </td>
 
-          <td>
+          <!-- <td>
             <span *ngIf="team.State; else dash">
               {{ team.State | capitalizeFirst }}
             </span>
-          </td>
+          </td> -->
 
-          <td>
+          <!-- <td>
             <span *ngIf="team.pinCode; else dash">
               {{ team.pinCode }}
             </span>
-          </td>
+          </td> -->
 
           <!-- <td>
             <span *ngIf="team.Platform; else dash">{{ team.Platform }}</span>
@@ -711,6 +726,28 @@
             <span *ngIf="team.Platform; else dash">
               {{ team.Platform === 'ExcelImport' ? 'Excel Import' : team.Platform }}
             </span>
+          </td>
+          <!-- <td (click)="$event.stopPropagation()">
+            <textarea
+              class="form-control form-control-sm"
+              rows="2"
+              placeholder="Add remark"
+              (click)="$event.stopPropagation()"
+              (keydown.enter)="saveRemark(team, $event); $event.preventDefault(); $event.stopPropagation()"
+            >{{ team.remarks }}</textarea>
+          </td> -->
+          <td (click)="$event.stopPropagation()">
+            <p-dropdown
+              [options]="adminRemarkOptions"
+              [(ngModel)]="team.remarkId"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select Remark"
+              [style]="{ width: '160px' }"
+              (onChange)="onRemarkChange(team, team.remarkId)"
+              (click)="$event.stopPropagation()"
+              appendTo="body"
+            ></p-dropdown>
           </td>
 
           <ng-template #dash>-</ng-template>
@@ -728,17 +765,17 @@
           </td>
 
           <td>
-  <span
-    class="status-badge"
-    [ngClass]="{
-      'status-active': team.status === 1,
-      'status-inactive': team.status === 2
-    }"
-  >
-    <span class="status-dot"></span>
-    {{ team.status === 1 ? 'Active' : 'Inactive' }}
-  </span>
-</td>
+            <span
+              class="status-badge"
+              [ngClass]="{
+                'status-active': team.status === 1,
+                'status-inactive': team.status === 2
+              }"
+            >
+              <span class="status-dot"></span>
+              {{ team.status === 1 ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
           <!-- <td>
             <div class="text-center d-flex">
               <div class="d-flex">
@@ -820,7 +857,7 @@
   <p-dialog
     [(visible)]="viewDialogVisible"
     [modal]="true"
-    [style]="{ width: '95vw', maxWidth: '580px' }"
+    [style]="{ width: '95vw', maxWidth: '680px' }"
     [closable]="true"
     [draggable]="false"
     [appendTo]="'body'"
@@ -923,6 +960,35 @@
             </div>
           </div>
         </div>
+        <div class="lead-card__row">
+          <i class="pi pi-sitemap lead-card__icon"></i>
+          <div>
+            <div class="lead-card__label">Lead Management</div>
+            <div class="lead-card__value">{{ selectedLead.leadManagement || 'N/A' }}</div>
+          </div>
+        </div>
+         <div class="lead-card__row">
+          <i class="pi pi-chart-line lead-card__icon"></i>
+          <div>
+            <div class="lead-card__label">Enquiry Range</div>
+            <div class="lead-card__value">{{ selectedLead.enquiryRange || 'N/A' }}</div>
+          </div>
+        </div>
+        <div class="lead-card__row" style="border-bottom: none;">
+          <i class="pi pi-comment lead-card__icon"></i>
+          <div>
+            <div class="lead-card__label">Remarks</div>
+            <div class="lead-card__value">{{ selectedLead.remarks || 'N/A' }}</div>
+             <!-- <textarea
+              class="form-control form-control-sm"
+              rows="2"
+              placeholder="Add remark"
+              (click)="$event.stopPropagation()"
+              (keydown.enter)="saveRemark(selectedLead, $event);"
+            >{{ selectedLead.remarks }}</textarea> -->
+          </div>
+           
+        </div>
 
         <div class="lead-card__row" style="border-bottom: none;">
           <i class="pi pi-calendar lead-card__icon"></i>
@@ -934,7 +1000,7 @@
         <div class="lead-card__row" style="border-bottom: none;">
           <i class="pi pi-calendar lead-card__icon"></i>
           <div>
-            <div class="lead-card__label">Created on</div>
+            <div class="lead-card__label">Updated on</div>
             <div class="lead-card__value">{{ selectedLead.updatedOn | date:'mediumDate' }}</div>
           </div>
         </div>
@@ -948,7 +1014,7 @@
          <div class="lead-card__row" style="border-bottom: none;">
           <i class="pi pi-user lead-card__icon"></i>
           <div>
-            <div class="lead-card__label">Created By</div>
+            <div class="lead-card__label">Updated By</div>
             <div class="lead-card__value">{{ selectedLead.updatedBy }}</div>
           </div>
         </div>

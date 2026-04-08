@@ -1,0 +1,233 @@
+<div class="p-1 m-2 fixed-card">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <b>
+          <span class="back-btn-text">Settings </span>
+        </b>
+      </div>
+      
+    </div>
+  </div>
+
+<div class="m-2">
+  <p-tabView>
+    <p-tabPanel header="Remarks">
+
+      <!-- Add Button -->
+      <div class="d-flex justify-content-end mb-2">
+        <button
+          pButton
+          type="button"
+          class="p-button-primary"
+          icon="pi pi-plus"
+          label="Add Remark"
+          (click)="openDialog()"
+        ></button>
+      </div>
+
+      <!-- Remarks Table -->
+      <p-table
+        #remarksTable
+        [value]="remarks"
+        [lazy]="true"
+        (onLazyLoad)="loadRemarks($event)"
+        [totalRecords]="remarksCount"
+        [loading]="loading"
+        [rows]="10"
+        [paginator]="true"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Remarks"
+        sortField="createdAt"
+        [sortOrder]="-1"
+        class="p-datatable-striped"
+        styleClass="p-datatable-customers"
+        responsiveLayout="scroll"
+      >
+        <!-- Caption: Status Filter -->
+        <ng-template pTemplate="caption">
+          <div class="row">
+            <div class="col-md-3 mt-2 no-padding-small">
+              <p-dropdown
+                [options]="statusFilterOptions"
+                [(ngModel)]="selectedStatusFilter"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Filter by Status"
+                [style]="{ width: '100%' }"
+                (onChange)="onStatusFilterChange($event)"
+                appendTo="body"
+              ></p-dropdown>
+            </div>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="remarkId" class="text-nowrap">
+              ID <p-sortIcon field="remarkId"></p-sortIcon>
+            </th>
+            <th pSortableColumn="displayName" class="text-nowrap">
+              Remark Name <p-sortIcon field="displayName"></p-sortIcon>
+            </th>
+            <th class="text-nowrap">Lead Status</th>
+            <th class="text-nowrap">Status</th>
+            <th pSortableColumn="createdAt" class="text-nowrap">
+              Created At <p-sortIcon field="createdAt"></p-sortIcon>
+            </th>
+            <th class="text-nowrap">Actions</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-remark>
+          <tr>
+            <td>{{ remark.remarkId }}</td>
+            <td>{{ remark.displayName }}</td>
+            <td>{{ getTypeName(remark.status) }}</td>
+            <td>
+              <span
+                class="status-badge"
+                [ngClass]="{
+                  'status-active':   remark.remarkInternalStatus == 1,
+                  'status-inactive': remark.remarkInternalStatus == 2
+                }"
+              >
+                <span class="status-dot"></span>
+                {{ remark.remarkInternalStatus == 1 ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td>{{ remark.createdAt | date }}</td>
+            <td>
+              <div class="d-flex align-items-center">
+                <img
+                  alt="Edit"
+                  src="../../../assets/images/icons/edit.svg"
+                  width="24px"
+                  height="24px"
+                  class="me-2"
+                  style="cursor: pointer"
+                  (click)="openDialog(remark)"
+                  pTooltip="Edit Remark"
+                  tooltipPosition="top"
+                />
+                <button
+                  [matMenuTriggerFor]="menu"
+                  style="all: unset; cursor: pointer"
+                  pTooltip="Actions"
+                  tooltipPosition="top"
+                >
+                  <img
+                    src="assets/images/icons/menu.svg"
+                    width="24"
+                    height="24"
+                  />
+                </button>
+                <mat-menu #menu="matMenu">
+                  <button
+                    mat-menu-item
+                    *ngIf="remark.remarkInternalStatus == 1"
+                    (click)="changeRemarkInternalStatus(remark.remarkId, 2)"
+                  >
+                    <span>Mark as Inactive</span>
+                  </button>
+                  <button
+                    mat-menu-item
+                    *ngIf="remark.remarkInternalStatus == 2"
+                    (click)="changeRemarkInternalStatus(remark.remarkId, 1)"
+                  >
+                    <span>Mark as Active</span>
+                  </button>
+                </mat-menu>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6" class="text-center fw-bold">
+              <img
+                alt="No Data"
+                src="../../../assets/images/menu/no-data.gif"
+                width="200"
+                height="200"
+              />
+              <p>No Remarks Found</p>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+    </p-tabPanel>
+  </p-tabView>
+</div>
+
+<!-- Add / Edit Remark Dialog -->
+<p-dialog
+  [(visible)]="showDialog"
+  [header]="editMode ? 'Edit Remark' : 'Add Remark'"
+  [modal]="true"
+  [style]="{ width: '420px' }"
+  [draggable]="false"
+  [resizable]="false"
+  appendTo="body"
+>
+  <form [formGroup]="remarkForm">
+    <div class="p-fluid">
+      <div class="p-field mb-3">
+        <label class="mb-1 d-block fw-semibold">Lead Status <span class="text-danger">*</span></label>
+        <p-dropdown
+          [options]="leadStatus"
+          formControlName="status"
+          optionLabel="displayName"
+          optionValue="id"
+          appendTo="body"
+          placeholder="Select Lead Status"
+          [style]="{ width: '100%' }"
+        ></p-dropdown>
+        <small
+          class="text-danger"
+          *ngIf="remarkForm.get('status')?.invalid && remarkForm.get('status')?.touched"
+        >Lead Status is required</small>
+      </div>
+
+      <div class="p-field mb-3">
+        <label class="mb-1 d-block fw-semibold">Remark Name <span class="text-danger">*</span></label>
+        <input
+          pInputText
+          formControlName="displayName"
+          placeholder="Enter Remark Name"
+          class="w-100"
+        />
+        <small
+          class="text-danger"
+          *ngIf="remarkForm.get('displayName')?.invalid && remarkForm.get('displayName')?.touched"
+        >Remark Name is required</small>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end mt-2 gap-2">
+      <button
+        pButton
+        label="Cancel"
+        class="p-button-text"
+        type="button"
+        (click)="showDialog = false"
+      ></button>
+      <button
+        pButton
+        label="Save"
+        class="p-button-primary"
+        type="button"
+        (click)="saveRemark()"
+        [disabled]="remarkForm.invalid"
+      ></button>
+    </div>
+  </form>
+</p-dialog>

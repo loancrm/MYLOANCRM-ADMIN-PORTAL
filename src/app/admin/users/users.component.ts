@@ -126,4 +126,18 @@ export class UsersComponent implements OnInit {
   goBack() {
     this.location.back();
   }
+changeStatus(user: any, status: number): void {
+  const label = status === 1 ? 'Active' : 'Inactive';
+
+  this.leadsService.changeUserStatus(user.id, status).subscribe(
+    () => {
+      this.toastService.showSuccess(`User marked as ${label}`);
+      // ✅ Update locally without refetching
+      user.status = status;
+    },
+    (error: any) => {
+      this.toastService.showError('Failed to update status');
+    }
+  );
+}
 }

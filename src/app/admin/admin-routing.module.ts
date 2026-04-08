@@ -101,6 +101,11 @@ const routes: Routes = [
           import('./quick-links/quick-links.module').then((m) => m.QuickLinksModule),
       },
       {
+        path: 'settings',
+        loadChildren: () =>
+          import('./settings/settings.module').then((m) => m.SettingsModule),
+      },
+      {
         path: 'allaccounts-analytics',
         loadChildren: () =>
           import('./global-analytics/global-analytics.module').then((m) => m.GlobalAnalyticsModule),

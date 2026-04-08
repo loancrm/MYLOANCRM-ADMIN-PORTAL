@@ -7,30 +7,30 @@
   font-size: 26px;
   font-size: bold;
 }
-.searchbox {
-  width: 350px;
-}
-.searchbtn {
-  background-color: white !important;
-  border: 1px solid #ced4da; /* Match input border */
-  padding: 8px 11px;
-  // display: flex;
-  // align-items: center;
-  // justify-content: center;
+// .searchbox {
+//   width: 350px;
+// }
+// .searchbtn {
+//   background-color: white !important;
+//   border: 1px solid #ced4da; /* Match input border */
+//   padding: 8px 11px;
+//   // display: flex;
+//   // align-items: center;
+//   // justify-content: center;
 
-  border-top-left-radius: 10px !important;
-  border-bottom-left-radius: 10px !important;
-}
-.custom-search .form-control.small-input {
-  font-size: 12px !important; /* Smaller text */
-  padding: 4px 8px !important; /* Less padding */
-  height: 32px !important; /* Smaller height */
-}
+//   border-top-left-radius: 10px !important;
+//   border-bottom-left-radius: 10px !important;
+// }
+// .custom-search .form-control.small-input {
+//   font-size: 12px !important; /* Smaller text */
+//   padding: 4px 8px !important; /* Less padding */
+//   height: 32px !important; /* Smaller height */
+// }
 
-.searchField {
-  border-top-right-radius: 10px !important;
-  border-bottom-right-radius: 10px !important;
-}
+// .searchField {
+//   border-top-right-radius: 10px !important;
+//   border-bottom-right-radius: 10px !important;
+// }
 
 .d-flex {
   position: relative;
@@ -55,9 +55,9 @@
   margin: 0px 8px 0px 0px;
 }
 
-.smaller-button {
-  font-size: 15px;
-}
+// .smaller-button {
+//   font-size: 15px;
+// }
 
 .hide-on-desktop {
   display: none !important;
@@ -89,34 +89,34 @@
     display: none !important;
   }
 }
-.custom-primary-btn {
-  background-color: #fff;
-  color: #33009c;
-  border: 1px solid #33009c;
-  font-weight: bold;
+// .custom-primary-btn {
+//   background-color: #fff;
+//   color: #33009c;
+//   border: 1px solid #33009c;
+//   font-weight: bold;
 
-  transition: all 0.4s ease-in-out;
-  border-radius: 0.375rem;
-}
+//   transition: all 0.4s ease-in-out;
+//   border-radius: 0.375rem;
+// }
 
-.custom-primary-btn:hover,
-.custom-primary-btn:focus {
-  background-color: #33009c !important;
-  color: #fff !important;
-  border-color: #33009c !important;
-}
+// .custom-primary-btn:hover,
+// .custom-primary-btn:focus {
+//   background-color: #33009c !important;
+//   color: #fff !important;
+//   border-color: #33009c !important;
+// }
 
-.custom-search .input-group-text {
-  background-color: white;
-  border-right: none;
-  border-radius: 0.5rem 0 0 0.5rem;
-}
+// .custom-search .input-group-text {
+//   background-color: white;
+//   border-right: none;
+//   border-radius: 0.5rem 0 0 0.5rem;
+// }
 
-.custom-search .form-control {
-  border-left: none;
-  border-radius: 0 0.5rem 0.5rem 0;
-  box-shadow: none;
-}
+// .custom-search .form-control {
+//   border-left: none;
+//   border-radius: 0 0.5rem 0.5rem 0;
+//   box-shadow: none;
+// }
 
 .text-orange {
   color: #fd7e14;
@@ -138,24 +138,24 @@
 .company-logo .logo {
   width: 150px;
 }
-.input-group-text {
-  background-color: #fff;
-  border-right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+// .input-group-text {
+//   background-color: #fff;
+//   border-right: 0;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+// }
 
 .form-control {
   border-left: 0;
   box-shadow: none !important;
 }
 
-.input-group {
-  display: flex;
-  align-items: center;
-  flex-wrap: nowrap;
-}
+// .input-group {
+//   display: flex;
+//   align-items: center;
+//   flex-wrap: nowrap;
+// }
 .card {
   border: 0;
 }
@@ -177,4 +177,29 @@
     color: #1a2733;
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.06);
   }
+}
+
+.search-btn {
+  background-color: #fff !important;
+  border-color: lightgray !important;
+  border-bottom-right-radius: 8px !important;
+  border-top-right-radius: 8px !important;
+  border-bottom-left-radius: 0 !important;
+  border-top-left-radius: 0 !important;
+}
+
+.custom-menu-item {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+/* Hover effect */
+.custom-menu-item:hover {
+  background-color: #dfe5ef;
+}
+
+.custom-menu-item:hover .menu-label,
+.custom-menu-item:hover .svg-icon {
+  filter: brightness(0) saturate(100%) invert(33%) sepia(18%) saturate(3314%)
+    hue-rotate(216deg) brightness(95%) contrast(94%);
 }

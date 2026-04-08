@@ -57,18 +57,19 @@
       styleClass="p-datatable-customers "
       currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Accounts"
     >
-      <ng-template pTemplate="caption">
+     
+      <ng-template pTemplate="caption" class="filters">
         <div class="row">
-          <div class="col-md-3 mt-2 no-padding-small">
+
+          <div class="filter-col mt-2 no-padding-small">
+            <label class="fw-label">Search</label>
             <div class="p-inputgroup">
               <input
                 type="text"
                 pInputText
-                placeholder="Search Business Name"
+                placeholder="Business Name"
                 [(ngModel)]="userNameToSearch"
-                (ngModelChange)="
-                  inputValueChangeEvent('loanId', userNameToSearch)
-                "
+                (ngModelChange)="inputValueChangeEvent('loanId', userNameToSearch)"
                 (keyup.enter)="filterWithName()"
               />
               <button
@@ -83,48 +84,76 @@
                   alt="Search"
                   width="16"
                   height="16"
-                  style="vertical-align: middle"
                 />
               </button>
             </div>
-            <!-- <input
-              pInputText
-              type="text"
-              (input)="onSearchInput($event)"
-              placeholder="Search reports..."
-              class="form-control"
-            /> -->
           </div>
-          <div class="col-md-3 mt-2 no-padding-small text-right">
+
+          <div class="filter-col mt-2 no-padding-small">
+            <label class="fw-label">Account Status</label>
             <p-dropdown
-              styleClass="text-left"
               [style]="{ width: '100%' }"
               [options]="accountInternalStatusList"
-              (onChange)="statusChange($event)"
-              [dropdownIcon]="'pi pi-chevron-down'"
               [(ngModel)]="selectedAccountStatus"
               optionLabel="displayName"
+              (onChange)="statusChange($event)"
               appendTo="body"
-              dataKey="name"
-            >
-            </p-dropdown>
+            ></p-dropdown>
           </div>
-          <div class="col-md-3 mt-2 no-padding-small text-right">
+
+          <div class="filter-col mt-2 no-padding-small">
+            <label class="fw-label">Plan</label>
             <p-dropdown
-              styleClass="text-left"
               [style]="{ width: '100%' }"
               [options]="planTypeOptions"
               [(ngModel)]="selectedPlanType"
               optionLabel="label"
               optionValue="value"
-              placeholder="Select Plan"
               (onChange)="onPlanTypeChange($event)"
               appendTo="body"
-            >
-            </p-dropdown>
+            ></p-dropdown>
           </div>
-          <!-- <div class="col-md-3 no-padding-small"></div> -->
-          <div class="col-md-3 mt-2 no-padding-small text-right">
+
+          <div class="filter-col mt-2 no-padding-small">
+            <label class="fw-label">Plan Status</label>
+            <p-dropdown
+              [style]="{ width: '100%' }"
+              [options]="statusOptions"
+              [(ngModel)]="selectedStatusType"
+              optionLabel="label"
+              optionValue="value"
+              (onChange)="onStatusTypeChange($event)"
+              appendTo="body"
+            ></p-dropdown>
+          </div>
+
+          <div class="filter-col mt-2 no-padding-small">
+            <label class="fw-label">Billing Cycle</label>
+            <p-dropdown
+              [style]="{ width: '100%' }"
+              [options]="billingCycleOptions"
+              [(ngModel)]="selectedBillingCycle"
+              optionLabel="label"
+              optionValue="value"
+              (onChange)="onBillingCycleChange($event)"
+              appendTo="body"
+            ></p-dropdown>
+          </div>
+
+          <div class="filter-col mt-2 no-padding-small">
+            <label class="fw-label">Remark</label>
+            <p-dropdown
+              [style]="{ width: '100%' }"
+              [options]="adminRemarkFilterOptions"
+              [(ngModel)]="selectedRemarkFilter"
+              optionLabel="label"
+              optionValue="value"
+              (onChange)="onRemarkFilterChange($event)"
+              appendTo="body"
+            ></p-dropdown>
+          </div>
+
+          <div class="filter-col mt-2 no-padding-small text-right">
             <div class="d-flex">
               <div class="flex-grow-1 me-2"></div>
               <div class="d-flex align-items-center pointer-cursor">
@@ -142,6 +171,7 @@
               </div>
             </div>
           </div>
+
         </div>
       </ng-template>
       <!-- <ng-template pTemplate="header" let-columns>
@@ -261,11 +291,25 @@
             }}</span>
           </td>
 
-          <td>
+           <td (click)="$event.stopPropagation()">
+            <p-dropdown
+              [options]="adminRemarkOptions"
+              [(ngModel)]="team.remarkId"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select Remark"
+              [style]="{ width: '160px' }"
+              (onChange)="onRemarkChange(team, team.remarkId)"
+              (click)="$event.stopPropagation()"
+              appendTo="body"
+            ></p-dropdown>
+          </td>
+
+          <!-- <td>
             <span class="table-column-data" *ngIf="team.latest_remark">{{
               team.latest_remark
             }}</span>
-          </td>
+          </td> -->
 
           <!-- <td>
             <span

@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { MenuModule } from 'primeng/menu';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
-
+import { DropdownModule } from 'primeng/dropdown';
 
 const routes: Routes = [
   { path: '', component: ContactSubmissionsComponent },
@@ -26,6 +26,7 @@ const routes: Routes = [
      ButtonModule,
     MenuModule,
     BreadcrumbModule,
+    DropdownModule,
     [RouterModule.forChild(routes)],
   ]
 })

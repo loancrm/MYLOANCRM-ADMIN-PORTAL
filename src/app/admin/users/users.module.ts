@@ -10,6 +10,8 @@ import { ButtonModule } from 'primeng/button';
 import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatButtonModule } from '@angular/material/button';
 const routes: Routes = [{ path: '', component: UsersComponent },
   {
     path: 'create',
@@ -36,6 +38,8 @@ const routes: Routes = [{ path: '', component: UsersComponent },
     DropdownModule,
     FormsModule,
     InputTextModule,
+    MatMenuModule,
+    MatButtonModule,
     [RouterModule.forChild(routes)],
   ]
 })

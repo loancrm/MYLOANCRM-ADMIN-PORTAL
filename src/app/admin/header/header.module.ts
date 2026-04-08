@@ -8,6 +8,8 @@ import { CapitalizeFirstPipe } from 'src/app/pipes/capitalize.pipe';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { DialogModule } from 'primeng/dialog';
+import { TableModule } from 'primeng/table';
 @NgModule({
   declarations: [HeaderComponent],
   imports: [
@@ -18,7 +20,9 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
     SidebarModule,
     CapitalizeFirstPipe,
     InputTextModule,
-    OverlayPanelModule
+    OverlayPanelModule,
+    DialogModule,
+    TableModule
   ],
   exports: [HeaderComponent],
 })

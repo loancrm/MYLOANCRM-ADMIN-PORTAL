@@ -158,7 +158,8 @@ export class SidebarMenuComponent implements OnChanges {
     { label: 'Campaign', icon: 'Send', route: 'campaign', condition: true },
     { label: 'Logs', icon: 'logs', route: 'logs', condition: true },
     { label: 'Templates', icon: 'layout-template', route: 'templates', condition: true },
-    { label: 'Quick Links', icon: 'link', route: 'quick-links', condition: true },
+    { label: 'Quick Links', icon: 'link', route: 'quick-links', condition: this.loggedInUserRole === 1 },
+    { label: 'Settings', icon: 'settings', route: 'settings', condition: this.loggedInUserRole === 1 },
   ];
 }
 

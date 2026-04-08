@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,HostListener  } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../auth.service';
 import { LocalStorageService } from '../../services/local-storage.service';
@@ -39,6 +39,11 @@ export class HeaderComponent implements OnInit {
   showUpgradeMessage: boolean = false;
   showUpgradeButton: boolean = false;
   upgradeButtonLabel: string = 'Upgrade Now';
+  // ── Global Search ──────────────────────────────────────
+globalSearchQuery: string = '';
+searchResults: any[] = [];
+showSearchResults: boolean = false;
+isSearching: boolean = false;
   constructor(
     private confirmationService: ConfirmationService,
     private authService: AuthService,
@@ -156,4 +161,58 @@ export class HeaderComponent implements OnInit {
       value: this.showSidebar,
     });
   }
+
+performGlobalSearch(): void {
+  if (!this.globalSearchQuery || this.globalSearchQuery.trim().length < 2) {
+    return;
+  }
+
+  this.isSearching = true;
+
+  this.leadsService.globalSearch(this.globalSearchQuery.trim()).subscribe(
+    (response: any) => {
+      this.searchResults = response.results || [];
+      this.isSearching = false;
+      this.showSearchResults = true;   // ← opens dialog
+    },
+    (error: any) => {
+      console.error('Global search error:', error);
+      this.isSearching = false;
+      this.searchResults = [];
+      this.showSearchResults = true;   // ← opens dialog showing "no results"
+    }
+  );
+}
+onSearchResultClick(event: any): void {
+  const result = event.data;   // ← unwrap from onRowSelect event
+  this.showSearchResults = false;
+  this.globalSearchQuery = '';
+  this.searchResults = [];
+
+  if (result.stage === 'Accounts') {
+    this.routingService.handleRoute('accounts/profile/' + result.accountId, null);
+  } else if (result.stage === 'Social Media') {
+    this.router.navigate(['/admin/social-media-leads'], {
+      queryParams: { search: result.phone }
+    });
+  } else if (result.stage === 'Contacts') {
+    this.router.navigate(['/admin/contact-us']);
+  }
+}
+// onSearchResultClick(result: any): void {
+//   this.showSearchResults = false;
+//   this.globalSearchQuery = '';
+//   this.searchResults = [];
+
+//   if (result.stage === 'Accounts') {
+//     this.routingService.handleRoute('accounts/view/' + result.accountId, null);
+//   } else if (result.stage === 'Social Media') {
+//     this.router.navigate(['/admin/social-media-leads'], {
+//       queryParams: { search: result.phone }
+//     });
+//   } else if (result.stage === 'Contacts') {
+//     this.router.navigate(['/admin/contact-us']);
+//   }
+// }
+
 }

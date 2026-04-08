@@ -29,6 +29,9 @@ export class ContactSubmissionsComponent {
   capabilities: any;
   version = projectConstantsLocal.VERSION_DESKTOP;
   @ViewChild('accountTable') accountTable!: Table;
+  // ── Admin Remarks Dropdown ─────────────────────────────
+adminRemarkOptions: { label: string; value: any }[] = [];
+adminRemarksLoaded: boolean = false;
 
   constructor(
     private routingService: RoutingService,
@@ -49,8 +52,7 @@ export class ContactSubmissionsComponent {
   }
 
   ngOnInit(): void {
-
-
+    this.loadAdminRemarks();
   }
 
   actionItems(team: any): MenuItem[] {
@@ -65,6 +67,24 @@ export class ContactSubmissionsComponent {
 
     return menuItems;
   }
+
+  loadAdminRemarks() {
+  const filter = { 'status-eq': 2,'remarkInternalStatus-eq': 1  };
+
+  this.leadsService.getAdminRemarks(filter).subscribe(
+    (data: any) => {
+      this.adminRemarkOptions = data.map((r: any) => ({
+        label: r.displayName,
+        value: String(r.remarkId),
+      }));
+      this.adminRemarksLoaded = true;
+    },
+    () => {
+      this.toastService.showError('Failed to load remarks');
+      this.adminRemarksLoaded = true;
+    }
+  );
+}
 
   getStatusColor(status: string): {
     textColor: string;
@@ -143,36 +163,72 @@ export class ContactSubmissionsComponent {
     );
   }
 
+  // getTeam(filter = {}) {
+  //   this.apiLoading = true;
+  //   this.leadsService.getContacts(filter).subscribe(
+  //     (team) => {
+  //       this.accounts = team;
+  //       this.apiLoading = false;
+  //     },
+  //     (error: any) => {
+  //       this.toastService.showError(error);
+  //       this.apiLoading = false;
+  //     }
+  //   );
+  // }
+
   getTeam(filter = {}) {
-    this.apiLoading = true;
-    this.leadsService.getContacts(filter).subscribe(
-      (team) => {
-        this.accounts = team;
-        this.apiLoading = false;
-      },
-      (error: any) => {
-        this.toastService.showError(error);
-        this.apiLoading = false;
-      }
-    );
-  }
+  this.apiLoading = true;
 
-  saveRemark(team: any, event: Event) {
-  const input = event.target as HTMLInputElement;
-  const remark = input.value?.trim();
+  this.leadsService.getContacts(filter).subscribe(
+    (team: any) => {
 
-  if (!remark) return;
+      // ✅ FIX: convert remarkId → string
+      this.accounts = team.map((t: any) => ({
+        ...t,
+        remarkId: t.remarkId !== null ? String(t.remarkId) : null
+      }));
 
-  this.leadsService.updateContactRemark(team.id, remark).subscribe(
-    () => {
-      team.remarks = remark; // update UI instantly
-      this.toastService.showSuccess('Remark saved');
+      this.apiLoading = false;
     },
-    (error) => {
-      this.toastService.showError('Failed to save remark');
+    (error: any) => {
+      this.toastService.showError(error);
+      this.apiLoading = false;
     }
   );
 }
+
+//   saveRemark(team: any) {
+//   const remark = team.remarks?.trim();
+
+//   if (!remark) return;
+
+//   this.leadsService.updateContactRemarkText(team.id, remark).subscribe(
+//     () => {
+//       this.toastService.showSuccess('Remark saved');
+//     },
+//     () => {
+//       this.toastService.showError('Failed to save remark');
+//     }
+//   );
+// }
+//----------
+//   saveRemark(team: any, event: Event) {
+//   const input = event.target as HTMLInputElement;
+//   const remark = input.value?.trim();
+
+//   if (!remark) return;
+
+//   this.leadsService.updateContactRemark(team.id, remark).subscribe(
+//     () => {
+//       team.remarks = remark; // update UI instantly
+//       this.toastService.showSuccess('Remark saved');
+//     },
+//     (error) => {
+//       this.toastService.showError('Failed to save remark');
+//     }
+//   );
+// }
 
 
   applyFilters(searchFilter = {}) {
@@ -192,45 +248,6 @@ export class ContactSubmissionsComponent {
     );
     this.loadAccounts(this.currentTableEvent);
   }
-
-  //   exportToExcel() {
-  //   // Define the data you want to export
-  //   const exportData = this.accounts.map((team: any) => ({
-  //     'Contact Id': team.contactId || '',
-  //     'Business Name': team.company_name || '',
-  //     'Person Name': team.full_name || '',
-  //     'Mobile': team.phone || '',
-  //     'Email': team.email || '',
-  //     'Message': team.message || '',
-  //     'Created Date': team.submitted_on
-  //       ? new Date(team.submitted_on).toLocaleDateString()
-  //       : '',
-  //   }));
-
-  //   // Convert JSON to a worksheet
-  //   const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(exportData);
-
-  //   // Create a workbook and add the worksheet
-  //   const workbook: XLSX.WorkBook = {
-  //     Sheets: { 'Contacts Data': worksheet },
-  //     SheetNames: ['Contacts Data'],
-  //   };
-
-  //   // Generate Excel file buffer
-  //   const excelBuffer: any = XLSX.write(workbook, {
-  //     bookType: 'xlsx',
-  //     type: 'array',
-  //   });
-
-  //   // Save file
-  //   const blob: Blob = new Blob([excelBuffer], {
-  //     type:
-  //       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
-  //   });
-
-  //   saveAs(blob, 'Contacts_' + new Date().toISOString().split('T')[0] + '.xlsx');
-  // }
-
   exportContactsToCSV() {
     const headers = [
       'Contact Id',
@@ -271,4 +288,61 @@ export class ContactSubmissionsComponent {
     return value;
   }
 
+  // ✅ DROPDOWN SAVE
+onRemarkChange(team: any, remarkId: any) {
+  if (!remarkId) return;
+
+  this.leadsService.updateContactRemark(team.id, remarkId).subscribe(
+    () => {
+      team.remarkId = String(remarkId);
+      this.toastService.showSuccess('Remark updated');
+    },
+    () => {
+      this.toastService.showError('Failed to update remark');
+    }
+  );
+}
+
+// ✅ TEXTAREA SAVE
+// saveRemark(team: any) {
+//   const remark = team.remarks?.trim();
+//   if (!remark) return;
+
+//   this.leadsService.updateContactRemarkText(team.id, remark).subscribe(
+//     () => {
+//       this.toastService.showSuccess('Remark saved');
+//     },
+//     () => {
+//       this.toastService.showError('Failed to save remark');
+//     }
+//   );
+// }
+saveRemark(team: any, event: any) {
+  event.preventDefault(); // ✅ stop new line
+
+  const remark = team.remarks?.trim();
+  if (!remark) return;
+
+  this.leadsService.updateContactRemarkText(team.id, remark).subscribe(
+    () => {
+      this.toastService.showSuccess('Remark saved');
+    },
+    () => {
+      this.toastService.showError('Failed to save remark');
+    }
+  );
+}
+// onRemarkChange(team: any, remarkId: any) {
+//   if (!remarkId) return;
+
+//   this.leadsService.updateContactRemark(team.id, remarkId).subscribe(
+//     () => {
+//       team.remarkId = String(remarkId);
+//       this.toastService.showSuccess('Remark updated');
+//     },
+//     () => {
+//       this.toastService.showError('Failed to update remark');
+//     }
+//   );
+// }
 }
