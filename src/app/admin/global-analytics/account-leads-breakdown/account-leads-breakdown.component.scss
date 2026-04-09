@@ -1,0 +1,200 @@
+// ══════════════════════════════════════════════════
+// account-leads-breakdown.component.scss
+// ══════════════════════════════════════════════════
+
+// ── Page wrapper ──────────────────────────────────
+.alb-wrapper {
+  padding: 16px;
+  margin-top: 20px; // clear fixed header
+}
+
+// ── Fixed header title area ───────────────────────
+.alb-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.alb-metric-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  i {
+    font-size: 16px;
+  }
+}
+
+.alb-page-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a2e);
+  line-height: 1.2;
+}
+
+.alb-page-sub {
+  font-size: 12px;
+  color: var(--color-text-secondary, #666);
+}
+
+// ── Summary strip ─────────────────────────────────
+.alb-summary-strip {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border: 1px solid #e8e8f0;
+  border-radius: 12px;
+  padding: 14px 20px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.alb-summary-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.alb-summary-text {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.alb-summary-count {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.alb-summary-label {
+  font-size: 13px;
+  color: #666;
+}
+
+.alb-summary-sep {
+  width: 1px;
+  height: 28px;
+  background: #e8e8f0;
+  flex-shrink: 0;
+}
+
+// ── Table styles ──────────────────────────────────
+.alb-table {
+  border-radius: 12px;
+  overflow: auto;
+}
+
+.alb-lead-row {
+  transition: background 0.15s;
+
+  &:hover {
+    background: #f5f5ff !important;
+  }
+}
+
+.alb-row-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #f0f0f8;
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+}
+
+.alb-lead-id {
+  font-family: monospace;
+  font-size: 12px;
+  color: #534AB7;
+  background: #EEEDFE;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.alb-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.alb-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.alb-applicant-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1a1a2e;
+}
+
+.alb-contact {
+  font-size: 13px;
+  color: #444;
+}
+
+.alb-mobile {
+  font-size: 13px;
+  font-family: monospace;
+  color: #185FA5;
+  font-weight: 500;
+}
+
+.alb-loan-type-badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: #f0f0f8;
+  color: #534AB7;
+  white-space: nowrap;
+}
+
+// ── Status chips ──────────────────────────────────
+.alb-status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &.chip-lead    { background: #EEEDFE; color: #534AB7; }
+  &.chip-file    { background: #E6F1FB; color: #185FA5; }
+  &.chip-credit  { background: #E1F5EE; color: #0F6E56; }
+  &.chip-login   { background: #FAEEDA; color: #854F0B; }
+  &.chip-reject  { background: #FCEBEB; color: #A32D2D; }
+}
+
+.alb-date {
+  font-size: 12px;
+  color: #666;
+  white-space: nowrap;
+}
+
+// ── Pointer on rows ───────────────────────────────
+.pointer-cursor {
+  cursor: pointer;
+}

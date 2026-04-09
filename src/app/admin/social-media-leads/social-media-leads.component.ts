@@ -163,7 +163,7 @@ statusOptions = [
   exportSocialLeadsToCSV() {
     const headers = [
       'Lead ID', 'Name', 'Website','Email', 'Phone',
-      'Company', 'City', 'State', 'PinCode', 'Platform', 'Created Time'
+      'Company', 'City', 'State', 'PinCode', 'Platform', 'Lead Management', 'EnquiryRange','Created Time'
     ];
     const rows = this.socialMediaLeads.map((lead: any) => [
       lead.id || '',
@@ -176,6 +176,8 @@ statusOptions = [
       lead.State || '',
       lead.pinCode || '',
       lead.Platform || '',
+      lead.leadManagement || '',
+      lead.enquiryRange || '',
       lead.CreatedOn ? new Date(lead.CreatedOn).toLocaleDateString() : ''
     ]);
     const csvContent =
@@ -541,18 +543,37 @@ saveRemark(lead: any, event: Event) {
     }
   );
 }
- onRemarkChange(lead: any, remarkId: any) {
-    if (!remarkId) return;
- 
-    this.leadsService.updateLeadRemark(lead.id, remarkId).subscribe(
-      () => {
-        // ✅ Keep as string so dropdown stays selected after save
-        lead.remarkId = String(remarkId);
+onRemarkChange(team: any, remarkId: any) {
+
+  const finalRemarkId = remarkId ? String(remarkId) : null;
+
+  this.leadsService.updateLeadRemark(team.id, finalRemarkId).subscribe(
+    () => {
+      team.remarkId = finalRemarkId;
+
+      if (finalRemarkId) {
         this.toastService.showSuccess('Remark saved');
-      },
-      () => {
-        this.toastService.showError('Failed to save remark');
+      } else {
+        this.toastService.showSuccess('Remark removed'); // ✅ NEW
       }
-    );
-  }
+    },
+    () => {
+      this.toastService.showError('Failed to update remark');
+    }
+  );
+}
+//  onRemarkChange(lead: any, remarkId: any) {
+//     if (!remarkId) return;
+ 
+//     this.leadsService.updateLeadRemark(lead.id, remarkId).subscribe(
+//       () => {
+//         // ✅ Keep as string so dropdown stays selected after save
+//         lead.remarkId = String(remarkId);
+//         this.toastService.showSuccess('Remark saved');
+//       },
+//       () => {
+//         this.toastService.showError('Failed to save remark');
+//       }
+//     );
+//   }
 }

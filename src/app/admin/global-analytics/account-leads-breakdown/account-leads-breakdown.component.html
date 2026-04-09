@@ -1,0 +1,313 @@
+<div class="p-1 m-2 fixed-card">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+
+    <div class="d-flex align-items-center pointer-cursor" (click)="goBack()">
+      <span class="me-2 d-flex align-items-center">
+        <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+      </span>
+      <b><span class="back-btn-text">Analytics</span></b>
+    </div>
+
+    <!-- <div class="alb-title-wrap">
+      <div class="alb-metric-icon" [style.background]="metricBg">
+        <i class="pi {{ metricIcon }}" [style.color]="metricColor"></i>
+      </div>
+      <div>
+        <div class="alb-page-title">{{ metricLabel }}</div>
+        <div class="alb-page-sub text-capitalize">
+          {{ accountName || 'Account #' + accountId }}
+        </div>
+      </div>
+    </div> -->
+
+    <div class="d-flex align-items-center gap-2">
+      <span class="analytics-filter-label">Loan Type :</span>
+      <p-dropdown
+        [options]="loanTypeOptions"
+        [(ngModel)]="loanType"
+        optionLabel="label"
+        optionValue="value"
+        [style]="{ minWidth: '190px' }"
+        appendTo="body"
+        (onChange)="onLoanTypeChange()"
+        [dropdownIcon]="'pi pi-chevron-down'"
+      ></p-dropdown>
+    </div>
+
+  </div>
+</div>
+
+<div class="alb-wrapper">
+
+  <div class="alb-summary-strip">
+    <div class="alb-summary-icon" [style.background]="metricBg">
+      <i class="pi {{ metricIcon }}" [style.color]="metricColor" style="font-size:18px;"></i>
+    </div>
+    <div class="alb-summary-text">
+      <span class="alb-summary-count" [style.color]="metricColor">{{ totalRecords }}</span>
+      <span class="alb-summary-label">{{ metricLabel }} found</span>
+    </div>
+    <div class="alb-summary-sep"></div>
+    <div class="alb-summary-account">
+      <i class="pi pi-building" style="font-size:13px;color:#888;margin-right:5px;"></i>
+      <span class="text-capitalize" style="font-size:13px;color:#555;">
+        {{ accountName || 'Account #' + accountId }}
+      </span>
+    </div>
+    <div class="alb-summary-sep"></div>
+    <div style="font-size:13px;color:#555;">
+      <i class="pi pi-tag" style="font-size:12px;margin-right:5px;color:#888;"></i>
+      {{ getLoanTypeLabel(loanType) }}
+    </div>
+  </div>
+
+  <p-table
+    *ngIf="!isBankersMetric"
+    #leadsTable
+    [value]="leads"
+    [loading]="loading"
+    [lazy]="true"
+    (onLazyLoad)="onLazyLoad($event)"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [totalRecords]="totalRecords"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} records"
+    responsiveLayout="scroll"
+    styleClass="p-datatable-customers alb-table"
+  >
+
+    <ng-template pTemplate="caption">
+      <div class="row g-2 align-items-center">
+        <div class="col-md-4">
+          <div class="p-inputgroup">
+            <input
+              type="text"
+              pInputText
+              placeholder="Search by contact person or phone..."
+              [(ngModel)]="search"
+              (ngModelChange)="onSearchChange()"
+              (keyup.enter)="onLazyLoad({ first: 0, rows: 10 })"
+            />
+            <button
+              type="button"
+              pButton
+              class=" search-btn"
+              (click)="onLazyLoad({ first: 0, rows: 10 })"
+            >
+              <i class="pi pi-search"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width:48px;">#</th>
+        <!-- <th class="text-nowrap">Lead ID</th> -->
+        <th class="text-nowrap">Contact Person</th>
+        <th class="text-nowrap">Primary Phone</th>
+        <th class="text-nowrap">Loan Type</th>
+        <!-- <th class="text-nowrap">Stage</th> -->
+         <ng-container *ngIf="isAmountMetric">
+      <th class="text-nowrap">
+        {{ metric === 'sanctioned' ? 'Sanctioned Amount' : 'Disbursed Amount' }}
+      </th>
+    </ng-container>
+    <!-- <th class="text-nowrap" *ngIf="!isAmountMetric">Stage</th> -->
+        <th class="text-nowrap">Created On</th>
+        <th class="text-nowrap">Updated On</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-lead let-rowIndex="rowIndex">
+      <tr class="alb-lead-row">
+        <td>
+          <span class="alb-row-num">{{ rowIndex + 1 }}</span>
+        </td>
+        <!-- <td>
+          <span class="alb-lead-id">#{{ lead.leadId }}</span>
+        </td> -->
+        <td>
+          <div class="alb-name-cell">
+            <!-- <div
+              class="alb-avatar"
+              [style.background]="metricBg"
+              [style.color]="metricColor"
+            >
+              {{ lead.contactPerson?.charAt(0)?.toUpperCase() || '?' }}
+            </div> -->
+            <span class="alb-applicant-name text-capitalize">
+              {{ lead.contactPerson || '—' }}
+            </span>
+          </div>
+        </td>
+        <td>
+          <span class="alb-mobile">{{ lead.primaryPhone || '—' }}</span>
+        </td>
+        <td>
+          <span class="alb-loan-type-badge">
+            {{ getLoanTypeLabel(lead.loanType) }}
+          </span>
+        </td>
+        <!-- <td>
+          <span class="alb-status-chip {{ getStatusChipClass(lead.leadInternalStatus) }}">
+            {{ getInternalStatusLabel(lead.leadInternalStatus) }}
+          </span>
+        </td> -->
+        <!-- ✅ Amount cell -->
+    <ng-container *ngIf="isAmountMetric">
+      <td>
+        <span style="font-weight:600;" 
+              [style.color]="metricColor">
+          {{ formatAmount(metric === 'sanctioned' ? lead.sanctionedAmount : lead.disbursedAmount) }}
+        </span>
+      </td>
+    </ng-container>
+
+    <!-- Stage cell — only for non-amount metrics -->
+    <!-- <td *ngIf="!isAmountMetric">
+      <span class="alb-status-chip {{ getStatusChipClass(lead.leadInternalStatus) }}">
+        {{ getInternalStatusLabel(lead.leadInternalStatus) }}
+      </span>
+    </td> -->
+        <td>
+          <span class="alb-date">{{ lead.createdOn | date: 'dd MMM yyyy' }}</span>
+        </td>
+        <td>
+          <span class="alb-date">{{ lead.updatedOn | date: 'dd MMM yyyy' }}</span>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="8" class="text-center py-5">
+          <i class="pi pi-inbox"
+            style="font-size:2.5rem;color:#ccc;display:block;margin-bottom:10px;">
+          </i>
+          <p style="color:#888;font-size:14px;margin:0;">
+            No {{ metricLabel | lowercase }} found for this account
+          </p>
+        </td>
+      </tr>
+    </ng-template>
+
+  </p-table>
+
+  
+   <p-table
+    *ngIf="isBankersMetric"
+    [value]="banks"
+    [loading]="bankLoading"
+    [lazy]="true"
+    (onLazyLoad)="onLazyLoad($event)"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [paginator]="true"
+    [rows]="10"
+    [totalRecords]="bankTotal"
+    responsiveLayout="scroll"
+    scrollHeight="flex"
+    styleClass="p-datatable-customers"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} banks"
+  >
+
+    <!-- HEADER -->
+    <ng-template pTemplate="header">
+      <tr>
+        <th class="text-nowrap">Bank Name</th>
+        <th class="text-nowrap">Loan Type</th>
+        <th class="text-nowrap">Files</th>
+        <th class="text-nowrap">Total Sanctioned</th>
+        <th class="text-nowrap">Total Disbursed</th>
+        <th class="text-nowrap">Highest Sanctioned</th>
+        <th class="text-nowrap">Highest Disbursed</th>
+        <th class="text-nowrap">Lowest Sanctioned</th>
+        <th class="text-nowrap">Lowest Disbursed</th>
+        <th class="text-nowrap">Avg Sanctioned</th>
+        <th class="text-nowrap">Avg Disbursed</th>
+      </tr>
+    </ng-template>
+
+    <!-- BODY -->
+    <ng-template pTemplate="body" let-row>
+      <tr>
+        <td>
+          <div class="d-flex align-items-center gap-2">
+            <!-- <div
+              style="
+                width: 32px; height: 32px; border-radius: 50%;
+                background: #EDE9FF; color: #534AB7;
+                font-weight: 500; font-size: 13px;
+                display: flex; align-items: center;
+                justify-content: center; flex-shrink: 0;
+              "
+            >
+              {{ row.bankName?.charAt(0)?.toUpperCase() || 'B' }}
+            </div> -->
+            <span style="font-weight: 500; font-size: 13px;">
+              {{ row.bankName  }}
+            </span>
+          </div>
+        </td>
+        <td>
+          <span
+            style="
+              background: #EDE9FF; color: #534AB7;
+              font-size: 11px; padding: 2px 10px;
+              border-radius: 10px; font-weight: 500;
+            "
+          >
+            {{ row.loanType || 'Business Loan' }}
+          </span>
+        </td>
+        <td>{{ row.filesProcessed }}</td>
+        <td style="color: #3B6D11; font-weight: 500;">
+          {{ formatAmount(row.totalSanctioned) }}
+        </td>
+        <td style="color: #185FA5; font-weight: 500;">
+          {{ formatAmount(row.totalDisbursed) }}
+        </td>
+        <td style="color: #3B6D11;">
+          {{ formatAmount(row.highestSanctioned) }}
+        </td>
+        <td style="color: #185FA5;">
+          {{ formatAmount(row.highestDisbursed) }}
+        </td>
+        <td style="color: #BA7517;">
+          {{ formatAmount(row.lowestSanctioned) }}
+        </td>
+        <td style="color: #993556;">
+          {{ formatAmount(row.lowestDisbursed) }}
+        </td>
+        <!-- BODY — add these 2 after Lowest Disbursed td -->
+        <td style="color: #0F6E56;">
+          {{ formatAmount(row.avgSanctioned) }}
+        </td>
+        <td style="color: #534AB7;">
+          {{ formatAmount(row.avgDisbursed) }}
+        </td>
+        
+      </tr>
+    </ng-template>
+
+    <!-- EMPTY -->
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7" class="text-center fw-bold py-4">
+          <i
+            class="pi pi-inbox"
+            style="font-size: 2rem; color: #ccc; display: block; margin-bottom: 8px;"
+          ></i>
+          <p style="color: #535ab4; font-weight: 400; font-size: 16px;">
+            No bank data found
+          </p>
+        </td>
+      </tr>
+    </ng-template>
+
+  </p-table>
+</div>

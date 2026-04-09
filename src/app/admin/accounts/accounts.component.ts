@@ -558,20 +558,38 @@ if (this.selectedRemarkFilter && this.selectedRemarkFilter !== 'ALL') {
       }
     );
   }
+getTeam(filter = {}) {
+  this.apiLoading = true;
+  this.leadsService.getAccounts(filter).subscribe(
+    (team: any) => {
 
-  getTeam(filter = {}) {
-    this.apiLoading = true;
-    this.leadsService.getAccounts(filter).subscribe(
-      (team) => {
-        this.accounts = team;
-        this.apiLoading = false;
-      },
-      (error: any) => {
-        this.toastService.showError(error);
-        this.apiLoading = false;
-      }
-    );
-  }
+      // ✅ FIX HERE
+      this.accounts = team.map((t: any) => ({
+        ...t,
+        remarkId: t.remarkId ? String(t.remarkId) : null
+      }));
+
+      this.apiLoading = false;
+    },
+    (error: any) => {
+      this.toastService.showError(error);
+      this.apiLoading = false;
+    }
+  );
+}
+  // getTeam(filter = {}) {
+  //   this.apiLoading = true;
+  //   this.leadsService.getAccounts(filter).subscribe(
+  //     (team) => {
+  //       this.accounts = team;
+  //       this.apiLoading = false;
+  //     },
+  //     (error: any) => {
+  //       this.toastService.showError(error);
+  //       this.apiLoading = false;
+  //     }
+  //   );
+  // }
 
   applyFilters(searchFilter = {}) {
     this.searchFilter = searchFilter;
@@ -746,20 +764,26 @@ onBillingCycleChange(event: any) {
   this.accountTable.reset();
 }
 onRemarkChange(lead: any, remarkId: any) {
-    if (!remarkId) return;
- 
-    this.leadsService.updateLeadaccountRemark(lead.id, remarkId).subscribe(
-      () => {
-        // ✅ Keep as string so dropdown stays selected after save
-        lead.remarkId = String(remarkId);
-        this.toastService.showSuccess('Remark saved');
-      },
-      () => {
-        this.toastService.showError('Failed to save remark');
-      }
-    );
-  }
 
+  // If cleared → send null to backend
+  const finalRemarkId = remarkId ? String(remarkId) : null;
+
+  this.leadsService.updateLeadaccountRemark(lead.id, finalRemarkId).subscribe(
+    () => {
+      // Update UI
+      lead.remarkId = finalRemarkId;
+
+      if (finalRemarkId) {
+        this.toastService.showSuccess('Remark saved');
+      } else {
+        this.toastService.showSuccess('Remark removed'); // ✅ NEW
+      }
+    },
+    () => {
+      this.toastService.showError('Failed to update remark');
+    }
+  );
+}
   onRemarkFilterChange(event: any) {
   this.selectedRemarkFilter = event.value;
   this.accountTable.reset(); // reload API

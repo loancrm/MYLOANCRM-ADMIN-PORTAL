@@ -208,9 +208,10 @@
               optionValue="value"
               placeholder="Select Remark"
               [style]="{ width: '100%', marginBottom: '6px' }"
-              (onChange)="onRemarkChange(team, team.remarkId)"
+              (onChange)="onRemarkChange(team, $event.value)" 
               (click)="$event.stopPropagation()"
               appendTo="body"
+              [showClear]="true" 
             ></p-dropdown>
 
             <!-- ✅ TEXTAREA -->

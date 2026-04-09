@@ -1064,6 +1064,29 @@ updateLeadRemark(leadId: number, remarkId: any) {
     return this.serviceMeta.httpPut(url, null);
   }
 
- 
+ getAccountLeadsBreakdown(
+  accountId: string,
+  metric: string,
+  loanType: string,
+  from: number = 0,
+  count: number = 10,
+  search: string = ''
+): Observable<any> {
+  const params: any = { accountId, metric, loanType, from, count };
+  if (search) params['search'] = search;
+  const url = 'accounts/leads-breakdown';
+  return this.serviceMeta.httpGet(url, null, params);
+}
+
+getLendersBreakdown(
+  from: number = 0,
+  count: number = 10,
+  search: string = ''
+): Observable<any> {
+  const params: any = { from, count };
+  if (search) params['search'] = search;
+  const url = 'accounts/lenders-breakdown';
+  return this.serviceMeta.httpGet(url, null, params);
+}
 
 }

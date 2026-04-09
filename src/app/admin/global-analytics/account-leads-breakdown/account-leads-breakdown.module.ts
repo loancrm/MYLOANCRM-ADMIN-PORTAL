@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { GlobalAnalyticsComponent } from './global-analytics.component';
+import { AccountLeadsBreakdownComponent } from './account-leads-breakdown.component';
 import { RouterModule, Routes } from '@angular/router';
 import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms'; 
@@ -10,21 +10,15 @@ import { PreloaderModule } from 'src/app/preloader/preloader.module';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
+import { CapitalizeFirstPipe } from 'src/app/pipes/capitalize.pipe';
 const routes: Routes = [
-  { path: '', component: GlobalAnalyticsComponent },
-  {
-    path: 'leads-breakdown/:accountId',  // ← ADD THIS
-    loadChildren: () =>
-      import('./account-leads-breakdown/account-leads-breakdown.module').then(
-        (m) => m.AccountLeadsBreakdownModule
-      ),
-  },
+  { path: '', component: AccountLeadsBreakdownComponent },
+  
+
 ]
-
-
 @NgModule({
   declarations: [
-    GlobalAnalyticsComponent
+    AccountLeadsBreakdownComponent
   ],
   imports: [
     CommonModule,
@@ -36,7 +30,8 @@ const routes: Routes = [
     InputSwitchModule,
     InputTextModule,
     TableModule,
-    [RouterModule.forChild(routes)],
+    CapitalizeFirstPipe,
+    [RouterModule.forChild([{ path: '', component: AccountLeadsBreakdownComponent }])],
   ]
 })
-export class GlobalAnalyticsModule { }
+export class AccountLeadsBreakdownModule { }

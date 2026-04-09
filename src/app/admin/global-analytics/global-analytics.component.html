@@ -128,14 +128,20 @@
           </div>
           
       </div>
-
-      <div class="analytics-card horizontal-card">
+      <div class="analytics-card horizontal-card" (click)="openLendersBreakdown()">
         <div class="analytics-icon-wrap bankers-bg"><i class="pi pi-building"></i></div>
         <div class="analytics-content">
           <div class="analytics-label">Lenders</div>
           <div class="analytics-count">{{ stats.bankers }}</div>
         </div>
       </div>
+      <!-- <div class="analytics-card horizontal-card">
+        <div class="analytics-icon-wrap bankers-bg"><i class="pi pi-building"></i></div>
+        <div class="analytics-content">
+          <div class="analytics-label">Lenders</div>
+          <div class="analytics-count">{{ stats.bankers }}</div>
+        </div>
+      </div> -->
 
       <div class="analytics-card horizontal-card" (click)="openCibilBreakdown()">
         <div class="analytics-icon-wrap cibil-bg">
@@ -231,6 +237,9 @@
       [loading]="breakdownLoading"
       [lazy]="true"
       (onLazyLoad)="onBreakdownLazyLoad($event)"
+      (onRowSelect)="viewAccountBreakdown($event)"
+      selectionMode="single"
+      dataKey="accountId"
       [paginator]="true"
       [rows]="10"
       [rowsPerPageOptions]="[10, 25, 50]"
@@ -295,7 +304,7 @@
       </ng-template>
 
       <ng-template pTemplate="body" let-acc let-rowIndex="rowIndex">
-        <tr>
+        <tr  [pSelectableRow]="acc">
           <td><span class="bpd-rank-num">{{ rowIndex + 1 }}</span></td>
           <td><div class="bpd-acc-id">{{ acc.accountId }}</div></td>
           <td><div class="bpd-acc-name text-capitalize">{{ acc.accountName }}</div></td>
@@ -395,6 +404,9 @@
       [loading]="cibilDialogLoading"
       [lazy]="true"
       (onLazyLoad)="onCibilLazyLoad($event)"
+      (onRowSelect)="viewAccountBreakdown($event)"
+      selectionMode="single"
+      dataKey="accountId"
       [paginator]="true"
       [rows]="10"
       [rowsPerPageOptions]="[10, 25, 50]"
@@ -529,26 +541,7 @@
         <i class="pi pi-times"></i>
       </button>
     </div>
-
-    <!-- Loan type summary cards (read-only info) -->
-    <!-- <div class="cibil-type-grid" *ngIf="amountSummary.length > 0">
-      <div
-        class="cibil-type-card"
-        *ngFor="let s of amountSummary; let i = index"
-        style="cursor:default;"
-      >
-        <div class="cibil-type-icon" [style.background]="getLoanTypeSummaryBg(i)">
-          <i class="pi pi-credit-card" [style.color]="getLoanTypeSummaryColor(i)" style="font-size:14px;"></i>
-        </div>
-        <div class="cibil-type-count" [style.color]="getLoanTypeSummaryColor(i)" style="font-size:15px;">
-          {{ formatAmount(s.totalAmount) }}
-        </div>
-        <div class="cibil-type-label">{{ getLoanTypeLabel(s.loanType) }}</div>
-        <div style="font-size:10px;color:var(--color-text-secondary);margin-top:2px;">
-          {{ s.totalFiles }} files
-        </div>
-      </div>
-    </div> -->
+  
 
     <!-- Lazy Table — caption has search + loanType filter -->
      <p-table
@@ -557,6 +550,9 @@
       [loading]="amountDialogLoading"
       [lazy]="true"
       (onLazyLoad)="onAmountLazyLoad($event)"
+      (onRowSelect)="viewAmountAccountBreakdown($event)"
+      selectionMode="single"
+      dataKey="accountId"
       [paginator]="true"
       [rows]="10"
       [rowsPerPageOptions]="[10, 25, 50]"
@@ -635,7 +631,7 @@
       </ng-template>
 
       <ng-template pTemplate="body" let-acc let-rowIndex="rowIndex">
-        <tr>
+        <tr [pSelectableRow]="acc">
           <td>
             <span class="bpd-rank-num">{{ rowIndex + 1 }}</span>
           </td>
@@ -980,5 +976,118 @@
       </div>
 
     </div>
+  </div>
+</p-dialog>
+
+<p-dialog
+  [(visible)]="showLendersDialog"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [showHeader]="false"
+  [style]="{ width: '900px', maxWidth: '96vw', padding: '0' }"
+  styleClass="breakdown-dialog-pro"
+  appendTo="body"
+  (onHide)="onLendersDialogHide()"
+>
+  <div class="bpd-wrap">
+
+    <!-- Header -->
+    <div class="bpd-header">
+      <div class="bpd-header-icon" style="background:#EEEDFE;">
+        <i class="pi pi-building" style="color:#534AB7;"></i>
+      </div>
+      <div class="bpd-header-text">
+        <h6 class="bpd-title">Lenders — Account Breakdown</h6>
+        <span class="bpd-subtitle">
+          <span *ngIf="!lendersDialogLoading">
+            {{ lendersTotal }} accounts
+            <span class="bpd-dot">·</span>
+            {{ lendersGrandTotal }} lenders total
+          </span>
+          <span *ngIf="lendersDialogLoading">Loading...</span>
+        </span>
+      </div>
+      <button class="bpd-close" (click)="showLendersDialog = false">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <!-- Table -->
+    <p-table
+      #lendersTable
+      [value]="lendersAccounts"
+      [loading]="lendersDialogLoading"
+      [lazy]="true"
+      (onLazyLoad)="onLendersLazyLoad($event)"
+      (onLazyLoad)="onLendersLazyLoad($event)"
+      (onRowSelect)="viewLenderAccountBreakdown($event)"
+      selectionMode="single"
+      dataKey="accountId"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [totalRecords]="lendersTotal"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} accounts"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-customers"
+    >
+
+      <ng-template pTemplate="caption">
+        <div class="row g-2 align-items-center">
+          <div class="col-md-5">
+            <div class="p-inputgroup">
+              <input
+                type="text"
+                pInputText
+                placeholder="Search by business name..."
+                [(ngModel)]="lendersSearch"
+                (ngModelChange)="onLendersSearchChange()"
+                (keyup.enter)="onLendersLazyLoad({ first: 0, rows: 10 })"
+              />
+              <button
+                type="button"
+                pButton
+                class="p-button-primary search-btn"
+                (click)="onLendersLazyLoad({ first: 0, rows: 10 })"
+              >
+                <i class="pi pi-search"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:50px;">#</th>
+          <th>Account ID</th>
+          <th>Business Name</th>
+          <th>No. of Lenders</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-acc let-rowIndex="rowIndex">
+        <tr [pSelectableRow]="acc">
+          <td><span class="bpd-rank-num">{{ rowIndex + 1 }}</span></td>
+          <td><div class="bpd-acc-id">{{ acc.accountId }}</div></td>
+          <td><div class="bpd-acc-name text-capitalize">{{ acc.businessName }}</div></td>
+          <td><span class="bpd-total-num">{{ acc.totalLenders }}</span></td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="4" class="text-center py-4">
+            <i class="pi pi-inbox"
+              style="font-size:2rem;color:#ccc;display:block;margin-bottom:8px;">
+            </i>
+            <p style="color:#888;font-size:14px;margin:0;">No accounts found</p>
+          </td>
+        </tr>
+      </ng-template>
+
+    </p-table>
   </div>
 </p-dialog>

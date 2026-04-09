@@ -94,6 +94,19 @@ cityPanelTotal       = 0;
 cityPanelSearch      = '';
 cityPanelReady       = false;
 
+// ── Lenders dialog ──
+showLendersDialog      = false;
+lendersDialogLoading   = false;
+lendersAccounts: any[] = [];
+lendersTotal           = 0;
+lendersGrandTotal      = 0;
+lendersSearch          = '';
+lendersDialogReady     = false;
+
+private lendersSearchSubject = new Subject<string>();
+
+@ViewChild('lendersTable') lendersTable: any;
+
 private cityPanelSearchSubject = new Subject<string>();
 
 @ViewChild('cityPanelTable') cityPanelTable: any;
@@ -111,12 +124,16 @@ private citySearchSubject = new Subject<string>();
     leads: 'Leads', files: 'Files', logins: 'Logins',
     inhouseRejects: 'Inhouse Rejects', bankRejects: 'Bank Rejects',
     cniRejects: 'CNI Rejects', bankers: 'Bankers',
+    sanctioned: 'Sanctioned',   // ← add
+    disbursed:  'Disbursed',    // ← add
   };
 
   metricIconMap: any = {
     leads: 'pi-users', files: 'pi-folder-open', logins: 'pi-sign-in',
     inhouseRejects: 'pi-home', bankRejects: 'pi-building',
     cniRejects: 'pi-times-circle', bankers: 'pi-id-card',
+    sanctioned: 'pi-check-circle',  // ← add
+    disbursed:  'pi-wallet',        // ← add
   };
 selectedAccount: any;
   constructor(private leadsService: LeadsService, private routingService: RoutingService,private location: Location,) {}
@@ -156,6 +173,11 @@ this.cityPanelSearchSubject.pipe(
     ).subscribe(() => {
       this.onAmountLazyLoad({ first: 0, rows: 10 });
     });
+    this.lendersSearchSubject.pipe(
+  debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$)
+).subscribe(() => {
+  this.onLendersLazyLoad({ first: 0, rows: 10 });
+});
   }
 
   ngOnDestroy(): void {
@@ -209,7 +231,8 @@ this.cityPanelSearchSubject.pipe(
     this.breakdownMetric      = metric;
     this.breakdownMetricLabel = this.metricLabelMap[metric] || metric;
     this.breakdownSearch      = '';
-    this.breakdownLoanType    = 'all';   // reset dialog loan type filter
+    // this.breakdownLoanType    = 'all';   // reset dialog loan type filter
+    this.breakdownLoanType = this.selectedLoanType;
     this.breakdownAccounts    = [];
     this.breakdownTotal       = 0;
     this.breakdownDialogReady = true;    // ← unlock API calls
@@ -532,5 +555,118 @@ viewAccount(event) {
 goBack() {
     this.location.back();
   }
+//  viewAccountBreakdown(event: any): void {
+//   const acc = event.data;  // ← onRowSelect gives { data: acc, ... }
+  
+//   this.routingService.handleRoute(
+//     'allaccounts-analytics/leads-breakdown/' + acc.accountId,
+//     null,                          // ← pass null for extras
+//     {                              // ← query params as 3rd arg
+//       metric:      this.breakdownMetric,
+//       loanType:    this.breakdownLoanType,
+//       accountName: acc.accountName,
+//     }
+//   );
+// }
+viewAccountBreakdown(event: any): void {
+  const acc = event.data;
 
+  // ✅ Capture BEFORE dialog state resets
+  const metric      = this.breakdownMetric;
+  const loanType    = this.breakdownLoanType;
+  const accountName = acc.accountName;
+
+  // Store so the breakdown page can read it
+  sessionStorage.setItem('breakdownParams', JSON.stringify({
+    metric,
+    loanType,
+    accountName,
+  }));
+
+  this.showBreakdownDialog = false; // close dialog first
+  this.routingService.handleRoute(
+    'allaccounts-analytics/leads-breakdown/' + acc.accountId,
+    null
+  );
+}
+
+viewAmountAccountBreakdown(event: any): void {
+  const acc = event.data;
+
+  // Capture BEFORE dialog state resets
+  const metric      = this.amountType;           // 'sanctioned' or 'disbursed'
+  const loanType    = this.amountLoanType;
+  const accountName = acc.businessName;          // amount dialog uses businessName, not accountName
+
+  sessionStorage.setItem('breakdownParams', JSON.stringify({
+    metric,
+    loanType,
+    accountName,
+  }));
+
+  this.showAmountDialog = false;
+  this.routingService.handleRoute(
+    'allaccounts-analytics/leads-breakdown/' + acc.accountId,
+    null
+  );
+}
+ // ════════════════════════════════
+// LENDERS DIALOG
+// ════════════════════════════════
+
+openLendersBreakdown(): void {
+  this.lendersSearch      = '';
+  this.lendersAccounts    = [];
+  this.lendersTotal       = 0;
+  this.lendersGrandTotal  = 0;
+  this.lendersDialogReady = true;
+  this.showLendersDialog  = true;
+  this.onLendersLazyLoad({ first: 0, rows: 10 });
+}
+
+onLendersLazyLoad(event: any): void {
+  if (!this.lendersDialogReady) return;
+
+  this.lendersDialogLoading = true;
+  const from  = event.first ?? 0;
+  const count = event.rows  ?? 10;
+
+  this.leadsService.getLendersBreakdown(
+    from, count, this.lendersSearch.trim()
+  ).subscribe(
+    (res: any) => {
+      if (from === 0) {
+        this.lendersGrandTotal = res.grandTotal || 0;
+      }
+      this.lendersAccounts      = res.accounts || [];
+      this.lendersTotal         = res.total    || 0;
+      this.lendersDialogLoading = false;
+    },
+    () => { this.lendersDialogLoading = false; }
+  );
+}
+
+onLendersSearchChange(): void {
+  this.lendersSearchSubject.next(this.lendersSearch);
+}
+
+onLendersDialogHide(): void {
+  this.lendersDialogReady = false;
+}
+
+viewLenderAccountBreakdown(event: any): void {
+  const acc = event.data;
+
+  sessionStorage.setItem('breakdownParams', JSON.stringify({
+    metric:      'bankers',              // ← tells the breakdown page to show bank analytics
+    loanType:    'all',
+    accountName: acc.businessName,
+  }));
+
+  this.showLendersDialog = false;
+  this.routingService.handleRoute(
+    'allaccounts-analytics/leads-breakdown/' + acc.accountId,
+    null
+  );
+}
 }

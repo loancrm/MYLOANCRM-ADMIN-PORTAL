@@ -288,14 +288,21 @@ adminRemarksLoaded: boolean = false;
     return value;
   }
 
-  // ✅ DROPDOWN SAVE
+
 onRemarkChange(team: any, remarkId: any) {
-  if (!remarkId) return;
+
+  // ✅ Allow remove (null)
+  const finalRemarkId = remarkId ? String(remarkId) : null;
 
   this.leadsService.updateContactRemark(team.id, remarkId).subscribe(
     () => {
-      team.remarkId = String(remarkId);
-      this.toastService.showSuccess('Remark updated');
+      team.remarkId = finalRemarkId;
+
+      if (finalRemarkId) {
+        this.toastService.showSuccess('Remark saved');
+      } else {
+        this.toastService.showSuccess('Remark removed'); // ✅ NEW
+      }
     },
     () => {
       this.toastService.showError('Failed to update remark');
