@@ -101,9 +101,12 @@ export class DashboardComponent implements OnInit {
   todaySubscribers: any = [];
   todaySubscribersCount: number = 0;
   selectedSubscribedDate: any = new Date(); // today
-todayExpired: any[]       = [];
-todayExpiredCount: number = 0;
+  todayExpired: any[]       = [];
+  todayExpiredCount: number = 0;
+  todaySubscription: any[]       = [];
+  todaySubscriptionCount: number = 0;
 expiredLoading: boolean   = false;
+subscriptionLoading: boolean = false;
   dateOptions = [
     { label: 'Total', value: 'total' },
     { label: 'Today', value: 'today' },
@@ -115,11 +118,12 @@ expiredLoading: boolean   = false;
   ];
 
   selectedDateOption: string = 'thisMonth';
-  selectedTodayTable: 'accounts' | 'contacts' | 'subscribers' | 'expired' = 'accounts';
+  selectedTodayTable: 'accounts' | 'contacts' | 'subscribers' | 'subscription' | 'expired' = 'accounts';
   selectedtableoptions = [
     { label: 'Today Accounts', value: 'accounts' },
     { label: 'Today Contacts', value: 'contacts' },
     { label: 'Today Subscribers', value: 'subscribers' },
+    { label: 'Today Subscriptions', value: 'subscription' },
     { label: 'Today Expired',     value: 'expired'     },
   ]
 
@@ -567,6 +571,19 @@ loadTodaySubscribers(api_filter) {
  
   this.loadTodayExpired(api_filter);
 }
+
+ onLazyLoadTodaySubscription(event: any): void {
+  let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
+ 
+  // Filter subscriptions whose end_date falls on TODAY
+  const startIST = this.moment().startOf('day');
+  const endIST   = this.moment().endOf('day');
+ 
+  api_filter['start_date-gte'] = startIST.format('YYYY-MM-DD');
+  api_filter['start_date-lte'] = endIST.format('YYYY-MM-DD');
+ 
+  this.loadTodaySubscription(api_filter);
+}
  
 loadTodayExpired(api_filter: any): void {
   this.expiredLoading = true;
@@ -619,6 +636,61 @@ loadTodayExpired(api_filter: any): void {
     (err) => {
       this.toastService.showError(err);
       this.expiredLoading = false;
+    }
+  );
+}
+
+loadTodaySubscription(api_filter: any): void {
+  this.expiredLoading = true;
+ 
+  // Step 1: get count
+  this.leadsService.getSubscriptionsCount(api_filter).subscribe(
+    (countRes: any) => {
+      this.todaySubscriptionCount = Number(countRes) || 0;
+    },
+    (err) => console.error('Subscription count error:', err)
+  );
+ 
+  // Step 2: get subscriptions list
+  this.leadsService.getSubscriptions(api_filter).subscribe(
+    (subscriptions: any) => {
+ 
+      if (!subscriptions || subscriptions.length === 0) {
+        this.todaySubscription   = [];
+        this.subscriptionLoading = false;
+        return;
+      }
+ 
+      // Step 3: for each subscription, call getAccountById()
+      // to fetch businessName and mobile, then merge into row
+      const accountRequests = subscriptions.map((sub: any) =>
+        this.leadsService.getAccountById(sub.accountId)
+      );
+ 
+      forkJoin(accountRequests).subscribe(
+        (accounts: any) => {
+          // Merge account data into each subscription row
+          this.todaySubscription  = subscriptions.map((sub: any, index: number) => {
+            const account = accounts[index] || {};
+            return {
+              ...sub,
+              businessName: account.businessName || '-',
+              mobile:       account.mobile       || '-',
+            };
+          });
+          this.subscriptionLoading = false;
+        },
+        (err) => {
+          this.toastService.showError(err);
+          // Even if account enrichment fails, still show subscription data
+          this.todaySubscription   = subscriptions;
+          this.subscriptionLoading = false;
+        }
+      );
+    },
+    (err) => {
+      this.toastService.showError(err);
+      this.subscriptionLoading = false;
     }
   );
 }

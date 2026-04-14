@@ -143,13 +143,13 @@
           <td>{{ report.businessName || '-' }}</td>
           
           <!-- <td>{{ report.client_id }}</td> -->
-          <td>{{ report.name }}</td>
+          <td class="text-capitalize">{{ report.name }}</td>
           <td class="text-capitalize"><span class="report-type-badge" [class]="'report-' + report.report_type">{{ report.report_type }}</span></td>
           <td>{{ report.mobile }}</td>
           <td>{{ report.pan }}</td>
-          <td>{{ report.city }}</td>
+          <td class="text-capitalize">{{ report.city }}</td>
           <td>{{ report.aadhar_number }}</td>
-          <td>{{ report.gender }}</td>
+          <td class="text-capitalize">{{ report.gender }}</td>
           <td>{{ report.consent === 'Y' ? 'Yes' : 'No' }}</td>
           <td><span class="credit-score-badge" [class]="'credit-score-' + report.report_type">{{ report.credit_score }}</span></td>
           <td>{{ report.status }}</td>

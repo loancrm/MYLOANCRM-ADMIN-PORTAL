@@ -1,53 +1,190 @@
- <div class="p-1 m-2 fixed-card">
-    <div class="d-flex justify-content-between">
-      <div
-        class="d-flex align-items-center justify-content-center pointer-cursor"
-        (click)="goBack()"
-      >
-        <span class="me-2 d-flex align-items-center">
-          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
-        </span>
-        <b>
-          <span class="back-btn-text">Analytics</span>
-        </b>
-      </div>
-       <div class="d-flex align-items-center gap-3 mb-4 mt-2 flex-wrap">
-      <span class="analytics-filter-label">Loan Type :</span>
-      <p-dropdown
-        [options]="loanTypeOptions"
-        [(ngModel)]="selectedLoanType"
+
+  <div class="p-1 m-2 fixed-card">
+  <div class="analytics-topbar">
+
+    <!-- Back -->
+    <div class="d-flex align-items-center flex-shrink-0" (click)="goBack()" style="cursor:pointer;">
+      <span class="me-2 d-flex align-items-center">
+        <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+      </span>
+      <b><span>Analytics</span></b>
+    </div>
+
+    <!-- Filters -->
+    <div class="analytics-filters-wrap">
+
+      <!-- <div class="analytics-filter-item">
+        <label class="filter-label">Plan</label>
+        <p-dropdown
+          [style]="{ width: '100%' }"
+          [options]="planTypeOptions"
+          [(ngModel)]="selectedPlanType"
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="onPlanTypeChange($event)"
+          appendTo="body"
+        ></p-dropdown>
+      </div> -->
+      <div class="analytics-filter-item">
+      <label class="filter-label">Plan</label>
+      <p-multiSelect
+        [style]="{ width: '100%' }"
+        [options]="planTypeOptions"
+        [(ngModel)]="selectedPlanTypes"
         optionLabel="label"
         optionValue="value"
-        [style]="{ minWidth: '200px' }"
+        placeholder="Select Plans"
         appendTo="body"
-        (onChange)="onLoanTypeChange()"
-        [dropdownIcon]="'pi pi-chevron-down'"
-      ></p-dropdown>
+        (onChange)="onPlanTypeChange($event)"
+        [showToggleAll]="true"
+        [maxSelectedLabels]="2"
+        selectedItemsLabel="{0} plans selected"
+      ></p-multiSelect>
     </div>
+
+      <div class="analytics-filter-item">
+        <label class="filter-label">Plan Status</label>
+        <p-dropdown
+          [style]="{ width: '100%' }"
+          [options]="statusOptions"
+          [(ngModel)]="selectedStatusType"
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="onStatusTypeChange($event)"
+          appendTo="body"
+        ></p-dropdown>
+      </div>
+
+      <div class="analytics-filter-item">
+        <label class="filter-label">Billing Cycle</label>
+        <p-dropdown
+          [style]="{ width: '100%' }"
+          [options]="billingCycleOptions"
+          [(ngModel)]="selectedBillingCycle"
+          optionLabel="label"
+          optionValue="value"
+          (onChange)="onBillingCycleChange($event)"
+          appendTo="body"
+        ></p-dropdown>
+      </div>
+
+      <!-- <div class="analytics-filter-item">
+        <label class="filter-label">From Date</label>
+        <p-calendar
+          [style]="{ width: '100%' }"
+          [(ngModel)]="selectedFromDate"
+          dateFormat="dd/mm/yy"
+          [showIcon]="true"
+          appendTo="body"
+          (ngModelChange)="onDateRangeChange()"
+          [showClear]="true"
+          placeholder="From Date"
+        ></p-calendar>
+      </div>
+
+      <div class="analytics-filter-item">
+        <label class="filter-label">To Date</label>
+        <p-calendar
+          [style]="{ width: '100%' }"
+          [(ngModel)]="selectedToDate"
+          dateFormat="dd/mm/yy"
+          [showIcon]="true"
+          appendTo="body"
+          (ngModelChange)="onDateRangeChange()"
+          [showClear]="true"
+          placeholder="To Date"
+        ></p-calendar>
+      </div> -->
+      <div class="analytics-filter-item">
+        <label class="filter-label">From Date</label>
+        <div class="d-flex align-items-center gap-1">
+          <div class="custom-calendar-wrapper w-100 position-relative">
+            <p-calendar
+            #filtercalendar
+            [style]="{ width: '100%' }"
+            [(ngModel)]="selectedFromDate"
+            dateFormat="dd/mm/yy"
+            [showIcon]="false"
+            appendTo="body"
+            (ngModelChange)="onDateRangeChange()"
+            [showButtonBar]="true"
+            placeholder="From Date"
+          ></p-calendar>
+            <img
+              src="../../../../assets/images/icons/calendar.svg"
+              alt="Calendar Icon"
+              class="calendar-custom-img"
+              (click)="filtercalendar.toggle()"
+            />
+          </div>
+            <!-- <button
+              *ngIf="searchText || selectedDate"
+              type="button"
+              class="btn btn-sm btn-outline-secondary flex-shrink-0"
+              (click)="clearFilters()"
+              title="Clear filters"
+              style="min-width: 38px"
+            >
+              <i class="pi pi-times"></i>
+            </button> -->
+          <!-- </button> -->
+        </div>
+      </div>
+
+      <div class="analytics-filter-item">
+        <label class="filter-label">To Date</label>
+        <div class="d-flex align-items-center gap-1">
+          <div class="custom-calendar-wrapper w-100 position-relative">
+            <p-calendar
+              #filtercalendar
+              [style]="{ width: '100%' }"
+              [(ngModel)]="selectedToDate"
+              dateFormat="dd/mm/yy"
+              [showIcon]="false"
+              appendTo="body"
+              (ngModelChange)="onDateRangeChange()"
+              [showClear]="true"
+              placeholder="To Date"
+            ></p-calendar>
+            <img
+              src="../../../../assets/images/icons/calendar.svg"
+              alt="Calendar Icon"
+              class="calendar-custom-img"
+              (click)="filtercalendar.toggle()"
+            />
+          <!-- <button
+            *ngIf="selectedToDate"
+            type="button"
+            class="btn btn-sm btn-outline-secondary flex-shrink-0"
+            (click)="selectedToDate = null; onDateRangeChange()"
+            style="min-width:32px; height:32px; padding:0;"
+          >
+            <i class="pi pi-times"></i>
+          </button> -->
+          </div>
+          
+        </div>
+      </div>
+
+      <div class="analytics-filter-item">
+        <label class="filter-label">Loan Type</label>
+        <p-dropdown
+          [style]="{ width: '100%' }"
+          [options]="loanTypeOptions"
+          [(ngModel)]="selectedLoanType"
+          optionLabel="label"
+          optionValue="value"
+          appendTo="body"
+          (onChange)="onLoanTypeChange()"
+        ></p-dropdown>
+      </div>
+
     </div>
   </div>
-
+</div>
 <div class="global-analytics-wrapper">
 
-  <!-- <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-    <div>
-      <h5 class="mb-0 fw-500">Platform Overview</h5>
-      <small class="text-muted">Metrics across all accounts</small>
-    </div>
-    <div class="d-flex align-items-center gap-3 mb-4 mt-2 flex-wrap">
-      <span class="analytics-filter-label">Loan Type :</span>
-      <p-dropdown
-        [options]="loanTypeOptions"
-        [(ngModel)]="selectedLoanType"
-        optionLabel="label"
-        optionValue="value"
-        [style]="{ minWidth: '200px' }"
-        appendTo="body"
-        (onChange)="onLoanTypeChange()"
-        [dropdownIcon]="'pi pi-chevron-down'"
-      ></p-dropdown>
-    </div>
-  </div> -->
+  
 
   <!-- LOADING -->
   <div *ngIf="loading" class="text-center py-5">
@@ -135,13 +272,7 @@
           <div class="analytics-count">{{ stats.bankers }}</div>
         </div>
       </div>
-      <!-- <div class="analytics-card horizontal-card">
-        <div class="analytics-icon-wrap bankers-bg"><i class="pi pi-building"></i></div>
-        <div class="analytics-content">
-          <div class="analytics-label">Lenders</div>
-          <div class="analytics-count">{{ stats.bankers }}</div>
-        </div>
-      </div> -->
+
 
       <div class="analytics-card horizontal-card" (click)="openCibilBreakdown()">
         <div class="analytics-icon-wrap cibil-bg">
@@ -152,6 +283,17 @@
           <div class="analytics-count">{{ stats.cibilReports }}</div>
         </div>
       </div>
+
+      <div class="analytics-card horizontal-card" (click)="openUsersBreakdown()">
+        <div class="analytics-icon-wrap cibil-bg">
+          <i class="pi pi-users"></i>
+        </div>
+        <div class="analytics-content">
+          <div class="analytics-label">Users</div>
+          <div class="analytics-count">{{ stats.users }}</div>
+        </div>
+      </div>
+
 
       <div class="analytics-card horizontal-card" (click)="openCityBreakdown()">
         <div class="analytics-icon-wrap" style="background:#E6F1FB;">
@@ -164,34 +306,6 @@
       </div>
 
     </div>
-
-    <!-- AMOUNTS -->
-    <!-- <p class="analytics-section-title mt-4">Loan Amounts</p>
-    <div class="analytics-amounts-grid">
-
-      <div class="analytics-amount-card" (click)="openAmountBreakdown('sanctioned')">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <div class="analytics-amount-label">Total Sanctioned</div>
-            <div class="analytics-amount-value sanctioned-color">{{ formatAmount(stats.sanctioned) }}</div>
-          </div>
-          <div class="analytics-amount-icon sanctioned-bg"><i class="pi pi-check-circle"></i></div>
-        </div>
-      </div>
-
-      <div class="analytics-amount-card" (click)="openAmountBreakdown('disbursed')">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <div class="analytics-amount-label">Total Disbursed</div>
-            <div class="analytics-amount-value disbursed-color">{{ formatAmount(stats.disbursed) }}</div>
-          </div>
-          <div class="analytics-amount-icon disbursed-bg"><i class="pi pi-wallet"></i></div>
-        </div>
-      </div>
-
-
-    </div> -->
-
   </div>
 
 </div>
@@ -705,9 +819,6 @@
 </p-dialog>
 
 <!-- ══════════════════════════════════════════════════
-     CITY WISE BREAKDOWN DIALOG
-══════════════════════════════════════════════════ -->
-<!-- ══════════════════════════════════════════════════
      CITY WISE BREAKDOWN DIALOG — Split Panel Design
 ══════════════════════════════════════════════════ -->
 <p-dialog
@@ -1088,6 +1199,114 @@
         </tr>
       </ng-template>
 
+    </p-table>
+  </div>
+</p-dialog>
+
+<!--Users Breakdown-->
+<p-dialog
+  [(visible)]="showUsersDialog"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [showHeader]="false"
+  [style]="{ width: '900px', maxWidth: '96vw', padding: '0' }"
+  styleClass="breakdown-dialog-pro"
+  appendTo="body"
+  (onHide)="onUsersDialogHide()"
+>
+  <div class="bpd-wrap">
+
+    <div class="bpd-header">
+      <div class="bpd-header-icon" style="background:#E6F1FB;">
+        <i class="pi pi-users" style="color:#185FA5;"></i>
+      </div>
+      <div class="bpd-header-text">
+        <h6 class="bpd-title">Users — Account Breakdown</h6>
+        <span class="bpd-subtitle">
+          <span *ngIf="!usersDialogLoading">
+            {{ usersTotal }} accounts
+            <span class="bpd-dot">·</span>
+            {{ usersGrandTotal }} users total
+          </span>
+          <span *ngIf="usersDialogLoading">Loading...</span>
+        </span>
+      </div>
+      <button class="bpd-close" (click)="showUsersDialog = false">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <p-table
+      #usersTable
+      [value]="usersAccounts"
+      [loading]="usersDialogLoading"
+      [lazy]="true"
+      (onLazyLoad)="onUsersLazyLoad($event)"
+      selectionMode="single"
+      dataKey="accountId"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [totalRecords]="usersTotal"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} accounts"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-customers"
+    >
+      <ng-template pTemplate="caption">
+        <div class="row g-2 align-items-center">
+          <div class="col-md-5">
+            <div class="p-inputgroup">
+              <input
+                type="text"
+                pInputText
+                placeholder="Search by business name..."
+                [(ngModel)]="usersSearch"
+                (ngModelChange)="onUsersSearchChange()"
+                (keyup.enter)="onUsersLazyLoad({ first: 0, rows: 10 })"
+              />
+              <button
+                type="button"
+                pButton
+                class="p-button-primary search-btn"
+                (click)="onUsersLazyLoad({ first: 0, rows: 10 })"
+              >
+                <i class="pi pi-search"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:50px;">#</th>
+          <th>Account ID</th>
+          <th>Business Name</th>
+          <th>No. of Users</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-acc let-rowIndex="rowIndex">
+        <tr>
+          <td><span class="bpd-rank-num">{{ rowIndex + 1 }}</span></td>
+          <td><div class="bpd-acc-id">{{ acc.accountId }}</div></td>
+          <td><div class="bpd-acc-name text-capitalize">{{ acc.businessName }}</div></td>
+          <td><span class="bpd-total-num">{{ acc.totalUsers }}</span></td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="4" class="text-center py-4">
+            <i class="pi pi-inbox"
+              style="font-size:2rem;color:#ccc;display:block;margin-bottom:8px;">
+            </i>
+            <p style="color:#888;font-size:14px;margin:0;">No accounts found</p>
+          </td>
+        </tr>
+      </ng-template>
     </p-table>
   </div>
 </p-dialog>

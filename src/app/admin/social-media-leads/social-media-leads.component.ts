@@ -43,7 +43,8 @@ selectedLead: any = null;
 // Add this new property alongside handleDuplicates
 handleExcelDuplicates: string = 'skip';
 // selectedPlatform: string = 'all';
-selectedPlatforms: string[] = [];
+// selectedPlatforms: string[] = [];
+selectedPlatforms: string[] = ['Facebook', 'Website'];
 platformOptions: { label: string; value: string }[] = [
   // { label: 'All Platforms', value: 'all' },
   { label: 'Facebook',      value: 'Facebook' },
@@ -87,6 +88,7 @@ statusOptions = [
   ngOnInit(): void {
     // ✅ Default = Active
     this.appliedFilter['status-eq'] = 1;
+    this.appliedFilter['Platform-eq'] = this.selectedPlatforms.join(',');
     this.loadAdminRemarks();
   }
   // ── Table Methods ──────────────────────────────────────

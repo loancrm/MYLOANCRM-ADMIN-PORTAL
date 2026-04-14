@@ -623,7 +623,7 @@
         </div> -->
         <!-- AFTER — add this -->
       <div class="col-md-3 mt-2 no-padding-small">
-        <p-multiSelect
+        <!-- <p-multiSelect
           [options]="platformOptions"
           [(ngModel)]="selectedPlatforms"
           optionLabel="label"
@@ -633,6 +633,18 @@
           [style]="{ width: '100%' }"
           [maxSelectedLabels]="2"
           selectedItemsLabel="{0} platforms selected"
+        ></p-multiSelect> -->
+        <p-multiSelect
+          [options]="platformOptions"
+          [(ngModel)]="selectedPlatforms"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="All Platforms"
+          (onChange)="onPlatformFilterChange($event)"
+          [style]="{ width: '100%' }"
+          [maxSelectedLabels]="3"
+          selectedItemsLabel="{0} platforms selected"
+          [defaultLabel]="'All Platforms'"
         ></p-multiSelect>
       </div>
         <div class="col-md-3 mt-2 no-padding-small">

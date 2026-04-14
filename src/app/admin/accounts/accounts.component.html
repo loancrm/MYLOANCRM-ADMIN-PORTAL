@@ -202,9 +202,9 @@
           <th pSortableColumn="businessName" class="text-nowrap">
             Business Name <p-sortIcon field="businessName"></p-sortIcon>
           </th>
-          <th pSortableColumn="name" class="text-nowrap">
+          <!-- <th pSortableColumn="name" class="text-nowrap">
             Person Name <p-sortIcon field="name"></p-sortIcon>
-          </th>
+          </th> -->
           <th pSortableColumn="mobile" class="text-nowrap">
             Mobile <p-sortIcon field="mobile"></p-sortIcon>
           </th>
@@ -217,15 +217,15 @@
           <th pSortableColumn="latest_status" class="text-nowrap">
             Plan Status <p-sortIcon field="latest_status"></p-sortIcon>
           </th>
-          <th class="text-nowrap">
+          <th  style="width:500px;">
             Remarks
           </th>
           <th pSortableColumn="createdOn" class="text-nowrap">
             Created Date <p-sortIcon field="createdOn"></p-sortIcon>
           </th>
-          <th pSortableColumn="updatedOn" class="text-nowrap">
+          <!-- <th pSortableColumn="updatedOn" class="text-nowrap">
             Updated Date <p-sortIcon field="updatedOn"></p-sortIcon>
-          </th>
+          </th> -->
           <th class="text-nowrap">Quick Actions</th>
         </tr>
       </ng-template>
@@ -247,11 +247,11 @@
             </span>
           </td>
 
-          <td>
+          <!-- <td>
             <span *ngIf="team.name" class="table-column-data">
               {{ team.name | capitalizeFirst }}
             </span>
-          </td>
+          </td> -->
 
           <td>
             <span class="table-column-data" *ngIf="team.mobile">{{
@@ -291,14 +291,14 @@
             }}</span>
           </td>
 
-           <td (click)="$event.stopPropagation()">
+           <td (click)="$event.stopPropagation()" >
             <p-dropdown
               [options]="adminRemarkOptions"
               [(ngModel)]="team.remarkId"
               optionLabel="label"
               optionValue="value"
               placeholder="Select Remark"
-              [style]="{ width: '160px' }"
+              [style]="{ width: '100%' }"
               (onChange)="onRemarkChange(team, team.remarkId)"
               (click)="$event.stopPropagation()"
               appendTo="body"
@@ -357,11 +357,11 @@
             }}</span>
           </td>
 
-          <td>
+          <!-- <td>
             <span class="table-column-data" *ngIf="team.updatedOn">{{
               team.updatedOn | date
             }}</span>
-          </td>
+          </td> -->
 
           <td>
             <div class="d-flex">

@@ -947,39 +947,97 @@ getBankWiseAnalytics(
   const url = 'accounts/bank-wise-analytics';
   return this.serviceMeta.httpGet(url, null, params);
 }
+// getAccountWiseBreakdown(
+//   metric: string,
+//   loanType: string,
+//   from: number = 0,
+//   count: number = 20,
+//   search: string = '',
+//   filters: any = {}  
+// ): Observable<any> {
+//   const params: any = { metric, loanType, from, count };
+//   if (search) params['search'] = search;
+//   const url = 'accounts/global-breakdown';
+//   return this.serviceMeta.httpGet(url, null, params);
+// }
+
 getAccountWiseBreakdown(
   metric: string,
   loanType: string,
   from: number = 0,
   count: number = 20,
-  search: string = ''
+  search: string = '',
+  filters: any = {}
 ): Observable<any> {
+
   const params: any = { metric, loanType, from, count };
-  if (search) params['search'] = search;
+
+  if (search) {
+    params['search'] = search;
+  }
+
+  // ✅ ADD THIS BLOCK (IMPORTANT)
+  if (filters) {
+    Object.keys(filters).forEach(key => {
+      if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+        params[key] = filters[key];
+      }
+    });
+  }
+
   const url = 'accounts/global-breakdown';
   return this.serviceMeta.httpGet(url, null, params);
 }
+
+// getCibilBreakdown(
+//   from: number = 0,
+//   count: number = 20,
+//   search: string = '',
+//   cibilType: string = ''
+// ): Observable<any> {
+//   const params: any = { from, count };
+//   if (search)    params['search']    = search;
+//   if (cibilType) params['cibilType'] = cibilType;
+//   const url = 'admin/cibil-breakdown';
+//   return this.serviceMeta.httpGet(url, null, params);
+// }
 getCibilBreakdown(
   from: number = 0,
   count: number = 20,
   search: string = '',
-  cibilType: string = ''
+  cibilType: string = '',
+  filters: any = {}   // ✅ ADD THIS
 ): Observable<any> {
+
   const params: any = { from, count };
+
   if (search)    params['search']    = search;
   if (cibilType) params['cibilType'] = cibilType;
-  const url = 'admin/cibil-breakdown';
-  return this.serviceMeta.httpGet(url, null, params);
+
+  // ✅ Add filters same as lenders
+  Object.keys(filters).forEach(key => {
+    params[key] = filters[key];
+  });
+
+  return this.serviceMeta.httpGet('admin/cibil-breakdown', null, params);
 }
 getSanctionedDisbursedBreakdown(
   type: 'sanctioned' | 'disbursed',
   loanType: string,
   from: number = 0,
   count: number = 20,
-  search: string = ''
+  search: string = '',
+  filters: any = {}  
 ): Observable<any> {
   const params: any = { type, loanType, from, count };
   if (search) params['search'] = search;
+   if (filters) {
+    Object.keys(filters).forEach(key => {
+      if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+        params[key] = filters[key];
+      }
+    });
+  }
   const url = 'accounts/sanctioned-disbursed-breakdown';
   return this.serviceMeta.httpGet(url, null, params);
 }
@@ -1064,29 +1122,91 @@ updateLeadRemark(leadId: number, remarkId: any) {
     return this.serviceMeta.httpPut(url, null);
   }
 
- getAccountLeadsBreakdown(
+//  getAccountLeadsBreakdown(
+//   accountId: string,
+//   metric: string,
+//   loanType: string,
+//   from: number = 0,
+//   count: number = 10,
+//   search: string = ''
+// ): Observable<any> {
+//   const params: any = { accountId, metric, loanType, from, count };
+//   if (search) params['search'] = search;
+//   const url = 'accounts/leads-breakdown';
+//   return this.serviceMeta.httpGet(url, null, params);
+// }
+
+getAccountLeadsBreakdown(
   accountId: string,
   metric: string,
   loanType: string,
   from: number = 0,
   count: number = 10,
-  search: string = ''
+  search: string = '',
+  filters: any = {}       // ✅ NEW — receives plan/status/date filters
 ): Observable<any> {
+ 
   const params: any = { accountId, metric, loanType, from, count };
-  if (search) params['search'] = search;
+ 
+  if (search) {
+    params['search'] = search;
+  }
+ 
+  // ✅ Spread active filters (status-eq, latest_plan_name-eq, fromDate, toDate etc.)
+  if (filters) {
+    Object.keys(filters).forEach(key => {
+      if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+        params[key] = filters[key];
+      }
+    });
+  }
+ 
   const url = 'accounts/leads-breakdown';
   return this.serviceMeta.httpGet(url, null, params);
 }
+// getLendersBreakdown(
+//   from: number = 0,
+//   count: number = 10,
+//   search: string = '',
+  
+// ): Observable<any> {
+//   const params: any = { from, count };
+//   if (search) params['search'] = search;
+//   const url = 'accounts/lenders-breakdown';
+//   return this.serviceMeta.httpGet(url, null, params);
+// }
 
 getLendersBreakdown(
   from: number = 0,
   count: number = 10,
-  search: string = ''
+  search: string = '',
+  filters: any = {}
+): Observable<any> {
+
+  const params: any = { from, count };
+
+  if (search) params['search'] = search;
+
+  // ✅ Add filters
+  Object.keys(filters).forEach(key => {
+    params[key] = filters[key];
+  });
+
+  return this.serviceMeta.httpGet('accounts/lenders-breakdown', null, params);
+}
+
+getUsersBreakdown(
+  from: number = 0,
+  count: number = 10,
+  search: string = '',
+  filters: any = {}
 ): Observable<any> {
   const params: any = { from, count };
   if (search) params['search'] = search;
-  const url = 'accounts/lenders-breakdown';
-  return this.serviceMeta.httpGet(url, null, params);
+  Object.keys(filters).forEach(key => {
+    params[key] = filters[key];
+  });
+  return this.serviceMeta.httpGet('accounts/users-breakdown', null, params);
 }
 
 }

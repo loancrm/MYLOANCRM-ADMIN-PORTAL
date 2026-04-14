@@ -10,6 +10,8 @@ import { PreloaderModule } from 'src/app/preloader/preloader.module';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
+import { CalendarModule } from 'primeng/calendar';
+import { MultiSelectModule } from 'primeng/multiselect';
 const routes: Routes = [
   { path: '', component: GlobalAnalyticsComponent },
   {
@@ -36,6 +38,8 @@ const routes: Routes = [
     InputSwitchModule,
     InputTextModule,
     TableModule,
+    CalendarModule,
+    MultiSelectModule,
     [RouterModule.forChild(routes)],
   ]
 })
