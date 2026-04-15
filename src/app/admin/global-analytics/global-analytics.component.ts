@@ -120,7 +120,7 @@ userNameToSearch = '';
 selectedAccountStatus = { id: 1, displayName: 'Active' }; // default
 
 planTypeOptions = [
-  { label: 'All',          value: 'ALL'          },
+  // { label: 'All',          value: 'ALL'          },
   { label: 'Free Trial',   value: 'Free Trial'   },
   { label: 'Basic',        value: 'Basic'        },
   { label: 'Premium',      value: 'Premium'      },
