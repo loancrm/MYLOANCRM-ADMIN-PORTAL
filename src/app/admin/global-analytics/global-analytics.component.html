@@ -643,10 +643,10 @@
         <span class="bpd-subtitle">
           <span *ngIf="!amountDialogLoading">
             {{ amountTotal }} accounts
-            <span class="bpd-dot">·</span>
+            <!-- <span class="bpd-dot">·</span>
             {{ formatAmount(amountGrandTotal) }} total
             <span class="bpd-dot">·</span>
-            {{ amountGrandFiles }} files
+            {{ amountGrandFiles }} files -->
           </span>
           <span *ngIf="amountDialogLoading">Loading...</span>
         </span>
@@ -1284,7 +1284,10 @@
           <th style="width:50px;">#</th>
           <th>Account ID</th>
           <th>Business Name</th>
-          <th>No. of Users</th>
+          <th class="text-center">Active Users</th>
+          <th class="text-center">Inactive Users</th>
+          <th class="text-center">Total Users</th>
+          <!-- <th>No. of Users</th> -->
         </tr>
       </ng-template>
 
@@ -1293,7 +1296,25 @@
           <td><span class="bpd-rank-num">{{ rowIndex + 1 }}</span></td>
           <td><div class="bpd-acc-id">{{ acc.accountId }}</div></td>
           <td><div class="bpd-acc-name text-capitalize">{{ acc.businessName }}</div></td>
-          <td><span class="bpd-total-num">{{ acc.totalUsers }}</span></td>
+          <!-- <td><span class="bpd-total-num">{{ acc.totalUsers }}</span></td> -->
+           <!-- Active count -->
+          <td class="text-center">
+            <span class="user-status-badge user-status-badge--active">
+              {{ acc.activeUsers }}
+            </span>
+          </td>
+
+          <!-- Inactive count -->
+          <td class="text-center">
+            <span class="user-status-badge user-status-badge--inactive">
+              {{ acc.inactiveUsers }}
+            </span>
+          </td>
+
+          <!-- Total -->
+          <td class="text-center">
+            <span class="bpd-total-num">{{ acc.totalUsers }}</span>
+          </td>
         </tr>
       </ng-template>
 

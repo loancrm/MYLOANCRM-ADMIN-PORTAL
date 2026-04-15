@@ -20,6 +20,8 @@ cibilRows      = 10;
 amountRows     = 10;
 lendersRows    = 10;
 usersRows      = 10;
+usersGrandActive   = 0;
+usersGrandInactive = 0;
 
   loading          = false;
   // ── Page-level loan type (KPI cards only) ──
@@ -460,7 +462,7 @@ private usersSearchSubject = new Subject<string>();
     this.amountType        = type;
     this.amountDialogTitle = type === 'sanctioned' ? 'Total Sanctioned' : 'Total Disbursed';
     this.amountSearch      = '';
-    this.amountLoanType    = 'all';     // reset dialog loan type filter
+    this.amountLoanType    = this.selectedLoanType;    // reset dialog loan type filter
     this.amountAccounts    = [];
     this.amountSummary     = [];
     this.amountTotal       = 0;
@@ -780,6 +782,7 @@ reloadOpenDialogs(): void {
 
   // Breakdown dialog
   if (this.showBreakdownDialog) {
+     this.breakdownLoanType = this.selectedLoanType;
     if (this.breakdownTable) this.breakdownTable.first = 0;
     this.onBreakdownLazyLoad({ first: 0, rows: 10 });
   }
@@ -865,12 +868,36 @@ openUsersBreakdown(): void {
   this.onUsersLazyLoad({ first: 0, rows: 10 });
 }
 
+// onUsersLazyLoad(event: any): void {
+//   if (!this.usersDialogReady) return;
+
+//   this.usersDialogLoading = true;
+//   const from  = event.first ?? 0;
+//   // const count = event.rows  ?? 10;
+//   const count = event.rows  ?? this.usersRows;
+//   this.usersRows = count;
+//   const filterParams = this.getCurrentFilterParams();
+
+//   this.leadsService.getUsersBreakdown(
+//     from, count, this.usersSearch.trim(), filterParams
+//   ).subscribe(
+//     (res: any) => {
+//       if (from === 0) {
+//         this.usersGrandTotal = res.grandTotal || 0;
+//         // this.stats.users     = res.grandTotal || 0; // keep KPI in sync
+//       }
+//       this.usersAccounts      = res.accounts || [];
+//       this.usersTotal         = res.total    || 0;
+//       this.usersDialogLoading = false;
+//     },
+//     () => { this.usersDialogLoading = false; }
+//   );
+// }
 onUsersLazyLoad(event: any): void {
   if (!this.usersDialogReady) return;
 
   this.usersDialogLoading = true;
   const from  = event.first ?? 0;
-  // const count = event.rows  ?? 10;
   const count = event.rows  ?? this.usersRows;
   this.usersRows = count;
   const filterParams = this.getCurrentFilterParams();
@@ -880,8 +907,9 @@ onUsersLazyLoad(event: any): void {
   ).subscribe(
     (res: any) => {
       if (from === 0) {
-        this.usersGrandTotal = res.grandTotal || 0;
-        // this.stats.users     = res.grandTotal || 0; // keep KPI in sync
+        this.usersGrandTotal    = res.grandTotal    || 0;
+        this.usersGrandActive   = res.grandActive   || 0;   // ← NEW
+        this.usersGrandInactive = res.grandInactive || 0;   // ← NEW
       }
       this.usersAccounts      = res.accounts || [];
       this.usersTotal         = res.total    || 0;

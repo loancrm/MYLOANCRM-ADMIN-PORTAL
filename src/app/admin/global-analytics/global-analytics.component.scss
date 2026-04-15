@@ -712,7 +712,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: auto !important;
   background: var(--color-background-primary);
   min-height: 0; 
 }
@@ -932,7 +932,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow: hidden;
+  overflow: auto !important;
 }
 
 .city-selected-dot {
