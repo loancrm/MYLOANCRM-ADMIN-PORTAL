@@ -1,86 +1,58 @@
+
+<!-- settings.component.html -->
 <div class="p-1 m-2 fixed-card">
-    <div class="d-flex justify-content-between">
-      <div
-        class="d-flex align-items-center justify-content-center pointer-cursor"
-        (click)="goBack()"
-      >
-        <span class="me-2 d-flex align-items-center">
-          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
-        </span>
-        <b>
-          <span class="back-btn-text">Settings </span>
-        </b>
-      </div>
-      
+  <div class="d-flex justify-content-between">
+    <div class="d-flex align-items-center justify-content-center pointer-cursor" (click)="goBack()">
+      <span class="me-2 d-flex align-items-center">
+        <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+      </span>
+      <b><span class="back-btn-text">Settings</span></b>
     </div>
   </div>
+</div>
 
 <div class="m-2">
   <p-tabView>
+
+    <!-- ══════════════════════════════════════════════════════════
+         TAB 1 – REMARKS
+    ══════════════════════════════════════════════════════════ -->
     <p-tabPanel header="Remarks">
 
-      <!-- Add Button -->
       <div class="d-flex justify-content-end mb-2">
-        <button
-          pButton
-          type="button"
-          class="p-button-primary"
-          icon="pi pi-plus"
-          label="Add Remark"
-          (click)="openDialog()"
-        ></button>
+        <button pButton type="button" class="p-button-primary" icon="pi pi-plus"
+          label="Add Remark" (click)="openRemarkDialog()">
+        </button>
       </div>
 
-      <!-- Remarks Table -->
-      <p-table
-        #remarksTable
-        [value]="remarks"
-        [lazy]="true"
-        (onLazyLoad)="loadRemarks($event)"
-        [totalRecords]="remarksCount"
-        [loading]="loading"
-        [rows]="10"
-        [paginator]="true"
-        [rowsPerPageOptions]="[10, 25, 50]"
-        [showCurrentPageReport]="true"
+      <p-table #remarksTable [value]="remarks" [lazy]="true"
+        (onLazyLoad)="loadRemarks($event)" [totalRecords]="remarksCount"
+        [loading]="loading" [rows]="10" [paginator]="true"
+        [rowsPerPageOptions]="[10, 25, 50]" [showCurrentPageReport]="true"
         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Remarks"
-        sortField="createdAt"
-        [sortOrder]="-1"
-        class="p-datatable-striped"
-        styleClass="p-datatable-customers"
-        responsiveLayout="scroll"
-      >
-        <!-- Caption: Status Filter -->
+        sortField="createdAt" [sortOrder]="-1"
+        class="p-datatable-striped" styleClass="p-datatable-customers"
+        responsiveLayout="scroll">
+
         <ng-template pTemplate="caption">
           <div class="row">
             <div class="col-md-3 mt-2 no-padding-small">
-              <p-dropdown
-                [options]="statusFilterOptions"
-                [(ngModel)]="selectedStatusFilter"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Filter by Status"
-                [style]="{ width: '100%' }"
-                (onChange)="onStatusFilterChange($event)"
-                appendTo="body"
-              ></p-dropdown>
+              <p-dropdown [options]="statusFilterOptions" [(ngModel)]="selectedStatusFilter"
+                optionLabel="label" optionValue="value" placeholder="Filter by Status"
+                [style]="{ width: '100%' }" (onChange)="onStatusFilterChange($event)"
+                appendTo="body">
+              </p-dropdown>
             </div>
           </div>
         </ng-template>
 
         <ng-template pTemplate="header">
           <tr>
-            <th pSortableColumn="remarkId" class="text-nowrap">
-              ID <p-sortIcon field="remarkId"></p-sortIcon>
-            </th>
-            <th pSortableColumn="displayName" class="text-nowrap">
-              Remark Name <p-sortIcon field="displayName"></p-sortIcon>
-            </th>
+            <th pSortableColumn="remarkId" class="text-nowrap">ID <p-sortIcon field="remarkId"></p-sortIcon></th>
+            <th pSortableColumn="displayName" class="text-nowrap">Remark Name <p-sortIcon field="displayName"></p-sortIcon></th>
             <th class="text-nowrap">Lead Status</th>
             <th class="text-nowrap">Status</th>
-            <th pSortableColumn="createdAt" class="text-nowrap">
-              Created At <p-sortIcon field="createdAt"></p-sortIcon>
-            </th>
+            <th pSortableColumn="createdAt" class="text-nowrap">Created At <p-sortIcon field="createdAt"></p-sortIcon></th>
             <th class="text-nowrap">Actions</th>
           </tr>
         </ng-template>
@@ -91,13 +63,8 @@
             <td>{{ remark.displayName }}</td>
             <td>{{ getTypeName(remark.status) }}</td>
             <td>
-              <span
-                class="status-badge"
-                [ngClass]="{
-                  'status-active':   remark.remarkInternalStatus == 1,
-                  'status-inactive': remark.remarkInternalStatus == 2
-                }"
-              >
+              <span class="status-badge"
+                [ngClass]="{ 'status-active': remark.remarkInternalStatus == 1, 'status-inactive': remark.remarkInternalStatus == 2 }">
                 <span class="status-dot"></span>
                 {{ remark.remarkInternalStatus == 1 ? 'Active' : 'Inactive' }}
               </span>
@@ -105,42 +72,20 @@
             <td>{{ remark.createdAt | date }}</td>
             <td>
               <div class="d-flex align-items-center">
-                <img
-                  alt="Edit"
-                  src="../../../assets/images/icons/edit.svg"
-                  width="24px"
-                  height="24px"
-                  class="me-2"
-                  style="cursor: pointer"
-                  (click)="openDialog(remark)"
-                  pTooltip="Edit Remark"
-                  tooltipPosition="top"
-                />
-                <button
-                  [matMenuTriggerFor]="menu"
-                  style="all: unset; cursor: pointer"
-                  pTooltip="Actions"
-                  tooltipPosition="top"
-                >
-                  <img
-                    src="assets/images/icons/menu.svg"
-                    width="24"
-                    height="24"
-                  />
+                <img alt="Edit" src="../../../assets/images/icons/edit.svg" width="24px" height="24px"
+                  class="me-2" style="cursor: pointer" (click)="openRemarkDialog(remark)"
+                  pTooltip="Edit Remark" tooltipPosition="top" />
+                <button [matMenuTriggerFor]="remarkMenu" style="all: unset; cursor: pointer"
+                  pTooltip="Actions" tooltipPosition="top">
+                  <img src="assets/images/icons/menu.svg" width="24" height="24" />
                 </button>
-                <mat-menu #menu="matMenu">
-                  <button
-                    mat-menu-item
-                    *ngIf="remark.remarkInternalStatus == 1"
-                    (click)="changeRemarkInternalStatus(remark.remarkId, 2)"
-                  >
+                <mat-menu #remarkMenu="matMenu">
+                  <button mat-menu-item *ngIf="remark.remarkInternalStatus == 1"
+                    (click)="changeRemarkInternalStatus(remark.remarkId, 2)">
                     <span>Mark as Inactive</span>
                   </button>
-                  <button
-                    mat-menu-item
-                    *ngIf="remark.remarkInternalStatus == 2"
-                    (click)="changeRemarkInternalStatus(remark.remarkId, 1)"
-                  >
+                  <button mat-menu-item *ngIf="remark.remarkInternalStatus == 2"
+                    (click)="changeRemarkInternalStatus(remark.remarkId, 1)">
                     <span>Mark as Active</span>
                   </button>
                 </mat-menu>
@@ -152,12 +97,7 @@
         <ng-template pTemplate="emptymessage">
           <tr>
             <td colspan="6" class="text-center fw-bold">
-              <img
-                alt="No Data"
-                src="../../../assets/images/menu/no-data.gif"
-                width="200"
-                height="200"
-              />
+              <img alt="No Data" src="../../../assets/images/menu/no-data.gif" width="200" height="200" />
               <p>No Remarks Found</p>
             </td>
           </tr>
@@ -165,69 +105,223 @@
       </p-table>
 
     </p-tabPanel>
+
+    <!-- ══════════════════════════════════════════════════════════
+         TAB 2 – TIME SLOTS
+    ══════════════════════════════════════════════════════════ -->
+    <p-tabPanel header="Time Slots">
+
+      <!-- Max bookings per slot config card -->
+      <!-- <div class="card mb-3 p-3" style="max-width:420px; border:1px solid #dee2e6; border-radius:8px;">
+        <h6 class="fw-bold mb-3">
+          <i class="pi pi-users me-2"></i>Max Bookings Per Slot
+        </h6>
+        <div class="d-flex align-items-center gap-3">
+          <p-inputNumber
+            [(ngModel)]="maxUsersPerSlot"
+            [min]="1" [max]="50"
+            [showButtons]="true"
+            buttonLayout="horizontal"
+            decrementButtonClass="p-button-secondary"
+            incrementButtonClass="p-button-secondary"
+            incrementButtonIcon="pi pi-plus"
+            decrementButtonIcon="pi pi-minus"
+            [style]="{ width: '160px' }">
+          </p-inputNumber>
+          <button pButton label="Save" icon="pi pi-save"
+            class="p-button-success" (click)="saveSlotConfig()">
+          </button>
+        </div>
+        <small class="text-muted mt-2 d-block">
+          Each slot allows up to <strong>{{ maxUsersPerSlot }}</strong> booking(s).
+          Sales persons (role = Sales, status = Active) are auto-assigned on each booking.
+        </small>
+      </div> -->
+
+      <div class="slot-config-card mb-3 p-3">
+        <h6 class="slot-title">
+          <i class="pi pi-users me-2"></i>
+          Max Bookings Per Slot
+        </h6>
+
+        <div class="slot-controls">
+          <p-inputNumber
+            [(ngModel)]="maxUsersPerSlot"
+            [min]="1"
+            [max]="50"
+            [showButtons]="true"
+            buttonLayout="horizontal"
+            decrementButtonClass="p-button-secondary"
+            incrementButtonClass="p-button-secondary"
+            incrementButtonIcon="pi pi-plus"
+            decrementButtonIcon="pi pi-minus">
+          </p-inputNumber>
+        </div>
+         <div>
+          <button pButton label="Save" icon="pi pi-save"
+            class="p-button-success"
+            (click)="saveSlotConfig()">
+          </button>
+        </div>
+       
+
+        <small class="slot-hint">
+          Each slot allows up to <strong>{{ maxUsersPerSlot }}</strong> booking(s).
+          Sales persons (role = Sales, status = Active) are auto-assigned on each booking.
+        </small>ll>
+      </div>
+
+      <!-- Add Slot -->
+      <div class="d-flex justify-content-end mb-2">
+        <button pButton type="button" class="p-button-primary" icon="pi pi-plus"
+          label="Add Slot" (click)="openSlotDialog()">
+        </button>
+      </div>
+
+      <!-- Slots Table -->
+      <p-table #slotsTable [value]="slots" [lazy]="true"
+        (onLazyLoad)="loadSlots($event)" [totalRecords]="slotsCount"
+        [loading]="slotsLoading" [rows]="10" [paginator]="true"
+        [rowsPerPageOptions]="[10, 25, 50]" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Slots"
+        class="p-datatable-striped" responsiveLayout="scroll">
+
+        <ng-template pTemplate="caption">
+          <div class="row">
+            <div class="col-md-3 mt-2">
+              <p-dropdown [options]="slotStatusFilterOptions" [(ngModel)]="selectedSlotStatusFilter"
+                optionLabel="label" optionValue="value" placeholder="Filter by Status"
+                [style]="{ width: '100%' }" (onChange)="onSlotStatusFilterChange($event)"
+                appendTo="body">
+              </p-dropdown>
+            </div>
+          </div>
+        </ng-template>
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="text-nowrap">ID</th>
+            <th class="text-nowrap">Slot Time</th>
+            <th class="text-nowrap">Status</th>
+            <th class="text-nowrap">Created At</th>
+            <th class="text-nowrap">Actions</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-slot>
+          <tr>
+            <td>{{ slot.id }}</td>
+            <td><strong>{{ slot.slot_time }}</strong></td>
+            <td>
+              <span class="status-badge"
+                [ngClass]="{ 'status-active': slot.status == 1, 'status-inactive': slot.status == 2 }">
+                <span class="status-dot"></span>
+                {{ slot.status == 1 ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td>{{ slot.created_at | date }}</td>
+            <td>
+              <div class="d-flex align-items-center">
+                <img alt="Edit" src="../../../assets/images/icons/edit.svg" width="24px" height="24px"
+                  class="me-2" style="cursor: pointer" (click)="openSlotDialog(slot)"
+                  pTooltip="Edit Slot" tooltipPosition="top" />
+                <button [matMenuTriggerFor]="slotMenu" style="all: unset; cursor: pointer"
+                  pTooltip="Actions" tooltipPosition="top">
+                  <img src="assets/images/icons/menu.svg" width="24" height="24" />
+                </button>
+                <mat-menu #slotMenu="matMenu">
+                  <button mat-menu-item *ngIf="slot.status == 1" (click)="changeSlotStatus(slot.id, 2)">
+                    <span>Mark as Inactive</span>
+                  </button>
+                  <button mat-menu-item *ngIf="slot.status == 2" (click)="changeSlotStatus(slot.id, 1)">
+                    <span>Mark as Active</span>
+                  </button>
+                </mat-menu>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="5" class="text-center fw-bold">
+              <img alt="No Data" src="../../../assets/images/menu/no-data.gif" width="200" height="200" />
+              <p>No Slots Found</p>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+    </p-tabPanel>
+
   </p-tabView>
 </div>
 
-<!-- Add / Edit Remark Dialog -->
-<p-dialog
-  [(visible)]="showDialog"
-  [header]="editMode ? 'Edit Remark' : 'Add Remark'"
-  [modal]="true"
-  [style]="{ width: '420px' }"
-  [draggable]="false"
-  [resizable]="false"
-  appendTo="body"
->
+<!-- ══════════════════════════════════════════════════════════
+     ADD / EDIT REMARK DIALOG
+══════════════════════════════════════════════════════════ -->
+<p-dialog [(visible)]="showRemarkDialog"
+  [header]="editRemarkMode ? 'Edit Remark' : 'Add Remark'"
+  [modal]="true" [style]="{ width: '420px' }"
+  [draggable]="false" [resizable]="false" appendTo="body">
   <form [formGroup]="remarkForm">
     <div class="p-fluid">
       <div class="p-field mb-3">
         <label class="mb-1 d-block fw-semibold">Lead Status <span class="text-danger">*</span></label>
-        <p-dropdown
-          [options]="leadStatus"
-          formControlName="status"
-          optionLabel="displayName"
-          optionValue="id"
-          appendTo="body"
-          placeholder="Select Lead Status"
-          [style]="{ width: '100%' }"
-        ></p-dropdown>
-        <small
-          class="text-danger"
-          *ngIf="remarkForm.get('status')?.invalid && remarkForm.get('status')?.touched"
-        >Lead Status is required</small>
+        <p-dropdown [options]="leadStatus" formControlName="status"
+          optionLabel="displayName" optionValue="id" appendTo="body"
+          placeholder="Select Lead Status" [style]="{ width: '100%' }">
+        </p-dropdown>
+        <small class="text-danger"
+          *ngIf="remarkForm.get('status')?.invalid && remarkForm.get('status')?.touched">
+          Lead Status is required
+        </small>
       </div>
-
       <div class="p-field mb-3">
         <label class="mb-1 d-block fw-semibold">Remark Name <span class="text-danger">*</span></label>
-        <input
-          pInputText
-          formControlName="displayName"
-          placeholder="Enter Remark Name"
-          class="w-100"
-        />
-        <small
-          class="text-danger"
-          *ngIf="remarkForm.get('displayName')?.invalid && remarkForm.get('displayName')?.touched"
-        >Remark Name is required</small>
+        <input pInputText formControlName="displayName" placeholder="Enter Remark Name" class="w-100" />
+        <small class="text-danger"
+          *ngIf="remarkForm.get('displayName')?.invalid && remarkForm.get('displayName')?.touched">
+          Remark Name is required
+        </small>
       </div>
     </div>
-
     <div class="d-flex justify-content-end mt-2 gap-2">
-      <button
-        pButton
-        label="Cancel"
-        class="p-button-text"
-        type="button"
-        (click)="showDialog = false"
-      ></button>
-      <button
-        pButton
-        label="Save"
-        class="p-button-primary"
-        type="button"
-        (click)="saveRemark()"
-        [disabled]="remarkForm.invalid"
-      ></button>
+      <button pButton label="Cancel" class="p-button-text" type="button" (click)="showRemarkDialog = false"></button>
+      <button pButton label="Save" class="p-button-primary" type="button"
+        (click)="saveRemark()" [disabled]="remarkForm.invalid">
+      </button>
+    </div>
+  </form>
+</p-dialog>
+
+<!-- ══════════════════════════════════════════════════════════
+     ADD / EDIT SLOT DIALOG
+══════════════════════════════════════════════════════════ -->
+<p-dialog [(visible)]="showSlotDialog"
+  [header]="editSlotMode ? 'Edit Slot' : 'Add Slot'"
+  [modal]="true" [style]="{ width: '380px' }"
+  [draggable]="false" [resizable]="false" appendTo="body">
+  <form [formGroup]="slotForm">
+    <div class="p-fluid">
+      <div class="p-field mb-3">
+        <label class="mb-1 d-block fw-semibold">
+          Slot Time <span class="text-danger">*</span>
+          <small class="text-muted fw-normal ms-2">Format: 10:00 AM</small>
+        </label>
+        <input pInputText formControlName="slot_time"
+          placeholder="e.g. 10:00 AM" class="w-100" />
+        <small class="text-danger"
+          *ngIf="slotForm.get('slot_time')?.invalid && slotForm.get('slot_time')?.touched">
+          Valid slot time is required (e.g. 10:00 AM)
+        </small>
+      </div>
+    </div>
+    <div class="d-flex justify-content-end mt-2 gap-2">
+      <button pButton label="Cancel" class="p-button-text" type="button" (click)="showSlotDialog = false"></button>
+      <button pButton label="Save" class="p-button-primary" type="button"
+        (click)="saveSlot()" [disabled]="slotForm.invalid">
+      </button>
     </div>
   </form>
 </p-dialog>

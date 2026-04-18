@@ -22,7 +22,7 @@ export class SingleWhatsappCampaignComponent implements OnInit, AfterViewChecked
   selectedTemplate: any = null;
   templateBodyText      = '';
   templateParams: string[] = [];
-  paramMappings: { type: 'db' | 'manual'; dbField: string; manualValue: string }[] = [];
+  paramMappings: { type: 'db' | 'manual'; dbField: string; manualValue: string; isButtonParam?: boolean; }[] = [];
 
   // ── Message mode ───────────────────────────────────────────────────────────
   messageMode: 'template' | 'custom' = 'template';
@@ -143,6 +143,7 @@ export class SingleWhatsappCampaignComponent implements OnInit, AfterViewChecked
   }
 
   // ── Template select ────────────────────────────────────────────────────────
+
   onTemplateSelect(): void {
     if (!this.selectedTemplate) {
       this.templateBodyText = '';
@@ -151,15 +152,53 @@ export class SingleWhatsappCampaignComponent implements OnInit, AfterViewChecked
       return;
     }
 
-    const bodyComp = this.selectedTemplate.components?.find(
-      (c: any) => c.type === 'BODY'
+    const components = this.selectedTemplate.components || [];
+
+    const headerComp = components.find((c: any) => c.type === 'HEADER');
+    const bodyComp   = components.find((c: any) => c.type === 'BODY');
+    const buttonComp = components.find((c: any) => c.type === 'BUTTONS');
+
+    const templateHeaderText = headerComp?.text || '';
+    this.templateBodyText    = bodyComp?.text   || this.selectedTemplate.body_text || '';
+    const templateButtons    = buttonComp?.buttons || [];
+
+    // ✅ Count button URL params
+    let buttonParamCount = 0;
+    templateButtons.forEach((btn: any) => {
+      if (btn.type === 'URL') {
+        const urlMatches = (btn.url || '').match(/{{\d+}}/g);
+        if (urlMatches && urlMatches.length > 0) {
+          buttonParamCount += urlMatches.length;
+        } else if (btn.example && Array.isArray(btn.example) && btn.example.length > 0) {
+          buttonParamCount += 1;
+        }
+      }
+    });
+
+    // ✅ Collect params from HEADER + BODY
+    const textSources = [templateHeaderText, this.templateBodyText].join(' ');
+    const textMatches = textSources.match(/{{\d+}}/g) || [];
+    const textParams  = [...new Set(textMatches)] as string[];
+
+    // ✅ Build button param placeholders
+    const startIndex   = textParams.length + 1;
+    const buttonParams = Array.from(
+      { length: buttonParamCount },
+      (_, i) => `{{${startIndex + i}}}`
     );
-    this.templateBodyText = bodyComp?.text || this.selectedTemplate.body_text || '';
-    const matches         = this.templateBodyText.match(/{{\d+}}/g) || [];
-    this.templateParams   = [...new Set(matches)] as string[];
-    this.paramMappings    = this.templateParams.map(() => ({
-      type: 'db' as 'db', dbField: '', manualValue: ''
-    }));
+
+    // ✅ Combined
+    this.templateParams = [...textParams, ...buttonParams];
+
+    this.paramMappings = this.templateParams.map((param, i) => {
+      const isButtonParam = i >= textParams.length;
+      return {
+        type: isButtonParam ? 'manual' : 'db' as 'db' | 'manual',
+        dbField: '',
+        manualValue: '',
+        isButtonParam
+      };
+    });
   }
 
   // ── Resolve param value ────────────────────────────────────────────────────
@@ -200,78 +239,79 @@ export class SingleWhatsappCampaignComponent implements OnInit, AfterViewChecked
   }
 
   // ── SEND ───────────────────────────────────────────────────────────────────
+
   sendCampaign(): void {
-    if (!this.canSend() || this.sending) return;
+  if (!this.canSend() || this.sending) return;
 
-    this.sending = true;
-    this.result  = null;
+  this.sending = true;
+  this.result  = null;
 
-    let payload: any;
-    let messageSentText = '';
+  let payload: any;
+  let messageSentText = '';
 
-    if (this.messageMode === 'custom') {
-      messageSentText = this.customMessage.trim();
-      payload = {
-        campaignName:    'Direct Message',
-        contacts:        [{ ...this.lead, resolvedParams: [] }],
-        customMessage:   messageSentText,
-        isCustomMessage: true,
-        languageCode:    'en_US',
-        sendType:        'single',
-      };
-    } else {
-      const resolvedParams = this.templateParams.map((_, i) => this.resolveParam(i));
-      messageSentText      = this.previewText;
-      payload = {
-        campaignName:     'Direct Message',
-        contacts:         [{ ...this.lead, resolvedParams }],
-        templateName:     this.selectedTemplate.name,
-        templateBodyText: this.templateBodyText,
-        languageCode:     this.selectedTemplate.language || 'en_US',
-        sendType:         'single',
-      };
-    }
+  if (this.messageMode === 'custom') {
+    messageSentText = this.customMessage.trim();
+    payload = {
+      campaignName:    'Direct Message',
+      contacts:        [{ ...this.lead, resolvedParams: [] }],
+      customMessage:   messageSentText,
+      isCustomMessage: true,
+      languageCode:    'en_US',
+      sendType:        'single',
+    };
+  } else {
+    const resolvedParams = this.templateParams.map((_, i) => this.resolveParam(i));
+    messageSentText      = this.previewText;
 
-    this.campaignService.sendCampaign(payload).subscribe({
-      next: (res: any) => {
-        this.sending = false;
-        this.result  = res;
+    // ✅ Count body params only
+    const textParamCount = this.paramMappings.filter(m => !m.isButtonParam).length;
 
-        const sentResult = res.results?.[0];
-
-        // ── Add bubble immediately ────────────────────────────────────────
-        this.sentMessages.push({
-          templateName: this.messageMode === 'custom'
-            ? 'CUSTOM_MESSAGE'
-            : this.selectedTemplate?.name,
-          messageSent:       sentResult?.messageSent || messageSentText,
-          status:            sentResult?.status      || 'failed',
-          whatsappMessageId: sentResult?.whatsappMessageId || null,
-          error:             sentResult?.error        || null,
-          sent_at:           new Date().toISOString(),
-        });
-
-        // ── Clear input ───────────────────────────────────────────────────
-        this.customMessage    = '';
-        this.selectedTemplate = null;
-        this.templateBodyText = '';
-        this.templateParams   = [];
-        this.paramMappings    = [];
-
-        this.shouldScroll = true;
-
-        if (sentResult?.status === 'sent') {
-          this.toastService.showSuccess('Message sent successfully!');
-        } else {
-          this.toastService.showError('Message failed to send');
-        }
-      },
-      error: () => {
-        this.sending = false;
-        this.toastService.showError('Failed to send message');
-      }
-    });
+    payload = {
+      campaignName:         'Direct Message',
+      contacts:             [{ ...this.lead, resolvedParams }],
+      templateName:         this.selectedTemplate.name,
+      templateBodyText:     this.templateBodyText,
+      languageCode:         this.selectedTemplate.language || 'en_US',
+      sendType:             'single',
+      buttonParamStartIndex: textParamCount,  // ✅ NEW
+    };
   }
+
+  this.campaignService.sendCampaign(payload).subscribe({
+    next: (res: any) => {
+      this.sending = false;
+      this.result  = res;
+
+      const sentResult = res.results?.[0];
+
+      this.sentMessages.push({
+        templateName:      this.messageMode === 'custom' ? 'CUSTOM_MESSAGE' : this.selectedTemplate?.name,
+        messageSent:       sentResult?.messageSent || messageSentText,
+        status:            sentResult?.status      || 'failed',
+        whatsappMessageId: sentResult?.whatsappMessageId || null,
+        error:             sentResult?.error        || null,
+        sent_at:           new Date().toISOString(),
+      });
+
+      this.customMessage    = '';
+      this.selectedTemplate = null;
+      this.templateBodyText = '';
+      this.templateParams   = [];
+      this.paramMappings    = [];
+      this.shouldScroll     = true;
+
+      if (sentResult?.status === 'sent') {
+        this.toastService.showSuccess('Message sent successfully!');
+      } else {
+        this.toastService.showError('Message failed to send');
+      }
+    },
+    error: () => {
+      this.sending = false;
+      this.toastService.showError('Failed to send message');
+    }
+  });
+}
 
   // ── Scroll to bottom ───────────────────────────────────────────────────────
   scrollToBottom(): void {

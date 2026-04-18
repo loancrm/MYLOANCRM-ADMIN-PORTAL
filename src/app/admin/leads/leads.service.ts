@@ -1209,4 +1209,42 @@ getUsersBreakdown(
   return this.serviceMeta.httpGet('accounts/users-breakdown', null, params);
 }
 
+// ── Bookings ──────────────────────────────────────────────────────────────────
+getDemoBookings(filter = {}) {
+  return this.serviceMeta.httpGet('bookings', null, filter);
+}
+getDemoBookingsCount(filter = {}) {
+  return this.serviceMeta.httpGet('bookings/total', null, filter);
+}
+updateBookingStatus(id: number, body: any) {
+  return this.serviceMeta.httpPut(`bookings/${id}/status`, body);
+}
+getSlots(date: string) {
+  return this.serviceMeta.httpGet('slots/available', null, { date }); // ← updated
+}
+
+// ── Slot Settings ─────────────────────────────────────────────────────────────
+getSlotSettings(filter = {}) {
+  return this.serviceMeta.httpGet('slots/settings', null, filter);    // ← updated
+}
+getSlotSettingsCount(filter = {}) {
+  return this.serviceMeta.httpGet('slots/settings/total', null, filter); // ← updated
+}
+createSlotSetting(data: any) {
+  return this.serviceMeta.httpPost('slots/settings', data);           // ← updated
+}
+updateSlotSetting(slotId: number, data: any) {
+  return this.serviceMeta.httpPut('slots/settings/' + slotId, data); // ← updated
+}
+changeSlotSettingStatus(slotId: number, statusId: number) {
+  return this.serviceMeta.httpPut(`slots/settings/${slotId}/changestatus/${statusId}`, null); // ← updated
+}
+
+// ── Slot Config ───────────────────────────────────────────────────────────────
+getSlotConfig() {
+  return this.serviceMeta.httpGet('slots/config');                    // ← updated
+}
+updateSlotConfig(data: { max_users_per_slot: number }) {
+  return this.serviceMeta.httpPut('slots/config', data);             // ← updated
+}
 }

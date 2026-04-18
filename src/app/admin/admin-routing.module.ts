@@ -110,7 +110,11 @@ const routes: Routes = [
         loadChildren: () =>
           import('./global-analytics/global-analytics.module').then((m) => m.GlobalAnalyticsModule),
       },
-
+      {
+        path: 'demo-bookings',
+        loadChildren: () =>
+          import('./demo-bookings/demo-bookings.module').then((m) => m.DemoBookingsModule),
+      },
     ],
   },
 ];

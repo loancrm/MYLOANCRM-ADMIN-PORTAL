@@ -146,7 +146,7 @@ export class SidebarMenuComponent implements OnChanges {
     { label: 'Subscribers', icon: 'Users', route: 'subscribers', condition: true },
     { label: 'Cibil Reports', icon: 'scroll-text', route: 'cibil-reports', condition: true },
     { label: 'CAM Reports', icon: 'file-text', route: 'cam-reports', condition: true },
-    { label: 'Social Media Leads', icon: 'user-round-search', route: 'social-media-leads', condition: true },
+    { label: 'Social Media Leads', icon: 'user-round-search', route: 'social-media-leads', condition: true }, 
 
     {
       label: 'Users',
@@ -154,7 +154,7 @@ export class SidebarMenuComponent implements OnChanges {
       route: 'users',
       condition: this.loggedInUserRole === 1
     },
-
+    { label: 'Demos Booked', icon: 'user-round-search', route: 'demo-bookings', condition: true },
     { label: 'Campaign', icon: 'Send', route: 'campaign', condition: true },
     { label: 'Logs', icon: 'logs', route: 'logs', condition: true },
     { label: 'Templates', icon: 'layout-template', route: 'templates', condition: true },

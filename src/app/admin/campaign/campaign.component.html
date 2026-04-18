@@ -2,19 +2,12 @@
   <div class="p-1 m-2 fixed-card">
     <div class="d-flex justify-content-between align-items-center">
       <b><span class="back-btn-text">📢 WhatsApp Campaign Manager</span></b>
-      <button
-        pButton type="button"
-        label="Create Template"
-        icon="pi pi-plus"
-        class="p-button-primary"
-        (click)="openCreateDialog()"
-      ></button>
+      <button pButton type="button" label="Create Template" icon="pi pi-plus"
+        class="p-button-primary" (click)="openCreateDialog()"></button>
     </div>
   </div>
 
   <div class="m-2">
-
-    <!-- Error Message -->
     <div *ngIf="errorMsg" class="alert alert-danger mb-3">
       <i class="pi pi-exclamation-triangle me-2"></i>{{ errorMsg }}
     </div>
@@ -24,7 +17,7 @@
       <!-- LEFT COLUMN -->
       <div class="col-md-4">
 
-        <!-- Step 1: Campaign Name -->
+        <!-- Step 1 -->
         <div class="card mb-2">
           <div class="card-header bg-primary text-white py-2">
             <h6 class="mb-0">
@@ -33,18 +26,12 @@
             </h6>
           </div>
           <div class="card-body">
-            <input
-              pInputText
-              [(ngModel)]="campaignName"
-              placeholder="e.g. March Offer Campaign"
-              class="w-100"
-            />
+            <input pInputText [(ngModel)]="campaignName"
+              placeholder="e.g. March Offer Campaign" class="w-100" />
           </div>
         </div>
 
-        <!-- Step 2: Select Template -->
-      
-        <!-- Step 2: Select Template -->
+        <!-- Step 2 -->
         <div class="card mb-2">
           <div class="card-header bg-primary text-white py-2">
             <h6 class="mb-0">
@@ -53,49 +40,33 @@
             </h6>
           </div>
           <div class="card-body">
-
-            <!-- ✅ Just the dropdown -->
-            <p-dropdown
-              [options]="templates"
-              [(ngModel)]="selectedTemplate"
-              optionLabel="name"
-              placeholder="-- Select Template --"
-              [style]="{ width: '100%' }"
-              appendTo="body"
-              (onChange)="onTemplateSelect()"
-              [showClear]="true"
-            >
+            <p-dropdown [options]="templates" [(ngModel)]="selectedTemplate"
+              optionLabel="name" placeholder="-- Select Template --"
+              [style]="{ width: '100%' }" appendTo="body"
+              (onChange)="onTemplateSelect()" [showClear]="true">
               <ng-template let-t pTemplate="item">
                 <div class="d-flex align-items-center gap-2">
                   <span>{{ t.name }}</span>
-                  <span class="badge bg-secondary" style="font-size:0.65rem;">
-                    {{ t.language }}
-                  </span>
-                  <span
-                    class="badge"
+                  <span class="badge bg-secondary" style="font-size:0.65rem;">{{ t.language }}</span>
+                  <span class="badge" style="font-size:0.65rem;"
                     [ngClass]="{
-                      'bg-success':           t.approval_status === 'APPROVED',
-                      'bg-danger':            t.approval_status === 'REJECTED',
+                      'bg-success': t.approval_status === 'APPROVED',
+                      'bg-danger':  t.approval_status === 'REJECTED',
                       'bg-warning text-dark': t.approval_status === 'PENDING' || !t.approval_status
-                    }"
-                    style="font-size:0.65rem;"
-                  >
+                    }">
                     {{ t.approval_status || 'PENDING' }}
                   </span>
                 </div>
               </ng-template>
             </p-dropdown>
 
-            <!-- WhatsApp Phone Preview -->
-            <div *ngIf="templateBodyText" class="mt-3">
+            <!-- <div *ngIf="templateBodyText" class="mt-3">
               <small class="preview-label text-muted">
                 <i class="pi pi-eye me-1"></i>WhatsApp Preview:
               </small>
               <div class="phone-frame-wrapper">
                 <div class="phone-frame">
-                  <div class="phone-top-bar">
-                    <div class="phone-notch"></div>
-                  </div>
+                  <div class="phone-top-bar"><div class="phone-notch"></div></div>
                   <div class="whatsapp-screen">
                     <div class="whatsapp-header">
                       <div class="whatsapp-avatar">
@@ -113,31 +84,102 @@
                           <div class="bubble-text">{{ previewMessageForFirstContact() }}</div>
                           <div class="bubble-footer">
                             <span class="bubble-time">{{ getCurrentTime() }}</span>
-                            <svg width="15" height="11" viewBox="0 0 15 11">
-                              <path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36035L1.99377 6.05469C1.8111 5.87402 1.59839 5.78369 1.35557 5.78369C1.10168 5.78369 0.887817 5.87402 0.714233 6.05469L0.658936 6.10999C0.495883 6.28564 0.414357 6.50635 0.414357 6.77002C0.414357 7.03369 0.495883 7.25439 0.658936 7.43005L3.78516 10.7032C3.9502 10.8789 4.15137 10.9668 4.39014 10.9668C4.60339 10.9668 4.79541 10.8789 4.9668 10.7032L11.8325 2.3545C11.9979 2.17383 12.0806 1.96069 12.0806 1.71484C12.0806 1.49902 12.001 1.30713 11.8418 1.13904L11.0714 0.652832Z" fill="#4FC3F7"/>
-                              <path d="M14.1069 0.652832C14.0264 0.585124 13.9249 0.55127 13.8022 0.55127C13.6541 0.55127 13.527 0.610514 13.4213 0.729004L7.67773 8.36035C7.60144 8.43945 7.5127 8.47412 7.41162 8.47412C7.31055 8.47412 7.22181 8.43945 7.14552 8.36035L6.89893 8.08203C6.72900 7.89893 6.51953 7.80811 6.27051 7.80811L6.21240 7.80811C6.05420 7.80811 5.90503 7.84961 5.77441 7.93262L8.89063 11.0635C9.05566 11.2393 9.25684 11.3271 9.49561 11.3271C9.70886 11.3271 9.90088 11.2393 10.0723 11.0635L14.8979 2.3545C15.0632 2.17383 15.146 1.96069 15.146 1.71484C15.146 1.49902 15.0664 1.30713 14.9072 1.13904L14.1069 0.652832Z" fill="#4FC3F7"/>
-                            </svg>
                           </div>
                         </div>
                       </div>
                     </div>
                     <div class="whatsapp-input-bar">
                       <div class="whatsapp-input-placeholder">Type a message</div>
-                      <div class="whatsapp-send-btn">
-                        <i class="pi pi-send"></i>
+                      <div class="whatsapp-send-btn"><i class="pi pi-send"></i></div>
+                    </div>
+                  </div>
+                  <div class="phone-bottom-bar"><div class="phone-home-bar"></div></div>
+                </div>
+              </div>
+            </div> -->
+            <!-- WhatsApp Preview -->
+          <div *ngIf="templateBodyText" class="mt-3">
+            <small class="preview-label text-muted">
+              <i class="pi pi-eye me-1"></i>WhatsApp Preview:
+            </small>
+            <div class="phone-frame-wrapper">
+              <div class="phone-frame">
+                <div class="phone-top-bar"><div class="phone-notch"></div></div>
+                <div class="whatsapp-screen">
+
+                  <!-- WhatsApp Header Bar -->
+                  <div class="whatsapp-header">
+                    <div class="whatsapp-avatar">
+                      {{ campaignName ? campaignName[0].toUpperCase() : 'C' }}
+                    </div>
+                    <div>
+                      <div class="whatsapp-contact-name">{{ campaignName || 'Campaign' }}</div>
+                      <div class="whatsapp-online">online</div>
+                    </div>
+                  </div>
+
+                  <div class="whatsapp-chat-area">
+                    <div class="whatsapp-message-row">
+                      <div class="whatsapp-bubble">
+                        <div class="bubble-triangle"></div>
+
+                        <!-- ✅ HEADER TEXT (if exists) -->
+                        <div *ngIf="templateHeaderText"
+                          class="bubble-header-text">
+                          {{ previewHeaderForFirstContact() }}
+                        </div>
+
+                        <!-- ✅ BODY TEXT -->
+                        <div class="bubble-text">
+                          {{ previewMessageForFirstContact() }}
+                        </div>
+
+                        <!-- ✅ FOOTER TEXT (if exists) -->
+                        <div *ngIf="templateFooterText"
+                          class="bubble-footer-text text-muted"
+                          style="font-size: 0.75rem; margin-top: 4px;">
+                          {{ templateFooterText }}
+                        </div>
+
+                        <div class="bubble-footer">
+                          <span class="bubble-time">{{ getCurrentTime() }}</span>
+                          <svg width="15" height="11" viewBox="0 0 15 11">
+                            <path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36035L1.99377 6.05469C1.8111 5.87402 1.59839 5.78369 1.35557 5.78369C1.10168 5.78369 0.887817 5.87402 0.714233 6.05469L0.658936 6.10999C0.495883 6.28564 0.414357 6.50635 0.414357 6.77002C0.414357 7.03369 0.495883 7.25439 0.658936 7.43005L3.78516 10.7032C3.9502 10.8789 4.15137 10.9668 4.39014 10.9668C4.60339 10.9668 4.79541 10.8789 4.9668 10.7032L11.8325 2.3545C11.9979 2.17383 12.0806 1.96069 12.0806 1.71484C12.0806 1.49902 12.001 1.30713 11.8418 1.13904L11.0714 0.652832Z" fill="#4FC3F7"/>
+                            <path d="M14.1069 0.652832C14.0264 0.585124 13.9249 0.55127 13.8022 0.55127C13.6541 0.55127 13.527 0.610514 13.4213 0.729004L7.67773 8.36035C7.60144 8.43945 7.5127 8.47412 7.41162 8.47412C7.31055 8.47412 7.22181 8.43945 7.14552 8.36035L6.89893 8.08203C6.72900 7.89893 6.51953 7.80811 6.27051 7.80811L6.21240 7.80811C6.05420 7.80811 5.90503 7.84961 5.77441 7.93262L8.89063 11.0635C9.05566 11.2393 9.25684 11.3271 9.49561 11.3271C9.70886 11.3271 9.90088 11.2393 10.0723 11.0635L14.8979 2.3545C15.0632 2.17383 15.146 1.96069 15.146 1.71484C15.146 1.49902 15.0664 1.30713 14.9072 1.13904L14.1069 0.652832Z" fill="#4FC3F7"/>
+                          </svg>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <div class="phone-bottom-bar">
-                    <div class="phone-home-bar"></div>
+
+                  <!-- ✅ BUTTONS (outside bubble, below it — like real WhatsApp) -->
+                  <div *ngIf="templateButtons.length > 0" class="whatsapp-buttons-area">
+                    <div *ngFor="let btn of templateButtons" class="whatsapp-action-btn">
+                      <i class="pi"
+                        [ngClass]="{
+                          'pi-external-link': btn.type === 'URL',
+                          'pi-phone':         btn.type === 'PHONE_NUMBER',
+                          'pi-reply':         btn.type === 'QUICK_REPLY'
+                        }"
+                        style="font-size: 0.75rem; margin-right: 4px;">
+                      </i>
+                      {{ btn.text }}
+                    </div>
+                  </div>
+
+                  <div class="whatsapp-input-bar">
+                    <div class="whatsapp-input-placeholder">Type a message</div>
+                    <div class="whatsapp-send-btn"><i class="pi pi-send"></i></div>
                   </div>
                 </div>
+                <div class="phone-bottom-bar"><div class="phone-home-bar"></div></div>
               </div>
             </div>
-
+          </div>
           </div>
         </div>
-        <!-- Step 3: Parameter Mapping -->
+
+        <!-- Step 3 -->
         <div class="card mb-3" *ngIf="templateParams.length > 0">
           <div class="card-header bg-primary text-white py-2">
             <h6 class="mb-0">
@@ -145,55 +187,105 @@
               Set Parameter Values
             </h6>
           </div>
+          <!-- <div class="card-body">
+            <small class="text-muted d-block mb-3">
+              <i class="pi pi-info-circle me-1"></i>
+              For each parameter, pick a DB field or type a fixed value.
+            </small>
+            <div *ngFor="let param of templateParams; let i = index"
+              class="mb-3 p-2 border rounded bg-light">
+              <label class="fw-semibold small mb-2 d-block">{{ param }}</label>
+              <div class="d-flex gap-3 mb-2">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio"
+                    [(ngModel)]="paramMappings[i].type" value="db" [name]="'param_' + i" />
+                  <label class="form-check-label small">From DB Field</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio"
+                    [(ngModel)]="paramMappings[i].type" value="manual" [name]="'param_' + i" />
+                  <label class="form-check-label small">Custom Value</label>
+                </div>
+              </div>
+              <p-dropdown *ngIf="paramMappings[i].type === 'db'"
+                [options]="dbFieldOptions"
+                [(ngModel)]="paramMappings[i].dbField"
+                optionLabel="label" optionValue="value"
+                placeholder="-- Select DB Field --"
+                [style]="{ width: '100%' }" appendTo="body">
+              </p-dropdown>
+              <small *ngIf="paramMappings[i].type === 'db'" class="text-muted mt-1 d-block">
+                Each contact gets their own value.
+              </small>
+              <input *ngIf="paramMappings[i].type === 'manual'" pInputText
+                [(ngModel)]="paramMappings[i].manualValue"
+                placeholder="e.g. 20% OFF" class="w-100" />
+              <small *ngIf="paramMappings[i].type === 'manual'" class="text-muted mt-1 d-block">
+                All contacts get this same value.
+              </small>
+            </div>
+          </div> -->
           <div class="card-body">
             <small class="text-muted d-block mb-3">
               <i class="pi pi-info-circle me-1"></i>
               For each parameter, pick a DB field or type a fixed value.
             </small>
-            <div
-              *ngFor="let param of templateParams; let i = index"
-              class="mb-3 p-2 border rounded bg-light"
-            >
-              <label class="fw-semibold small mb-2 d-block">{{ param }}</label>
+            <div *ngFor="let param of templateParams; let i = index"
+              class="mb-3 p-2 border rounded bg-light">
+
+              <!-- ✅ Different label for body vs button params -->
+              <label class="fw-semibold small mb-2 d-block">
+                <span *ngIf="!paramMappings[i].isButtonParam">
+                  Body Parameter {{ param }}
+                </span>
+                <span *ngIf="paramMappings[i].isButtonParam" class="text-primary">
+                  <i class="pi pi-link me-1"></i>
+                  Button URL Parameter {{ param }}
+                </span>
+              </label>
+
+              <!-- ✅ Hint for button params -->
+              <div *ngIf="paramMappings[i].isButtonParam"
+                class="alert alert-info py-1 px-2 mb-2"
+                style="font-size:0.75rem;">
+                <i class="pi pi-info-circle me-1"></i>
+                This value will be appended to the button URL (e.g. a phone number or booking ID)
+              </div>
+
               <div class="d-flex gap-3 mb-2">
                 <div class="form-check">
                   <input class="form-check-input" type="radio"
-                    [(ngModel)]="paramMappings[i].type"
-                    value="db" [name]="'param_' + i" />
+                    [(ngModel)]="paramMappings[i].type" value="db" [name]="'param_' + i" />
                   <label class="form-check-label small">From DB Field</label>
                 </div>
                 <div class="form-check">
                   <input class="form-check-input" type="radio"
-                    [(ngModel)]="paramMappings[i].type"
-                    value="manual" [name]="'param_' + i" />
+                    [(ngModel)]="paramMappings[i].type" value="manual" [name]="'param_' + i" />
                   <label class="form-check-label small">Custom Value</label>
                 </div>
               </div>
-              <p-dropdown
-                *ngIf="paramMappings[i].type === 'db'"
+
+              <p-dropdown *ngIf="paramMappings[i].type === 'db'"
                 [options]="dbFieldOptions"
                 [(ngModel)]="paramMappings[i].dbField"
-                optionLabel="label"
-                optionValue="value"
+                optionLabel="label" optionValue="value"
                 placeholder="-- Select DB Field --"
-                [style]="{ width: '100%' }"
-                appendTo="body"
-              ></p-dropdown>
-              <small *ngIf="paramMappings[i].type === 'db'"
-                class="text-muted mt-1 d-block">
+                [style]="{ width: '100%' }" appendTo="body">
+              </p-dropdown>
+              <small *ngIf="paramMappings[i].type === 'db'" class="text-muted mt-1 d-block">
                 Each contact gets their own value.
               </small>
-              <input
-                *ngIf="paramMappings[i].type === 'manual'"
-                pInputText
+
+              <input *ngIf="paramMappings[i].type === 'manual'" pInputText
                 [(ngModel)]="paramMappings[i].manualValue"
-                placeholder="e.g. 20% OFF"
-                class="w-100"
-              />
-              <small *ngIf="paramMappings[i].type === 'manual'"
-                class="text-muted mt-1 d-block">
+                [placeholder]="paramMappings[i].isButtonParam
+                  ? 'e.g. 9876543210 or ABC123'
+                  : 'e.g. 20% OFF'"
+                class="w-100" />
+              <small *ngIf="paramMappings[i].type === 'manual'" class="text-muted mt-1 d-block">
                 All contacts get this same value.
               </small>
+
             </div>
           </div>
         </div>
@@ -214,15 +306,12 @@
                 of {{ contacts.length }} contacts
               </small>
             </div>
-            <button
-              pButton
+            <button pButton
               [label]="sending ? 'Sending...' : '🚀 Send to ' + selectedContacts.length + ' Contacts'"
-              icon="pi pi-send"
-              class="p-button-success w-100"
+              icon="pi pi-send" class="p-button-success w-100"
               (click)="sendCampaign()"
-              [disabled]="!canSend() || sending"
-              [loading]="sending"
-            ></button>
+              [disabled]="!canSend() || sending" [loading]="sending">
+            </button>
             <div class="mt-2">
               <small class="text-danger d-block" *ngIf="!campaignName">
                 <i class="pi pi-times-circle me-1"></i>Campaign name required
@@ -242,7 +331,7 @@
       <!-- RIGHT COLUMN -->
       <div class="col-md-8">
 
-        <!-- Step 4: Select Contacts -->
+        <!-- Step 4: Select Contacts with TABS -->
         <div class="card mb-3">
           <div class="card-header bg-primary text-white py-2">
             <div class="d-flex justify-content-between align-items-center">
@@ -253,57 +342,72 @@
               <small class="text-white">{{ selectedContacts.length }} selected</small>
             </div>
           </div>
-          <div class="card-body p-0">
 
-            <div *ngIf="loading"
-              class="d-flex align-items-center justify-content-center p-4">
+          <!-- ✅ TABS -->
+          <div class="card-header py-0 border-bottom">
+            <ul class="nav nav-tabs card-header-tabs">
+              <li class="nav-item">
+                <button class="nav-link"
+                  [class.active]="activeTab === 'socialMedia'"
+                  (click)="switchTab('socialMedia')">
+                  <i class="pi pi-users me-1"></i> Social Media Leads
+                </button>
+              </li>
+              <li class="nav-item">
+                <button class="nav-link"
+                  [class.active]="activeTab === 'accounts'"
+                  (click)="switchTab('accounts')">
+                  <i class="pi pi-briefcase me-1"></i> Accounts
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <div class="card-body p-0">
+            <div *ngIf="loading" class="d-flex align-items-center justify-content-center p-4">
               <i class="pi pi-spin pi-spinner me-2" style="font-size:1.5rem"></i>
-              <span>Loading social media leads...</span>
+              <span>Loading...</span>
             </div>
 
-            <p-table
-              [value]="filteredContacts"
-              [paginator]="true"
-              [rows]="10"
-              [rowsPerPageOptions]="[10, 25, 50]"
-              [showCurrentPageReport]="true"
+            <!-- ✅ SOCIAL MEDIA LEADS TABLE -->
+            <p-table *ngIf="activeTab === 'socialMedia'"
+              [value]="filteredContacts" [paginator]="true" [rows]="10"
+              [rowsPerPageOptions]="[10, 25, 50]" [showCurrentPageReport]="true"
               currentPageReportTemplate="Showing {first} to {last} of {totalRecords} leads"
-              styleClass="p-datatable-striped p-datatable-customers"
-              responsiveLayout="scroll"
-            >
-            <ng-template  pTemplate="caption">
-              <!-- 🔍 Filters Row -->
-              <div class="p-2 d-flex gap-2 flex-wrap">
+              styleClass="p-datatable-striped" responsiveLayout="scroll">
 
-                <!-- Search Input -->
-                <input
-                  pInputText
-                  type="text"
-                  [(ngModel)]="searchText"
-                  (input)="applyFilters()"
-                  placeholder="Search by Name, Phone, Email, City, State..."
-                  class="w-50"
-                />
+              <ng-template pTemplate="caption">
+                <div class="row">
+                  <div class="col-md-4 mt-2">
+                    <div class="p-inputgroup">
+                      <input pInputText type="text" [(ngModel)]="searchText"
+                        (input)="applyFilters()"
+                        placeholder="Search Name, Phone, Email..." />
+                      <button type="button" pButton class="p-button-primary search-btn"
+                        (click)="applyFilters()">
+                        <img src="assets/images/icons/search.svg" alt="Search" width="16" height="16" />
+                      </button>
+                    </div>
+                  </div>
+                  <div class="col-md-3 mt-2">
+                    <p-dropdown [options]="platformOptions" [(ngModel)]="selectedPlatform"
+                      placeholder="Filter by Platform" (onChange)="applyFilters()"
+                      [showClear]="true" [style]="{ width: '100%' }">
+                    </p-dropdown>
+                  </div>
+                  <div class="col-md-3 mt-2">
+                    <p-dropdown [options]="demoStatusOptions" [(ngModel)]="selectedDemoStatus"
+                      placeholder="Filter by Demo Status" (onChange)="applyFilters()"
+                      [showClear]="true" [style]="{ width: '100%' }">
+                    </p-dropdown>
+                  </div>
+                </div>
+              </ng-template>
 
-                <!-- Platform Dropdown -->
-                <p-dropdown
-                  [options]="platformOptions"
-                  [(ngModel)]="selectedPlatform"
-                  placeholder="Filter by Platform"
-                  (onChange)="applyFilters()"
-                  [showClear]="true"
-                  [style]="{ width: '200px' }"
-                ></p-dropdown>
-
-              </div>
-            </ng-template>
               <ng-template pTemplate="header">
                 <tr>
-                  <th>
-                    <input type="checkbox"
-                      [checked]="allSelected()"
-                      (change)="selectAll($any($event.target).checked)" />
-                  </th>
+                  <th><input type="checkbox" [checked]="allSelected()"
+                    (change)="selectAll($any($event.target).checked)" /></th>
                   <th>Name</th>
                   <th>Phone</th>
                   <th>Email</th>
@@ -313,13 +417,11 @@
                   <th>Platform</th>
                 </tr>
               </ng-template>
+
               <ng-template pTemplate="body" let-c>
                 <tr>
-                  <td>
-                    <input type="checkbox"
-                      [checked]="isSelected(c)"
-                      (change)="toggleContact(c, $any($event.target).checked)" />
-                  </td>
+                  <td><input type="checkbox" [checked]="isSelected(c)"
+                    (change)="toggleContact(c, $any($event.target).checked)" /></td>
                   <td>{{ c['name'] }}</td>
                   <td>{{ c['mobileNumber'] }}</td>
                   <td>{{ c['email'] }}</td>
@@ -327,35 +429,174 @@
                   <td>{{ c['company'] }}</td>
                   <td>{{ c['state'] }}</td>
                   <td>
-                    <span class="badge"
-                      [ngClass]="{
-                        'bg-primary':   c['platform'] === 'Facebook',
-                        'bg-info':      c['platform'] === 'Instagram',
-                        'bg-success':   c['platform'] === 'Manual',
-                        'bg-secondary': !c['platform']
-                      }">
-                      {{ c['platform'] || 'N/A' }}
-                    </span>
+                    <span class="badge" [ngClass]="{
+                      'bg-primary':   c['platform'] === 'Facebook',
+                      'bg-info':      c['platform'] === 'Instagram',
+                      'bg-success':   c['platform'] === 'Manual',
+                      'bg-secondary': !c['platform']
+                    }">{{ c['platform'] || 'N/A' }}</span>
                   </td>
                 </tr>
               </ng-template>
+
               <ng-template pTemplate="emptymessage">
-                <tr>
-                  <td colspan="8" class="text-center p-4 text-muted">
-                    No leads found.
-                  </td>
-                </tr>
+                <tr><td colspan="8" class="text-center p-4 text-muted">No leads found.</td></tr>
               </ng-template>
             </p-table>
+
+            <!-- ✅ ACCOUNTS TABLE -->
+            <!-- <p-table *ngIf="activeTab === 'accounts'"
+              [value]="filteredContacts" [paginator]="true" [rows]="10"
+              [rowsPerPageOptions]="[10, 25, 50]" [showCurrentPageReport]="true"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} accounts"
+              styleClass="p-datatable-striped" responsiveLayout="scroll">
+
+              <ng-template pTemplate="caption">
+                <div class="row">
+                  <div class="col-md-5 mt-2">
+                    <div class="p-inputgroup">
+                      <input pInputText type="text" [(ngModel)]="searchText"
+                        (input)="applyFilters()"
+                        placeholder="Search Name, Business, Phone, Email..." />
+                      <button type="button" pButton class="p-button-primary search-btn"
+                        (click)="applyFilters()">
+                        <img src="assets/images/icons/search.svg" alt="Search" width="16" height="16" />
+                      </button>
+                    </div>
+                    
+                  </div>
+                </div>
+              </ng-template>
+
+              <ng-template pTemplate="header">
+                <tr>
+                  <th><input type="checkbox" [checked]="allSelected()"
+                    (change)="selectAll($any($event.target).checked)" /></th>
+                  <th>Name</th>
+                  <th>Business Name</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                  <th>City</th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-c>
+                <tr>
+                  <td><input type="checkbox" [checked]="isSelected(c)"
+                    (change)="toggleContact(c, $any($event.target).checked)" /></td>
+                  <td>{{ c['name'] }}</td>
+                  <td>{{ c['businessName'] }}</td>
+                  <td>{{ c['mobileNumber'] }}</td>
+                  <td>{{ c['email'] }}</td>
+                  <td>{{ c['city'] }}</td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="emptymessage">
+                <tr><td colspan="6" class="text-center p-4 text-muted">No accounts found.</td></tr>
+              </ng-template>
+            </p-table> -->
+            <!-- ✅ ACCOUNTS TABLE -->
+            <p-table *ngIf="activeTab === 'accounts'"
+              [value]="filteredContacts" [paginator]="true" [rows]="10"
+              [rowsPerPageOptions]="[10, 25, 50]" [showCurrentPageReport]="true"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} accounts"
+              styleClass="p-datatable-striped" responsiveLayout="scroll">
+
+              <ng-template pTemplate="caption">
+                <div class="row">
+
+                  <!-- Search -->
+                  <div class="col-md-4 mt-2">
+                    <div class="p-inputgroup">
+                      <input pInputText type="text" [(ngModel)]="searchText"
+                        (input)="applyFilters()"
+                        placeholder="Search Name, Business, Phone, Email..." />
+                      <button type="button" pButton class="p-button-primary search-btn"
+                        (click)="applyFilters()">
+                        <img src="assets/images/icons/search.svg" alt="Search" width="16" height="16" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- ✅ Plan Filter -->
+                  <div class="col-md-2 mt-2">
+                    <p-dropdown
+                      [options]="planTypeOptions"
+                      [(ngModel)]="selectedPlanType"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Filter by Plan"
+                      (onChange)="applyFilters()"
+                      [style]="{ width: '100%' }">
+                    </p-dropdown>
+                  </div>
+
+                  <!-- ✅ Plan Status Filter -->
+                  <div class="col-md-2 mt-2">
+                    <p-dropdown
+                      [options]="accountStatusOptions"
+                      [(ngModel)]="selectedStatusType"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Plan Status"
+                      (onChange)="applyFilters()"
+                      [style]="{ width: '100%' }">
+                    </p-dropdown>
+                  </div>
+
+                  <!-- ✅ Billing Cycle Filter -->
+                  <div class="col-md-2 mt-2">
+                    <p-dropdown
+                      [options]="billingCycleOptions"
+                      [(ngModel)]="selectedBillingCycle"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Billing Cycle"
+                      (onChange)="applyFilters()"
+                      [style]="{ width: '100%' }">
+                    </p-dropdown>
+                  </div>
+
+                </div>
+              </ng-template>
+
+              <ng-template pTemplate="header">
+                <tr>
+                  <th><input type="checkbox" [checked]="allSelected()"
+                    (change)="selectAll($any($event.target).checked)" /></th>
+                  <th>Name</th>
+                  <th>Business Name</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                  <th>City</th>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="body" let-c>
+                <tr>
+                  <td><input type="checkbox" [checked]="isSelected(c)"
+                    (change)="toggleContact(c, $any($event.target).checked)" /></td>
+                  <td>{{ c['name'] }}</td>
+                  <td>{{ c['businessName'] }}</td>
+                  <td>{{ c['mobileNumber'] }}</td>
+                  <td>{{ c['email'] }}</td>
+                  <td>{{ c['city'] }}</td>
+                </tr>
+              </ng-template>
+
+              <ng-template pTemplate="emptymessage">
+                <tr><td colspan="6" class="text-center p-4 text-muted">No accounts found.</td></tr>
+              </ng-template>
+            </p-table>
+
           </div>
         </div>
 
         <!-- Campaign Result -->
         <div class="card" *ngIf="result">
           <div class="card-header bg-success text-white py-2">
-            <h6 class="mb-0">
-              <i class="pi pi-check-circle me-2"></i>Campaign Result
-            </h6>
+            <h6 class="mb-0"><i class="pi pi-check-circle me-2"></i>Campaign Result</h6>
           </div>
           <div class="card-body">
             <div class="row g-2 mb-3">
@@ -378,25 +619,16 @@
                 </div>
               </div>
             </div>
-            <p-table
-              [value]="result.results"
-              styleClass="p-datatable-striped"
-              responsiveLayout="scroll"
-            >
+            <p-table [value]="result.results" styleClass="p-datatable-striped" responsiveLayout="scroll">
               <ng-template pTemplate="header">
-                <tr>
-                  <th>Name</th>
-                  <th>Number</th>
-                  <th>Status</th>
-                </tr>
+                <tr><th>Name</th><th>Number</th><th>Status</th></tr>
               </ng-template>
               <ng-template pTemplate="body" let-r>
                 <tr>
                   <td>{{ r.name }}</td>
                   <td>{{ r.number }}</td>
                   <td>
-                    <span class="badge"
-                      [ngClass]="r.status === 'sent' ? 'bg-success' : 'bg-danger'">
+                    <span class="badge" [ngClass]="r.status === 'sent' ? 'bg-success' : 'bg-danger'">
                       {{ r.status === 'sent' ? '✅ Sent' : '❌ Failed' }}
                     </span>
                   </td>
@@ -409,14 +641,12 @@
       </div>
     </div>
 
-    <!-- ✅ Create Template Dialog — opens from header button -->
     <app-create-template
       [(visible)]="showCreateDialog"
       [editTemplate]="editTemplateData"
       (templateSaved)="onTemplateSaved()"
-      (visibleChange)="onDialogClose()"
-    ></app-create-template>
+      (visibleChange)="onDialogClose()">
+    </app-create-template>
 
   </div>
 </div>
-

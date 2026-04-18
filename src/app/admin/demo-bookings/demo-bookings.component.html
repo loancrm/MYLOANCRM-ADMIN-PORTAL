@@ -1,0 +1,282 @@
+<div>
+  <div class="p-1 m-2 fixed-card">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <b>
+          <span class="back-btn-text">Demos Booked</span>
+        </b>
+      </div>
+    </div>
+  </div>
+  <div class="m-2">
+    <p-table
+      #DemoBookingsTable
+      [value]="demoBookings"
+      [lazy]="true"
+      (onLazyLoad)="loadDemoBookings($event)"
+      dataKey="id"
+      [paginator]="true"
+      [rows]="10"
+      [totalRecords]="demoBookingsCount"
+      [loading]="loading"
+      class="p-datatable-striped"
+      responsiveLayout="scroll"
+      scrollHeight="flex"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Demo Bookings"
+    >
+
+      <!-- 🔍 SEARCH -->
+      <!-- <ng-template pTemplate="caption">
+        <div class="row">
+          <div class="col-md-4">
+            <input
+              pInputText
+              type="text"
+              [(ngModel)]="globalSearch"
+              placeholder="Search by Name, Phone, Email"
+              (keyup.enter)="onSearch()"
+            />
+          </div>
+
+          <div class="col-md-3">
+            <p-dropdown
+              [options]="statusOptions"
+              [(ngModel)]="selectedStatus"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select Status"
+              (onChange)="onStatusChange()"
+            ></p-dropdown>
+          </div>
+        </div>
+      </ng-template> -->
+
+      <!-- 🔍 SEARCH & FILTER -->
+      <ng-template pTemplate="caption">
+        <div class="row">
+          <div class="col-md-3 mt-2 no-padding-small">
+            <div class="p-inputgroup">
+              <input
+                pInputText
+                type="text"
+                [(ngModel)]="globalSearch"
+                placeholder="Search by Name, Phone, Email"
+                (keyup.enter)="onSearch()"
+                class="form-control"
+              />
+              <button
+                type="button"
+                pButton
+                class="p-button-primary search-btn"
+                (click)="onSearch()"
+              >
+                <img
+                  src="assets/images/icons/search.svg"
+                  alt="Search"
+                  width="16"
+                  height="16"
+                  style="vertical-align: middle"
+                />
+              </button>
+            </div>
+          </div>
+          <div class="col-md-3 mt-2 no-padding-small">
+             <p-dropdown
+                [options]="statusOptions"
+                [(ngModel)]="selectedStatus"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select Status"
+                (onChange)="onStatusChange()"
+                [showClear]="true"
+                styleClass="w-100"
+              ></p-dropdown>
+          </div>
+
+          <!-- <div class="col-md-2">
+            <button
+              pButton
+              label="Search"
+              icon="pi pi-search"
+              class="p-button-primary"
+              (click)="onSearch()"
+            ></button>
+          </div>
+
+          <div class="col-md-2">
+            <button
+              pButton
+              label="Clear"
+              icon="pi pi-times"
+              class="p-button-secondary"
+              (click)="clearFilters()"
+            ></button>
+          </div> -->
+
+        </div>
+      </ng-template>
+      <!-- HEADER -->
+      <ng-template pTemplate="header">
+        <tr>
+          <th class="text-nowrap">ID</th>
+          <th  class="text-nowrap">Name</th>
+          <th  class="text-nowrap">Phone</th>
+          <th  class="text-nowrap">Email</th>
+          <th  class="text-nowrap">Date</th>
+          <th class="text-nowrap">Time</th>
+          <!-- <th>Platform</th> -->
+          <th class="text-nowrap" *ngIf="loggedInUserRole === 1">Assign To</th>
+          <th class="text-nowrap">Remarks</th>
+          <th class="text-nowrap">Status</th>
+          <th class="text-nowrap">Actions</th>
+        </tr>
+      </ng-template>
+
+      <!-- BODY -->
+      <ng-template pTemplate="body" let-row let-i="rowIndex">
+        <tr  class="text-capitalize">
+          <td class="table-column-data">{{ i + 1 }}</td>
+          <td class="table-column-data">{{ row.name }}</td>
+          <td class="table-column-data">{{ row.phone }}</td>
+          <td class="table-column-data">{{ row.email }}</td>
+          <td class="table-column-data">{{ row.demo_date | date }}</td>
+          <td class="table-column-data">{{ row.demo_time }}</td>
+          <!-- <td>{{ row.Platform }}</td> -->
+          <td *ngIf="loggedInUserRole === 1">
+            <p-dropdown
+              [options]="users"
+              optionLabel="name"
+              optionValue="id"
+              [(ngModel)]="row.assign_to"
+              placeholder="Assign User"
+              [style]="{ width: '160px' }"
+              (onChange)="assignUser(row)"
+              [showClear]="true"
+              appendTo="body"
+            ></p-dropdown>
+          </td>
+          <td class="table-column-data">
+            <!-- <div *ngIf="editingRowId !== row.id">
+              <span (click)="enableEdit(row)" style="cursor:pointer">
+                {{ row.notes || 'Add notes...' }}
+              </span>
+            </div>
+
+            <div *ngIf="editingRowId === row.id">
+              <textarea
+                [(ngModel)]="row.notes"
+                rows="2"
+                class="form-control"
+                (keydown.enter)="saveNotes(row)"
+              ></textarea>
+            </div> -->
+            <textarea
+              [(ngModel)]="row.notes"
+              rows="2"
+              class="form-control"
+              placeholder="Add notes..."
+              (keydown.enter)="saveNotes(row)"
+            ></textarea>
+          </td>
+
+          <td class="table-column-data">
+            <span class="status-badge">
+              {{ row.status }}
+            </span>
+          </td>
+
+          <!-- <td class="d-flex gap-2">
+            <button
+              pButton
+              type="button"
+              icon="pi pi-check"
+              class="p-button-success p-button-sm"
+              (click)="updateStatus(row, 'confirmed')"
+            ></button>
+
+            <button
+              pButton
+              type="button"
+              icon="pi pi-times"
+              class="p-button-danger p-button-sm"
+              (click)="updateStatus(row, 'cancelled')"
+            ></button>
+          </td> -->
+          <td class="d-flex gap-2">
+            <!-- CONFIRM -->
+            <button
+              pButton
+              icon="pi pi-check"
+              pTooltip="Demo Completed"
+              class="p-button-success p-button-sm"
+              (click)="updateStatus(row, 'completed')"
+            ></button>
+
+            <!-- CANCEL -->
+            <button
+              pButton
+              icon="pi pi-times"
+              pTooltip="Demo Cancel"
+              class="p-button-danger p-button-sm"
+              (click)="updateStatus(row, 'cancelled')"
+            ></button>
+
+            <!-- 🔁 RESCHEDULE -->
+            <button
+              pButton
+              icon="pi pi-calendar"
+              pTooltip="Demo Reschedule"
+              class="p-button-warning p-button-sm"
+              (click)="openReschedule(row)"
+            ></button>
+
+          </td>
+        </tr>
+      </ng-template>
+
+    </p-table>
+
+  </div>
+   <p-dialog
+    header="Reschedule Demo"
+    [(visible)]="rescheduleDialog"
+    [modal]="true"
+    [style]="{ width: '500px', height:'500px'}"
+  >
+    <div class="p-fluid">
+
+      <!-- DATE -->
+      <p-calendar
+        [(ngModel)]="rescheduleDate"
+        dateFormat="yy-mm-dd"
+        placeholder="Select Date"
+        (onSelect)="loadSlots()"
+      ></p-calendar>
+
+      <br />
+
+      <!-- TIME SLOTS -->
+      <p-dropdown
+        [options]="availableSlots"
+        [(ngModel)]="rescheduleTime"
+        placeholder="Select Time"
+      ></p-dropdown>
+
+      <br />
+
+      <button
+        pButton
+        label="Save Reschedule"
+        class="p-button-success"
+        (click)="confirmReschedule()"
+      ></button>
+
+    </div>
+  </p-dialog>
+</div>

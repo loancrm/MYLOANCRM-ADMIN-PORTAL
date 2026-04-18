@@ -13,6 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
+import { InputNumberModule } from 'primeng/inputnumber';
 const routes: Routes = [
   { path: '', component: SettingsComponent }
 ]
@@ -34,6 +35,7 @@ const routes: Routes = [
     MatMenuModule,
     FormsModule,
     ReactiveFormsModule,
+    InputNumberModule,
     RouterModule.forChild(routes),
   ]
 })
