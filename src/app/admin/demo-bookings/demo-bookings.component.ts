@@ -20,6 +20,9 @@ export class DemoBookingsComponent {
   globalSearch = '';
   selectedStatus: any = null;
 
+  showCompletedDialog  = false;
+selectedCompletedRow: any = null;
+
   statusOptions = [
     { label: 'All', value: '' },
     { label: 'Confirmed', value: 'confirmed' },
@@ -37,6 +40,9 @@ export class DemoBookingsComponent {
   editingRowId: number | null = null;
   users: any[] = [];
   loggedInUserRole!: number;
+
+  selectedAssignFilter: any = null;
+  assignFilterOptions: any[] = [];
 
   constructor(
     private leadsService: LeadsService,
@@ -64,8 +70,22 @@ export class DemoBookingsComponent {
   loadUsers() {
     this.leadsService.getUsers().subscribe((res: any) => {
       this.users = res.filter((u: any) => u.status === 1);
+
+      // ✅ Build assign filter options with "All" as default
+      this.assignFilterOptions = [
+        { id: null, name: 'All' },
+        ...this.users
+      ];
     });
   }
+  onAssignFilterChange() {
+    this.reload();
+  }
+  // loadUsers() {
+  //   this.leadsService.getUsers().subscribe((res: any) => {
+  //     this.users = res.filter((u: any) => u.status === 1);
+  //   });
+  // }
 
   loadDemoBookings(event: any) {
     this.currentEvent = event;
@@ -87,6 +107,9 @@ export class DemoBookingsComponent {
 
     if (this.selectedStatus) {
       filter.status = this.selectedStatus;
+    }
+    if (this.selectedAssignFilter !== null && this.selectedAssignFilter !== undefined) {
+      filter['assign_to-eq'] = this.selectedAssignFilter;
     }
 
     this.loading = true;
@@ -265,6 +288,19 @@ assignUser(row: any) {
 clearFilters() {
   this.globalSearch = '';
   this.selectedStatus = null;
+  this.selectedAssignFilter = null;  
   this.reload();
 }
+
+confirmCompleted(row: any): void {
+  this.selectedCompletedRow = row;
+  this.showCompletedDialog  = true;
+}
+
+onConfirmCompleted(): void {
+  this.showCompletedDialog = false;
+  this.updateStatus(this.selectedCompletedRow, 'completed');
+  this.selectedCompletedRow = null;
+}
+
 }

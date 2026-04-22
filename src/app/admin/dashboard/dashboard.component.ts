@@ -568,6 +568,7 @@ loadTodaySubscribers(api_filter) {
  
   api_filter['end_date-gte'] = startIST.format('YYYY-MM-DD');
   api_filter['end_date-lte'] = endIST.format('YYYY-MM-DD');
+  api_filter['status-eq']    = 'Active'; 
  
   this.loadTodayExpired(api_filter);
 }

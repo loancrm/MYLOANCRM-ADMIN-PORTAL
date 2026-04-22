@@ -20,7 +20,14 @@ import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 // import { WhatsappTemplatesModule } from '../whatsapp-templates/whatsapp-templates.module';
 const routes: Routes = [
-  { path: '', component: CampaignComponent }
+  { path: '', component: CampaignComponent },
+  {
+    path: 'campaign-history',
+    loadChildren: () =>
+      import('./campaign-history/campaign-history.module').then(
+        (m) => m.CampaignHistoryModule
+      ),
+  },
 ];
 
 @NgModule({

@@ -1,0 +1,205 @@
+<!-- <div>
+    <div class="p-1 m-2 fixed-card">
+        <div class="d-flex justify-content-between">
+        <div
+            class="d-flex align-items-center justify-content-center pointer-cursor"
+            (click)="goBack()"
+        >
+            <span class="me-2 d-flex align-items-center">
+            <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+            </span>
+            <b>
+            <span class="back-btn-text">subscriptions</span>
+            </b>
+        </div>
+        </div>
+    </div>
+</div>
+<div class="m-2">
+  <p-table
+    [value]="subscriptions"
+    [lazy]="true"
+    [sortField]="'created_on'"
+    [sortOrder]="-1"
+    (onLazyLoad)="loadSubscriptions($event)"
+    dataKey="id"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 25, 50, 100]"
+    [paginator]="true"
+    [rows]="10"
+    [totalRecords]="subscriptionCount"
+    [loading]="loading"
+    responsiveLayout="scroll"
+    scrollHeight="flex"
+    styleClass="p-datatable-customers"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} subscriptions"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="accountId">
+          Account Id <p-sortIcon field="accountId"></p-sortIcon>
+        </th>
+        <th pSortableColumn="plan_name">
+          Plan Name <p-sortIcon field="plan_name"></p-sortIcon>
+        </th>
+        <th pSortableColumn="plan_type">
+          Plan Type <p-sortIcon field="plan_type"></p-sortIcon>
+        </th>
+        <th pSortableColumn="price">
+          Price <p-sortIcon field="price"></p-sortIcon>
+        </th>
+        <th pSortableColumn="total_amount">
+          Total Amount <p-sortIcon field="total_amount"></p-sortIcon>
+        </th>
+        <th pSortableColumn="start_date">
+          Start Date <p-sortIcon field="start_date"></p-sortIcon>
+        </th>
+        <th pSortableColumn="end_date">
+          End Date <p-sortIcon field="end_date"></p-sortIcon>
+        </th>
+        <th pSortableColumn="status">
+          Status <p-sortIcon field="status"></p-sortIcon>
+        </th>
+        <th pSortableColumn="created_on">
+          Created On <p-sortIcon field="created_on"></p-sortIcon>
+        </th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-sub>
+      <tr>
+        <td>{{ sub.accountId }}</td>
+        <td>{{ sub.plan_name }}</td>
+        <td>{{ sub.plan_type }}</td>
+        <td>{{ sub.price }}</td>
+        <td>{{ sub.total_amount }}</td>
+        <td>{{ sub.start_date | date }}</td>
+        <td>{{ sub.end_date ? (sub.end_date | date) : '-' }}</td>
+        <td>
+          <span [ngClass]="getStatusClass(sub.status)" class="badge">
+            {{ sub.status }}
+          </span>
+        </td>
+        <td>{{ sub.created_on ? (sub.created_on | date) : '-' }}</td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="9" class="text-center fw-bold">
+          <p>No Subscriptions Found</p>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div> -->
+
+<!-- Top bar -->
+<div class="p-1 m-2 fixed-card">
+  <div class="analytics-topbar">
+    <div class="d-flex align-items-center flex-shrink-0"
+         (click)="goBack()" style="cursor:pointer;">
+      <span class="me-2 d-flex align-items-center">
+        <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+      </span>
+      <b><span>Subscriptions</span></b>
+    </div>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="m-3">
+  <p-table
+    [value]="subscriptions"
+    [lazy]="true"
+    [sortField]="'created_on'"
+    [sortOrder]="-1"
+    (onLazyLoad)="loadSubscriptions($event)"
+    dataKey="id"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 25, 50, 100]"
+    [paginator]="true"
+    [rows]="10"
+    [totalRecords]="subscriptionCount"
+    [loading]="loading"
+    responsiveLayout="scroll"
+    styleClass="p-datatable-customers"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} subscriptions"
+  >
+    <ng-template pTemplate="caption">
+      <div class="d-flex align-items-center justify-content-between">
+        <span style="font-weight:600; font-size:15px;">
+          <i class="pi pi-credit-card me-2" style="color:#E65100;"></i>
+          Account Subscriptions
+          <span class="ms-2 text-muted" style="font-size:13px;font-weight:400;">
+            (Account ID: {{ accountId }})
+          </span>
+        </span>
+        <span class="text-muted" style="font-size:13px;">
+          {{ subscriptionCount }} total
+        </span>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="accountId">
+          Account Id <p-sortIcon field="accountId"></p-sortIcon>
+        </th>
+        <th pSortableColumn="plan_name">
+          Plan Name <p-sortIcon field="plan_name"></p-sortIcon>
+        </th>
+        <th pSortableColumn="plan_type">
+          Plan Type <p-sortIcon field="plan_type"></p-sortIcon>
+        </th>
+        <th pSortableColumn="price">
+          Price <p-sortIcon field="price"></p-sortIcon>
+        </th>
+        <th pSortableColumn="total_amount">
+          Total Amount <p-sortIcon field="total_amount"></p-sortIcon>
+        </th>
+        <th pSortableColumn="start_date">
+          Start Date <p-sortIcon field="start_date"></p-sortIcon>
+        </th>
+        <th pSortableColumn="end_date">
+          End Date <p-sortIcon field="end_date"></p-sortIcon>
+        </th>
+        <th pSortableColumn="status">
+          Status <p-sortIcon field="status"></p-sortIcon>
+        </th>
+        <th pSortableColumn="created_on">
+          Created On <p-sortIcon field="created_on"></p-sortIcon>
+        </th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-sub>
+      <tr>
+        <td>{{ sub.accountId }}</td>
+        <td>{{ sub.plan_name }}</td>
+        <td>{{ sub.plan_type }}</td>
+        <td>{{ sub.price }}</td>
+        <td>{{ sub.total_amount }}</td>
+        <td>{{ sub.start_date | date }}</td>
+        <td>{{ sub.end_date ? (sub.end_date | date) : '-' }}</td>
+        <td>
+          <span [ngClass]="getStatusClass(sub.status)" class="badge">
+            {{ sub.status }}
+          </span>
+        </td>
+        <td>{{ sub.created_on ? (sub.created_on | date) : '-' }}</td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="9" class="text-center fw-bold py-4">
+          <i class="pi pi-inbox"
+             style="font-size:2rem;color:#ccc;display:block;margin-bottom:8px;">
+          </i>
+          <p style="color:#888;font-size:14px;margin:0;">No Subscriptions Found</p>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

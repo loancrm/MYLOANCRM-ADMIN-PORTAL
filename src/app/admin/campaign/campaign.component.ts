@@ -4,7 +4,8 @@ import { CampaignService } from '../../services/campaign.service';
 import { LeadsService } from '../leads/leads.service';
 import { ToastService } from '../../services/toast.service';
 import { Contact } from '../modules/models';
-
+import { RoutingService } from 'src/app/services/routing-service';
+import { Location } from '@angular/common';
 @Component({
   selector: 'app-campaign',
   templateUrl: './campaign.component.html',
@@ -19,7 +20,8 @@ export class CampaignComponent implements OnInit {
   contacts: Contact[] = [];
   filteredContacts: Contact[] = [];
   selectedContacts: Contact[] = [];
-
+  headerUploading = false;
+headerIsMetaHandle = false;
   loading = false;
   searchText: string = '';
   searchFilter: any = {};
@@ -43,7 +45,7 @@ export class CampaignComponent implements OnInit {
     { label: 'Cancelled', value: 'cancelled' },
     { label: 'Rescheduled', value: 'rescheduled' }
   ];
-
+headerAlreadyUploaded = false;
   // ── TEMPLATES ──────────────────────────────────────────
   templates: any[] = [];
   selectedTemplate: any = null;
@@ -129,6 +131,11 @@ export class CampaignComponent implements OnInit {
   templateHeaderText = '';
   templateFooterText = '';
   templateButtons: any[] = [];
+  // ── HEADER MEDIA ───────────────────────────────────────────
+  templateHeaderType: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT' | 'NONE' = 'NONE';
+  headerMediaUrl: string = '';
+  headerMediaFile: File | null = null;
+  headerMediaUploadMode: 'url' | 'upload' = 'url';
 
   // ── DYNAMIC DB FIELD OPTIONS ───────────────────────────
   get dbFieldOptions() {
@@ -141,6 +148,8 @@ export class CampaignComponent implements OnInit {
     private campaignService: CampaignService,
     private leadsService: LeadsService,
     private toastService: ToastService,
+    private routingService: RoutingService,
+    private location: Location,
   ) {}
 
   ngOnInit(): void {
@@ -356,74 +365,70 @@ export class CampaignComponent implements OnInit {
     this.templateButtons = [];
     this.templateParams = [];
     this.paramMappings = [];
+    this.templateHeaderType = 'NONE';
+    this.headerMediaUrl = '';
+    this.headerMediaFile = null;
     return;
   }
 
   const components = this.selectedTemplate.components || [];
-
   const headerComp = components.find((c: any) => c.type === 'HEADER');
   const bodyComp   = components.find((c: any) => c.type === 'BODY');
   const footerComp = components.find((c: any) => c.type === 'FOOTER');
   const buttonComp = components.find((c: any) => c.type === 'BUTTONS');
 
+  const headerFormat = headerComp?.format?.toUpperCase() || 'NONE';
+  this.templateHeaderType = ['IMAGE','VIDEO','DOCUMENT'].includes(headerFormat)
+    ? headerFormat
+    : (headerComp?.text ? 'TEXT' : 'NONE');
+
   this.templateHeaderText = headerComp?.text || '';
-  this.templateBodyText   = bodyComp?.text   || this.selectedTemplate.body_text || '';
+  this.templateBodyText   = bodyComp?.text || this.selectedTemplate.body_text || '';
   this.templateFooterText = footerComp?.text || '';
   this.templateButtons    = buttonComp?.buttons || [];
 
-  // ✅ Count button URL params separately
-  // WhatsApp URL buttons with dynamic params have {{1}} in the url
-  // OR have example array — either way we count how many params the button needs
+  // ✅ Check if template already has a header image from Meta
+  const existingHeaderHandle = headerComp?.example?.header_handle?.[0] || null;
+
+  if (existingHeaderHandle) {
+    // ✅ Already has image in Meta — use it directly, no upload needed
+    this.headerMediaUrl  = existingHeaderHandle;
+    this.headerMediaFile = null;
+    this.headerAlreadyUploaded = true;   // flag to hide upload UI
+     this.headerIsMetaHandle   = true; 
+  } else {
+    // ✅ No existing image — user must provide one
+    this.headerMediaUrl  = '';
+    this.headerMediaFile = null;
+    this.headerAlreadyUploaded = false;
+  }
+
+  // ... rest of your param mapping logic (unchanged)
   let buttonParamCount = 0;
   this.templateButtons.forEach((btn: any) => {
     if (btn.type === 'URL') {
-      // ✅ FORMAT 1: url contains {{1}}
       const urlMatches = (btn.url || '').match(/{{\d+}}/g);
       if (urlMatches && urlMatches.length > 0) {
         buttonParamCount += urlMatches.length;
-      }
-      // ✅ FORMAT 2: example array exists (Meta stores param as example)
-      else if (btn.example && Array.isArray(btn.example) && btn.example.length > 0) {
-        buttonParamCount += 1; // one dynamic param per URL button with example
+      } else if (btn.example && Array.isArray(btn.example) && btn.example.length > 0) {
+        buttonParamCount += 1;
       }
     }
   });
 
-  // ✅ Collect params from HEADER + BODY text
-  const textSources = [
-    this.templateHeaderText,
-    this.templateBodyText,
-  ].join(' ');
-
+  const textSources = [this.templateHeaderText, this.templateBodyText].join(' ');
   const textMatches = textSources.match(/{{\d+}}/g) || [];
-  const textParams = [...new Set(textMatches)] as string[];
+  const textParams  = [...new Set(textMatches)] as string[];
 
-  // ✅ Build button param placeholders AFTER text params
-  // e.g. if body has {{1}} {{2}}, button params become {{3}}
-  const startIndex = textParams.length + 1;
-  const buttonParams = Array.from(
-    { length: buttonParamCount },
-    (_, i) => `{{${startIndex + i}}}`
-  );
+  const startIndex   = textParams.length + 1;
+  const buttonParams = Array.from({ length: buttonParamCount }, (_, i) => `{{${startIndex + i}}}`);
 
-  // ✅ Combined: text params first, then button params
   this.templateParams = [...textParams, ...buttonParams];
-  // ✅ ADD THESE — after this.templateParams = [...textParams, ...buttonParams];
-console.log('🔍 Template buttons raw:', JSON.stringify(this.templateButtons));
-console.log('🔍 textParams:', textParams);
-console.log('🔍 buttonParamCount:', buttonParamCount);
-console.log('🔍 Final templateParams:', this.templateParams);
-
-  this.languageCode = this.selectedTemplate.language || 'en_US';
+  this.languageCode   = this.selectedTemplate.language || 'en_US';
 
   this.paramMappings = this.templateParams.map((param, i) => {
     const isButtonParam = i >= textParams.length;
-    return {
-      type: 'manual' as 'db' | 'manual', // ✅ button params default to manual (usually a URL suffix)
-      dbField: '',
-      manualValue: '',
-      isButtonParam  // ✅ flag so UI can show a hint
-    };
+    return { type: 'manual' as 'db' | 'manual', dbField: '', manualValue: '', isButtonParam };
   });
 }
 
@@ -554,13 +559,19 @@ previewHeaderForFirstContact(): string {
   }
 
   // ── SEND CAMPAIGN ──────────────────────────────────────
-  canSend(): boolean {
-    if (!this.selectedContacts.length || !this.selectedTemplate || !this.campaignName) return false;
-    return this.paramMappings.every((m) =>
-      m.type === 'manual' ? m.manualValue.trim() !== '' : m.dbField !== ''
-    );
+canSend(): boolean {
+  if (!this.selectedContacts.length || !this.selectedTemplate || !this.campaignName) return false;
+
+  if (['IMAGE','VIDEO','DOCUMENT'].includes(this.templateHeaderType)) {
+    if (this.headerUploading) return false;
+    // ✅ Pass if already has Meta image OR user provided a new one
+    if (!this.headerMediaUrl.trim()) return false;
   }
 
+  return this.paramMappings.every((m) =>
+    m.type === 'manual' ? m.manualValue.trim() !== '' : m.dbField !== ''
+  );
+}
   // sendCampaign(): void {
   //   if (!this.canSend()) return;
   //   this.sending = true;
@@ -596,6 +607,9 @@ previewHeaderForFirstContact(): string {
     resolvedParams: this.templateParams.map((_, i) => this.resolveParam(contact, i))
   }));
 
+  // ✅ Determine final media URL
+  const hasMediaHeader = ['IMAGE','VIDEO','DOCUMENT'].includes(this.templateHeaderType);
+
   this.campaignService.sendCampaign({
     campaignName: this.campaignName,
     contacts: contactsWithParams,
@@ -603,10 +617,44 @@ previewHeaderForFirstContact(): string {
     templateBodyText: this.templateBodyText,
     languageCode: this.languageCode,
     sendType: 'bulk',
-    buttonParamStartIndex: textParamCount,  // ✅ NEW
+    buttonParamStartIndex: textParamCount,
+    hasImageHeader: hasMediaHeader,          // ✅
+    headerMediaType: this.templateHeaderType, // ✅ 'IMAGE' | 'VIDEO' | 'DOCUMENT'
+    imageUrl: this.headerMediaUrl,            // ✅
+    headerIsMetaHandle:  this.headerIsMetaHandle, 
   }).subscribe({
     next: (res) => { this.result = res; this.sending = false; },
     error: () => { this.errorMsg = 'Failed to send campaign'; this.sending = false; }
   });
 }
+
+onHeaderFileSelected(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  if (!input.files || !input.files[0]) return;
+
+  const file = input.files[0];
+  this.headerMediaFile = file;
+  this.headerMediaUrl  = '';        // ← clear it, no blob URL
+  this.headerUploading = true;
+
+  this.leadsService.uploadWhatsappMedia(file).subscribe({
+    next: (res: any) => {
+      this.headerMediaUrl  = res.url;  // ← only set AFTER real upload
+      this.headerUploading = false;
+    },
+    error: () => {
+      this.toastService.showError('Failed to upload media');
+      this.headerMediaFile = null;
+      this.headerMediaUrl  = '';
+      this.headerUploading = false;
+    }
+  });
+}
+ campaignhistory() {
+    this.routingService.handleRoute('campaign/campaign-history', null);
+  }
+
+  goBack() {
+    this.location.back();
+  }
 }

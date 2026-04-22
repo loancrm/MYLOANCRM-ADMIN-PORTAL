@@ -35,6 +35,16 @@ const routes: Routes = [
           import('./subscription-plans/subscription-plans.module').then((m) => m.SubscriptionPlansModule),
       },
       {
+        path: 'subscriptions/:id',
+        loadChildren: () =>
+          import('./subscriptions/subscriptions.module').then((m) => m.SubscriptionsModule),
+      },
+      {
+        path: 'wallettransactions/:id',
+        loadChildren: () =>
+          import('./wallettransactions/wallettransactions.module').then((m) => m.WallettransactionsModule),
+      },
+      {
         path: 'contact-submissions',
         loadChildren: () =>
           import('./contact-submissions/contact-submissions.module').then((m) => m.ContactSubmissionsModule),

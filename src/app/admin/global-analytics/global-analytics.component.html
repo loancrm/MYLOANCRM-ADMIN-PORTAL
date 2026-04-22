@@ -305,6 +305,27 @@
         </div>
       </div>
 
+      <div class="analytics-card horizontal-card" (click)="openSubscriptionsBreakdown()">
+        <div class="analytics-icon-wrap" style="background:#FFF3E0;">
+          <i class="pi pi-credit-card" style="color:#E65100;"></i>
+        </div>
+        <div class="analytics-content">
+          <div class="analytics-label">Subscriptions</div>
+          <div class="analytics-count" style="color:#E65100;">{{ stats.subscriptions }}</div>
+        </div>
+      </div>
+
+      <div class="analytics-card horizontal-card" (click)="openWalletBreakdown()">
+  <div class="analytics-icon-wrap" style="background:#E8F5E9;">
+    <i class="pi pi-wallet" style="color:#2E7D32;"></i>
+  </div>
+  <div class="analytics-content">
+    <div class="analytics-label">Wallet Transactions</div>
+    <div class="analytics-count" style="color:#2E7D32;">{{ stats.walletTransactions }}</div>
+  </div>
+</div>
+      
+
     </div>
   </div>
 
@@ -1329,5 +1350,265 @@
         </tr>
       </ng-template>
     </p-table>
+  </div>
+</p-dialog>
+
+<p-dialog
+  [(visible)]="showSubscriptionsDialog"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [showHeader]="false"
+  [style]="{ width: '1000px', maxWidth: '96vw', padding: '0' }"
+  styleClass="breakdown-dialog-pro"
+  appendTo="body"
+  (onHide)="onSubscriptionsDialogHide()"
+>
+  <div class="bpd-wrap">
+    <div class="bpd-header">
+      <div class="bpd-header-icon" style="background:#FFF3E0;">
+        <i class="pi pi-credit-card" style="color:#E65100;"></i>
+      </div>
+      <div class="bpd-header-text">
+        <h6 class="bpd-title">Subscriptions — Account Breakdown</h6>
+        <span class="bpd-subtitle">
+          <span *ngIf="!subscriptionsDialogLoading">
+            {{ subscriptionsTotal }} accounts
+            <span class="bpd-dot">·</span>
+            {{ subscriptionsGrandTotal }} total subscriptions
+          </span>
+          <span *ngIf="subscriptionsDialogLoading">Loading...</span>
+        </span>
+      </div>
+      <button class="bpd-close" (click)="showSubscriptionsDialog = false">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <p-table
+      #subscriptionsTable
+      [value]="subscriptionsAccounts"
+      [loading]="subscriptionsDialogLoading"
+      [lazy]="true"
+      (onLazyLoad)="onSubscriptionsLazyLoad($event)"
+      (onRowSelect)="viewAccountsubcriptions($event)"
+      selectionMode="single"
+      dataKey="accountId"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [totalRecords]="subscriptionsTotal"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} accounts"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-customers"
+    >
+      <ng-template pTemplate="caption">
+        <div class="row g-2 align-items-center">
+          <div class="col-md-5">
+            <div class="p-inputgroup">
+              <input type="text" pInputText placeholder="Search by business name..."
+                [(ngModel)]="subscriptionsSearch"
+                (ngModelChange)="onSubscriptionsSearchChange()"
+                (keyup.enter)="onSubscriptionsLazyLoad({ first: 0, rows: 10 })"
+              />
+              <button type="button" pButton class="p-button-primary search-btn"
+                (click)="onSubscriptionsLazyLoad({ first: 0, rows: 10 })">
+                <i class="pi pi-search"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:50px;">#</th>
+          <th>Account ID</th>
+          <th>Business Name</th>
+          <th class="text-center">Active</th>
+          <th class="text-center">Expired</th>
+          <th class="text-center">Total</th>
+          <th>Latest Plan</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-acc let-rowIndex="rowIndex">
+        <tr class="city-account-row" [pSelectableRow]="acc">
+          <td><span class="bpd-rank-num">{{ rowIndex + 1 }}</span></td>
+          <td><div class="bpd-acc-id">{{ acc.accountId }}</div></td>
+          <td><div class="bpd-acc-name text-capitalize">{{ acc.businessName }}</div></td>
+          <td class="text-center">
+            <span class="user-status-badge user-status-badge--active">
+              {{ acc.activeSubscriptions }}
+            </span>
+          </td>
+          <td class="text-center">
+            <span class="user-status-badge user-status-badge--inactive">
+              {{ acc.expiredSubscriptions }}
+            </span>
+          </td>
+          <td class="text-center">
+            <span class="bpd-total-num">{{ acc.totalSubscriptions }}</span>
+          </td>
+          <td>
+            <span class="cibil-mini-badge" *ngIf="acc.latestPlan">
+              {{ acc.latestPlan }}
+            </span>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="text-center py-4">
+            <i class="pi pi-inbox" style="font-size:2rem;color:#ccc;display:block;margin-bottom:8px;"></i>
+            <p style="color:#888;font-size:14px;margin:0;">No accounts found</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-dialog>
+
+<!-- ══════════════════════════════════════════════════════
+     WALLET TRANSACTIONS BREAKDOWN DIALOG
+══════════════════════════════════════════════════════ -->
+<p-dialog
+  [(visible)]="showWalletDialog"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [showHeader]="false"
+  [style]="{ width: '1050px', maxWidth: '96vw', padding: '0' }"
+  styleClass="breakdown-dialog-pro"
+  appendTo="body"
+  (onHide)="onWalletDialogHide()"
+>
+  <div class="bpd-wrap">
+
+    <!-- Dialog Header -->
+    <div class="bpd-header">
+      <div class="bpd-header-icon" style="background:#E8F5E9;">
+        <i class="pi pi-wallet" style="color:#2E7D32; font-size:16px;"></i>
+      </div>
+      <div class="bpd-header-text">
+        <h6 class="bpd-title">Wallet Transactions — Account Breakdown</h6>
+        <span class="bpd-subtitle">
+          <span *ngIf="!walletDialogLoading">
+            {{ walletTotal }} accounts
+            <span class="bpd-dot">·</span>
+            {{ walletGrandTotal }} total transactions
+            <span class="bpd-dot">·</span>
+            <span style="color:#2E7D32;">{{ formatAmount(walletGrandCredit) }} credit</span>
+            <span class="bpd-dot">·</span>
+            <span style="color:#C62828;">{{ formatAmount(walletGrandDebit) }} debit</span>
+          </span>
+          <span *ngIf="walletDialogLoading">Loading...</span>
+        </span>
+      </div>
+      <button class="bpd-close" (click)="showWalletDialog = false">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+
+    <!-- Table -->
+    <p-table
+      #walletTable
+      [value]="walletAccounts"
+      [loading]="walletDialogLoading"
+      [lazy]="true"
+      (onLazyLoad)="onWalletLazyLoad($event)"
+      (onRowSelect)="viewAccountwallettranctions($event)"
+      selectionMode="single"
+      dataKey="accountId"
+      dataKey="accountId"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [totalRecords]="walletTotal"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} accounts"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-customers"
+    >
+
+      <ng-template pTemplate="caption">
+        <div class="row g-2 align-items-center">
+          <div class="col-md-5">
+            <div class="p-inputgroup">
+              <input
+                type="text"
+                pInputText
+                placeholder="Search by business name..."
+                [(ngModel)]="walletSearch"
+                (ngModelChange)="onWalletSearchChange()"
+                (keyup.enter)="onWalletLazyLoad({ first: 0, rows: 10 })"
+              />
+              <button type="button" pButton class="p-button-primary search-btn"
+                (click)="onWalletLazyLoad({ first: 0, rows: 10 })">
+                <i class="pi pi-search"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:50px;">#</th>
+          <th>Account ID</th>
+          <th>Business Name</th>
+          <th class="text-center">Transactions</th>
+          <th class="text-right">Total Credit</th>
+          <th class="text-right">Total Debit</th>
+          <th class="text-right">Net Credit</th>
+          <th class="text-nowrap">Last Transaction</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-acc let-rowIndex="rowIndex">
+        <tr class="city-account-row" [pSelectableRow]="acc">
+          <td><span class="bpd-rank-num">{{ rowIndex + 1 }}</span></td>
+          <td><div class="bpd-acc-id">{{ acc.accountId }}</div></td>
+          <td><div class="bpd-acc-name text-capitalize">{{ acc.businessName }}</div></td>
+          <td class="text-center">
+            <span class="bpd-total-num">{{ acc.totalTransactions }}</span>
+          </td>
+          <td class="text-right">
+            <span style="color:#2E7D32; font-weight:500;">
+              {{ formatAmount(acc.totalCredit) }}
+            </span>
+          </td>
+          <td class="text-right">
+            <span style="color:#C62828; font-weight:500;">
+              {{ formatAmount(acc.totalDebit) }}
+            </span>
+          </td>
+          <td class="text-right">
+            <span style="color:#534AB7; font-weight:500;">
+              {{ formatAmount(acc.totalNetCredit) }}
+            </span>
+          </td>
+          <td>
+            <span style="color:#888; font-size:12px;">
+              {{ acc.lastTransactionOn ? (acc.lastTransactionOn | date:'dd/MM/yy') : '—' }}
+            </span>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" class="text-center py-4">
+            <i class="pi pi-inbox"
+              style="font-size:2rem;color:#ccc;display:block;margin-bottom:8px;">
+            </i>
+            <p style="color:#888;font-size:14px;margin:0;">No accounts found</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
   </div>
 </p-dialog>

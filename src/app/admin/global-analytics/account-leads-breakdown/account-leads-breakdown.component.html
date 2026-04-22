@@ -32,6 +32,20 @@
         (onChange)="onLoanTypeChange()"
         [dropdownIcon]="'pi pi-chevron-down'"
       ></p-dropdown>
+      <!-- Employment Status filter — only for non-businessLoan types -->
+      <ng-container *ngIf="showEmploymentFilter">
+        <span class="analytics-filter-label">Employment :</span>
+        <p-dropdown
+          [options]="employmentStatusOptions"
+          [(ngModel)]="employmentStatus"
+          optionLabel="label"
+          optionValue="value"
+          [style]="{ minWidth: '170px' }"
+          appendTo="body"
+          (onChange)="onEmploymentStatusChange()"
+          [dropdownIcon]="'pi pi-chevron-down'"
+        ></p-dropdown>
+      </ng-container>
     </div>
 
   </div>
@@ -107,7 +121,8 @@
       <tr>
         <th style="width:48px;">#</th>
         <!-- <th class="text-nowrap">Lead ID</th> -->
-        <th class="text-nowrap">Contact Person</th>
+        <!-- <th class="text-nowrap">Contact Person</th> -->
+         <th class="text-nowrap">{{ nameColumnHeader }}</th>
         <th class="text-nowrap">Primary Phone</th>
         <th class="text-nowrap">Loan Type</th>
         <!-- <th class="text-nowrap">Stage</th> -->
@@ -140,7 +155,7 @@
               {{ lead.contactPerson?.charAt(0)?.toUpperCase() || '?' }}
             </div> -->
             <span class="alb-applicant-name text-capitalize">
-              {{ lead.contactPerson || '—' }}
+              {{ lead.displayName || lead.contactPerson || '—' }}
             </span>
           </div>
         </td>

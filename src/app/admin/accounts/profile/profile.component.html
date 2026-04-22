@@ -85,7 +85,7 @@
         <p><b>Experian Report Cost:</b> {{ accountDetails.experianReportCost }}</p>
         <p><b>Crif Report Cost:</b> {{ accountDetails.crifReportCost }}</p>
         <p><b>Equifax Report Cost:</b> {{ accountDetails.equifaxReportCost }}</p>
-        <div class="d-flex align-items-center gap-2 mt-2">
+        <div class="d-flex align-items-center gap-2 mt-2" *ngIf="loggedInUserRole === 1">
           <b>API Access:</b>
           <p-inputSwitch
             [(ngModel)]="apiEnabled"
@@ -101,6 +101,89 @@
         </div>
       </div>
     </div>
+    <div *ngIf="loggedInUserRole === 1">
+      <div class="row mt-3" *ngIf="!loading && accountDetails">
+        <div class="col-md-4">
+          <h4 class="fw-bold">Add Wallet Balance</h4>
+          <div class="d-flex align-items-center gap-2 mt-2">
+            <p-inputNumber
+              [(ngModel)]="walletAmountToAdd"
+              [min]="1"
+              placeholder="Enter amount (₹)"
+              mode="currency"
+              currency="INR"
+              locale="en-IN"
+              [style]="{ width: '200px' }"
+            ></p-inputNumber>
+            <button
+              pButton
+              label="Add Balance"
+              icon="pi pi-wallet"
+              class="p-button-success"
+              (click)="confirmAddWalletBalance()"
+              [disabled]="!walletAmountToAdd || walletAmountToAdd <= 0 || addingWallet"
+            ></button>
+            <small *ngIf="addingWallet" class="text-muted">
+              <i class="pi pi-spin pi-spinner me-1"></i>Saving...
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confirm Add Wallet Balance Dialog -->
+      <p-dialog
+        [(visible)]="showWalletConfirm"
+        [modal]="true"
+        [style]="{ width: '420px' }"
+        [closable]="true"
+        [draggable]="false"
+        [resizable]="false"
+        header="Confirm Wallet Top-up"
+      >
+        <div class="p-3 text-center">
+          <i class="pi pi-wallet mb-3" style="font-size: 2.5rem; color: #22c55e;"></i>
+          <p class="mb-1">You are about to add wallet balance to:</p>
+          <h5 class="fw-bold mb-1">{{ accountDetails?.businessName }}</h5>
+          <p class="text-muted mb-3" style="font-size: 0.9rem;">Account ID: {{ accountDetails?.accountId }}</p>
+          <div class="alert alert-success py-2 mb-0">
+            <span class="fw-bold" style="font-size: 1.2rem;">
+              ₹{{ walletAmountToAdd | number: '1.2-2' }}
+            </span>
+            <span class="ms-2 text-muted">will be added to wallet</span>
+          </div>
+          <p class="mt-3 text-muted small">
+            Current Balance:
+            <strong>₹{{ accountDetails?.walletBalance | number: '1.2-2' }}</strong>
+            &nbsp;→&nbsp;
+            <strong class="text-success">
+              ₹{{ (accountDetails?.walletBalance + walletAmountToAdd) | number: '1.2-2' }}
+            </strong>
+          </p>
+        </div>
+
+        <ng-template pTemplate="footer">
+          <div class="d-flex justify-content-center gap-3">
+            <button
+              pButton
+              label="No, Cancel"
+              icon="pi pi-times"
+              class="p-button-outlined p-button-secondary"
+              (click)="showWalletConfirm = false"
+              [disabled]="addingWallet"
+            ></button>
+            <button
+              pButton
+              label="Yes, Add Balance"
+              icon="pi pi-check"
+              class="p-button-success"
+              (click)="addWalletBalance()"
+              [disabled]="addingWallet"
+            ></button>
+          </div>
+        </ng-template>
+      </p-dialog>
+    </div>
+  
   </ng-container>
 
   <!-- Activity Detail Dialog -->

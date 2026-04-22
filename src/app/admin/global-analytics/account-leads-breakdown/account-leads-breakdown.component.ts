@@ -511,6 +511,11 @@ export class AccountLeadsBreakdownComponent implements OnInit, OnDestroy {
   banks: any[]  = [];
   bankTotal     = 0;
   bankLoading   = false;
+  employmentStatus = 'employed'; // ← was 'all'
+  employmentStatusOptions = [
+  { label: 'Employed',      value: 'employed'      },
+  { label: 'Self-Employed', value: 'self-employed' },
+];
 
   @ViewChild('bankTable') bankTable: any;
 
@@ -652,7 +657,8 @@ export class AccountLeadsBreakdownComponent implements OnInit, OnDestroy {
       from,
       count,
       this.search.trim(),
-      this.activeFilters     // ← NEW
+      this.activeFilters,
+       this.employmentStatus
     ).subscribe(
       (res: any) => {
         this.leads        = res.leads || [];
@@ -668,6 +674,7 @@ export class AccountLeadsBreakdownComponent implements OnInit, OnDestroy {
   }
 
   onLoanTypeChange(): void {
+     this.employmentStatus = 'employed';
     if (this.isBankersMetric) {
       if (this.bankTable) { this.bankTable.first = 0; }
     } else {
@@ -726,4 +733,26 @@ export class AccountLeadsBreakdownComponent implements OnInit, OnDestroy {
   }
 
   goBack(): void { this.location.back(); }
+
+  get showEmploymentFilter(): boolean {
+  return !this.isBankersMetric && this.loanType !== 'all' && this.loanType !== 'businessLoan';
+}
+
+// Add this getter — what label to show in the Name column header
+get nameColumnHeader(): string {
+  if (this.loanType === 'businessLoan' || this.loanType === 'all') {
+    return 'Business Name';
+  }
+  if (this.employmentStatus === 'employed') {
+    return 'Contact Person';
+  }
+  if (this.employmentStatus === 'self-employed') {
+    return 'Business Name';
+  }
+  return 'Name'; // 'all' employment status
+}
+onEmploymentStatusChange(): void {
+  if (this.leadsTable) { this.leadsTable.first = 0; }
+  this.onLazyLoad({ first: 0, rows: 10 });
+}
 }

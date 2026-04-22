@@ -6,6 +6,7 @@ import { Location } from '@angular/common';
 import { ToastService } from 'src/app/services/toast.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { DateTimeProcessorService } from 'src/app/services/date-time-processor.service';
+import moment from 'moment-timezone';
 export interface FollowUpNote {
   date: Date;
   remarks: string;
@@ -27,6 +28,7 @@ export class ProfileComponent implements OnInit {
   payments: any[] = [];
   selectedDate: Date | null = null;
   filteredNotes: FollowUpNote[] = []; // Display filtered notes
+  loggedInUserRole!: number;
 
   sidebarVisible: boolean = false;
   searchText: string = '';
@@ -67,6 +69,10 @@ bankLoanTypeOptions = [
   { label: 'Commercial Vehicle Loan', value: 'commercialVehicleLoan' },
 ];
 
+walletAmountToAdd: number = 0;
+addingWallet: boolean = false;
+showWalletConfirm: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private location: Location,
@@ -88,6 +94,12 @@ bankLoanTypeOptions = [
     this.accountId = this.route.snapshot.paramMap.get('id');
     this.loadoverview();
     this.loadNotes();
+    const adminDetails =
+      this.localStorageService.getItemFromLocalStorage('adminDetails');
+
+    if (adminDetails && adminDetails.user) {
+      this.loggedInUserRole = Number(adminDetails.user.role);
+    }
     // this.loadBankAnalytics();
   }
   setFilterConfig() {
@@ -516,8 +528,16 @@ loadWalletTransactions(event: any) {
 
     this.fileFollowupDebounce = setTimeout(() => {
       // Format date and time: YYYY-MM-DD HH:mm:ss
+      // const payload = {
+      //   followupDate: this.moment(dateValue).format('YYYY-MM-DD HH:mm:ss'),
+      // };
       const payload = {
-        followupDate: this.moment(dateValue).format('YYYY-MM-DD HH:mm:ss'),
+        followupDate: dateValue
+          ? moment(dateValue)
+              .tz('Asia/Kolkata')   // convert to IST
+              .utc()                // convert to UTC
+              .format('YYYY-MM-DD HH:mm:ss')
+          : null
       };
 
       console.log('Payload to send:', payload);
@@ -684,6 +704,39 @@ formatAmount(amount: number): string {
   if (amount >= 1000)     return '₹' + (amount / 1000).toFixed(1)     + ' K';
   return '₹' + amount;
 }
+confirmAddWalletBalance(): void {
+  if (!this.walletAmountToAdd || this.walletAmountToAdd <= 0) {
+    this.toastService.showError('Please enter a valid amount');
+    return;
+  }
+  this.showWalletConfirm = true;  // ← opens the confirmation popup
+}
 
+addWalletBalance(): void {
+  this.addingWallet = true;
+
+  this.leadService.addWalletBalance(
+    this.accountDetails.accountId,
+    this.walletAmountToAdd
+  ).subscribe({
+    next: (res: any) => {
+      this.addingWallet = false;
+      this.showWalletConfirm = false;
+
+      // ✅ Update local balance immediately so UI reflects new value
+      this.accountDetails.walletBalance =
+        (this.accountDetails.walletBalance || 0) + this.walletAmountToAdd;
+
+      this.walletAmountToAdd = 0;
+      this.toastService.showSuccess(
+        `Wallet balance added successfully to ${this.accountDetails.businessName}`
+      );
+    },
+    error: () => {
+      this.addingWallet = false;
+      this.toastService.showError('Failed to add wallet balance');
+    }
+  });
+}
 
 }

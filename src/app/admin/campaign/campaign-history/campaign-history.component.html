@@ -1,0 +1,237 @@
+<div>
+  <div class="p-1 m-2 fixed-card">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <b>
+          <span class="back-btn-text">Campaign History</span>
+        </b>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="history-wrapper m-2">
+
+  <!-- ── HEADER ──────────────────────────────────────────────────────────── -->
+  <!-- <div class="p-1 mb-3 d-flex justify-content-between align-items-center">
+    <b><span>📊 Campaign History</span></b>
+  </div> -->
+
+  <!-- ── SEARCH ──────────────────────────────────────────────────────────── -->
+  <div class="card mb-3">
+    <div class="card-body py-2">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="p-inputgroup">
+            <input pInputText [(ngModel)]="searchText"
+              (input)="applySearch()"
+              placeholder="Search campaign or template name..." />
+            <button pButton class="p-button-primary" (click)="applySearch()">
+              <i class="pi pi-search"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TABLE ───────────────────────────────────────────────────────────── -->
+  <div class="card">
+    <div class="card-body p-0">
+      <p-table
+        [value]="history"
+        [lazy]="true"
+        (onLazyLoad)="loadHistory($event)"
+        [paginator]="true"
+        [rows]="10"
+        [totalRecords]="totalRecords"
+        [loading]="loading"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} campaigns"
+        styleClass="p-datatable-striped"
+        responsiveLayout="scroll">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th>#</th>
+            <th>Campaign Name</th>
+            <th>Template</th>
+            <th>Total</th>
+            <th>Success</th>
+            <th>Failed</th>
+            <th>Success Rate</th>
+            <th>Sent At</th>
+            <th>Action</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-row let-i="rowIndex">
+          <tr>
+            <td>{{ i + 1 }}</td>
+            <td><strong>{{ row.campaign_name }}</strong></td>
+            <td>
+              <span class="badge bg-secondary" style="font-size:0.75rem;">
+                {{ row.template_name || 'CUSTOM' }}
+              </span>
+            </td>
+            <td>
+              <span class="badge bg-info text-white">{{ row.total_count }}</span>
+            </td>
+            <td>
+              <span class="badge bg-success">{{ row.success_count }}</span>
+            </td>
+            <td>
+              <span class="badge bg-danger">{{ row.failure_count }}</span>
+            </td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <div class="progress" style="width:80px; height:8px;">
+                  <div class="progress-bar"
+                    [class.bg-success]="getSuccessRate(row) >= 70"
+                    [class.bg-warning]="getSuccessRate(row) >= 40 && getSuccessRate(row) < 70"
+                    [class.bg-danger]="getSuccessRate(row) < 40"
+                    [style.width]="getSuccessRate(row) + '%'">
+                  </div>
+                </div>
+                <small>{{ getSuccessRate(row) }}%</small>
+              </div>
+            </td>
+            <td>{{ row.sent_at | date:'dd MMM yyyy, h:mm a' }}</td>
+            <td>
+              <button pButton type="button"
+                label="View" icon="pi pi-eye"
+                class="p-button-sm p-button-outlined p-button-primary"
+                (click)="viewDetail(row)">
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="9" class="text-center p-4 text-muted">
+              No campaign history found.
+            </td>
+          </tr>
+        </ng-template>
+
+      </p-table>
+    </div>
+  </div>
+
+  <!-- ── DETAIL DIALOG ───────────────────────────────────────────────────── -->
+  <p-dialog
+    [(visible)]="showDetail"
+    [modal]="true"
+    [style]="{ width: '800px' }"
+    [draggable]="false"
+    header="📋 Campaign Detail"
+    (onHide)="closeDetail()">
+
+    <div *ngIf="detailLoading" class="text-center p-4">
+      <i class="pi pi-spin pi-spinner" style="font-size:2rem;"></i>
+    </div>
+
+    <div *ngIf="!detailLoading && selectedCampaign">
+
+      <!-- Summary Cards -->
+      <div class="row g-2 mb-3">
+        <div class="col-md-3">
+          <div class="card text-center border-primary">
+            <div class="card-body py-2">
+              <h4 class="text-primary mb-0">{{ selectedCampaign.total_count }}</h4>
+              <small class="text-muted">Total</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-center border-success">
+            <div class="card-body py-2">
+              <h4 class="text-success mb-0">{{ selectedCampaign.success_count }}</h4>
+              <small class="text-muted">Success</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-center border-danger">
+            <div class="card-body py-2">
+              <h4 class="text-danger mb-0">{{ selectedCampaign.failure_count }}</h4>
+              <small class="text-muted">Failed</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-center border-info">
+            <div class="card-body py-2">
+              <h4 class="text-info mb-0">{{ getSuccessRate(selectedCampaign) }}%</h4>
+              <small class="text-muted">Success Rate</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info row -->
+      <div class="mb-3 d-flex gap-3 flex-wrap">
+        <span><strong>Campaign:</strong> {{ selectedCampaign.campaign_name }}</span>
+        <span><strong>Template:</strong>
+          <span class="badge bg-secondary ms-1">{{ selectedCampaign.template_name || 'CUSTOM' }}</span>
+        </span>
+        <span><strong>Sent:</strong> {{ selectedCampaign.sent_at | date:'dd MMM yyyy, h:mm a' }}</span>
+      </div>
+
+      <!-- Contacts Table -->
+      <p-table
+        [value]="selectedCampaign.contacts"
+        styleClass="p-datatable-striped p-datatable-sm"
+        responsiveLayout="scroll"
+        [paginator]="true"
+        [rows]="10"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords}">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Number</th>
+            <th>Status</th>
+            <th>Message ID</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-c let-i="rowIndex">
+          <tr>
+            <td>{{ i + 1 }}</td>
+            <td>{{ c.name || '-' }}</td>
+            <td>{{ c.number }}</td>
+            <td>
+              <span class="badge"
+                [ngClass]="c.status === 'success' ? 'bg-success' : 'bg-danger'">
+                {{ c.status === 'success' ? '✅ Sent' : '❌ Failed' }}
+              </span>
+            </td>
+            <td>
+              <small class="text-muted">{{ c.id || '-' }}</small>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="5" class="text-center text-muted">No contacts found</td>
+          </tr>
+        </ng-template>
+
+      </p-table>
+    </div>
+
+  </p-dialog>
+
+</div>

@@ -112,6 +112,9 @@
         </div>
 
         <!-- ── INCOMING REPLY (left side) ──────────────────────────────── -->
+         <div>
+          
+         </div>
         <ng-container *ngIf="msg.type === 'reply'; else outgoingMsg">
 
           <div class="message-row incoming-row">
@@ -128,7 +131,7 @@
 
               <div class="message-footer">
                 <span class="message-time">{{ msg.sent_at | date:'h:mm a' }}</span>
-                <span class="message-status received">📩</span>
+                <!-- <span class="message-status received">📩</span> -->
               </div>
 
             </div>
@@ -245,16 +248,156 @@
         </div>
 
         <!-- Param inputs -->
-        <div *ngIf="quickParams.length > 0" class="quick-params">
+        <!-- <div *ngIf="quickParams.length > 0" class="quick-params">
           <div *ngFor="let p of quickParams; let i = index" class="quick-param-row">
             <label class="small fw-semibold">{{ p }}</label>
             <input pInputText [(ngModel)]="quickParamValues[i]"
               [placeholder]="'Value for ' + p" class="w-100 mt-1"
               (input)="updateQuickPreview()" />
           </div>
-        </div>
+        </div> -->
+        <!-- Param inputs -->
+<div *ngIf="quickParams.length > 0" class="quick-params">
+  <div *ngFor="let p of quickParams; let i = index" class="quick-param-row">
 
-        <!-- Preview -->
+    <!-- ✅ Different label for body vs button params -->
+    <label class="small fw-semibold">
+      <span *ngIf="!quickParamIsButton[i]">Body {{ p }}</span>
+      <span *ngIf="quickParamIsButton[i]" class="text-primary">
+        <i class="pi pi-link me-1"></i>Button URL {{ p }}
+      </span>
+    </label>
+
+    <!-- ✅ Hint for button params -->
+    <div *ngIf="quickParamIsButton[i]"
+      class="alert alert-info py-1 px-2 mb-1 mt-1"
+      style="font-size:0.72rem;">
+      <i class="pi pi-info-circle me-1"></i>
+      Appended to button URL (e.g. phone number)
+    </div>
+
+    <input pInputText
+      [(ngModel)]="quickParamValues[i]"
+      [placeholder]="quickParamIsButton[i] ? 'e.g. 9876543210' : 'Value for ' + p"
+      class="w-100 mt-1"
+      (input)="updateQuickPreview()" />
+  </div>
+</div>
+
+        
+        <!-- ✅ HEADER MEDIA INPUT — matches bulk campaign logic exactly -->
+<div *ngIf="quickTemplateHeaderType === 'IMAGE' || quickTemplateHeaderType === 'VIDEO' || quickTemplateHeaderType === 'DOCUMENT'"
+  class="mt-2 p-2 border rounded"
+  style="border-color: #0d6efd !important; background: #f0f6ff; font-size: 0.85rem;">
+
+  <div class="d-flex align-items-center gap-2 mb-2">
+    <span class="badge bg-primary" style="font-size:0.72rem;">
+      <i class="pi"
+        [ngClass]="{
+          'pi-image':    quickTemplateHeaderType === 'IMAGE',
+          'pi-video':    quickTemplateHeaderType === 'VIDEO',
+          'pi-file-pdf': quickTemplateHeaderType === 'DOCUMENT'
+        }">
+      </i>
+      {{ quickTemplateHeaderType }} Header
+    </span>
+  </div>
+
+  <!-- ✅ Already has image from Meta — show it, no upload needed -->
+  <div *ngIf="quickHeaderAlreadyUploaded" class="text-center">
+    <img *ngIf="quickTemplateHeaderType === 'IMAGE'" [src]="quickHeaderMediaUrl"
+      alt="Template Header"
+      style="max-height:80px; max-width:100%; border-radius:6px; object-fit:cover;" />
+    <div class="mt-1">
+      <small class="text-success">
+        <i class="pi pi-check-circle me-1"></i>
+        Template already has a header {{ quickTemplateHeaderType | lowercase }} — will be sent as-is.
+      </small>
+    </div>
+    <div class="mt-1">
+      <small class="text-muted">Want to use a different one?</small>
+      <button type="button" pButton class="p-button-text p-button-sm ms-2"
+        label="Change" icon="pi pi-refresh"
+        (click)="quickHeaderAlreadyUploaded = false; quickHeaderIsMetaHandle = false; quickHeaderMediaUrl = ''">
+      </button>
+    </div>
+  </div>
+
+  <!-- ✅ No existing image — show upload options -->
+  <div *ngIf="!quickHeaderAlreadyUploaded">
+    <small class="text-muted d-block mb-2">
+      This template needs a {{ quickTemplateHeaderType | lowercase }} for the header
+    </small>
+
+    <div class="d-flex gap-3 mb-2">
+      <div class="form-check">
+        <input class="form-check-input" type="radio"
+          [(ngModel)]="quickHeaderMediaUploadMode" value="url"
+          name="quickHeaderMediaMode" />
+        <label class="form-check-label small">Paste URL</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio"
+          [(ngModel)]="quickHeaderMediaUploadMode" value="upload"
+          name="quickHeaderMediaMode" />
+        <label class="form-check-label small">Upload File</label>
+      </div>
+    </div>
+
+    <!-- URL Input -->
+    <div *ngIf="quickHeaderMediaUploadMode === 'url'">
+      <input pInputText
+        [(ngModel)]="quickHeaderMediaUrl"
+        [placeholder]="'Paste public ' + (quickTemplateHeaderType | lowercase) + ' URL...'"
+        class="w-100" style="font-size:0.82rem;" />
+      <div *ngIf="quickTemplateHeaderType === 'IMAGE' && quickHeaderMediaUrl"
+        class="mt-1 text-center">
+        <img [src]="quickHeaderMediaUrl" alt="Preview"
+          style="max-height:80px; max-width:100%; border-radius:6px; object-fit:cover;" />
+      </div>
+      <small *ngIf="quickTemplateHeaderType !== 'IMAGE' && quickHeaderMediaUrl"
+        class="text-success mt-1 d-block">
+        <i class="pi pi-check-circle me-1"></i>
+        {{ quickTemplateHeaderType | titlecase }} URL set
+      </small>
+    </div>
+
+    <!-- File Upload -->
+    <div *ngIf="quickHeaderMediaUploadMode === 'upload'">
+      <input type="file"
+        [accept]="quickTemplateHeaderType === 'IMAGE' ? 'image/*' :
+                  quickTemplateHeaderType === 'VIDEO' ? 'video/*' : '.pdf,.doc,.docx'"
+        class="form-control form-control-sm"
+        [disabled]="quickHeaderUploading"
+        (change)="onQuickHeaderFileSelected($event)" />
+
+      <div *ngIf="quickHeaderUploading" class="mt-1">
+        <small class="text-muted">
+          <i class="pi pi-spin pi-spinner me-1"></i>Uploading...
+        </small>
+      </div>
+
+      <div *ngIf="quickHeaderMediaUrl && !quickHeaderUploading" class="mt-1">
+        <small class="text-success">
+          <i class="pi pi-check-circle me-1"></i>
+          {{ quickHeaderMediaFile?.name }} — uploaded
+        </small>
+      </div>
+    </div>
+
+    <!-- Validation -->
+    <div *ngIf="!quickHeaderMediaUrl" class="mt-1">
+      <small class="text-danger">
+        <i class="pi pi-times-circle me-1"></i>
+        {{ quickTemplateHeaderType | titlecase }} required to send this template
+      </small>
+    </div>
+  </div>
+
+</div>
+
+
+
         <div *ngIf="quickTemplatePreview" class="template-preview">
           <small class="text-muted"><i class="pi pi-eye me-1"></i>Preview:</small>
           <div class="preview-text">{{ quickTemplatePreview }}</div>
@@ -262,7 +405,6 @@
 
       </ng-container>
 
-      <!-- ── CUSTOM MODE ───────────────────────────────────────────────── -->
       <ng-container *ngIf="inputMode === 'custom'">
         <div class="custom-input-row">
           <textarea

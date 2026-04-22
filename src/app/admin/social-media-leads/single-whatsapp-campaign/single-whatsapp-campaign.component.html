@@ -239,6 +239,119 @@
         </div>
 
         <!-- Preview -->
+        <!-- <div *ngIf="previewText" class="template-preview">
+          <small class="text-muted"><i class="pi pi-eye me-1"></i>Preview:</small>
+          <div class="preview-text">{{ previewText }}</div>
+        </div> -->
+        <!-- ✅ HEADER MEDIA INPUT -->
+         <!-- ✅ HEADER MEDIA INPUT — matches bulk campaign logic exactly -->
+<div *ngIf="templateHeaderType === 'IMAGE' || templateHeaderType === 'VIDEO' || templateHeaderType === 'DOCUMENT'"
+  class="mt-2 p-2 border rounded"
+  style="border-color: #0d6efd !important; background: #f0f6ff; font-size: 0.85rem;">
+
+  <div class="d-flex align-items-center gap-2 mb-2">
+    <span class="badge bg-primary" style="font-size:0.72rem;">
+      <i class="pi"
+        [ngClass]="{
+          'pi-image':    templateHeaderType === 'IMAGE',
+          'pi-video':    templateHeaderType === 'VIDEO',
+          'pi-file-pdf': templateHeaderType === 'DOCUMENT'
+        }">
+      </i>
+      {{ templateHeaderType }} Header
+    </span>
+  </div>
+
+  <!-- ✅ Already has image from Meta — show it, no upload needed -->
+  <div *ngIf="headerAlreadyUploaded" class="text-center">
+    <img *ngIf="templateHeaderType === 'IMAGE'" [src]="headerMediaUrl"
+      alt="Template Header"
+      style="max-height:80px; max-width:100%; border-radius:6px; object-fit:cover;" />
+    <div class="mt-1">
+      <small class="text-success">
+        <i class="pi pi-check-circle me-1"></i>
+        Template already has a header {{ templateHeaderType | lowercase }} — will be sent as-is.
+      </small>
+    </div>
+    <div class="mt-1">
+      <small class="text-muted">Want to use a different one?</small>
+      <button type="button" pButton class="p-button-text p-button-sm ms-2"
+        label="Change" icon="pi pi-refresh"
+        (click)="headerAlreadyUploaded = false; headerIsMetaHandle = false; headerMediaUrl = ''">
+      </button>
+    </div>
+  </div>
+
+  <!-- ✅ No existing image — show upload options -->
+  <div *ngIf="!headerAlreadyUploaded">
+    <small class="text-muted d-block mb-2">
+      This template needs a {{ templateHeaderType | lowercase }} for the header
+    </small>
+
+    <div class="d-flex gap-3 mb-2">
+      <div class="form-check">
+        <input class="form-check-input" type="radio"
+          [(ngModel)]="headerMediaUploadMode" value="url" name="headerMediaMode" />
+        <label class="form-check-label small">Paste URL</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio"
+          [(ngModel)]="headerMediaUploadMode" value="upload" name="headerMediaMode" />
+        <label class="form-check-label small">Upload File</label>
+      </div>
+    </div>
+
+    <!-- URL Input -->
+    <div *ngIf="headerMediaUploadMode === 'url'">
+      <input pInputText
+        [(ngModel)]="headerMediaUrl"
+        [placeholder]="'Paste public ' + (templateHeaderType | lowercase) + ' URL...'"
+        class="w-100" style="font-size:0.82rem;" />
+      <div *ngIf="templateHeaderType === 'IMAGE' && headerMediaUrl" class="mt-1 text-center">
+        <img [src]="headerMediaUrl" alt="Preview"
+          style="max-height:80px; max-width:100%; border-radius:6px; object-fit:cover;" />
+      </div>
+      <small *ngIf="templateHeaderType !== 'IMAGE' && headerMediaUrl"
+        class="text-success mt-1 d-block">
+        <i class="pi pi-check-circle me-1"></i>
+        {{ templateHeaderType | titlecase }} URL set
+      </small>
+    </div>
+
+    <!-- File Upload -->
+    <div *ngIf="headerMediaUploadMode === 'upload'">
+      <input type="file"
+        [accept]="templateHeaderType === 'IMAGE' ? 'image/*' :
+                  templateHeaderType === 'VIDEO' ? 'video/*' : '.pdf,.doc,.docx'"
+        class="form-control form-control-sm"
+        [disabled]="headerUploading"
+        (change)="onHeaderFileSelected($event)" />
+
+      <div *ngIf="headerUploading" class="mt-1">
+        <small class="text-muted">
+          <i class="pi pi-spin pi-spinner me-1"></i>Uploading...
+        </small>
+      </div>
+
+      <div *ngIf="headerMediaUrl && !headerUploading" class="mt-1">
+        <small class="text-success">
+          <i class="pi pi-check-circle me-1"></i>{{ headerMediaFile?.name }} — uploaded
+        </small>
+      </div>
+    </div>
+
+    <!-- Validation -->
+    <div *ngIf="!headerMediaUrl" class="mt-1">
+      <small class="text-danger">
+        <i class="pi pi-times-circle me-1"></i>
+        {{ templateHeaderType | titlecase }} required to send this template
+      </small>
+    </div>
+  </div>
+
+</div>
+
+
         <div *ngIf="previewText" class="template-preview">
           <small class="text-muted"><i class="pi pi-eye me-1"></i>Preview:</small>
           <div class="preview-text">{{ previewText }}</div>

@@ -121,7 +121,17 @@
       }
     }
 
-    .message-row { display: flex; justify-content: flex-end; }
+    // ✅ outgoing = right
+    .message-row {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    // ✅ incoming = left (inside .chat-body so specificity wins)
+    .incoming-row {
+      display: flex;
+      justify-content: flex-start;
+    }
 
     .message-bubble {
       background: #d9fdd3;
@@ -163,6 +173,17 @@
       }
     }
 
+    // ✅ incoming bubble (inside .chat-body so specificity wins)
+    .incoming-bubble {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 0 12px 12px 12px;
+
+      .message-footer {
+        justify-content: flex-start;
+      }
+    }
+
     .meta-row {
       text-align: right;
       small {
@@ -189,7 +210,6 @@
     flex-direction: column;
     gap: 8px;
 
-    // Toggle buttons
     .input-toggle {
       display: flex; gap: 6px;
 
@@ -208,12 +228,10 @@
       }
     }
 
-    // Template dropdown row
     .template-input-row {
       display: flex; align-items: center; gap: 8px;
     }
 
-    // Param inputs
     .quick-params {
       display: flex; flex-direction: column; gap: 6px;
       background: #fff; border-radius: 8px; padding: 8px;
@@ -223,7 +241,6 @@
       }
     }
 
-    // Preview box
     .template-preview {
       background: #fff; border-radius: 8px;
       padding: 8px 12px; font-size: 0.82rem;
@@ -234,7 +251,6 @@
       }
     }
 
-    // Custom textarea row
     .custom-input-row {
       display: flex; align-items: flex-end; gap: 8px;
 
@@ -250,7 +266,6 @@
       }
     }
 
-    // Send button
     .send-btn {
       width: 44px; height: 44px; min-width: 44px;
       border-radius: 50%; background: #1DAA61;
@@ -261,9 +276,7 @@
 
       &:hover:not(:disabled) { background: #1DAA61; }
 
-      &:disabled {
-        background: #aaa; cursor: not-allowed;
-      }
+      &:disabled { background: #aaa; cursor: not-allowed; }
     }
   }
 
@@ -276,18 +289,8 @@
     }
   }
 }
-.incoming-row {
-  justify-content: flex-start;
-}
 
-.incoming-bubble {
-  background: #ffffff;
-  border: 1px solid #e0e0e0;
-  color: #111;
-  border-radius: 0 12px 12px 12px;
-  align-self: flex-start;
-}
-
+// ── SHARED TAGS ────────────────────────────────────────────────────────────
 .reply-tag {
   background: #e3f2fd;
   color: #1565c0;
@@ -297,18 +300,7 @@
   font-weight: 600;
 }
 
-.status-badge i {
-  font-size: 14px;
-}
-
-.status-badge.reply i {
-  color: #25d366; /* WhatsApp green */
-}
-
-.status-badge.sent i {
-  color: #9aa0a6; /* Gray */
-}
-
-.status-badge.failed i {
-  color: #e53935; /* Red */
-}
+.status-badge i { font-size: 14px; }
+.status-badge.reply i  { color: #25d366; }
+.status-badge.sent i   { color: #9aa0a6; }
+.status-badge.failed i { color: #e53935; }

@@ -1122,19 +1122,6 @@ updateLeadRemark(leadId: number, remarkId: any) {
     return this.serviceMeta.httpPut(url, null);
   }
 
-//  getAccountLeadsBreakdown(
-//   accountId: string,
-//   metric: string,
-//   loanType: string,
-//   from: number = 0,
-//   count: number = 10,
-//   search: string = ''
-// ): Observable<any> {
-//   const params: any = { accountId, metric, loanType, from, count };
-//   if (search) params['search'] = search;
-//   const url = 'accounts/leads-breakdown';
-//   return this.serviceMeta.httpGet(url, null, params);
-// }
 
 getAccountLeadsBreakdown(
   accountId: string,
@@ -1143,16 +1130,17 @@ getAccountLeadsBreakdown(
   from: number = 0,
   count: number = 10,
   search: string = '',
-  filters: any = {}       // ✅ NEW — receives plan/status/date filters
+  filters: any = {},
+  employmentStatus: string = 'employed'
 ): Observable<any> {
- 
   const params: any = { accountId, metric, loanType, from, count };
- 
-  if (search) {
-    params['search'] = search;
+  if (search) params['search'] = search;
+
+  // ✅ Always send employmentStatus — don't skip 'employed'
+  if (employmentStatus) {
+    params['employmentStatus'] = employmentStatus;
   }
- 
-  // ✅ Spread active filters (status-eq, latest_plan_name-eq, fromDate, toDate etc.)
+
   if (filters) {
     Object.keys(filters).forEach(key => {
       if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
@@ -1160,10 +1148,63 @@ getAccountLeadsBreakdown(
       }
     });
   }
- 
   const url = 'accounts/leads-breakdown';
   return this.serviceMeta.httpGet(url, null, params);
 }
+// getAccountLeadsBreakdown(
+//   accountId: string,
+//   metric: string,
+//   loanType: string,
+//   from: number = 0,
+//   count: number = 10,
+//   search: string = '',
+//   filters: any = {},
+//   employmentStatus: string = 'employed'   // ← ADD THIS
+// ): Observable<any> {
+//   const params: any = { accountId, metric, loanType, from, count };
+//   if (search) params['search'] = search;
+//   if (employmentStatus && employmentStatus !== 'employed') {
+//     params['employmentStatus'] = employmentStatus;
+//   }
+//   if (filters) {
+//     Object.keys(filters).forEach(key => {
+//       if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+//         params[key] = filters[key];
+//       }
+//     });
+//   }
+//   const url = 'accounts/leads-breakdown';
+//   return this.serviceMeta.httpGet(url, null, params);
+// }
+// getAccountLeadsBreakdown(
+//   accountId: string,
+//   metric: string,
+//   loanType: string,
+//   from: number = 0,
+//   count: number = 10,
+//   search: string = '',
+//   filters: any = {},
+//   employmentStatus: string = 'all'  
+// ): Observable<any> {
+ 
+//   const params: any = { accountId, metric, loanType, from, count };
+ 
+//   if (search) {
+//     params['search'] = search;
+//   }
+ 
+//   // ✅ Spread active filters (status-eq, latest_plan_name-eq, fromDate, toDate etc.)
+//   if (filters) {
+//     Object.keys(filters).forEach(key => {
+//       if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+//         params[key] = filters[key];
+//       }
+//     });
+//   }
+ 
+//   const url = 'accounts/leads-breakdown';
+//   return this.serviceMeta.httpGet(url, null, params);
+// }
 // getLendersBreakdown(
 //   from: number = 0,
 //   count: number = 10,
@@ -1240,11 +1281,70 @@ changeSlotSettingStatus(slotId: number, statusId: number) {
   return this.serviceMeta.httpPut(`slots/settings/${slotId}/changestatus/${statusId}`, null); // ← updated
 }
 
+uploadWhatsappMedia(file: File): Observable<{ success: boolean; url: string }> {
+  const formData = new FormData();
+  formData.append('file', file);
+  return this.serviceMeta.httpPost('campaign/upload-media', formData) as any;
+}
+
 // ── Slot Config ───────────────────────────────────────────────────────────────
 getSlotConfig() {
   return this.serviceMeta.httpGet('slots/config');                    // ← updated
 }
+
 updateSlotConfig(data: { max_users_per_slot: number }) {
   return this.serviceMeta.httpPut('slots/config', data);             // ← updated
 }
+
+getCampaignHistory(filter: any = {}): Observable<any> {
+  const url = 'campaign/history';
+  return this.serviceMeta.httpGet(url, null, filter);
+}
+
+getCampaignHistoryCount(filter: any = {}): Observable<any> {
+  const url = 'campaign/history/total';
+  return this.serviceMeta.httpGet(url, null, filter);
+}
+
+getCampaignHistoryById(id: number): Observable<any> {
+  const url = `campaign/history/${id}`;
+  return this.serviceMeta.httpGet(url);
+}
+
+getSubscriptionsBreakdown(
+  from: number = 0,
+  count: number = 10,
+  search: string = '',
+  filters: any = {}
+): Observable<any> {
+  const params: any = { from, count };
+  if (search) params['search'] = search;
+  Object.keys(filters).forEach(key => {
+    params[key] = filters[key];
+  });
+  return this.serviceMeta.httpGet('accounts/subscriptions-breakdown', null, params);
+}
+
+// getWalletTransactionsBreakdown(
+//   from: number = 0,
+//   count: number = 10,
+//   search: string = '',
+//   filters: any = {}
+// ): Observable<any> {
+//   const params: any = { from, count };
+//   if (search) params['search'] = search;
+//   Object.keys(filters).forEach(key => {
+//     params[key] = filters[key];
+//   });
+//   return this.serviceMeta.httpGet('accounts/wallet-transactions-breakdown', null, params);
+// }
+getWalletTransactionsBreakdown(params: any): Observable<any> {
+  return this.serviceMeta.httpGet('accounts/wallet-transactions-breakdown', null, params);
+}
+
+addWalletBalance(accountId: string, amount: number): Observable<any> {
+  const url = 'credit-reports-api/wallet/add-balance';
+  return this.serviceMeta.httpPost(url, { accountId, amount });
+}
+
 }

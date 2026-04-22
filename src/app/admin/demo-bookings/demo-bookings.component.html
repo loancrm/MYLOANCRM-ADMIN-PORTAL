@@ -17,14 +17,16 @@
   <div class="m-2">
     <p-table
       #DemoBookingsTable
-      [value]="demoBookings"
+       [value]="demoBookings"
       [lazy]="true"
       (onLazyLoad)="loadDemoBookings($event)"
       dataKey="id"
       [paginator]="true"
       [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50, 100]"
       [totalRecords]="demoBookingsCount"
       [loading]="loading"
+      [showCurrentPageReport]="true"
       class="p-datatable-striped"
       responsiveLayout="scroll"
       scrollHeight="flex"
@@ -97,6 +99,19 @@
                 [showClear]="true"
                 styleClass="w-100"
               ></p-dropdown>
+          </div>
+          <!-- Assign To Filter -->
+          <div class="col-md-3 mt-2 no-padding-small" *ngIf="loggedInUserRole === 1">
+            <p-dropdown
+              [options]="assignFilterOptions"
+              [(ngModel)]="selectedAssignFilter"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Filter by Assigned User"
+              (onChange)="onAssignFilterChange()"
+              [showClear]="true"
+              styleClass="w-100"
+            ></p-dropdown>
           </div>
 
           <!-- <div class="col-md-2">
@@ -215,7 +230,7 @@
               icon="pi pi-check"
               pTooltip="Demo Completed"
               class="p-button-success p-button-sm"
-              (click)="updateStatus(row, 'completed')"
+              (click)="confirmCompleted(row)"
             ></button>
 
             <!-- CANCEL -->
@@ -279,4 +294,37 @@
 
     </div>
   </p-dialog>
+
+  <!-- ✅ Demo Completed Confirmation Dialog -->
+<p-dialog
+  header="Confirm Demo Completed"
+  [(visible)]="showCompletedDialog"
+  [modal]="true"
+  [style]="{ width: '400px' }"
+  [closable]="true"
+>
+  <div class="text-center py-3">
+    <i class="pi pi-whatsapp" style="font-size:2rem; color:#25D366; display:block; margin-bottom:12px;"></i>
+    <p style="font-size:15px; margin:0;">
+      Are you sure the demo is completed?<br/>
+      <strong>A WhatsApp message will be sent to {{ selectedCompletedRow?.name }}.</strong>
+    </p>
+  </div>
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      label="No"
+      icon="pi pi-times"
+      class="p-button-secondary"
+      (click)="showCompletedDialog = false"
+    ></button>
+    <button
+      pButton
+      label="Yes, Send WhatsApp"
+      icon="pi pi-check"
+      class="p-button-success"
+      (click)="onConfirmCompleted()"
+    ></button>
+  </ng-template>
+</p-dialog>
 </div>

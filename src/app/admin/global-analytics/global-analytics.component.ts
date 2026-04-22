@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { RoutingService } from 'src/app/services/routing-service';
 import { Location } from '@angular/common';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
 @Component({
   selector: 'app-global-analytics',
   templateUrl: './global-analytics.component.html',
@@ -13,15 +14,15 @@ export class GlobalAnalyticsComponent implements OnInit, OnDestroy {
 
   @ViewChild('breakdownTable') breakdownTable: any;
   @ViewChild('cibilTable')     cibilTable:     any;
-  @ViewChild('amountTable')    amountTable:    any;
+  @ViewChild('amountTable')    amountTable:    any;  
   // Dialog rows per page tracking
-breakdownRows  = 10;
-cibilRows      = 10;
-amountRows     = 10;
-lendersRows    = 10;
-usersRows      = 10;
-usersGrandActive   = 0;
-usersGrandInactive = 0;
+  breakdownRows  = 10;
+  cibilRows      = 10;
+  amountRows     = 10;
+  lendersRows    = 10;
+  usersRows      = 10;
+  usersGrandActive   = 0;
+  usersGrandInactive = 0;
 
   loading          = false;
   // ── Page-level loan type (KPI cards only) ──
@@ -46,7 +47,7 @@ usersGrandInactive = 0;
     callbacks: 0, enquiries: 0, leads: 0, files: 0,
     credit: 0, logins: 0, sanctioned: 0, disbursed: 0,
     inhouseRejects: 0, bankRejects: 0, cniRejects: 0, bankers: 0,
-    cibilReports: 0,cities: 0, users: 0 
+    cibilReports: 0,cities: 0, users: 0, subscriptions: 0,walletTransactions: 0 
   };
 
   // ── Breakdown dialog ──
@@ -89,62 +90,87 @@ usersGrandInactive = 0;
   amountDialogReady    = false;
 
   // ── City dialog ──
-showCityDialog      = false;
-cityDialogLoading   = false;
-cityAccounts: any[] = [];
-cityTotal           = 0;
-cityGrandTotal      = 0;
-citySearch          = '';
-cityDialogReady     = false;
-// ── City right panel (accounts in selected city) ──
-selectedCity         = '';
-selectedCityTotal    = 0;
-cityPanelLoading     = false;
-cityPanelAccounts: any[] = [];
-cityPanelTotal       = 0;
-cityPanelSearch      = '';
-cityPanelReady       = false;
+  showCityDialog      = false;
+  cityDialogLoading   = false;
+  cityAccounts: any[] = [];
+  cityTotal           = 0;
+  cityGrandTotal      = 0;
+  citySearch          = '';
+  cityDialogReady     = false;
+  // ── City right panel (accounts in selected city) ──
+  selectedCity         = '';
+  selectedCityTotal    = 0;
+  cityPanelLoading     = false;
+  cityPanelAccounts: any[] = [];
+  cityPanelTotal       = 0;
+  cityPanelSearch      = '';
+  cityPanelReady       = false;
 
-// ── Lenders dialog ──
-showLendersDialog      = false;
-lendersDialogLoading   = false;
-lendersAccounts: any[] = [];
-lendersTotal           = 0;
-lendersGrandTotal      = 0;
-lendersSearch          = '';
-lendersDialogReady     = false;
+  // ── Lenders dialog ──
+  showLendersDialog      = false;
+  lendersDialogLoading   = false;
+  lendersAccounts: any[] = [];
+  lendersTotal           = 0;
+  lendersGrandTotal      = 0;
+  lendersSearch          = '';
+  lendersDialogReady     = false;
 
-// ── Add these if not already present ──
-userNameToSearch = '';
+  // ── Add these if not already present ──
+  userNameToSearch = '';
 
-selectedAccountStatus = { id: 1, displayName: 'Active' }; // default
+  selectedAccountStatus = { id: 1, displayName: 'Active' }; // default
 
-planTypeOptions = [
-  // { label: 'All',          value: 'ALL'          },
-  { label: 'Free Trial',   value: 'Free Trial'   },
-  { label: 'Basic',        value: 'Basic'        },
-  { label: 'Premium',      value: 'Premium'      },
-  { label: 'Professional', value: 'Professional' },
-];
+  planTypeOptions = [
+    // { label: 'All',          value: 'ALL'          },
+    { label: 'Free Trial',   value: 'Free Trial'   },
+    { label: 'Basic',        value: 'Basic'        },
+    { label: 'Premium',      value: 'Premium'      },
+    { label: 'Professional', value: 'Professional' },
+  ];
 
-statusOptions = [
-  { label: 'All',     value: 'ALL'     },
-  { label: 'Active',  value: 'Active'  },
-  { label: 'Expired', value: 'Expired' },
-];
+  statusOptions = [
+    { label: 'All',     value: 'ALL'     },
+    { label: 'Active',  value: 'Active'  },
+    { label: 'Expired', value: 'Expired' },
+  ];
 
-billingCycleOptions = [
-  { label: 'All',     value: 'ALL'     },
-  { label: 'Monthly', value: 'Monthly' },
-  { label: 'Yearly',  value: 'Yearly'  },
-];
+  billingCycleOptions = [
+    { label: 'All',     value: 'ALL'     },
+    { label: 'Monthly', value: 'Monthly' },
+    { label: 'Yearly',  value: 'Yearly'  },
+  ];
 
-selectedPlanType     = 'ALL';
-selectedPlanTypes: string[] = [];
-selectedStatusType   = 'ALL';
-selectedBillingCycle = 'ALL';
-selectedRemarkFilter = 'ALL';
-adminRemarkFilterOptions: any[] = [];
+  selectedPlanType     = 'ALL';
+  selectedPlanTypes: string[] = [];
+  selectedStatusType   = 'ALL';
+  selectedBillingCycle = 'ALL';
+  selectedRemarkFilter = 'ALL';
+  adminRemarkFilterOptions: any[] = [];
+
+  showSubscriptionsDialog      = false;
+  subscriptionsDialogLoading   = false;
+  subscriptionsAccounts: any[] = [];
+  subscriptionsTotal           = 0;
+  subscriptionsGrandTotal      = 0;
+  subscriptionsSearch          = '';
+  subscriptionsDialogReady     = false;
+  @ViewChild('subscriptionsTable') subscriptionsTable: any;
+private subscriptionsSearchSubject = new Subject<string>();
+
+// ── Wallet Transactions dialog ──
+showWalletDialog          = false;
+walletDialogLoading       = false;
+walletAccounts: any[]     = [];
+walletTotal               = 0;
+walletGrandTotal          = 0;
+walletGrandCredit         = 0;
+walletGrandDebit          = 0;
+walletSearch              = '';
+walletDialogReady         = false;
+walletRows                = 10;
+private walletSearchSubject = new Subject<string>();
+@ViewChild('walletTable') walletTable: any;
+
 
 private lendersSearchSubject = new Subject<string>();
 
@@ -162,6 +188,29 @@ private citySearchSubject = new Subject<string>();
   private cibilSearchSubject  = new Subject<string>();
   private amountSearchSubject = new Subject<string>();
   private destroy$            = new Subject<void>();
+  private readonly FILTER_STORAGE_KEY = 'globalAnalyticsFilters';
+  private saveFiltersToStorage(): void {
+    const filters = {
+      selectedPlanTypes:    this.selectedPlanTypes,
+      selectedStatusType:   this.selectedStatusType,
+      selectedBillingCycle: this.selectedBillingCycle,
+      selectedLoanType:     this.selectedLoanType,
+      selectedFromDate:     this.selectedFromDate ? this.selectedFromDate.toISOString() : null,
+      selectedToDate:       this.selectedToDate   ? this.selectedToDate.toISOString()   : null,
+    };
+    this.localStorageService.setItemOnLocalStorage(this.FILTER_STORAGE_KEY, filters);
+  }
+
+  private loadGlobalFiltersFromStorage(): void {
+    const stored = this.localStorageService.getItemFromLocalStorage(this.FILTER_STORAGE_KEY);
+    if (!stored) return;
+    this.selectedPlanTypes    = stored.selectedPlanTypes    || [];
+    this.selectedStatusType   = stored.selectedStatusType   || 'ALL';
+    this.selectedBillingCycle = stored.selectedBillingCycle || 'ALL';
+    this.selectedLoanType     = stored.selectedLoanType     || 'all';
+    this.selectedFromDate     = stored.selectedFromDate ? new Date(stored.selectedFromDate) : null;
+    this.selectedToDate       = stored.selectedToDate   ? new Date(stored.selectedToDate)   : null;
+  }
 
   metricLabelMap: any = {
     leads: 'Leads', files: 'Files', logins: 'Logins',
@@ -192,10 +241,11 @@ usersDialogReady     = false;
 @ViewChild('usersTable') usersTable: any;
 private usersSearchSubject = new Subject<string>();
 
-  constructor(private leadsService: LeadsService, private routingService: RoutingService,private location: Location,) {}
+  constructor(private leadsService: LeadsService, private routingService: RoutingService,private location: Location,private localStorageService: LocalStorageService) {}
 
   ngOnInit(): void {
     // Load ONLY the KPI cards — no dialog APIs here
+    this.loadGlobalFiltersFromStorage();
     this.loadAnalytics();
     this.citySearchSubject.pipe(
     debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$)
@@ -240,6 +290,18 @@ private usersSearchSubject = new Subject<string>();
     ).subscribe(() => {
       this.onUsersLazyLoad({ first: 0, rows: 10 });
     });
+
+    this.subscriptionsSearchSubject.pipe(
+      debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.onSubscriptionsLazyLoad({ first: 0, rows: 10 });
+    });
+
+    this.walletSearchSubject.pipe(
+  debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$)
+).subscribe(() => {
+  this.onWalletLazyLoad({ first: 0, rows: 10 });
+});
   }
 
   ngOnDestroy(): void {
@@ -287,6 +349,8 @@ private usersSearchSubject = new Subject<string>();
       this.stats.cniRejects     = kpi.cniRejects?.total     || 0;
       this.stats.bankers        = kpi.bankers?.total        || 0;
       this.stats.users          = kpi.users?.total          || 0;
+      this.stats.subscriptions = kpi.subscriptions?.total || 0;
+      this.stats.walletTransactions = kpi.walletTransactions?.total || 0;
       this.loading = false;
     },
     () => { this.loading = false; }
@@ -667,6 +731,14 @@ viewAccount(event) {
     const lead = event.data;
     this.routingService.handleRoute('accounts/profile/' + lead.accountId, null);
   }
+viewAccountsubcriptions(event) {
+    const lead = event.data;
+    this.routingService.handleRoute('subscriptions/' + lead.accountId, null);
+  }
+viewAccountwallettranctions(event) {
+    const lead = event.data;
+    this.routingService.handleRoute('wallettransactions/' + lead.accountId, null);
+  }
 goBack() {
     this.location.back();
   }
@@ -816,6 +888,14 @@ reloadOpenDialogs(): void {
   this.onUsersLazyLoad({ first: 0, rows: 10 });
 }
 
+if (this.showSubscriptionsDialog) {
+  if (this.subscriptionsTable) this.subscriptionsTable.first = 0;
+  this.onSubscriptionsLazyLoad({ first: 0, rows: 10 });
+}
+if (this.showWalletDialog) {
+  if (this.walletTable) this.walletTable.first = 0;
+  this.onWalletLazyLoad({ first: 0, rows: 10 });
+}
 }
 
 statusChange(event: any): void {
@@ -826,24 +906,28 @@ statusChange(event: any): void {
 onPlanTypeChange(event: any): void {
   // this.selectedPlanType = event.value;
   this.selectedPlanTypes = event.value;
+  this.saveFiltersToStorage();
   this.loadAnalytics();
   this.reloadOpenDialogs(); // ✅ ADD THIS
 }
 
 onStatusTypeChange(event: any): void {
   this.selectedStatusType = event.value;
+  this.saveFiltersToStorage();
   this.loadAnalytics();
   this.reloadOpenDialogs(); // ✅
 }
 
 onBillingCycleChange(event: any): void {
   this.selectedBillingCycle = event.value;
+  this.saveFiltersToStorage();
   this.loadAnalytics();
   this.reloadOpenDialogs(); // ✅
 }
 
 onRemarkFilterChange(event: any): void {
   this.selectedRemarkFilter = event.value;
+  this.saveFiltersToStorage();
   this.loadAnalytics();
 }
 
@@ -938,5 +1022,109 @@ private formatDate(date: Date | null): string | null {
 onDateRangeChange(): void {
   this.loadAnalytics();
   this.reloadOpenDialogs();
+}
+
+onSubscriptionsLazyLoad(event: any): void {
+  if (!this.subscriptionsDialogReady) return;
+
+  this.subscriptionsDialogLoading = true;
+  const from  = event.first ?? 0;
+  const count = event.rows  ?? 10;
+  const filterParams = this.getCurrentFilterParams();
+
+  this.leadsService.getSubscriptionsBreakdown(
+    from, count, this.subscriptionsSearch.trim(), filterParams
+  ).subscribe(
+    (res: any) => {
+      if (from === 0) this.subscriptionsGrandTotal = res.grandTotal || 0;
+      this.subscriptionsAccounts      = res.accounts || [];
+      this.subscriptionsTotal         = res.total    || 0;
+      this.subscriptionsDialogLoading = false;
+    },
+    () => { this.subscriptionsDialogLoading = false; }
+  );
+}
+
+onSubscriptionsSearchChange(): void {
+  this.subscriptionsSearchSubject.next(this.subscriptionsSearch);
+}
+
+onSubscriptionsDialogHide(): void {
+  this.subscriptionsDialogReady = false;
+}
+
+
+openSubscriptionsBreakdown(): void {
+  this.subscriptionsSearch      = '';
+  this.subscriptionsAccounts    = [];
+  this.subscriptionsTotal       = 0;
+  this.subscriptionsGrandTotal  = 0;
+  this.subscriptionsDialogReady = true;
+  this.showSubscriptionsDialog  = true;
+  this.onSubscriptionsLazyLoad({ first: 0, rows: 10 });
+}
+
+// ════════════════════════════════
+// WALLET TRANSACTIONS DIALOG
+// ════════════════════════════════
+openWalletBreakdown(): void {
+  this.walletSearch      = '';
+  this.walletAccounts    = [];
+  this.walletTotal       = 0;
+  this.walletGrandTotal  = 0;
+  this.walletGrandCredit = 0;
+  this.walletGrandDebit  = 0;
+  this.walletDialogReady = true;
+  this.showWalletDialog  = true;
+  this.onWalletLazyLoad({ first: 0, rows: 10 });
+}
+onWalletLazyLoad(event: any): void {
+  if (!this.walletDialogReady) return;
+
+  this.walletDialogLoading = true;
+  const from  = event.first ?? 0;
+  const count = event.rows  ?? this.walletRows;
+  this.walletRows = count;
+
+  const filterParams = this.getCurrentFilterParams();
+
+  const params: any = {
+    from,
+    count,
+    search: this.walletSearch.trim(),
+    ...filterParams,
+  };
+
+  const fd = this.formatDate(this.selectedFromDate);
+  const td = this.formatDate(this.selectedToDate);
+  if (fd) params['fromDate'] = fd;
+  if (td) params['toDate']   = td;
+
+  // Remove null/undefined to prevent NaN in SQL
+  Object.keys(params).forEach(k => {
+    if (params[k] === null || params[k] === undefined) delete params[k];
+  });
+
+  this.leadsService.getWalletTransactionsBreakdown(params).subscribe(
+    (res: any) => {
+      if (from === 0) {
+        this.walletGrandTotal  = res.grandTotal  || 0;
+        this.walletGrandCredit = res.grandCredit || 0;
+        this.walletGrandDebit  = res.grandDebit  || 0;
+      }
+      this.walletAccounts      = res.accounts || [];
+      this.walletTotal         = res.total    || 0;
+      this.walletDialogLoading = false;
+    },
+    () => { this.walletDialogLoading = false; }
+  );
+}
+
+onWalletSearchChange(): void {
+  this.walletSearchSubject.next(this.walletSearch);
+}
+
+onWalletDialogHide(): void {
+  this.walletDialogReady = false;
 }
 }

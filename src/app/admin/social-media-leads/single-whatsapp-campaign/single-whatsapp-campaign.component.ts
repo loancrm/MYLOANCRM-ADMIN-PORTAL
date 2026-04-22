@@ -38,7 +38,9 @@ export class SingleWhatsappCampaignComponent implements OnInit, AfterViewChecked
 
   // ── Sent messages — shown as bubbles immediately ───────────────────────────
   sentMessages: any[] = [];
-
+  headerAlreadyUploaded = false;
+  headerIsMetaHandle = false;
+  headerUploading = false;
   // ── Auto scroll ────────────────────────────────────────────────────────────
   private shouldScroll = false;
 
@@ -52,6 +54,12 @@ export class SingleWhatsappCampaignComponent implements OnInit, AfterViewChecked
     { label: 'State',    value: 'state' },
     { label: 'Platform', value: 'platform' },
   ];
+
+  // ── Header Media ───────────────────────────────────────────────────────────
+  templateHeaderType: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT' | 'NONE' = 'NONE';
+  headerMediaUrl: string = '';
+  headerMediaFile: File | null = null;
+  headerMediaUploadMode: 'url' | 'upload' = 'url';
 
   constructor(
     private route: ActivatedRoute,
@@ -143,63 +151,91 @@ export class SingleWhatsappCampaignComponent implements OnInit, AfterViewChecked
   }
 
   // ── Template select ────────────────────────────────────────────────────────
-
   onTemplateSelect(): void {
-    if (!this.selectedTemplate) {
-      this.templateBodyText = '';
-      this.templateParams   = [];
-      this.paramMappings    = [];
-      return;
-    }
-
-    const components = this.selectedTemplate.components || [];
-
-    const headerComp = components.find((c: any) => c.type === 'HEADER');
-    const bodyComp   = components.find((c: any) => c.type === 'BODY');
-    const buttonComp = components.find((c: any) => c.type === 'BUTTONS');
-
-    const templateHeaderText = headerComp?.text || '';
-    this.templateBodyText    = bodyComp?.text   || this.selectedTemplate.body_text || '';
-    const templateButtons    = buttonComp?.buttons || [];
-
-    // ✅ Count button URL params
-    let buttonParamCount = 0;
-    templateButtons.forEach((btn: any) => {
-      if (btn.type === 'URL') {
-        const urlMatches = (btn.url || '').match(/{{\d+}}/g);
-        if (urlMatches && urlMatches.length > 0) {
-          buttonParamCount += urlMatches.length;
-        } else if (btn.example && Array.isArray(btn.example) && btn.example.length > 0) {
-          buttonParamCount += 1;
-        }
-      }
-    });
-
-    // ✅ Collect params from HEADER + BODY
-    const textSources = [templateHeaderText, this.templateBodyText].join(' ');
-    const textMatches = textSources.match(/{{\d+}}/g) || [];
-    const textParams  = [...new Set(textMatches)] as string[];
-
-    // ✅ Build button param placeholders
-    const startIndex   = textParams.length + 1;
-    const buttonParams = Array.from(
-      { length: buttonParamCount },
-      (_, i) => `{{${startIndex + i}}}`
-    );
-
-    // ✅ Combined
-    this.templateParams = [...textParams, ...buttonParams];
-
-    this.paramMappings = this.templateParams.map((param, i) => {
-      const isButtonParam = i >= textParams.length;
-      return {
-        type: isButtonParam ? 'manual' : 'db' as 'db' | 'manual',
-        dbField: '',
-        manualValue: '',
-        isButtonParam
-      };
-    });
+  if (!this.selectedTemplate) {
+    this.templateBodyText    = '';
+    this.templateParams      = [];
+    this.paramMappings       = [];
+    this.templateHeaderType  = 'NONE';
+    this.headerMediaUrl      = '';
+    this.headerMediaFile     = null;
+    this.headerAlreadyUploaded = false;
+    this.headerIsMetaHandle    = false;
+    return;
   }
+
+  const components = this.selectedTemplate.components || [];
+
+  const headerComp = components.find((c: any) => c.type === 'HEADER');
+  const bodyComp   = components.find((c: any) => c.type === 'BODY');
+  const buttonComp = components.find((c: any) => c.type === 'BUTTONS');
+
+  const headerFormat = headerComp?.format?.toUpperCase() || 'NONE';
+  this.templateHeaderType = ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat)
+    ? headerFormat
+    : (headerComp?.text ? 'TEXT' : 'NONE');
+
+  const templateHeaderText = headerComp?.text || '';
+  this.templateBodyText    = bodyComp?.text   || this.selectedTemplate.body_text || '';
+  const templateButtons    = buttonComp?.buttons || [];
+
+  // ✅ Check if template already has a header image from Meta
+  const existingHeaderHandle = headerComp?.example?.header_handle?.[0] || null;
+
+  if (existingHeaderHandle) {
+    // ✅ Already has image in Meta — use it directly, no upload needed
+    this.headerMediaUrl        = existingHeaderHandle;
+    this.headerMediaFile       = null;
+    this.headerAlreadyUploaded = true;
+    this.headerIsMetaHandle    = true;
+  } else {
+    // ✅ No existing image — user must provide one
+    this.headerMediaUrl        = '';
+    this.headerMediaFile       = null;
+    this.headerAlreadyUploaded = false;
+    this.headerIsMetaHandle    = false;
+  }
+
+  this.headerMediaUploadMode = 'url';
+
+  // ✅ Count button URL params
+  let buttonParamCount = 0;
+  templateButtons.forEach((btn: any) => {
+    if (btn.type === 'URL') {
+      const urlMatches = (btn.url || '').match(/{{\d+}}/g);
+      if (urlMatches && urlMatches.length > 0) {
+        buttonParamCount += urlMatches.length;
+      } else if (btn.example && Array.isArray(btn.example) && btn.example.length > 0) {
+        buttonParamCount += 1;
+      }
+    }
+  });
+
+  // ✅ Collect params from HEADER + BODY
+  const textSources = [templateHeaderText, this.templateBodyText].join(' ');
+  const textMatches = textSources.match(/{{\d+}}/g) || [];
+  const textParams  = [...new Set(textMatches)] as string[];
+
+  // ✅ Build button param placeholders
+  const startIndex   = textParams.length + 1;
+  const buttonParams = Array.from(
+    { length: buttonParamCount },
+    (_, i) => `{{${startIndex + i}}}`
+  );
+
+  this.templateParams = [...textParams, ...buttonParams];
+
+  this.paramMappings = this.templateParams.map((_, i) => {
+    const isButtonParam = i >= textParams.length;
+    return {
+      type: isButtonParam ? 'manual' : 'db' as 'db' | 'manual',
+      dbField: '',
+      manualValue: '',
+      isButtonParam
+    };
+  });
+}
+
 
   // ── Resolve param value ────────────────────────────────────────────────────
   resolveParam(index: number): string {
@@ -228,19 +264,25 @@ export class SingleWhatsappCampaignComponent implements OnInit, AfterViewChecked
 
   // ── Can send ───────────────────────────────────────────────────────────────
   canSend(): boolean {
-    if (!this.lead) return false;
-    if (this.messageMode === 'custom') {
-      return this.customMessage.trim() !== '';
-    }
-    if (!this.selectedTemplate) return false;
-    return this.paramMappings.every(m =>
-      m.type === 'manual' ? m.manualValue.trim() !== '' : m.dbField !== ''
-    );
+  if (!this.lead) return false;
+  if (this.messageMode === 'custom') {
+    return this.customMessage.trim() !== '';
+  }
+  if (!this.selectedTemplate) return false;
+
+  // ✅ Same check as bulk — require URL, block while uploading
+  if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(this.templateHeaderType)) {
+    if (this.headerUploading) return false;
+    if (!this.headerMediaUrl.trim()) return false;
   }
 
-  // ── SEND ───────────────────────────────────────────────────────────────────
+  return this.paramMappings.every(m =>
+    m.type === 'manual' ? m.manualValue.trim() !== '' : m.dbField !== ''
+  );
+}
 
-  sendCampaign(): void {
+  // ── SEND ───────────────────────────────────────────────────────────────────
+sendCampaign(): void {
   if (!this.canSend() || this.sending) return;
 
   this.sending = true;
@@ -263,17 +305,21 @@ export class SingleWhatsappCampaignComponent implements OnInit, AfterViewChecked
     const resolvedParams = this.templateParams.map((_, i) => this.resolveParam(i));
     messageSentText      = this.previewText;
 
-    // ✅ Count body params only
     const textParamCount = this.paramMappings.filter(m => !m.isButtonParam).length;
+    const needsMedia     = ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(this.templateHeaderType);
 
     payload = {
-      campaignName:         'Direct Message',
-      contacts:             [{ ...this.lead, resolvedParams }],
-      templateName:         this.selectedTemplate.name,
-      templateBodyText:     this.templateBodyText,
-      languageCode:         this.selectedTemplate.language || 'en_US',
-      sendType:             'single',
-      buttonParamStartIndex: textParamCount,  // ✅ NEW
+      campaignName:          'Direct Message',
+      contacts:              [{ ...this.lead, resolvedParams }],
+      templateName:          this.selectedTemplate.name,
+      templateBodyText:      this.templateBodyText,
+      languageCode:          this.selectedTemplate.language || 'en_US',
+      sendType:              'single',
+      buttonParamStartIndex: textParamCount,
+      hasImageHeader:        needsMedia,
+      headerMediaType:       this.templateHeaderType,
+      imageUrl:              this.headerMediaUrl,
+      headerIsMetaHandle:    this.headerIsMetaHandle,   // ✅ same as bulk
     };
   }
 
@@ -298,6 +344,10 @@ export class SingleWhatsappCampaignComponent implements OnInit, AfterViewChecked
       this.templateBodyText = '';
       this.templateParams   = [];
       this.paramMappings    = [];
+      this.headerMediaUrl   = '';
+      this.headerMediaFile  = null;
+      this.headerAlreadyUploaded = false;
+      this.headerIsMetaHandle    = false;
       this.shouldScroll     = true;
 
       if (sentResult?.status === 'sent') {
@@ -313,6 +363,7 @@ export class SingleWhatsappCampaignComponent implements OnInit, AfterViewChecked
   });
 }
 
+
   // ── Scroll to bottom ───────────────────────────────────────────────────────
   scrollToBottom(): void {
     try {
@@ -323,5 +374,36 @@ export class SingleWhatsappCampaignComponent implements OnInit, AfterViewChecked
     } catch {}
   }
 
+  onHeaderFileSelected(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  if (!input.files || !input.files[0]) return;
+
+  const file = input.files[0];
+  this.headerMediaFile = file;
+  this.headerMediaUrl  = '';       // ← clear, no blob URL
+  this.headerUploading = true;
+
+  this.leadsService.uploadWhatsappMedia(file).subscribe({
+    next: (res: any) => {
+      this.headerMediaUrl  = res.url;  // ← real uploaded URL
+      this.headerUploading = false;
+    },
+    error: () => {
+      this.toastService.showError('Failed to upload media');
+      this.headerMediaFile = null;
+      this.headerMediaUrl  = '';
+      this.headerUploading = false;
+    }
+  });
+}
+
+
+  // onHeaderFileSelected(event: Event): void {
+  //   const input = event.target as HTMLInputElement;
+  //   if (input.files && input.files[0]) {
+  //     this.headerMediaFile = input.files[0];
+  //     this.headerMediaUrl  = URL.createObjectURL(input.files[0]);
+  //   }
+  // }
   goBack(): void { this.location.back(); }
 }
