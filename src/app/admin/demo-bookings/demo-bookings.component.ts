@@ -26,6 +26,7 @@ selectedCompletedRow: any = null;
   statusOptions = [
     { label: 'All', value: '' },
     { label: 'Confirmed', value: 'confirmed' },
+    { label: 'Completed', value: 'completed' },
     { label: 'Cancelled', value: 'cancelled' },
     { label: 'Rescheduled', value: 'rescheduled' }
   ];

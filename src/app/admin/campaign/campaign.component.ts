@@ -1,4 +1,3 @@
-
 import { Component, OnInit } from '@angular/core';
 import { CampaignService } from '../../services/campaign.service';
 import { LeadsService } from '../leads/leads.service';
@@ -6,6 +5,7 @@ import { ToastService } from '../../services/toast.service';
 import { Contact } from '../modules/models';
 import { RoutingService } from 'src/app/services/routing-service';
 import { Location } from '@angular/common';
+
 @Component({
   selector: 'app-campaign',
   templateUrl: './campaign.component.html',
@@ -21,7 +21,7 @@ export class CampaignComponent implements OnInit {
   filteredContacts: Contact[] = [];
   selectedContacts: Contact[] = [];
   headerUploading = false;
-headerIsMetaHandle = false;
+  headerIsMetaHandle = false;
   loading = false;
   searchText: string = '';
   searchFilter: any = {};
@@ -45,13 +45,23 @@ headerIsMetaHandle = false;
     { label: 'Cancelled', value: 'cancelled' },
     { label: 'Rescheduled', value: 'rescheduled' }
   ];
-headerAlreadyUploaded = false;
+
+  // ── ✅ NEW: Registration Status Filter (Social Media tab) ──
+  selectedRegistrationStatus: string = '';
+  registrationStatusOptions = [
+    { label: 'All', value: '' },
+    { label: 'Not Registered', value: 'notRegistered' },
+    { label: 'Registered', value: 'registered' },
+  ];
+
+  headerAlreadyUploaded = false;
+
   // ── TEMPLATES ──────────────────────────────────────────
   templates: any[] = [];
   selectedTemplate: any = null;
   templateBodyText = '';
   templateParams: string[] = [];
-  paramMappings: { type: 'db' | 'manual'; dbField: string; manualValue: string,isButtonParam?: boolean; }[] = [];
+  paramMappings: { type: 'db' | 'manual'; dbField: string; manualValue: string; isButtonParam?: boolean; }[] = [];
 
   // ── CAMPAIGN ───────────────────────────────────────────
   campaignName = '';
@@ -59,6 +69,9 @@ headerAlreadyUploaded = false;
   sending = false;
   result: any = null;
   errorMsg = '';
+
+  // ── ✅ NEW: Skip Registered Toggle (Accounts tab) ──────
+  skipRegisteredAccounts: boolean = false;
 
   // ── DIALOG ─────────────────────────────────────────────
   showCreateDialog = false;
@@ -76,33 +89,22 @@ headerAlreadyUploaded = false;
   ];
 
   // ── DB FIELD OPTIONS (Accounts) ────────────────────────
-  // accountsDbFields = [
-  //   { label: 'Name', value: 'name' },
-  //   { label: 'Business Name', value: 'businessName' },
-  //   { label: 'Phone', value: 'mobile' },
-  //   { label: 'Email', value: 'emailId' },
-  //   { label: 'City', value: 'city' },
-  // ];
-  // ── DB FIELD OPTIONS (Accounts) ────────────────────────
   accountsDbFields = [
-  // ── Accounts table fields ──────────────────────────
-  { label: 'Name', value: 'name' },
-  { label: 'Business Name', value: 'businessName' },
-  { label: 'Phone', value: 'mobileNumber' },
-  { label: 'Email', value: 'email' },
-  { label: 'City', value: 'city' },
-  { label: 'Wallet Balance', value: 'walletBalance' },
-  { label: 'Created Date', value: 'createdOn' },
+    { label: 'Name', value: 'name' },
+    { label: 'Business Name', value: 'businessName' },
+    { label: 'Phone', value: 'mobileNumber' },
+    { label: 'Email', value: 'email' },
+    { label: 'City', value: 'city' },
+    { label: 'Wallet Balance', value: 'walletBalance' },
+    { label: 'Created Date', value: 'createdOn' },
+    { label: 'Plan Name', value: 'latest_plan_name' },
+    { label: 'Plan Status', value: 'latest_status' },
+    { label: 'Billing Cycle', value: 'latest_billing_cycle' },
+    { label: 'Start Date', value: 'start_date' },
+    { label: 'End Date', value: 'end_date' },
+  ];
 
-  // ── Subscription table fields (via JOIN) ───────────
-  { label: 'Plan Name', value: 'latest_plan_name' },
-  { label: 'Plan Status', value: 'latest_status' },
-  { label: 'Billing Cycle', value: 'latest_billing_cycle' },
-  { label: 'Start Date', value: 'start_date' },   // ✅ ADD
-  { label: 'End Date', value: 'end_date' },         // ✅ ADD
-];
-
-  // ── Add these properties alongside selectedDemoStatus ──────
+  // ── Account filter properties ──────────────────────────
   selectedPlanType: string = 'ALL';
   selectedStatusType: string = 'ALL';
   selectedBillingCycle: string = 'ALL';
@@ -131,7 +133,8 @@ headerAlreadyUploaded = false;
   templateHeaderText = '';
   templateFooterText = '';
   templateButtons: any[] = [];
-  // ── HEADER MEDIA ───────────────────────────────────────────
+
+  // ── HEADER MEDIA ───────────────────────────────────────
   templateHeaderType: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT' | 'NONE' = 'NONE';
   headerMediaUrl: string = '';
   headerMediaFile: File | null = null;
@@ -165,14 +168,16 @@ headerAlreadyUploaded = false;
     this.searchText = '';
     this.selectedPlatform = 'ALL';
     this.selectedDemoStatus = '';
+    this.selectedRegistrationStatus = '';    // ✅ reset registration filter
     this.searchFilter = {};
     this.contacts = [];
     this.filteredContacts = [];
 
-    // ✅ Reset account filters too
+    // ✅ Reset account filters
     this.selectedPlanType = 'ALL';
     this.selectedStatusType = 'ALL';
     this.selectedBillingCycle = 'ALL';
+    this.skipRegisteredAccounts = false;    // ✅ reset toggle
 
     if (tab === 'socialMedia') {
       this.searchFilter['status-eq'] = 1;
@@ -185,7 +190,14 @@ headerAlreadyUploaded = false;
   // ── LOAD SOCIAL MEDIA LEADS ────────────────────────────
   loadSocialMediaLeads(): void {
     this.loading = true;
-    this.leadsService.getSocialMediaLeads(this.searchFilter).subscribe(
+
+    // ✅ Pass registrationStatus filter to backend
+    const filter: any = { ...this.searchFilter };
+    if (this.selectedRegistrationStatus) {
+      filter['registrationStatus'] = this.selectedRegistrationStatus;
+    }
+
+    this.leadsService.getSocialMediaLeads(filter).subscribe(
       (data: any) => {
         this.contacts = data.map((lead: any) => ({
           name: lead.Name || '',
@@ -194,7 +206,8 @@ headerAlreadyUploaded = false;
           city: lead.City || '',
           company: lead.Company || '',
           state: lead.State || '',
-          platform: lead.Platform || ''
+          platform: lead.Platform || '',
+          isRegistered: lead.isRegistered || false,   // ✅ backend sends this flag
         }));
         this.filteredContacts = this.contacts;
         this.loading = false;
@@ -207,105 +220,50 @@ headerAlreadyUploaded = false;
   }
 
   // ── LOAD ACCOUNTS ──────────────────────────────────────
-  // loadAccounts(): void {
-  //   this.loading = true;
-  //   this.leadsService.getAccounts(this.searchFilter).subscribe(
-  //     (data: any) => {
-  //       this.contacts = data.map((acc: any) => ({
-  //         name: acc.name || '',
-  //         businessName: acc.businessName || '',
-  //         mobileNumber: acc.mobile || '',
-  //         email: acc.emailId || '',
-  //         city: acc.city || '',
-  //         accountId: acc.accountId || ''
-  //       }));
-  //       this.filteredContacts = this.contacts;
-  //       this.loading = false;
-  //     },
-  //     () => {
-  //       this.errorMsg = 'Failed to load accounts';
-  //       this.loading = false;
-  //     }
-  //   );
-  // }
   loadAccounts(): void {
-  this.loading = true;
+    this.loading = true;
 
-  // ✅ Build filter with plan/status/billing filters
-  const filter: any = { ...this.searchFilter };
-  filter['status-eq'] = 1; // only active accounts
+    const filter: any = { ...this.searchFilter };
+    filter['status-eq'] = 1;
 
-  if (this.selectedPlanType && this.selectedPlanType !== 'ALL') {
-    filter['latest_plan_name-eq'] = this.selectedPlanType;
-  }
-  if (this.selectedStatusType && this.selectedStatusType !== 'ALL') {
-    filter['latest_status-eq'] = this.selectedStatusType;
-  }
-  if (this.selectedBillingCycle && this.selectedBillingCycle !== 'ALL') {
-    filter['latest_billing_cycle-eq'] = this.selectedBillingCycle;
-  }
-
-  this.leadsService.getAccounts(filter).subscribe(
-    (data: any) => {
-      // this.contacts = data.map((acc: any) => ({
-      //   name: acc.name || '',
-      //   businessName: acc.businessName || '',
-      //   mobileNumber: acc.mobile || '',
-      //   email: acc.emailId || '',
-      //   city: acc.city || '',
-      //   accountId: acc.accountId || ''
-      // }));
-      this.contacts = data.map((acc: any) => ({
-      name: acc.name || '',
-      businessName: acc.businessName || '',
-      mobileNumber: acc.mobile || '',
-      email: acc.emailId || '',
-      city: acc.city || '',
-      accountId: acc.accountId || '',
-
-      // ✅ Add these so resolveParam() can find them
-      walletBalance: acc.walletBalance || '',
-      createdOn: acc.createdOn || '',
-      latest_plan_name: acc.latest_plan_name || '',
-      latest_status: acc.latest_status || '',
-      latest_billing_cycle: acc.latest_billing_cycle || '',
-      start_date: acc.start_date || '',    // ✅ ADD
-      end_date: acc.end_date || '',        // ✅ ADD
-    }));
-      this.filteredContacts = this.contacts;
-      this.loading = false;
-    },
-    () => {
-      this.errorMsg = 'Failed to load accounts';
-      this.loading = false;
+    if (this.selectedPlanType && this.selectedPlanType !== 'ALL') {
+      filter['latest_plan_name-eq'] = this.selectedPlanType;
     }
-  );
-}
+    if (this.selectedStatusType && this.selectedStatusType !== 'ALL') {
+      filter['latest_status-eq'] = this.selectedStatusType;
+    }
+    if (this.selectedBillingCycle && this.selectedBillingCycle !== 'ALL') {
+      filter['latest_billing_cycle-eq'] = this.selectedBillingCycle;
+    }
+
+    this.leadsService.getAccounts(filter).subscribe(
+      (data: any) => {
+        this.contacts = data.map((acc: any) => ({
+          name: acc.name || '',
+          businessName: acc.businessName || '',
+          mobileNumber: acc.mobile || '',
+          email: acc.emailId || '',
+          city: acc.city || '',
+          accountId: acc.accountId || '',
+          walletBalance: acc.walletBalance || '',
+          createdOn: acc.createdOn || '',
+          latest_plan_name: acc.latest_plan_name || '',
+          latest_status: acc.latest_status || '',
+          latest_billing_cycle: acc.latest_billing_cycle || '',
+          start_date: acc.start_date || '',
+          end_date: acc.end_date || '',
+        }));
+        this.filteredContacts = this.contacts;
+        this.loading = false;
+      },
+      () => {
+        this.errorMsg = 'Failed to load accounts';
+        this.loading = false;
+      }
+    );
+  }
 
   // ── APPLY FILTERS ──────────────────────────────────────
-  // applyFilters(): void {
-  //   delete this.searchFilter['search'];
-  //   delete this.searchFilter['Platform-eq'];
-  //   delete this.searchFilter['demoStatus-eq'];
-  //   delete this.searchFilter['status-eq'];
-
-  //   if (this.searchText?.trim()) {
-  //     this.searchFilter['search'] = this.searchText;
-  //   }
-
-  //   if (this.activeTab === 'socialMedia') {
-  //     if (this.selectedPlatform && this.selectedPlatform !== 'ALL') {
-  //       this.searchFilter['Platform-eq'] = this.selectedPlatform;
-  //     }
-  //     if (this.selectedDemoStatus) {
-  //       this.searchFilter['demoStatus-eq'] = this.selectedDemoStatus;
-  //     }
-  //     this.searchFilter['status-eq'] = 1;
-  //     this.loadSocialMediaLeads();
-  //   } else {
-  //     this.loadAccounts();
-  //   }
-  // }
   applyFilters(): void {
     delete this.searchFilter['search'];
     delete this.searchFilter['Platform-eq'];
@@ -324,9 +282,8 @@ headerAlreadyUploaded = false;
         this.searchFilter['demoStatus-eq'] = this.selectedDemoStatus;
       }
       this.searchFilter['status-eq'] = 1;
-      this.loadSocialMediaLeads();
+      this.loadSocialMediaLeads();       // ✅ registrationStatus handled inside loadSocialMediaLeads
     } else {
-      // ✅ loadAccounts() reads selectedPlanType/Status/BillingCycle internally
       this.loadAccounts();
     }
   }
@@ -340,138 +297,75 @@ headerAlreadyUploaded = false;
   }
 
   // ── TEMPLATE SELECT ────────────────────────────────────
-  // onTemplateSelect(): void {
-  //   if (!this.selectedTemplate) {
-  //     this.templateBodyText = '';
-  //     this.templateParams = [];
-  //     this.paramMappings = [];
-  //     return;
-  //   }
-  //   const bodyComp = this.selectedTemplate.components?.find((c: any) => c.type === 'BODY');
-  //   this.templateBodyText = bodyComp?.text || this.selectedTemplate.body_text || '';
-  //   const matches = this.templateBodyText.match(/{{\d+}}/g) || [];
-  //   this.templateParams = [...new Set(matches)] as string[];
-  //   this.languageCode = this.selectedTemplate.language || 'en_US';
-  //   this.paramMappings = this.templateParams.map(() => ({
-  //     type: 'db', dbField: '', manualValue: ''
-  //   }));
-  // }
-
   onTemplateSelect(): void {
-  if (!this.selectedTemplate) {
-    this.templateBodyText = '';
-    this.templateHeaderText = '';
-    this.templateFooterText = '';
-    this.templateButtons = [];
-    this.templateParams = [];
-    this.paramMappings = [];
-    this.templateHeaderType = 'NONE';
-    this.headerMediaUrl = '';
-    this.headerMediaFile = null;
-    return;
-  }
-
-  const components = this.selectedTemplate.components || [];
-  const headerComp = components.find((c: any) => c.type === 'HEADER');
-  const bodyComp   = components.find((c: any) => c.type === 'BODY');
-  const footerComp = components.find((c: any) => c.type === 'FOOTER');
-  const buttonComp = components.find((c: any) => c.type === 'BUTTONS');
-
-  const headerFormat = headerComp?.format?.toUpperCase() || 'NONE';
-  this.templateHeaderType = ['IMAGE','VIDEO','DOCUMENT'].includes(headerFormat)
-    ? headerFormat
-    : (headerComp?.text ? 'TEXT' : 'NONE');
-
-  this.templateHeaderText = headerComp?.text || '';
-  this.templateBodyText   = bodyComp?.text || this.selectedTemplate.body_text || '';
-  this.templateFooterText = footerComp?.text || '';
-  this.templateButtons    = buttonComp?.buttons || [];
-
-  // ✅ Check if template already has a header image from Meta
-  const existingHeaderHandle = headerComp?.example?.header_handle?.[0] || null;
-
-  if (existingHeaderHandle) {
-    // ✅ Already has image in Meta — use it directly, no upload needed
-    this.headerMediaUrl  = existingHeaderHandle;
-    this.headerMediaFile = null;
-    this.headerAlreadyUploaded = true;   // flag to hide upload UI
-     this.headerIsMetaHandle   = true; 
-  } else {
-    // ✅ No existing image — user must provide one
-    this.headerMediaUrl  = '';
-    this.headerMediaFile = null;
-    this.headerAlreadyUploaded = false;
-  }
-
-  // ... rest of your param mapping logic (unchanged)
-  let buttonParamCount = 0;
-  this.templateButtons.forEach((btn: any) => {
-    if (btn.type === 'URL') {
-      const urlMatches = (btn.url || '').match(/{{\d+}}/g);
-      if (urlMatches && urlMatches.length > 0) {
-        buttonParamCount += urlMatches.length;
-      } else if (btn.example && Array.isArray(btn.example) && btn.example.length > 0) {
-        buttonParamCount += 1;
-      }
+    if (!this.selectedTemplate) {
+      this.templateBodyText = '';
+      this.templateHeaderText = '';
+      this.templateFooterText = '';
+      this.templateButtons = [];
+      this.templateParams = [];
+      this.paramMappings = [];
+      this.templateHeaderType = 'NONE';
+      this.headerMediaUrl = '';
+      this.headerMediaFile = null;
+      return;
     }
-  });
 
-  const textSources = [this.templateHeaderText, this.templateBodyText].join(' ');
-  const textMatches = textSources.match(/{{\d+}}/g) || [];
-  const textParams  = [...new Set(textMatches)] as string[];
+    const components = this.selectedTemplate.components || [];
+    const headerComp = components.find((c: any) => c.type === 'HEADER');
+    const bodyComp   = components.find((c: any) => c.type === 'BODY');
+    const footerComp = components.find((c: any) => c.type === 'FOOTER');
+    const buttonComp = components.find((c: any) => c.type === 'BUTTONS');
 
-  const startIndex   = textParams.length + 1;
-  const buttonParams = Array.from({ length: buttonParamCount }, (_, i) => `{{${startIndex + i}}}`);
+    const headerFormat = headerComp?.format?.toUpperCase() || 'NONE';
+    this.templateHeaderType = ['IMAGE','VIDEO','DOCUMENT'].includes(headerFormat)
+      ? headerFormat
+      : (headerComp?.text ? 'TEXT' : 'NONE');
 
-  this.templateParams = [...textParams, ...buttonParams];
-  this.languageCode   = this.selectedTemplate.language || 'en_US';
+    this.templateHeaderText = headerComp?.text || '';
+    this.templateBodyText   = bodyComp?.text || this.selectedTemplate.body_text || '';
+    this.templateFooterText = footerComp?.text || '';
+    this.templateButtons    = buttonComp?.buttons || [];
 
-  this.paramMappings = this.templateParams.map((param, i) => {
-    const isButtonParam = i >= textParams.length;
-    return { type: 'manual' as 'db' | 'manual', dbField: '', manualValue: '', isButtonParam };
-  });
-}
+    const existingHeaderHandle = headerComp?.example?.header_handle?.[0] || null;
+    if (existingHeaderHandle) {
+      this.headerMediaUrl  = existingHeaderHandle;
+      this.headerMediaFile = null;
+      this.headerAlreadyUploaded = true;
+      this.headerIsMetaHandle   = true;
+    } else {
+      this.headerMediaUrl  = '';
+      this.headerMediaFile = null;
+      this.headerAlreadyUploaded = false;
+    }
 
-//   onTemplateSelect(): void {
-//   if (!this.selectedTemplate) {
-//     this.templateBodyText = '';
-//     this.templateParams = [];
-//     this.paramMappings = [];
-//     return;
-//   }
+    let buttonParamCount = 0;
+    this.templateButtons.forEach((btn: any) => {
+      if (btn.type === 'URL') {
+        const urlMatches = (btn.url || '').match(/{{\d+}}/g);
+        if (urlMatches && urlMatches.length > 0) {
+          buttonParamCount += urlMatches.length;
+        } else if (btn.example && Array.isArray(btn.example) && btn.example.length > 0) {
+          buttonParamCount += 1;
+        }
+      }
+    });
 
-//   const components = this.selectedTemplate.components || [];
+    const textSources = [this.templateHeaderText, this.templateBodyText].join(' ');
+    const textMatches = textSources.match(/{{\d+}}/g) || [];
+    const textParams  = [...new Set(textMatches)] as string[];
 
-//   // ── Extract each component ──────────────────────────
-//   const headerComp = components.find((c: any) => c.type === 'HEADER');
-//   const bodyComp   = components.find((c: any) => c.type === 'BODY');
-//   const footerComp = components.find((c: any) => c.type === 'FOOTER');
-//   const buttonComp = components.find((c: any) => c.type === 'BUTTONS');
+    const startIndex   = textParams.length + 1;
+    const buttonParams = Array.from({ length: buttonParamCount }, (_, i) => `{{${startIndex + i}}}`);
 
-//   // ── Store individually for preview ─────────────────
-//   this.templateHeaderText = headerComp?.text || '';
-//   this.templateBodyText   = bodyComp?.text   || this.selectedTemplate.body_text || '';
-//   this.templateFooterText = footerComp?.text || '';
-//   this.templateButtons    = buttonComp?.buttons || [];
+    this.templateParams = [...textParams, ...buttonParams];
+    this.languageCode   = this.selectedTemplate.language || 'en_US';
 
-//   // ── Collect ALL params from ALL components ──────────
-//   const allText = [
-//     this.templateHeaderText,
-//     this.templateBodyText,
-//     ...this.templateButtons.map((b: any) => b.text || '')
-//   ].join(' ');
-
-//   const allMatches = allText.match(/{{\d+}}/g) || [];
-//   this.templateParams = [...new Set(allMatches)] as string[];
-
-//   this.languageCode = this.selectedTemplate.language || 'en_US';
-
-//   this.paramMappings = this.templateParams.map(() => ({
-//     type: 'db' as 'db' | 'manual',
-//     dbField: '',
-//     manualValue: ''
-//   }));
-// }
+    this.paramMappings = this.templateParams.map((param, i) => {
+      const isButtonParam = i >= textParams.length;
+      return { type: 'manual' as 'db' | 'manual', dbField: '', manualValue: '', isButtonParam };
+    });
+  }
 
   // ── DIALOG ─────────────────────────────────────────────
   openCreateDialog(): void { this.editTemplateData = null; this.showCreateDialog = true; }
@@ -503,24 +397,18 @@ headerAlreadyUploaded = false;
   }
 
   // ── PARAMS ─────────────────────────────────────────────
-  // resolveParam(contact: any, index: number): string {
-  //   const mapping = this.paramMappings[index];
-  //   if (mapping.type === 'manual') return mapping.manualValue || '';
-  //   return contact[mapping.dbField] || '';
-  // }
   resolveParam(contact: any, index: number): string {
-  const mapping = this.paramMappings[index];
-  let value = mapping.type === 'manual'
-    ? (mapping.manualValue || '')
-    : (contact[mapping.dbField] || '');
+    const mapping = this.paramMappings[index];
+    let value = mapping.type === 'manual'
+      ? (mapping.manualValue || '')
+      : (contact[mapping.dbField] || '');
 
-  // ✅ If this is a phone field, strip +91 prefix and trim
-  if (mapping.dbField === 'mobileNumber' || mapping.isButtonParam) {
-    value = String(value).trim().replace(/^\+91/, '').replace(/^91(\d{10})$/, '$1');
+    if (mapping.dbField === 'mobileNumber' || mapping.isButtonParam) {
+      value = String(value).trim().replace(/^\+91/, '').replace(/^91(\d{10})$/, '$1');
+    }
+
+    return value;
   }
-
-  return value;
-}
 
   previewMessage(contact: any): string {
     let preview = this.templateBodyText;
@@ -531,18 +419,17 @@ headerAlreadyUploaded = false;
   }
 
   previewHeader(contact: any): string {
-  let header = this.templateHeaderText;
-  this.templateParams.forEach((param, i) => {
-    header = header.replace(param, this.resolveParam(contact, i));
-  });
-  return header;
-}
+    let header = this.templateHeaderText;
+    this.templateParams.forEach((param, i) => {
+      header = header.replace(param, this.resolveParam(contact, i));
+    });
+    return header;
+  }
 
-previewHeaderForFirstContact(): string {
-  const contact = this.selectedContacts.length > 0 ? this.selectedContacts[0] : null;
-  return contact ? this.previewHeader(contact) : this.templateHeaderText || '';
-}
-  
+  previewHeaderForFirstContact(): string {
+    const contact = this.selectedContacts.length > 0 ? this.selectedContacts[0] : null;
+    return contact ? this.previewHeader(contact) : this.templateHeaderText || '';
+  }
 
   previewMessageForFirstContact(): string {
     if (this.selectedContacts.length > 0) return this.previewMessage(this.selectedContacts[0]);
@@ -558,99 +445,94 @@ previewHeaderForFirstContact(): string {
     return `${h}:${m} ${ampm}`;
   }
 
-  // ── SEND CAMPAIGN ──────────────────────────────────────
-canSend(): boolean {
-  if (!this.selectedContacts.length || !this.selectedTemplate || !this.campaignName) return false;
-
-  if (['IMAGE','VIDEO','DOCUMENT'].includes(this.templateHeaderType)) {
-    if (this.headerUploading) return false;
-    // ✅ Pass if already has Meta image OR user provided a new one
-    if (!this.headerMediaUrl.trim()) return false;
+  // ── ✅ Count how many selected contacts will be skipped ─
+  get skippedCount(): number {
+    if (this.activeTab !== 'accounts' || !this.skipRegisteredAccounts) return 0;
+    // All contacts in accounts tab ARE registered — skip all if toggle on
+    return this.selectedContacts.length;
   }
 
-  return this.paramMappings.every((m) =>
-    m.type === 'manual' ? m.manualValue.trim() !== '' : m.dbField !== ''
-  );
-}
-  // sendCampaign(): void {
-  //   if (!this.canSend()) return;
-  //   this.sending = true;
-  //   this.result = null;
+  get willSendCount(): number {
+    if (this.activeTab === 'accounts' && this.skipRegisteredAccounts) return 0;
+    return this.selectedContacts.length;
+  }
 
-  //   const contactsWithParams = this.selectedContacts.map((contact) => ({
-  //     ...contact,
-  //     resolvedParams: this.templateParams.map((_, i) => this.resolveParam(contact, i))
-  //   }));
+  // ── SEND CAMPAIGN ──────────────────────────────────────
+  canSend(): boolean {
+    if (!this.selectedContacts.length || !this.selectedTemplate || !this.campaignName) return false;
 
-  //   this.campaignService.sendCampaign({
-  //     campaignName: this.campaignName,
-  //     contacts: contactsWithParams,
-  //     templateName: this.selectedTemplate.name,
-  //     templateBodyText: this.templateBodyText,
-  //     languageCode: this.languageCode,
-  //     sendType: 'bulk',
-  //   }).subscribe({
-  //     next: (res) => { this.result = res; this.sending = false; },
-  //     error: () => { this.errorMsg = 'Failed to send campaign'; this.sending = false; }
-  //   });
-  // }
-  sendCampaign(): void {
-  if (!this.canSend()) return;
-  this.sending = true;
-  this.result = null;
+    // ✅ If accounts tab + skip toggle ON → nothing will be sent → disable button
+    if (this.activeTab === 'accounts' && this.skipRegisteredAccounts) return false;
 
-  // ✅ How many params are body params (before button params start)
-  const textParamCount = this.paramMappings.filter(m => !m.isButtonParam).length;
-
-  const contactsWithParams = this.selectedContacts.map((contact) => ({
-    ...contact,
-    resolvedParams: this.templateParams.map((_, i) => this.resolveParam(contact, i))
-  }));
-
-  // ✅ Determine final media URL
-  const hasMediaHeader = ['IMAGE','VIDEO','DOCUMENT'].includes(this.templateHeaderType);
-
-  this.campaignService.sendCampaign({
-    campaignName: this.campaignName,
-    contacts: contactsWithParams,
-    templateName: this.selectedTemplate.name,
-    templateBodyText: this.templateBodyText,
-    languageCode: this.languageCode,
-    sendType: 'bulk',
-    buttonParamStartIndex: textParamCount,
-    hasImageHeader: hasMediaHeader,          // ✅
-    headerMediaType: this.templateHeaderType, // ✅ 'IMAGE' | 'VIDEO' | 'DOCUMENT'
-    imageUrl: this.headerMediaUrl,            // ✅
-    headerIsMetaHandle:  this.headerIsMetaHandle, 
-  }).subscribe({
-    next: (res) => { this.result = res; this.sending = false; },
-    error: () => { this.errorMsg = 'Failed to send campaign'; this.sending = false; }
-  });
-}
-
-onHeaderFileSelected(event: Event): void {
-  const input = event.target as HTMLInputElement;
-  if (!input.files || !input.files[0]) return;
-
-  const file = input.files[0];
-  this.headerMediaFile = file;
-  this.headerMediaUrl  = '';        // ← clear it, no blob URL
-  this.headerUploading = true;
-
-  this.leadsService.uploadWhatsappMedia(file).subscribe({
-    next: (res: any) => {
-      this.headerMediaUrl  = res.url;  // ← only set AFTER real upload
-      this.headerUploading = false;
-    },
-    error: () => {
-      this.toastService.showError('Failed to upload media');
-      this.headerMediaFile = null;
-      this.headerMediaUrl  = '';
-      this.headerUploading = false;
+    if (['IMAGE','VIDEO','DOCUMENT'].includes(this.templateHeaderType)) {
+      if (this.headerUploading) return false;
+      if (!this.headerMediaUrl.trim()) return false;
     }
-  });
-}
- campaignhistory() {
+
+    return this.paramMappings.every((m) =>
+      m.type === 'manual' ? m.manualValue.trim() !== '' : m.dbField !== ''
+    );
+  }
+
+  sendCampaign(): void {
+    if (!this.canSend()) return;
+    this.sending = true;
+    this.result = null;
+
+    const textParamCount = this.paramMappings.filter(m => !m.isButtonParam).length;
+
+    const contactsWithParams = this.selectedContacts.map((contact) => ({
+      ...contact,
+      resolvedParams: this.templateParams.map((_, i) => this.resolveParam(contact, i))
+    }));
+
+    const hasMediaHeader = ['IMAGE','VIDEO','DOCUMENT'].includes(this.templateHeaderType);
+
+    this.campaignService.sendCampaign({
+      campaignName: this.campaignName,
+      contacts: contactsWithParams,
+      templateName: this.selectedTemplate.name,
+      templateBodyText: this.templateBodyText,
+      languageCode: this.languageCode,
+      sendType: 'bulk',
+      buttonParamStartIndex: textParamCount,
+      hasImageHeader: hasMediaHeader,
+      headerMediaType: this.templateHeaderType,
+      imageUrl: this.headerMediaUrl,
+      headerIsMetaHandle: this.headerIsMetaHandle,
+      // ✅ Tell backend whether to skip registered accounts
+      skipRegistered: this.activeTab === 'accounts' ? this.skipRegisteredAccounts : false,
+      sourceTab: this.activeTab,
+    }).subscribe({
+      next: (res) => { this.result = res; this.sending = false; },
+      error: () => { this.errorMsg = 'Failed to send campaign'; this.sending = false; }
+    });
+  }
+
+  onHeaderFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || !input.files[0]) return;
+
+    const file = input.files[0];
+    this.headerMediaFile = file;
+    this.headerMediaUrl  = '';
+    this.headerUploading = true;
+
+    this.leadsService.uploadWhatsappMedia(file).subscribe({
+      next: (res: any) => {
+        this.headerMediaUrl  = res.url;
+        this.headerUploading = false;
+      },
+      error: () => {
+        this.toastService.showError('Failed to upload media');
+        this.headerMediaFile = null;
+        this.headerMediaUrl  = '';
+        this.headerUploading = false;
+      }
+    });
+  }
+
+  campaignhistory() {
     this.routingService.handleRoute('campaign/campaign-history', null);
   }
 
