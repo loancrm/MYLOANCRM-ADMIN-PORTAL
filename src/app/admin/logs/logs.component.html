@@ -1,8 +1,7 @@
 
-
 <div class="logs-wrapper">
 
-  <!-- ── LEFT PANEL: One row per number ──────────────────────────────────── -->
+  <!-- ── LEFT PANEL ──────────────────────────────────────────────────────── -->
   <div class="contacts-panel">
 
     <div class="contacts-header">
@@ -38,7 +37,6 @@
       <div class="contact-details">
         <div class="contact-name">{{ log.name || 'Unknown' }}</div>
         <div class="contact-preview">
-          <!-- Show arrow icon based on direction -->
           <i
             class="pi me-1"
             [class.pi-arrow-up-right]="!isLastMessageReply(log)"
@@ -52,35 +50,24 @@
 
       <div class="contact-meta">
         <div class="contact-time">{{ log.last_sent_at | date:'d MMM, h:mm a' }}</div>
-        <!-- <span class="msg-count">{{ log.messages?.length || 0 }} msgs</span> -->
-        <!-- Status badge: reply = 💬, sent = ✅, failed = ❌ -->
-        <!-- <span class="status-badge"
-          [class.reply]="isLastMessageReply(log)"
-          [class.sent]="!isLastMessageReply(log) && getLastStatus(log) === 'sent'"
-          [class.failed]="!isLastMessageReply(log) && getLastStatus(log) !== 'sent'">
-          {{ isLastMessageReply(log) ? '💬' : getLastStatus(log) === 'sent' ? '✅' : '❌' }}
-        </span> -->
         <span class="status-badge"
           [class.reply]="isLastMessageReply(log)"
           [class.sent]="!isLastMessageReply(log) && getLastStatus(log) === 'sent'"
           [class.failed]="!isLastMessageReply(log) && getLastStatus(log) !== 'sent'">
-
-          <i
-            class="pi"
+          <i class="pi"
             [ngClass]="{
-              'pi-comments': isLastMessageReply(log),
-              'pi-check': !isLastMessageReply(log) && getLastStatus(log) === 'sent',
+              'pi-comments':           isLastMessageReply(log),
+              'pi-check':              !isLastMessageReply(log) && getLastStatus(log) === 'sent',
               'pi-exclamation-circle': !isLastMessageReply(log) && getLastStatus(log) !== 'sent'
             }">
           </i>
-
         </span>
       </div>
     </div>
 
   </div>
 
-  <!-- ── RIGHT PANEL: WhatsApp style chat ────────────────────────────────── -->
+  <!-- ── RIGHT PANEL ─────────────────────────────────────────────────────── -->
   <div class="chat-panel" *ngIf="selectedLog; else noSelection">
 
     <!-- Chat Header -->
@@ -111,70 +98,145 @@
           <span>{{ msg.sent_at | date:'MMMM d, yyyy' }}</span>
         </div>
 
-        <!-- ── INCOMING REPLY (left side) ──────────────────────────────── -->
-         <div>
-          
-         </div>
+        <!-- ── INCOMING REPLY (left) ───────────────────────────────────── -->
         <ng-container *ngIf="msg.type === 'reply'; else outgoingMsg">
-
           <div class="message-row incoming-row">
             <div class="message-bubble incoming-bubble">
-
               <div class="type-tag">
                 <span class="reply-tag">
-                  <i class="pi pi-reply me-1"></i>
-                  Incoming Reply
+                  <i class="pi pi-reply me-1"></i>Incoming Reply
                 </span>
               </div>
-
               <div class="message-text">{{ msg.messageSent || '(No message content)' }}</div>
-
               <div class="message-footer">
                 <span class="message-time">{{ msg.sent_at | date:'h:mm a' }}</span>
-                <!-- <span class="message-status received">📩</span> -->
               </div>
-
             </div>
           </div>
-
         </ng-container>
 
-        <!-- ── OUTGOING MESSAGE (right side) ───────────────────────────── -->
+        <!-- ── OUTGOING MESSAGE (right) ───────────────────────────────── -->
         <ng-template #outgoingMsg>
 
           <div class="message-row outgoing-row">
-            <div class="message-bubble"
-              [class.failed-bubble]="msg.status !== 'sent'">
+            <div class="wa-card" [class.failed-card]="msg.status !== 'sent'">
 
+              <!-- ── TOP META TAGS ───────────────────────────────────── -->
               <div class="type-tag">
-                <span
-                  [class.bulk-tag]="msg.type === 'bulk'"
-                  [class.single-tag]="msg.type === 'single'">
+                <span [class.bulk-tag]="msg.type === 'bulk' || msg.type === 'auto_book_demo' || msg.type === 'auto_booking_confirmed' || msg.type === 'auto_demo_followup'"
+                      [class.single-tag]="msg.type === 'single'">
                   <i class="pi"
                     [class.pi-users]="msg.type === 'bulk'"
+                    [class.pi-bolt]="msg.type === 'auto_book_demo' || msg.type === 'auto_booking_confirmed' || msg.type === 'auto_demo_followup'"
                     [class.pi-user]="msg.type === 'single'"></i>
-                  {{ msg.type === 'bulk' ? 'Bulk Campaign' : 'Single Message' }}
+                  {{ getTypeLabel(msg.type) }}
                 </span>
                 <span class="campaign-name-tag">{{ msg.campaignName }}</span>
               </div>
 
-              <div class="template-tag">
-                <i class="pi pi-list me-1"   *ngIf="msg.templateName !== 'CUSTOM_MESSAGE'"></i>
-                <i class="pi pi-pencil me-1" *ngIf="msg.templateName === 'CUSTOM_MESSAGE'"></i>
+              <!-- ── TEMPLATE NAME ───────────────────────────────────── -->
+              <div class="template-tag" *ngIf="msg.templateName">
+                <i class="pi me-1"
+                  [class.pi-list]="msg.templateName !== 'CUSTOM_MESSAGE'"
+                  [class.pi-pencil]="msg.templateName === 'CUSTOM_MESSAGE'"></i>
                 {{ msg.templateName }}
               </div>
 
-              <div class="message-text">{{ msg.messageSent || '(No message content)' }}</div>
+              <!-- ════════════════════════════════════════════════════════
+                   WhatsApp Template Card Preview
+                   ════════════════════════════════════════════════════════ -->
+              <div class="wa-template-preview" *ngIf="msg.templateName !== 'CUSTOM_MESSAGE'">
 
+                <!-- HEADER: IMAGE -->
+                <div class="wa-header wa-header-image"
+                  *ngIf="getTemplateHeader(msg.templateName)?.format === 'IMAGE'">
+                  <ng-container *ngIf="getTemplateHeader(msg.templateName)?.example?.header_handle?.[0] as imgUrl">
+                    <img [src]="imgUrl" alt="Header image" class="wa-header-img" />
+                  </ng-container>
+                  <div *ngIf="!getTemplateHeader(msg.templateName)?.example?.header_handle?.[0]"
+                    class="wa-header-img-placeholder">
+                    <i class="pi pi-image"></i>
+                  </div>
+                </div>
+
+                <!-- HEADER: VIDEO -->
+                <div class="wa-header wa-header-video"
+                  *ngIf="getTemplateHeader(msg.templateName)?.format === 'VIDEO'">
+                  <div class="wa-header-video-placeholder">
+                    <i class="pi pi-video"></i>
+                    <span>Video</span>
+                  </div>
+                </div>
+
+                <!-- HEADER: DOCUMENT -->
+                <div class="wa-header wa-header-doc"
+                  *ngIf="getTemplateHeader(msg.templateName)?.format === 'DOCUMENT'">
+                  <div class="wa-header-doc-placeholder">
+                    <i class="pi pi-file-pdf"></i>
+                    <span>{{ getTemplateHeader(msg.templateName)?.example?.header_handle?.[0] ? 'Document' : 'Document' }}</span>
+                  </div>
+                </div>
+
+                <!-- HEADER: TEXT -->
+                <div class="wa-header wa-header-text"
+                  *ngIf="getTemplateHeader(msg.templateName)?.format === 'TEXT' || (!getTemplateHeader(msg.templateName)?.format && getTemplateHeader(msg.templateName)?.text)">
+                  <strong>{{ getTemplateHeader(msg.templateName)?.text }}</strong>
+                </div>
+
+                <!-- BODY TEXT (resolved) -->
+                <div class="wa-body">
+                  {{ msg.messageSent || '(No message content)' }}
+                </div>
+
+                <!-- FOOTER -->
+                <div class="wa-footer" *ngIf="getTemplateFooter(msg.templateName) as footer">
+                  {{ footer.text }}
+                </div>
+
+                <!-- BUTTONS -->
+                <ng-container *ngIf="getTemplateButtons(msg.templateName) as buttons">
+                  <div class="wa-buttons" *ngIf="buttons.length > 0">
+                    <ng-container *ngFor="let btn of buttons">
+
+                      <!-- QUICK REPLY button -->
+                      <div class="wa-btn wa-btn-reply" *ngIf="btn.type === 'QUICK_REPLY'">
+                        <i class="pi pi-reply me-1"></i>{{ btn.text }}
+                      </div>
+
+                      <!-- URL button -->
+                      <div class="wa-btn wa-btn-url" *ngIf="btn.type === 'URL'">
+                        <i class="pi pi-external-link me-1"></i>{{ btn.text }}
+                      </div>
+
+                      <!-- PHONE_NUMBER button -->
+                      <div class="wa-btn wa-btn-phone" *ngIf="btn.type === 'PHONE_NUMBER'">
+                        <i class="pi pi-phone me-1"></i>{{ btn.text }}
+                      </div>
+
+                      <!-- COPY_CODE button -->
+                      <div class="wa-btn wa-btn-copy" *ngIf="btn.type === 'COPY_CODE'">
+                        <i class="pi pi-copy me-1"></i>{{ btn.text }}
+                      </div>
+
+                    </ng-container>
+                  </div>
+                </ng-container>
+
+              </div>
+              <!-- END wa-template-preview -->
+
+              <!-- CUSTOM MESSAGE (no template card) -->
+              <div class="message-text" *ngIf="msg.templateName === 'CUSTOM_MESSAGE'">
+                {{ msg.messageSent || '(No message content)' }}
+              </div>
+
+              <!-- FOOTER ROW -->
               <div class="message-footer">
                 <span class="message-time">{{ msg.sent_at | date:'h:mm a' }}</span>
-                <!-- <span class="message-status" *ngIf="msg.status === 'sent'">✅</span>
-                <span class="message-status failed" *ngIf="msg.status !== 'sent'">❌</span> -->
                 <span class="message-status">
-                  <i
-                    class="pi"
+                  <i class="pi"
                     [ngClass]="{
-                      'pi-check': msg.status === 'sent',
+                      'pi-check':              msg.status === 'sent',
                       'pi-exclamation-circle': msg.status !== 'sent'
                     }"
                     [style.color]="msg.status === 'sent' ? '#9aa0a6' : '#e53935'">
@@ -185,10 +247,7 @@
             </div>
           </div>
 
-          <div class="meta-row" *ngIf="msg.whatsappMessageId">
-            <small><i class="pi pi-tag me-1"></i>ID: {{ msg.whatsappMessageId }}</small>
-          </div>
-
+          <!-- Error box -->
           <div class="error-box" *ngIf="msg.status !== 'sent' && msg.error">
             <i class="pi pi-exclamation-triangle me-1"></i>
             {{ getErrorMessage(msg.error) }}
@@ -197,13 +256,11 @@
         </ng-template>
 
       </ng-container>
-
     </div>
 
-    <!-- ── WHATSAPP STYLE INPUT BOX ─────────────────────────────────────── -->
+    <!-- ── INPUT AREA ──────────────────────────────────────────────────── -->
     <div class="chat-input-area">
 
-      <!-- Toggle buttons -->
       <div class="input-toggle">
         <button type="button"
           [class.active-toggle]="inputMode === 'template'"
@@ -217,7 +274,7 @@
         </button>
       </div>
 
-      <!-- ── TEMPLATE MODE ─────────────────────────────────────────────── -->
+      <!-- TEMPLATE MODE -->
       <ng-container *ngIf="inputMode === 'template'">
 
         <div class="template-input-row">
@@ -248,156 +305,121 @@
         </div>
 
         <!-- Param inputs -->
-        <!-- <div *ngIf="quickParams.length > 0" class="quick-params">
+        <div *ngIf="quickParams.length > 0" class="quick-params">
           <div *ngFor="let p of quickParams; let i = index" class="quick-param-row">
-            <label class="small fw-semibold">{{ p }}</label>
-            <input pInputText [(ngModel)]="quickParamValues[i]"
-              [placeholder]="'Value for ' + p" class="w-100 mt-1"
+            <label class="small fw-semibold">
+              <span *ngIf="!quickParamIsButton[i]">Body {{ p }}</span>
+              <span *ngIf="quickParamIsButton[i]" class="text-primary">
+                <i class="pi pi-link me-1"></i>Button URL {{ p }}
+              </span>
+            </label>
+            <div *ngIf="quickParamIsButton[i]"
+              class="alert alert-info py-1 px-2 mb-1 mt-1"
+              style="font-size:0.72rem;">
+              <i class="pi pi-info-circle me-1"></i>
+              Appended to button URL (e.g. phone number)
+            </div>
+            <input pInputText
+              [(ngModel)]="quickParamValues[i]"
+              [placeholder]="quickParamIsButton[i] ? 'e.g. 9876543210' : 'Value for ' + p"
+              class="w-100 mt-1"
               (input)="updateQuickPreview()" />
           </div>
-        </div> -->
-        <!-- Param inputs -->
-<div *ngIf="quickParams.length > 0" class="quick-params">
-  <div *ngFor="let p of quickParams; let i = index" class="quick-param-row">
+        </div>
 
-    <!-- ✅ Different label for body vs button params -->
-    <label class="small fw-semibold">
-      <span *ngIf="!quickParamIsButton[i]">Body {{ p }}</span>
-      <span *ngIf="quickParamIsButton[i]" class="text-primary">
-        <i class="pi pi-link me-1"></i>Button URL {{ p }}
-      </span>
-    </label>
+        <!-- Header media -->
+        <div *ngIf="quickTemplateHeaderType === 'IMAGE' || quickTemplateHeaderType === 'VIDEO' || quickTemplateHeaderType === 'DOCUMENT'"
+          class="mt-2 p-2 border rounded"
+          style="border-color: #0d6efd !important; background: #f0f6ff; font-size: 0.85rem;">
 
-    <!-- ✅ Hint for button params -->
-    <div *ngIf="quickParamIsButton[i]"
-      class="alert alert-info py-1 px-2 mb-1 mt-1"
-      style="font-size:0.72rem;">
-      <i class="pi pi-info-circle me-1"></i>
-      Appended to button URL (e.g. phone number)
-    </div>
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="badge bg-primary" style="font-size:0.72rem;">
+              <i class="pi"
+                [ngClass]="{
+                  'pi-image':    quickTemplateHeaderType === 'IMAGE',
+                  'pi-video':    quickTemplateHeaderType === 'VIDEO',
+                  'pi-file-pdf': quickTemplateHeaderType === 'DOCUMENT'
+                }">
+              </i>
+              {{ quickTemplateHeaderType }} Header
+            </span>
+          </div>
 
-    <input pInputText
-      [(ngModel)]="quickParamValues[i]"
-      [placeholder]="quickParamIsButton[i] ? 'e.g. 9876543210' : 'Value for ' + p"
-      class="w-100 mt-1"
-      (input)="updateQuickPreview()" />
-  </div>
-</div>
+          <div *ngIf="quickHeaderAlreadyUploaded" class="text-center">
+            <img *ngIf="quickTemplateHeaderType === 'IMAGE'" [src]="quickHeaderMediaUrl"
+              alt="Template Header"
+              style="max-height:80px; max-width:100%; border-radius:6px; object-fit:cover;" />
+            <div class="mt-1">
+              <small class="text-success">
+                <i class="pi pi-check-circle me-1"></i>
+                Template already has a header {{ quickTemplateHeaderType | lowercase }} — will be sent as-is.
+              </small>
+            </div>
+            <div class="mt-1">
+              <small class="text-muted">Want to use a different one?</small>
+              <button type="button" pButton class="p-button-text p-button-sm ms-2"
+                label="Change" icon="pi pi-refresh"
+                (click)="quickHeaderAlreadyUploaded = false; quickHeaderIsMetaHandle = false; quickHeaderMediaUrl = ''">
+              </button>
+            </div>
+          </div>
 
-        
-        <!-- ✅ HEADER MEDIA INPUT — matches bulk campaign logic exactly -->
-<div *ngIf="quickTemplateHeaderType === 'IMAGE' || quickTemplateHeaderType === 'VIDEO' || quickTemplateHeaderType === 'DOCUMENT'"
-  class="mt-2 p-2 border rounded"
-  style="border-color: #0d6efd !important; background: #f0f6ff; font-size: 0.85rem;">
+          <div *ngIf="!quickHeaderAlreadyUploaded">
+            <small class="text-muted d-block mb-2">
+              This template needs a {{ quickTemplateHeaderType | lowercase }} for the header
+            </small>
+            <div class="d-flex gap-3 mb-2">
+              <div class="form-check">
+                <input class="form-check-input" type="radio"
+                  [(ngModel)]="quickHeaderMediaUploadMode" value="url" name="quickHeaderMediaMode" />
+                <label class="form-check-label small">Paste URL</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio"
+                  [(ngModel)]="quickHeaderMediaUploadMode" value="upload" name="quickHeaderMediaMode" />
+                <label class="form-check-label small">Upload File</label>
+              </div>
+            </div>
+            <div *ngIf="quickHeaderMediaUploadMode === 'url'">
+              <input pInputText
+                [(ngModel)]="quickHeaderMediaUrl"
+                [placeholder]="'Paste public ' + (quickTemplateHeaderType | lowercase) + ' URL...'"
+                class="w-100" style="font-size:0.82rem;" />
+              <div *ngIf="quickTemplateHeaderType === 'IMAGE' && quickHeaderMediaUrl" class="mt-1 text-center">
+                <img [src]="quickHeaderMediaUrl" alt="Preview"
+                  style="max-height:80px; max-width:100%; border-radius:6px; object-fit:cover;" />
+              </div>
+              <small *ngIf="quickTemplateHeaderType !== 'IMAGE' && quickHeaderMediaUrl"
+                class="text-success mt-1 d-block">
+                <i class="pi pi-check-circle me-1"></i>{{ quickTemplateHeaderType | titlecase }} URL set
+              </small>
+            </div>
+            <div *ngIf="quickHeaderMediaUploadMode === 'upload'">
+              <input type="file"
+                [accept]="quickTemplateHeaderType === 'IMAGE' ? 'image/*' :
+                          quickTemplateHeaderType === 'VIDEO' ? 'video/*' : '.pdf,.doc,.docx'"
+                class="form-control form-control-sm"
+                [disabled]="quickHeaderUploading"
+                (change)="onQuickHeaderFileSelected($event)" />
+              <div *ngIf="quickHeaderUploading" class="mt-1">
+                <small class="text-muted"><i class="pi pi-spin pi-spinner me-1"></i>Uploading...</small>
+              </div>
+              <div *ngIf="quickHeaderMediaUrl && !quickHeaderUploading" class="mt-1">
+                <small class="text-success">
+                  <i class="pi pi-check-circle me-1"></i>{{ quickHeaderMediaFile?.name }} — uploaded
+                </small>
+              </div>
+            </div>
+            <div *ngIf="!quickHeaderMediaUrl" class="mt-1">
+              <small class="text-danger">
+                <i class="pi pi-times-circle me-1"></i>
+                {{ quickTemplateHeaderType | titlecase }} required to send this template
+              </small>
+            </div>
+          </div>
+        </div>
 
-  <div class="d-flex align-items-center gap-2 mb-2">
-    <span class="badge bg-primary" style="font-size:0.72rem;">
-      <i class="pi"
-        [ngClass]="{
-          'pi-image':    quickTemplateHeaderType === 'IMAGE',
-          'pi-video':    quickTemplateHeaderType === 'VIDEO',
-          'pi-file-pdf': quickTemplateHeaderType === 'DOCUMENT'
-        }">
-      </i>
-      {{ quickTemplateHeaderType }} Header
-    </span>
-  </div>
-
-  <!-- ✅ Already has image from Meta — show it, no upload needed -->
-  <div *ngIf="quickHeaderAlreadyUploaded" class="text-center">
-    <img *ngIf="quickTemplateHeaderType === 'IMAGE'" [src]="quickHeaderMediaUrl"
-      alt="Template Header"
-      style="max-height:80px; max-width:100%; border-radius:6px; object-fit:cover;" />
-    <div class="mt-1">
-      <small class="text-success">
-        <i class="pi pi-check-circle me-1"></i>
-        Template already has a header {{ quickTemplateHeaderType | lowercase }} — will be sent as-is.
-      </small>
-    </div>
-    <div class="mt-1">
-      <small class="text-muted">Want to use a different one?</small>
-      <button type="button" pButton class="p-button-text p-button-sm ms-2"
-        label="Change" icon="pi pi-refresh"
-        (click)="quickHeaderAlreadyUploaded = false; quickHeaderIsMetaHandle = false; quickHeaderMediaUrl = ''">
-      </button>
-    </div>
-  </div>
-
-  <!-- ✅ No existing image — show upload options -->
-  <div *ngIf="!quickHeaderAlreadyUploaded">
-    <small class="text-muted d-block mb-2">
-      This template needs a {{ quickTemplateHeaderType | lowercase }} for the header
-    </small>
-
-    <div class="d-flex gap-3 mb-2">
-      <div class="form-check">
-        <input class="form-check-input" type="radio"
-          [(ngModel)]="quickHeaderMediaUploadMode" value="url"
-          name="quickHeaderMediaMode" />
-        <label class="form-check-label small">Paste URL</label>
-      </div>
-      <div class="form-check">
-        <input class="form-check-input" type="radio"
-          [(ngModel)]="quickHeaderMediaUploadMode" value="upload"
-          name="quickHeaderMediaMode" />
-        <label class="form-check-label small">Upload File</label>
-      </div>
-    </div>
-
-    <!-- URL Input -->
-    <div *ngIf="quickHeaderMediaUploadMode === 'url'">
-      <input pInputText
-        [(ngModel)]="quickHeaderMediaUrl"
-        [placeholder]="'Paste public ' + (quickTemplateHeaderType | lowercase) + ' URL...'"
-        class="w-100" style="font-size:0.82rem;" />
-      <div *ngIf="quickTemplateHeaderType === 'IMAGE' && quickHeaderMediaUrl"
-        class="mt-1 text-center">
-        <img [src]="quickHeaderMediaUrl" alt="Preview"
-          style="max-height:80px; max-width:100%; border-radius:6px; object-fit:cover;" />
-      </div>
-      <small *ngIf="quickTemplateHeaderType !== 'IMAGE' && quickHeaderMediaUrl"
-        class="text-success mt-1 d-block">
-        <i class="pi pi-check-circle me-1"></i>
-        {{ quickTemplateHeaderType | titlecase }} URL set
-      </small>
-    </div>
-
-    <!-- File Upload -->
-    <div *ngIf="quickHeaderMediaUploadMode === 'upload'">
-      <input type="file"
-        [accept]="quickTemplateHeaderType === 'IMAGE' ? 'image/*' :
-                  quickTemplateHeaderType === 'VIDEO' ? 'video/*' : '.pdf,.doc,.docx'"
-        class="form-control form-control-sm"
-        [disabled]="quickHeaderUploading"
-        (change)="onQuickHeaderFileSelected($event)" />
-
-      <div *ngIf="quickHeaderUploading" class="mt-1">
-        <small class="text-muted">
-          <i class="pi pi-spin pi-spinner me-1"></i>Uploading...
-        </small>
-      </div>
-
-      <div *ngIf="quickHeaderMediaUrl && !quickHeaderUploading" class="mt-1">
-        <small class="text-success">
-          <i class="pi pi-check-circle me-1"></i>
-          {{ quickHeaderMediaFile?.name }} — uploaded
-        </small>
-      </div>
-    </div>
-
-    <!-- Validation -->
-    <div *ngIf="!quickHeaderMediaUrl" class="mt-1">
-      <small class="text-danger">
-        <i class="pi pi-times-circle me-1"></i>
-        {{ quickTemplateHeaderType | titlecase }} required to send this template
-      </small>
-    </div>
-  </div>
-
-</div>
-
-
-
+        <!-- Preview -->
         <div *ngIf="quickTemplatePreview" class="template-preview">
           <small class="text-muted"><i class="pi pi-eye me-1"></i>Preview:</small>
           <div class="preview-text">{{ quickTemplatePreview }}</div>
@@ -405,6 +427,7 @@
 
       </ng-container>
 
+      <!-- CUSTOM MODE -->
       <ng-container *ngIf="inputMode === 'custom'">
         <div class="custom-input-row">
           <textarea

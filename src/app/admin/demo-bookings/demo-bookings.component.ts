@@ -18,7 +18,7 @@ export class DemoBookingsComponent {
   loading = false;
 
   globalSearch = '';
-  selectedStatus: any = null;
+  selectedStatus: any = 'confirmed';
 
   showCompletedDialog  = false;
 selectedCompletedRow: any = null;

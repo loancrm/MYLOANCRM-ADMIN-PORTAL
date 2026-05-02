@@ -30,6 +30,7 @@ export class SocialMediaLeadsComponent {
 selectedLead: any = null;
   version = projectConstantsLocal.VERSION_DESKTOP;
   @ViewChild('SocialMediaLeadsTable') socialMediaLeadsTable!: Table;
+  private readonly FILTER_STORAGE_KEY = 'socialMediaLeadsFilters';
 
   // ── Bulk Upload ────────────────────────────────────────
   bulkUploadVisible: boolean = false;
@@ -67,6 +68,45 @@ statusOptions = [
   // ── Admin Remarks Dropdown ─────────────────────────────
   adminRemarkOptions: { label: string; value: any }[] = [];
   adminRemarksLoaded: boolean = false;
+  // ── Add these properties alongside selectedStatus ──
+  selectedRegistrationStatus: string = '';
+
+  registrationStatusOptions = [
+    { label: 'All', value: '' },
+    { label: 'Not Registered', value: 'notRegistered' },
+    { label: 'Registered',     value: 'registered' },
+  ];
+  // ── Book a Demo ────────────────────────────────────────
+  bookDemoDialogVisible: boolean = false;
+  bookDemoLead: any = null;
+  bookDemoDate: Date | null = null;
+  bookDemoTime: string = '';
+  bookDemoSlots: { label: string; value: string }[] = [];
+  bookDemoSlotsLoading: boolean = false;
+  bookDemoSubmitting: boolean = false;
+  today: Date = new Date();
+  bookDemoUsers: { label: string; value: any }[] = [];
+  bookDemoAssignTo: any = null;
+  selectedDemoStatus: string = '';
+  demoStatusOptions = [
+    { label: 'All', value: '' },
+    { label: 'Not Demo Booked', value: 'notBooked' }, 
+    { label: 'Confirmed', value: 'confirmed' },
+    { label: 'Completed', value: 'completed' },
+    { label: 'Cancelled', value: 'cancelled' },
+    { label: 'Rescheduled', value: 'rescheduled' },
+  ];
+
+  enquiryTypeOptions = [
+  { label: 'All',           value: '' },
+  { label: 'Loan Enquiry',  value: 'loanEnquiry' },
+  { label: 'CRM Enquiry',   value: 'crmEnquiry' },
+];
+selectedEnquiryType: string = '';
+selectedRemark: string = '';
+// Add alongside other properties
+socialMediaFilterConfig: any[] = [];
+socialMediaAppliedFilter: any = {};
   constructor(
     private location: Location,
     private routingService: RoutingService,
@@ -86,31 +126,100 @@ statusOptions = [
     ];
   }
   ngOnInit(): void {
-    // ✅ Default = Active
-    this.appliedFilter['status-eq'] = 1;
-    this.appliedFilter['Platform-eq'] = this.selectedPlatforms.join(',');
-    this.loadAdminRemarks();
-  }
-  // ── Table Methods ──────────────────────────────────────
+    this.loadFiltersFromStorage(); // ✅ restore first
+    this.setSocialMediaFilterConfig();
 
-   loadAdminRemarks() {
-    const filter = { 'status-eq': 3,'remarkInternalStatus-eq': 1  };
-    this.leadsService.getAdminRemarks(filter).subscribe(
+    // ✅ Sync appliedFilter from restored values (not hardcoded)
+    if (this.selectedStatus && this.selectedStatus !== ('all' as any)) {
+      this.appliedFilter['status-eq'] = this.selectedStatus;
+    }
+
+    if (this.selectedPlatforms && this.selectedPlatforms.length > 0) {
+      this.appliedFilter['Platform-eq'] = this.selectedPlatforms.join(',');
+    }
+
+    if (this.selectedRegistrationStatus) {
+      this.appliedFilter['registrationStatus'] = this.selectedRegistrationStatus;
+    }
+
+    if (this.selectedDemoStatus) {                              // ✅ ADD
+      this.appliedFilter['demoStatus-eq'] = this.selectedDemoStatus;
+    }
+
+    if (this.selectedEnquiryType) {
+      this.appliedFilter['enquiryType-eq'] = this.selectedEnquiryType;
+    }
+
+    this.loadAdminRemarks();
+    this.loadBookDemoUsers();
+  }
+
+  loadBookDemoUsers(): void {
+    this.leadsService.getUsers({ 'status-eq': 1 }).subscribe(
       (data: any) => {
-        // ✅ Convert remarkId to STRING — DB may return number,
-        //    but [(ngModel)] needs exact type match for pre-selection
-        this.adminRemarkOptions = data.map((r: any) => ({
-          label: r.displayName,
-          value: String(r.remarkId),
-        }));
-        this.adminRemarksLoaded = true;
+        this.bookDemoUsers = data
+          .filter((u: any) => u.status === 1)
+          .map((u: any) => ({ label: u.name, value: u.id }));
       },
-      (error: any) => {
-        this.toastService.showError('Failed to load remarks');
-        this.adminRemarksLoaded = true;
+      () => {
+        // silently fail — auto-assign will handle it
       }
     );
   }
+  // ngOnInit(): void {
+  //   // ✅ Default = Active
+  //   this.loadFiltersFromStorage(); 
+  //   this.appliedFilter['status-eq'] = 1;
+  //   this.appliedFilter['Platform-eq'] = this.selectedPlatforms.join(',');
+  //   this.loadAdminRemarks();
+  // }
+  // ── Table Methods ──────────────────────────────────────
+
+ loadAdminRemarks() {
+  const filter = { 'status-eq': 3, 'remarkInternalStatus-eq': 1 };
+  this.leadsService.getAdminRemarks(filter).subscribe(
+    (data: any) => {
+      this.adminRemarkOptions = data.map((r: any) => ({
+        label: r.displayName,
+        value: String(r.remarkId),
+      }));
+      this.adminRemarksLoaded = true;
+
+      // ✅ Update remarks options in filter config after they load
+      const remarkOptions = [
+        { label: 'All', value: '' },
+        ...this.adminRemarkOptions
+      ];
+      const remarkField = this.socialMediaFilterConfig
+        .find(c => c.header === 'Remarks')?.data?.[0];
+      if (remarkField) {
+        remarkField.options = remarkOptions;
+      }
+    },
+    (error: any) => {
+      this.toastService.showError('Failed to load remarks');
+      this.adminRemarksLoaded = true;
+    }
+  );
+}
+  //  loadAdminRemarks() {
+  //   const filter = { 'status-eq': 3,'remarkInternalStatus-eq': 1  };
+  //   this.leadsService.getAdminRemarks(filter).subscribe(
+  //     (data: any) => {
+  //       // ✅ Convert remarkId to STRING — DB may return number,
+  //       //    but [(ngModel)] needs exact type match for pre-selection
+  //       this.adminRemarkOptions = data.map((r: any) => ({
+  //         label: r.displayName,
+  //         value: String(r.remarkId),
+  //       }));
+  //       this.adminRemarksLoaded = true;
+  //     },
+  //     (error: any) => {
+  //       this.toastService.showError('Failed to load remarks');
+  //       this.adminRemarksLoaded = true;
+  //     }
+  //   );
+  // }
 
   loadsocialmediaLeads(event: any) {
     // console.log('TABLE EVENT:', event);
@@ -125,21 +234,34 @@ statusOptions = [
   }
 
   getSocialMediaLeads(filter = {}) {
-    this.apiLoading = true;
-    this.leadsService.getSocialMediaLeads(filter).subscribe(
-      (data:any) => {
-        this.socialMediaLeads =data.map((lead: any) => ({
-          ...lead,
-          remarkId: lead.remarkId != null ? String(lead.remarkId) : null,
-        }));
-        this.apiLoading = false;
-      },
-      (error) => {
-        this.toastService.showError('Error fetching social media leads');
-        this.apiLoading = false;
-      }
-    );
+  this.apiLoading = true;
+  this.leadsService.getSocialMediaLeads(filter).subscribe(
+    (data: any) => {
+      this.socialMediaLeads = data.map((lead: any) => ({
+        ...lead,
+        remarkId: lead.remarkId != null ? String(lead.remarkId) : null,
+        isRegistered: lead.isRegistered || false,  // ✅ ADD THIS
+      }));
+      this.apiLoading = false;
+    },
+    (error) => {
+      this.toastService.showError('Error fetching social media leads');
+      this.apiLoading = false;
+    }
+  );
+}
+
+onRegistrationStatusChange(event: any): void {
+  const value = event.value;
+
+  if (!value) {
+    delete this.appliedFilter['registrationStatus'];
+  } else {
+    this.appliedFilter['registrationStatus'] = value;
   }
+  this.saveFiltersToStorage();
+  this.reloadTable();
+}
 
   // getSocilaMediaCount(filter = {}) {
   //   this.leadsService.getSocilaMediaCount().subscribe(
@@ -472,7 +594,7 @@ onPlatformFilterChange(event: any): void {
     // Send as comma-separated string → backend splits it
     this.appliedFilter['Platform-eq'] = values.join(',');
   }
-
+  this.saveFiltersToStorage();
   this.reloadTable();
 }
 // onPlatformFilterChange(event: any): void {
@@ -526,7 +648,7 @@ onStatusFilterChange(event: any): void {
     // ✅ Apply filter
     this.appliedFilter['status-eq'] = value;
   }
-
+  this.saveFiltersToStorage();
   this.reloadTable();
 }
 saveRemark(lead: any, event: Event) {
@@ -564,18 +686,300 @@ onRemarkChange(team: any, remarkId: any) {
     }
   );
 }
-//  onRemarkChange(lead: any, remarkId: any) {
-//     if (!remarkId) return;
+
+private saveFiltersToStorage(): void {
+  const filters = {
+    selectedPlatforms:           this.selectedPlatforms,
+    selectedStatus:              this.selectedStatus,
+    selectedRegistrationStatus:  this.selectedRegistrationStatus,
+    selectedEnquiryType:         this.selectedEnquiryType,
+  };
+  this.localStorageService.setItemOnLocalStorage(this.FILTER_STORAGE_KEY, filters);
+}
+
+private loadFiltersFromStorage(): void {
+  const stored = this.localStorageService.getItemFromLocalStorage(this.FILTER_STORAGE_KEY);
+  if (!stored) return;
+  this.selectedPlatforms          = stored.selectedPlatforms          ?? ['Facebook', 'Website'];
+  this.selectedStatus             = stored.selectedStatus             ?? 1;
+  this.selectedRegistrationStatus = stored.selectedRegistrationStatus ?? '';
+  this.selectedEnquiryType = '';
+}
+
+openBookDemoDialog(lead: any): void {
+  this.bookDemoLead = lead;
+  this.bookDemoDate = null;
+  this.bookDemoTime = '';
+  this.bookDemoSlots = [];
+  this.bookDemoAssignTo=null;
+  this.bookDemoDialogVisible = true;
+}
+
+closeBookDemoDialog(): void {
+  this.bookDemoDialogVisible = false;
+  this.bookDemoLead = null;
+  this.bookDemoDate = null;
+  this.bookDemoTime = '';
+  this.bookDemoAssignTo=null;
+  this.bookDemoSlots = [];
+}
+
+onBookDemoDateSelect(): void {
+  if (!this.bookDemoDate) return;
+  this.bookDemoTime = '';
+  this.bookDemoSlots = [];
+  this.bookDemoSlotsLoading = true;
+
+  // Format date as YYYY-MM-DD in local time
+  const date = this.bookDemoDate.toLocaleDateString('en-CA');
+
+  this.leadsService.getSlots(date).subscribe(
+    (res: any) => {
+      this.bookDemoSlots = (res.availableSlots || []).map((s: string) => ({
+        label: s,
+        value: s,
+      }));
+      this.bookDemoSlotsLoading = false;
+    },
+    () => {
+      this.toastService.showError('Failed to load slots');
+      this.bookDemoSlotsLoading = false;
+    }
+  );
+}
+
+confirmBookDemo(): void {
+  if (!this.bookDemoLead || !this.bookDemoDate || !this.bookDemoTime) return;
+
+  this.bookDemoSubmitting = true;
+
+  const date = this.bookDemoDate.toLocaleDateString('en-CA');
+  const phone = this.bookDemoLead.PhoneNumber;
+
+  this.leadsService.createBooking({
+    phone,
+    date,
+    time: this.bookDemoTime,
+    notes: '',
+    assign_to: this.bookDemoAssignTo || null,
+  }).subscribe(
+    (res: any) => {
+      this.toastService.showSuccess('Demo booked successfully!');
+      this.bookDemoSubmitting = false;
+      this.closeBookDemoDialog();
+    },
+    (error: any) => {
+      this.bookDemoSubmitting = false;
+      const msg =
+        error?.error?.error ||
+        error?.error?.message ||
+        'Failed to book demo';
+
+      // ✅ Already booked — show specific message
+      if (error?.status === 409) {
+        this.toastService.showError('A demo is already booked for this number.');
+      } else if (error?.status === 409 && error?.error?.slotUnavailable) {
+        this.toastService.showError('This time slot is fully booked. Please choose another.');
+      } else {
+        this.toastService.showError(msg);
+      }
+    }
+  );
+}
+
+onDemoStatusFilterChange(event: any): void {
+  const value = event.value;
+
+  if (!value) {
+    delete this.appliedFilter['demoStatus-eq'];
+  } else {
+    this.appliedFilter['demoStatus-eq'] = value;
+  }
+
+  this.saveFiltersToStorage();
+  this.reloadTable();
+}
+
+get remarkFilterOptions(): { label: string; value: any }[] {
+  return [{ label: 'All', value: '' }, ...this.adminRemarkOptions];
+}
+
+onRemarkFilterChange(event: any): void {
+  const value = event.value;
+  if (!value) {
+    delete this.appliedFilter['remarkId-eq'];
+  } else {
+    this.appliedFilter['remarkId-eq'] = value;
+  }
+  this.saveFiltersToStorage();
+  this.reloadTable();
+}
+
+
+onEnquiryTypeFilterChange(event: any): void {
+  const value = event.value;
+  if (!value) {
+    delete this.appliedFilter['enquiryType-eq'];
+  } else {
+    this.appliedFilter['enquiryType-eq'] = value;
+  }
+  this.saveFiltersToStorage();
+  this.reloadTable();
+}
  
-//     this.leadsService.updateLeadRemark(lead.id, remarkId).subscribe(
-//       () => {
-//         // ✅ Keep as string so dropdown stays selected after save
-//         lead.remarkId = String(remarkId);
-//         this.toastService.showSuccess('Remark saved');
-//       },
-//       () => {
-//         this.toastService.showError('Failed to save remark');
-//       }
-//     );
-//   }
+// markAsLoanEnquiry(lead: any): void {
+//   this.leadsService.markAsLoanEnquiry(lead.id).subscribe(
+//     () => {
+//       lead.enquiryType = 'loanEnquiry';
+//       this.toastService.showSuccess('Marked as Loan Enquiry');
+//     },
+//     (error: any) => {
+//       this.toastService.showError('Failed to mark as loan enquiry');
+//     }
+//   );
+// }
+// unmarkLoanEnquiry(lead: any): void {
+//   this.leadsService.unmarkLoanEnquiry(lead.id).subscribe(
+//     () => {
+//       lead.enquiryType = 'crmEnquiry';
+//       this.toastService.showSuccess('Loan Enquiry removed');
+//     },
+//     () => { this.toastService.showError('Failed to unmark'); }
+//   );
+// }
+toggleLoanEnquiry(lead: any): void {
+  this.leadsService.toggleLoanEnquiry(lead.id).subscribe(
+    (res: any) => {
+      lead.enquiryType = res.enquiryType; // backend returns new value
+      const msg = res.enquiryType === 'loanEnquiry'
+        ? 'Marked as Loan Enquiry'
+        : 'Loan Enquiry removed';
+      this.toastService.showSuccess(msg);
+    },
+    () => { this.toastService.showError('Failed to update enquiry type'); }
+  );
+}
+
+setSocialMediaFilterConfig(): void {
+  this.socialMediaFilterConfig = [
+    {
+      header: 'Demo Status',
+      data: [{ field: 'demoStatus-eq', title: 'Demo Status', type: 'dropdown', filterType: 'eq',
+        options: [
+          { label: 'All', value: '' },
+          { label: 'Not Demo Booked', value: 'notBooked' },
+          { label: 'Confirmed', value: 'confirmed' },
+          { label: 'Completed', value: 'completed' },
+          { label: 'Cancelled', value: 'cancelled' },
+          { label: 'Rescheduled', value: 'rescheduled' },
+        ]
+       }]
+    },
+    // {
+    //   header: 'Registration Status',
+    //   data: [{ field: 'registrationStatus', title: 'Registration Status', type: 'text', filterType: 'eq' }]
+    // },
+    {
+      header: 'Enquiry Type',
+      data: [{ field: 'enquiryType', title: 'Enquiry Type', type: 'dropdown', filterType: 'eq',
+                options: [
+          { label: 'All', value: '' },
+          { label: 'Loan Enquiry', value: 'loanEnquiry' },
+          { label: 'CRM Enquiry', value: 'crmEnquiry' },
+        ]
+       }]
+    },
+    {
+      header: 'Remarks',
+      data: [{ field: 'remarkId', title: 'Remarks', type: 'dropdown', filterType: 'eq',
+        options: []
+       }]
+    },
+  ];
+}
+
+// setSocialMediaFilterConfig(): void {
+//   this.socialMediaFilterConfig = [
+//     {
+//       header: 'Demo Status',
+//       data: [{ field: 'demoStatus', title: 'Demo Status', type: 'dropdown', filterType: 'eq',
+//         options: [
+//           { label: 'All', value: '' },
+//           { label: 'Not Demo Booked', value: 'notBooked' },
+//           { label: 'Confirmed', value: 'confirmed' },
+//           { label: 'Completed', value: 'completed' },
+//           { label: 'Cancelled', value: 'cancelled' },
+//           { label: 'Rescheduled', value: 'rescheduled' },
+//         ]
+//       }]
+//     },
+//     {
+//       header: 'Registration Status',
+//       data: [{ field: 'registrationStatus', title: 'Registration Status', type: 'dropdown', filterType: 'eq',
+//         options: [
+//           { label: 'All', value: '' },
+//           { label: 'Not Registered', value: 'notRegistered' },
+//           { label: 'Registered', value: 'registered' },
+//         ]
+//       }]
+//     },
+//     {
+//       header: 'Enquiry Type',
+//       data: [{ field: 'enquiryType', title: 'Enquiry Type', type: 'dropdown', filterType: 'eq',
+//         options: [
+//           { label: 'All', value: '' },
+//           { label: 'Loan Enquiry', value: 'loanEnquiry' },
+//           { label: 'CRM Enquiry', value: 'crmEnquiry' },
+//         ]
+//       }]
+//     },
+//     {
+//       header: 'Remarks',
+//       data: [{ field: 'remarkId', title: 'Remarks', type: 'dropdown', filterType: 'eq',
+//         options: [] // loaded dynamically
+//       }]
+//     },
+//   ];
+// }
+
+applySocialMediaConfigFilters(event: any): void {
+  if (event['reset']) {
+    delete event['reset'];
+    this.socialMediaAppliedFilter = {};
+    // ✅ Reset individual filter values too
+    this.selectedDemoStatus = '';
+    this.selectedRegistrationStatus = '';
+    this.selectedEnquiryType = '';
+    this.selectedRemark = '';
+    delete this.appliedFilter['demoStatus-eq'];
+    delete this.appliedFilter['registrationStatus'];
+    delete this.appliedFilter['enquiryType-eq'];
+    delete this.appliedFilter['remarkId-eq'];
+  } else {
+    this.socialMediaAppliedFilter = { ...event };
+    // ✅ Sync to appliedFilter so loadsocialmediaLeads picks them up
+    if (event['demoStatus-eq']) {
+      this.appliedFilter['demoStatus-eq'] = event['demoStatus-eq'];
+    } else {
+      delete this.appliedFilter['demoStatus-eq'];
+    }
+    if (event['registrationStatus']) {
+      this.appliedFilter['registrationStatus'] = event['registrationStatus'];
+    } else {
+      delete this.appliedFilter['registrationStatus'];
+    }
+    if (event['enquiryType-eq']) {
+      this.appliedFilter['enquiryType-eq'] = event['enquiryType-eq'];
+    } else {
+      delete this.appliedFilter['enquiryType-eq'];
+    }
+    if (event['remarkId-eq']) {
+      this.appliedFilter['remarkId-eq'] = event['remarkId-eq'];
+    } else {
+      delete this.appliedFilter['remarkId-eq'];
+    }
+  }
+  this.reloadTable();
+}
+
 }

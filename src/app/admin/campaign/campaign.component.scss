@@ -26,6 +26,27 @@
   border-radius: 36px;
   padding: 10px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  height: auto;
+  // min-height: 200px;   
+}
+// ── WhatsApp Screen Scrollbar ───────────────────────────
+.whatsapp-screen {
+  &::-webkit-scrollbar {
+    width: 3px;              // ← thin scrollbar
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #b2b2b2;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #888;
+  }
 }
 
 .phone-top-bar {
@@ -63,7 +84,9 @@
   background: #ece5dd;
   border-radius: 16px;
   overflow: hidden;
-  min-height: 380px;
+  // min-height: 380px;
+  max-height: 500px;        // ← max before scroll kicks in
+  overflow-y: auto; 
 }
 
 // ── WhatsApp Header ─────────────────────────────────────
@@ -104,7 +127,7 @@
 .whatsapp-chat-area {
   padding: 12px 8px;
   background: #ece5dd;
-  min-height: 280px;
+  // min-height: 280px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -141,6 +164,7 @@
     line-height: 1.5;
     white-space: pre-wrap;
     word-break: break-word;
+    max-height: none;
   }
 
   .bubble-footer {

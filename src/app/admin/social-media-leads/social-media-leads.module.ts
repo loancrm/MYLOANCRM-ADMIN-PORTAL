@@ -20,6 +20,8 @@ import { FormsModule } from '@angular/forms';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
+import { CalendarModule } from 'primeng/calendar';
+import { LucideAngularModule, CalendarDays } from 'lucide-angular';
 // const routes: Routes = [
 //   { path: '', component: SocialMediaLeadsComponent },
 
@@ -63,6 +65,8 @@ const routes: Routes = [
     InputSwitchModule,
     MatMenuModule,
     MatButtonModule,
+    CalendarModule,
+    LucideAngularModule.pick({ CalendarDays }),
     [RouterModule.forChild(routes)],
   ]
 })

@@ -113,23 +113,33 @@ export class CibilReportsComponent {
     this.location.back();
   }
 
+  
   loadCibilReports(event) {
-    // console.log(event);
+    if (!event) {
+      event = {
+        first: 0,
+        rows: 10,
+        sortField: 'created_at',
+        sortOrder: -1,
+      };
+    }
+
     this.currentTableEvent = event;
+
+    // Build base filter from table event
     let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
 
-    api_filter = Object.assign(
-      {},
-      api_filter,
-      this.searchFilter,
-      this.appliedFilter
-    );
+    // Merge search filter
+    api_filter = Object.assign({}, api_filter, this.searchFilter, this.appliedFilter);
 
-    if (api_filter) {
-      // console.log(api_filter);
-      this.getTeamCount(api_filter);
-      this.getTeam(api_filter);
+    // ✅ Apply report type filter HERE (same pattern as accounts)
+    if (this.selectedReportType && this.selectedReportType !== 'ALL') {
+      api_filter['report_type-eq'] = this.selectedReportType;
     }
+
+    // Both count and data get the SAME filter
+    this.getTeamCount(api_filter);
+    this.getTeam(api_filter);
   }
 
   inputValueChangeEvent(dataType, value) {

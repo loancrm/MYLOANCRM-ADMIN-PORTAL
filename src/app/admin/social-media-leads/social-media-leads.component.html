@@ -562,7 +562,7 @@
       [sortField]="'CreatedOn'"  
       [sortOrder]="-1"   
       [showCurrentPageReport]="true"
-      [rowsPerPageOptions]="[10, 25, 50, 100]"
+      [rowsPerPageOptions]="[10, 25, 50, 100,1000]"
       [paginator]="true"
       [rows]="10"
       [totalRecords]="socialMediaLeadsCount"
@@ -582,9 +582,10 @@
       styleClass="p-datatable-customers "
       currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Social Media Leads"
     >
-    <ng-template pTemplate="caption">
+    <!-- <ng-template pTemplate="caption">
       <div class="row">
-        <div class="col-md-3 mt-2 no-padding-small">
+        <div class="col-md-2 mt-2 no-padding-small">
+          <label class="fw-label">Search</label>
           <div class="p-inputgroup">
             <input
                 pInputText
@@ -610,30 +611,8 @@
               </button>
           </div>
         </div>
-        <!-- <div class="col-md-3 mt-2 no-padding-small">
-          <p-dropdown
-              [options]="platformOptions"
-              [(ngModel)]="selectedPlatform"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="All Platforms"
-              (onChange)="onPlatformFilterChange($event)"
-              [style]="{ width: '100%' }"
-            ></p-dropdown>
-        </div> -->
-        <!-- AFTER — add this -->
-      <div class="col-md-3 mt-2 no-padding-small">
-        <!-- <p-multiSelect
-          [options]="platformOptions"
-          [(ngModel)]="selectedPlatforms"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="All Platforms"
-          (onChange)="onPlatformFilterChange($event)"
-          [style]="{ width: '100%' }"
-          [maxSelectedLabels]="2"
-          selectedItemsLabel="{0} platforms selected"
-        ></p-multiSelect> -->
+      <div class="col-md-2 mt-2 no-padding-small">
+        <label class="fw-label">Select Platform</label>
         <p-multiSelect
           [options]="platformOptions"
           [(ngModel)]="selectedPlatforms"
@@ -647,7 +626,8 @@
           [defaultLabel]="'All Platforms'"
         ></p-multiSelect>
       </div>
-        <div class="col-md-3 mt-2 no-padding-small">
+        <div class="col-md-2 mt-2 no-padding-small">
+          <label class="fw-label">Select Status</label>
           <p-dropdown
             [options]="statusOptions"
             [(ngModel)]="selectedStatus"
@@ -658,8 +638,133 @@
             [style]="{ width: '100%' }"
           ></p-dropdown>
         </div>
+        <div class="col-md-2 mt-2 no-padding-small">
+          <label class="fw-label">Select Account Status</label>
+          <p-dropdown
+            [options]="registrationStatusOptions"
+            [(ngModel)]="selectedRegistrationStatus"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Registration Status"
+            (onChange)="onRegistrationStatusChange($event)"
+            [style]="{ width: '100%' }"
+          ></p-dropdown>
+        </div>
+        <div class="col-md-2 mt-2 no-padding-small">
+          <label class="fw-label">Demo Status</label>
+          <p-dropdown
+            [options]="demoStatusOptions"
+            [(ngModel)]="selectedDemoStatus"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="All Demo Status"
+            (onChange)="onDemoStatusFilterChange($event)"
+            [style]="{ width: '100%' }"
+          ></p-dropdown>
+        </div>
+        <div class="col-md-2 mt-2 no-padding-small">
+          <label class="fw-label">Enquiry Type</label>
+          <p-dropdown
+            [options]="enquiryTypeOptions"
+            [(ngModel)]="selectedEnquiryType"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="All Enquiry Types"
+            (onChange)="onEnquiryTypeFilterChange($event)"
+            [style]="{ width: '100%' }"
+          ></p-dropdown>
+        </div>
+        <div class="col-md-2 mt-2 no-padding-small">
+          <label class="fw-label">Remarks</label>
+          <p-dropdown
+            [options]="remarkFilterOptions"
+            [(ngModel)]="selectedRemark"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="All Remarks"
+            (onChange)="onRemarkFilterChange($event)"
+            [style]="{ width: '100%' }"
+            [showClear]="true"
+          ></p-dropdown>
+        </div>
       </div>
-    </ng-template>
+    </ng-template> -->
+    <ng-template pTemplate="caption">
+  <div class="row">
+    <div class="col-md-2 mt-2 no-padding-small">
+      <label class="fw-label">Search</label>
+      <div class="p-inputgroup">
+        <input
+          pInputText
+          type="text"
+          [(ngModel)]="globalSearchValue"
+          (ngModelChange)="onGlobalSearchChange($event)"
+          (keyup.enter)="onGlobalSearchSubmit()"
+          placeholder="Search by Name, Email, Phone ..."
+        />
+        <button type="button" pButton class="p-button-primary search-btn" (click)="onGlobalSearchSubmit()">
+          <img src="assets/images/icons/search.svg" alt="Search" width="16" height="16" style="vertical-align: middle" />
+        </button>
+      </div>
+    </div>
+
+    <div class="col-md-2 mt-2 no-padding-small">
+      <label class="fw-label">Select Platform</label>
+      <p-multiSelect
+        [options]="platformOptions"
+        [(ngModel)]="selectedPlatforms"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="All Platforms"
+        (onChange)="onPlatformFilterChange($event)"
+        [style]="{ width: '100%' }"
+        [maxSelectedLabels]="3"
+        selectedItemsLabel="{0} platforms selected"
+        [defaultLabel]="'All Platforms'"
+      ></p-multiSelect>
+    </div>
+
+    <div class="col-md-2 mt-2 no-padding-small">
+      <label class="fw-label">Select Status</label>
+      <p-dropdown
+        [options]="statusOptions"
+        [(ngModel)]="selectedStatus"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select Status"
+        (onChange)="onStatusFilterChange($event)"
+        [style]="{ width: '100%' }"
+      ></p-dropdown>
+    </div>
+
+    <div class="col-md-2 mt-2 no-padding-small">
+      <label class="fw-label">Select Account Status</label>
+      <p-dropdown
+        [options]="registrationStatusOptions"
+        [(ngModel)]="selectedRegistrationStatus"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Registration Status"
+        (onChange)="onRegistrationStatusChange($event)"
+        [style]="{ width: '100%' }"
+      ></p-dropdown>
+    </div>
+
+    <!-- ✅ app-filter replaces Demo Status, Enquiry Type, Remarks dropdowns -->
+    <div class="col-md-1 mt-2 no-padding-small d-flex align-items-end">
+      <app-filter
+        [position]="'right'"
+        [iconColor]="'#33009C'"
+        [iconSize]="'28px'"
+        (filterEvent)="applySocialMediaConfigFilters($event)"
+        [filterConfig]="socialMediaFilterConfig"
+        [showFilterIndication]="socialMediaAppliedFilter"
+        pTooltip="More Filters"
+        tooltipPosition="top"
+      ></app-filter>
+    </div>
+  </div>
+</ng-template>
       <ng-template pTemplate="header" let-columns>
         <tr>
           <th class="text-nowrap">Lead ID</th>
@@ -807,7 +912,7 @@
           </td> -->
 
           <td>
-            <div class="d-flex align-items-center">
+            <div class="d-flex tableimage pointer-cursor">
               <img
                 alt="Update User"
                 src="../../../assets/images/icons/edit.svg"
@@ -818,6 +923,56 @@
                 pTooltip="Update User"
                 tooltipPosition="top"
               />
+
+              <!-- ✅ NEW: Book a Demo button -->
+               <img
+                alt="Update User"
+                src="../../../assets/images/icons/calendar.svg"
+                width="24px"
+                height="24px"
+                class="me-2"
+                (click)="openBookDemoDialog(team); $event.stopPropagation()"
+                pTooltip="Schedule a Demo Session"
+                tooltipPosition="top"
+              />
+              <!-- <button
+                pButton
+                type="button"
+                icon="pi pi-calendar-plus"
+                class="p-button-sm p-button-success me-2"
+                pTooltip="Book a Demo"
+                tooltipPosition="top"
+                (click)="openBookDemoDialog(team); $event.stopPropagation()"
+              ></button> -->
+              <!-- <button
+                pButton
+                type="button"
+                icon="pi pi-arrow-right-arrow-left"
+                class="p-button-sm p-button-warning me-2"
+                pTooltip="Mark as Loan Enquiry"
+                tooltipPosition="top"
+                *ngIf="team.enquiryType !== 'loanEnquiry'"
+                (click)="markAsLoanEnquiry(team); $event.stopPropagation()"
+              ></button>
+              <span
+                *ngIf="team.enquiryType === 'loanEnquiry'"
+                class="me-2"
+                pTooltip="Loan Enquiry"
+                tooltipPosition="top"
+                style="
+                  display:inline-flex;
+                  align-items:center;
+                  justify-content:center;
+                  width:24px;
+                  height:24px;
+                  background:#E1F5EE;
+                  border-radius:50%;
+                  cursor:default;
+                "
+              >
+                <i class="pi pi-check" style="color:#0F6E56; font-size:12px;"></i>
+              </span> -->
+
 
               <!-- ☰ MENU BUTTON -->
               <button
@@ -855,6 +1010,38 @@
                   <span>Mark as Active</span>
                 </button>
 
+                <!-- ✅ Loan Enquiry toggle inside menu -->
+                <!-- <button
+                  mat-menu-item
+                  *ngIf="team.enquiryType !== 'loanEnquiry'"
+                  (click)="markAsLoanEnquiry(team); $event.stopPropagation()"
+                >
+                  <i class="pi pi-arrow-right-arrow-left me-2" style="color:#E65100;"></i>
+                  <span>Mark as Loan Enquiry</span>
+                </button>
+
+                <button
+                  mat-menu-item
+                  *ngIf="team.enquiryType === 'loanEnquiry'"
+                  (click)="unmarkLoanEnquiry(team); $event.stopPropagation()"
+                >
+                  <i class="pi pi-times-circle me-2" style="color:#A32D2D;"></i>
+                  <span>Unmark Loan Enquiry</span>
+                </button> -->
+                  <button
+                    mat-menu-item
+                    (click)="toggleLoanEnquiry(team); $event.stopPropagation()"
+                  >
+                    <i
+                      class="pi me-2"
+                      [ngClass]="team.enquiryType === 'loanEnquiry' ? 'pi-times-circle' : 'pi-arrow-right-arrow-left'"
+                      [style.color]="team.enquiryType === 'loanEnquiry' ? '#A32D2D' : '#E65100'"
+                    ></i>
+                    <span>
+                      {{ team.enquiryType === 'loanEnquiry' ? 'Loan Enquiry' : 'CRM Enquiry' }}
+                    </span>
+                  </button>
+
               </mat-menu>
 
             </div>
@@ -865,6 +1052,103 @@
       </ng-template>
     </p-table>
   </div>
+
+  <!-- ✅ Book a Demo Dialog -->
+  <p-dialog
+    header="Book a Demo"
+    [(visible)]="bookDemoDialogVisible"
+    [modal]="true"
+    [style]="{ width: '420px' }"
+    [closable]="true"
+    [draggable]="false"
+    [appendTo]="'body'"
+    [baseZIndex]="10000"
+    [resizable]="false"
+    (onHide)="closeBookDemoDialog()"
+  >
+    <div class="p-fluid" *ngIf="bookDemoLead">
+
+      <!-- Lead Info -->
+      <div class="mb-3 p-2 border rounded bg-light">
+        <div class="small text-muted">Booking demo for:</div>
+        <div class="fw-semibold">{{ bookDemoLead.Name }}</div>
+        <div class="small text-muted">{{ bookDemoLead.PhoneNumber }}</div>
+      </div>
+
+      <!-- Date Picker -->
+      <div class="mb-3">
+        <label class="fw-label mb-1">Select Date <span class="text-danger">*</span></label>
+        <p-calendar
+          [(ngModel)]="bookDemoDate"
+          dateFormat="yy-mm-dd"
+          [minDate]="today"
+          
+          placeholder="Select Date"
+          [style]="{ width: '100%' }"
+          (onSelect)="onBookDemoDateSelect()"
+          appendTo="body"
+        ></p-calendar>
+      </div>
+
+      <!-- Time Slot Dropdown -->
+      <div class="mb-3">
+        <label class="fw-label mb-1">Select Time Slot <span class="text-danger">*</span></label>
+        <p-dropdown
+          [options]="bookDemoSlots"
+          [(ngModel)]="bookDemoTime"
+          placeholder="Select Time"
+          [style]="{ width: '100%' }"
+          [disabled]="!bookDemoDate || bookDemoSlotsLoading"
+          appendTo="body"
+        ></p-dropdown>
+        <small *ngIf="bookDemoSlotsLoading" class="text-muted">
+          <i class="pi pi-spin pi-spinner me-1"></i>Loading slots...
+        </small>
+        <small *ngIf="bookDemoDate && !bookDemoSlotsLoading && bookDemoSlots.length === 0" class="text-danger">
+          No slots available for this date.
+        </small>
+      </div>
+
+      <!-- Assign To (optional) -->
+      <div class="mb-3">
+        <label class="fw-label mb-1">Assign To <span class="text-muted small">(optional — auto-assigned if not selected)</span></label>
+        <p-dropdown
+          [options]="bookDemoUsers"
+          [(ngModel)]="bookDemoAssignTo"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Auto Assign"
+          [style]="{ width: '100%' }"
+          [showClear]="true"
+          appendTo="body"
+        ></p-dropdown>
+        <small class="text-muted">
+          <i class="pi pi-info-circle me-1"></i>
+          Leave empty to auto-assign based on workload
+        </small>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <button
+        pButton
+        type="button"
+        label="Cancel"
+        class="p-button-text"
+        (click)="closeBookDemoDialog()"
+      ></button>
+      <button
+        pButton
+        type="button"
+        label="Book Demo"
+        icon="pi pi-check"
+        class="p-button-success"
+        [disabled]="!bookDemoDate || !bookDemoTime || bookDemoSubmitting"
+        [loading]="bookDemoSubmitting"
+        (click)="confirmBookDemo()"
+      ></button>
+    </ng-template>
+  </p-dialog>
 
   <!-- ✅ View Lead Dialog -->
   <p-dialog

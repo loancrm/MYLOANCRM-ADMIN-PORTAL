@@ -47,7 +47,7 @@ export class GlobalAnalyticsComponent implements OnInit, OnDestroy {
     callbacks: 0, enquiries: 0, leads: 0, files: 0,
     credit: 0, logins: 0, sanctioned: 0, disbursed: 0,
     inhouseRejects: 0, bankRejects: 0, cniRejects: 0, bankers: 0,
-    cibilReports: 0,cities: 0, users: 0, subscriptions: 0,walletTransactions: 0 
+    cibilReports: 0,cities: 0, users: 0, subscriptions: 0,walletTransactions: 0,bsaReports: 0 
   };
 
   // ── Breakdown dialog ──
@@ -170,6 +170,24 @@ walletDialogReady         = false;
 walletRows                = 10;
 private walletSearchSubject = new Subject<string>();
 @ViewChild('walletTable') walletTable: any;
+
+showBsaDialog          = false;
+bsaDialogLoading       = false;
+bsaAccounts: any[]     = [];
+bsaTotal               = 0;
+bsaGrandTotal          = 0;
+bsaGrandAnalysed       = 0;
+bsaGrandPending        = 0;
+bsaGrandInProgress     = 0;
+bsaGrandFailed         = 0;
+bsaGrandAccounts       = 0;
+bsaStatusSummary: any[]= [];
+bsaSearch              = '';
+bsaSelectedStatus      = '';
+bsaDialogReady         = false;
+bsaRows                = 10;
+private bsaSearchSubject = new Subject<string>();
+@ViewChild('bsaTable') bsaTable: any;
 
 
 private lendersSearchSubject = new Subject<string>();
@@ -298,10 +316,15 @@ private usersSearchSubject = new Subject<string>();
     });
 
     this.walletSearchSubject.pipe(
-  debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$)
-).subscribe(() => {
-  this.onWalletLazyLoad({ first: 0, rows: 10 });
-});
+        debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$)
+      ).subscribe(() => {
+        this.onWalletLazyLoad({ first: 0, rows: 10 });
+      });
+    this.bsaSearchSubject.pipe(
+      debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.onBsaLazyLoad({ first: 0, rows: 10 });
+    });
   }
 
   ngOnDestroy(): void {
@@ -351,6 +374,7 @@ private usersSearchSubject = new Subject<string>();
       this.stats.users          = kpi.users?.total          || 0;
       this.stats.subscriptions = kpi.subscriptions?.total || 0;
       this.stats.walletTransactions = kpi.walletTransactions?.total || 0;
+      this.stats.bsaReports = kpi.bsaReports?.total || 0;
       this.loading = false;
     },
     () => { this.loading = false; }
@@ -896,6 +920,11 @@ if (this.showWalletDialog) {
   if (this.walletTable) this.walletTable.first = 0;
   this.onWalletLazyLoad({ first: 0, rows: 10 });
 }
+
+if (this.showBsaDialog) {
+  if (this.bsaTable) this.bsaTable.first = 0;
+  this.onBsaLazyLoad({ first: 0, rows: 10 });
+}
 }
 
 statusChange(event: any): void {
@@ -1126,5 +1155,113 @@ onWalletSearchChange(): void {
 
 onWalletDialogHide(): void {
   this.walletDialogReady = false;
+}
+
+openBsaBreakdown(): void {
+  this.bsaSearch        = '';
+  this.bsaSelectedStatus= '';
+  this.bsaAccounts      = [];
+  this.bsaTotal         = 0;
+  this.bsaGrandTotal    = 0;
+  this.bsaStatusSummary = [];
+  this.bsaDialogReady   = true;
+  this.showBsaDialog    = true;
+  this.onBsaLazyLoad({ first: 0, rows: 10 });
+}
+ 
+onBsaLazyLoad(event: any): void {
+  if (!this.bsaDialogReady) return;
+ 
+  this.bsaDialogLoading = true;
+  const from  = event.first ?? 0;
+  const count = event.rows  ?? this.bsaRows;
+  this.bsaRows = count;
+ 
+  const filterParams = this.getCurrentFilterParams();
+ 
+  const params: any = {
+    from,
+    count,
+    search: this.bsaSearch.trim(),
+    ...filterParams,
+  };
+ 
+  if (this.bsaSelectedStatus) {
+    params['reportStatus'] = this.bsaSelectedStatus;
+  }
+ 
+  const fd = this.formatDate(this.selectedFromDate);
+  const td = this.formatDate(this.selectedToDate);
+  if (fd) params['fromDate'] = fd;
+  if (td) params['toDate']   = td;
+ 
+  Object.keys(params).forEach(k => {
+    if (params[k] === null || params[k] === undefined) delete params[k];
+  });
+ 
+  this.leadsService.getBsaReportsBreakdown(params).subscribe(
+    (res: any) => {
+      if (from === 0) {
+        this.bsaGrandTotal     = res.grandTotal     || 0;
+        this.bsaGrandAnalysed  = res.grandAnalysed  || 0;
+        this.bsaGrandPending   = res.grandPending   || 0;
+        this.bsaGrandInProgress= res.grandInProgress|| 0;
+        this.bsaGrandFailed    = res.grandFailed    || 0;
+        this.bsaGrandAccounts  = res.grandAccounts  || 0;
+        this.bsaStatusSummary  = res.statusSummary  || [];
+      }
+      this.bsaAccounts      = res.accounts || [];
+      this.bsaTotal         = res.total    || 0;
+      this.bsaDialogLoading = false;
+    },
+    () => { this.bsaDialogLoading = false; }
+  );
+}
+ 
+onBsaSearchChange(): void {
+  this.bsaSearchSubject.next(this.bsaSearch);
+}
+ 
+onBsaStatusSelect(status: string): void {
+  this.bsaSelectedStatus = this.bsaSelectedStatus === status ? '' : status;
+  if (this.bsaTable) { this.bsaTable.first = 0; }
+  this.onBsaLazyLoad({ first: 0, rows: 10 });
+}
+ 
+onBsaDialogHide(): void {
+  this.bsaDialogReady = false;
+}
+ 
+getBsaStatusColor(status: string): string {
+  const map: any = {
+    'ANALYSED':    '#0F6E56',
+    'PENDING':     '#854F0B',
+    'IN_PROGRESS': '#185FA5',
+    'FAILED':      '#A32D2D',
+    'TIMEOUT':     '#6B21A8',
+  };
+  return map[status] || '#534AB7';
+}
+ 
+getBsaStatusBg(status: string): string {
+  const map: any = {
+    'ANALYSED':    '#E1F5EE',
+    'PENDING':     '#FAEEDA',
+    'IN_PROGRESS': '#E6F1FB',
+    'FAILED':      '#FCEBEB',
+    'TIMEOUT':     '#F3E8FF',
+  };
+  return map[status] || '#EEEDFE';
+}
+ 
+getBsaStatusIcon(status: string): string {
+  const map: any = {
+    'ANALYSED':    'pi-check-circle',
+    'PENDING':     'pi-clock',
+    'IN_PROGRESS': 'pi-spin pi-spinner',
+    'FAILED':      'pi-times-circle',
+    'TIMEOUT':     'pi-exclamation-triangle',
+  };
+  return map[status] || 'pi-file';
 }
 }

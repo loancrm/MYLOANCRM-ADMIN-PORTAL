@@ -326,7 +326,7 @@
           <div class="card-body">
 
             <!-- ✅ Skip Registered Toggle — only shown in Accounts tab -->
-            <div *ngIf="activeTab === 'accounts'"
+            <!-- <div *ngIf="activeTab === 'accounts'"
               class="mb-3 p-2 rounded border"
               [ngClass]="skipRegisteredAccounts ? 'border-warning bg-warning bg-opacity-10' : 'border-secondary bg-light'">
               <div class="d-flex align-items-center justify-content-between">
@@ -348,14 +348,13 @@
                     style="width: 2.5em; height: 1.3em; cursor: pointer;" />
                 </div>
               </div>
-              <!-- Warning when toggle is ON -->
               <div *ngIf="skipRegisteredAccounts" class="mt-2">
                 <small class="text-warning fw-semibold">
                   <i class="pi pi-exclamation-triangle me-1"></i>
                   All {{ selectedContacts.length }} selected contacts will be skipped — no messages sent.
                 </small>
               </div>
-            </div>
+            </div> -->
 
             <div class="mb-2">
               <small class="text-muted">
@@ -411,7 +410,7 @@
             <div class="d-flex justify-content-between align-items-center">
               <h6 class="mb-0">
                 <span class="badge bg-white text-primary rounded-circle me-2 step-badge">4</span>
-                Select Contacts
+                Select Leads
               </h6>
               <small class="text-white">{{ selectedContacts.length }} selected</small>
             </div>
@@ -444,15 +443,31 @@
             </div>
 
             <!-- SOCIAL MEDIA LEADS TABLE -->
-            <p-table *ngIf="activeTab === 'socialMedia'"
+            <!-- <p-table *ngIf="activeTab === 'socialMedia'"
               [value]="filteredContacts" [paginator]="true" [rows]="10"
               [rowsPerPageOptions]="[10, 25, 50]" [showCurrentPageReport]="true"
               currentPageReportTemplate="Showing {first} to {last} of {totalRecords} leads"
-              styleClass="p-datatable-striped" responsiveLayout="scroll">
+              styleClass="p-datatable-striped" responsiveLayout="scroll"> -->
+              <p-table #socialMediaTable
+                *ngIf="activeTab === 'socialMedia'"
+                [value]="filteredContacts"
+                [lazy]="true"
+                (onLazyLoad)="loadSocialMediaLeads($event)"
+                [loading]="contactsLoading"
+                [paginator]="true"
+                [rows]="10"
+                [rowsPerPageOptions]="[10, 25, 50, 100, 200]"
+                [totalRecords]="socialMediaTotal"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} leads"
+                styleClass="p-datatable-striped"
+                responsiveLayout="scroll"
+                [scrollable]="true"
+                scrollHeight="500px">
 
-              <ng-template pTemplate="caption">
+              <!-- <ng-template pTemplate="caption">
                 <div class="row">
-                  <div class="col-md-4 mt-2">
+                  <div class="col-md-3 mt-2">
                     <div class="p-inputgroup">
                       <input pInputText type="text" [(ngModel)]="searchText"
                         (input)="applyFilters()"
@@ -464,31 +479,60 @@
                     </div>
                   </div>
                   <div class="col-md-2 mt-2">
-                    <p-dropdown [options]="platformOptions" [(ngModel)]="selectedPlatform"
-                      placeholder="Platform" (onChange)="applyFilters()"
-                      [showClear]="true" [style]="{ width: '100%' }">
-                    </p-dropdown>
+                    <p-multiSelect
+                      [options]="platformOptions"
+                      [(ngModel)]="selectedPlatforms"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="All Platforms"
+                      (onChange)="applyFilters()"
+                      [style]="{ width: '100%' }"
+                      [maxSelectedLabels]="2"
+                      selectedItemsLabel="{0} platforms selected"
+                      [defaultLabel]="'All Platforms'"
+                    ></p-multiSelect>
+
                   </div>
                   <div class="col-md-2 mt-2">
                     <p-dropdown [options]="demoStatusOptions" [(ngModel)]="selectedDemoStatus"
                       placeholder="Demo Status" (onChange)="applyFilters()"
-                      [showClear]="true" [style]="{ width: '100%' }">
+                      [style]="{ width: '100%' }">
                     </p-dropdown>
                   </div>
-                  <!-- ✅ NEW: Registration Status Filter -->
-                  <div class="col-md-4 mt-2">
+                  <div class="col-md-2 mt-2">
                     <p-dropdown
                       [options]="registrationStatusOptions"
                       [(ngModel)]="selectedRegistrationStatus"
                       placeholder="Registration Status"
                       (onChange)="applyFilters()"
-                      [showClear]="true"
                       [style]="{ width: '100%' }">
                     </p-dropdown>
                   </div>
-                </div>
 
-                <!-- ✅ Active filter indicator -->
+                  <div class="col-md-2 mt-2">
+                    <p-dropdown
+                      [options]="remarkFilterOptions"
+                      [(ngModel)]="selectedRemark"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="All Remarks"
+                      (onChange)="applyFilters()"
+                      [style]="{ width: '100%' }"
+                      [showClear]="true"
+                    ></p-dropdown>
+                  </div>
+                  <div class="col-md-2 mt-2">
+                    <p-dropdown
+                      [options]="enquiryTypeOptions"
+                      [(ngModel)]="selectedEnquiryType"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="All Enquiry Types"
+                      (onChange)="applyFilters()"
+                      [style]="{ width: '100%' }"
+                    ></p-dropdown>
+                  </div>
+                </div>
                 <div *ngIf="selectedRegistrationStatus" class="mt-2 px-1">
                   <span class="badge"
                     [ngClass]="selectedRegistrationStatus === 'notRegistered' ? 'bg-success' : 'bg-primary'">
@@ -496,6 +540,46 @@
                     Showing:
                     {{ selectedRegistrationStatus === 'notRegistered' ? 'Not Registered leads only' : 'Registered leads only' }}
                   </span>
+                </div>
+              </ng-template> -->
+              <ng-template pTemplate="caption">
+                <div class="row align-items-end">
+                  <div class="col-md-4 mt-2">
+                    <div class="p-inputgroup">
+                      <input pInputText type="text" [(ngModel)]="searchText"
+                        (input)="applyFilters()"
+                        placeholder="Search Name, Phone, Email..." />
+                      <button type="button" pButton class="p-button-primary search-btn" (click)="applyFilters()">
+                        <img src="assets/images/icons/search.svg" alt="Search" width="16" height="16" />
+                      </button>
+                    </div>
+                  </div>
+                  <div class="col-md-4 mt-2">
+                    <p-multiSelect
+                      [options]="platformOptions"
+                      [(ngModel)]="selectedPlatforms"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="All Platforms"
+                      (onChange)="applyFilters()"
+                      [style]="{ width: '100%' }"
+                      [maxSelectedLabels]="2"
+                      selectedItemsLabel="{0} platforms selected"
+                      [defaultLabel]="'All Platforms'"
+                    ></p-multiSelect>
+                  </div>
+                  <div class="col-md-1 mt-2 d-flex align-items-center">
+                    <app-filter
+                      [position]="'right'"
+                      [iconColor]="'#33009C'"
+                      [iconSize]="'28px'"
+                      (filterEvent)="applySocialMediaConfigFilters($event)"
+                      [filterConfig]="socialMediaFilterConfig"
+                      [showFilterIndication]="socialMediaAppliedFilter"
+                      pTooltip="More Filters"
+                      tooltipPosition="top"
+                    ></app-filter>
+                  </div>
                 </div>
               </ng-template>
 
@@ -505,12 +589,11 @@
                     (change)="selectAll($any($event.target).checked)" /></th>
                   <th>Name</th>
                   <th>Phone</th>
-                  <th>Email</th>
+                  <!-- <th>Email</th> -->
                   <th>City</th>
                   <th>Company</th>
                   <th>State</th>
                   <th>Platform</th>
-                  <!-- ✅ Registration status column -->
                   <th>Registered</th>
                 </tr>
               </ng-template>
@@ -521,7 +604,6 @@
                     (change)="toggleContact(c, $any($event.target).checked)" /></td>
                   <td>{{ c['name'] }}</td>
                   <td>{{ c['mobileNumber'] }}</td>
-                  <td>{{ c['email'] }}</td>
                   <td>{{ c['city'] }}</td>
                   <td>{{ c['company'] }}</td>
                   <td>{{ c['state'] }}</td>
@@ -533,7 +615,6 @@
                       'bg-secondary': !c['platform']
                     }">{{ c['platform'] || 'N/A' }}</span>
                   </td>
-                  <!-- ✅ Registered badge -->
                   <td>
                     <span *ngIf="c['isRegistered']" class="badge bg-primary">
                       <i class="pi pi-check me-1" style="font-size:0.65rem;"></i>Yes
@@ -551,15 +632,31 @@
             </p-table>
 
             <!-- ACCOUNTS TABLE -->
-            <p-table *ngIf="activeTab === 'accounts'"
+            <!-- <p-table *ngIf="activeTab === 'accounts'"
               [value]="filteredContacts" [paginator]="true" [rows]="10"
               [rowsPerPageOptions]="[10, 25, 50]" [showCurrentPageReport]="true"
               currentPageReportTemplate="Showing {first} to {last} of {totalRecords} accounts"
-              styleClass="p-datatable-striped" responsiveLayout="scroll">
+              styleClass="p-datatable-striped" responsiveLayout="scroll"> -->
+              <p-table #accountsTable
+                *ngIf="activeTab === 'accounts'"
+                [value]="filteredContacts"
+                [lazy]="true"
+                (onLazyLoad)="loadAccounts($event)"
+                [loading]="contactsLoading"
+                [paginator]="true"
+                [rows]="10"
+                [rowsPerPageOptions]="[10, 25, 50, 100, 200]"
+                [totalRecords]="accountsTotal"
+                [showCurrentPageReport]="true"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} accounts"
+                styleClass="p-datatable-striped"
+                responsiveLayout="scroll"
+                [scrollable]="true"
+                scrollHeight="400px">
 
-              <ng-template pTemplate="caption">
+              <!-- <ng-template pTemplate="caption">
                 <div class="row">
-                  <div class="col-md-4 mt-2">
+                  <div class="col-md-3 mt-2">
                     <div class="p-inputgroup">
                       <input pInputText type="text" [(ngModel)]="searchText"
                         (input)="applyFilters()"
@@ -603,9 +700,71 @@
                       [style]="{ width: '100%' }">
                     </p-dropdown>
                   </div>
+                  <div class="col-md-2 mt-2">
+                    <p-dropdown
+                      [options]="accountRemarkFilterOptions"
+                      [(ngModel)]="selectedAccountRemark"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="All Remarks"
+                      (onChange)="applyFilters()"
+                      [style]="{ width: '100%' }"
+                      [showClear]="true"
+                    ></p-dropdown>
+                  </div>
+                </div>
+                <div *ngIf="skipRegisteredAccounts" class="mt-2">
+                  <div class="alert alert-warning py-1 px-2 mb-0" style="font-size:0.8rem;">
+                    <i class="pi pi-exclamation-triangle me-1"></i>
+                    <strong>Skip Registered is ON</strong> — selecting contacts here is for preview only.
+                    No messages will be sent when you click Send.
+                  </div>
+                </div>
+              </ng-template> -->
+              <ng-template pTemplate="caption">
+                <div class="row align-items-end">
+                  <div class="col-md-3 mt-2">
+                    <div class="p-inputgroup">
+                      <input pInputText type="text" [(ngModel)]="searchText"
+                        (input)="applyFilters()"
+                        placeholder="Search Name, Business, Phone, Email..." />
+                      <button type="button" pButton class="p-button-primary search-btn" (click)="applyFilters()">
+                        <img src="assets/images/icons/search.svg" alt="Search" width="16" height="16" />
+                      </button>
+                    </div>
+                  </div>
+                  <div class="col-md-2 mt-2">
+                    <p-dropdown [options]="planTypeOptions" [(ngModel)]="selectedPlanType"
+                      optionLabel="label" optionValue="value" placeholder="Filter by Plan"
+                      (onChange)="applyFilters()" [style]="{ width: '100%' }">
+                    </p-dropdown>
+                  </div>
+                  <div class="col-md-2 mt-2">
+                    <p-dropdown [options]="accountStatusOptions" [(ngModel)]="selectedStatusType"
+                      optionLabel="label" optionValue="value" placeholder="Plan Status"
+                      (onChange)="applyFilters()" [style]="{ width: '100%' }">
+                    </p-dropdown>
+                  </div>
+                  <div class="col-md-2 mt-2">
+                    <p-dropdown [options]="billingCycleOptions" [(ngModel)]="selectedBillingCycle"
+                      optionLabel="label" optionValue="value" placeholder="Billing Cycle"
+                      (onChange)="applyFilters()" [style]="{ width: '100%' }">
+                    </p-dropdown>
+                  </div>
+                  <div class="col-md-1 mt-2 d-flex align-items-center">
+                    <app-filter
+                      [position]="'right'"
+                      [iconColor]="'#33009C'"
+                      [iconSize]="'28px'"
+                      (filterEvent)="applyAccountsConfigFilters($event)"
+                      [filterConfig]="accountsFilterConfig"
+                      [showFilterIndication]="accountsAppliedFilter"
+                      pTooltip="More Filters"
+                      tooltipPosition="top"
+                    ></app-filter>
+                  </div>
                 </div>
 
-                <!-- ✅ Skip Registered info banner inside table caption -->
                 <div *ngIf="skipRegisteredAccounts" class="mt-2">
                   <div class="alert alert-warning py-1 px-2 mb-0" style="font-size:0.8rem;">
                     <i class="pi pi-exclamation-triangle me-1"></i>
@@ -622,7 +781,6 @@
                   <th>Name</th>
                   <th>Business Name</th>
                   <th>Phone</th>
-                  <th>Email</th>
                   <th>City</th>
                 </tr>
               </ng-template>
@@ -634,7 +792,6 @@
                   <td>{{ c['name'] }}</td>
                   <td>{{ c['businessName'] }}</td>
                   <td>{{ c['mobileNumber'] }}</td>
-                  <td>{{ c['email'] }}</td>
                   <td>{{ c['city'] }}</td>
                 </tr>
               </ng-template>

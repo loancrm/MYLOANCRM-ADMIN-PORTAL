@@ -193,3 +193,23 @@
 .status-inactive .status-dot {
   background-color: #DC3545;
 }
+
+.filter-row {
+  display: flex;
+  flex-wrap: nowrap;        /* ❌ prevents going to next line */
+  gap: 10px;
+  align-items: end;
+  overflow-x: auto;         /* ✅ scroll if screen small */
+  padding-bottom: 5px;
+}
+
+.filter-item {
+  min-width: 180px;         /* control width */
+  flex: 0 0 auto;           /* ❌ no shrinking */
+}
+
+.fw-label {
+  font-size: 12px;
+  margin-bottom: 4px;
+  display: block;
+}

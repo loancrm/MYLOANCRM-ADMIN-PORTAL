@@ -316,14 +316,24 @@
       </div>
 
       <div class="analytics-card horizontal-card" (click)="openWalletBreakdown()">
-  <div class="analytics-icon-wrap" style="background:#E8F5E9;">
-    <i class="pi pi-wallet" style="color:#2E7D32;"></i>
-  </div>
-  <div class="analytics-content">
-    <div class="analytics-label">Wallet Transactions</div>
-    <div class="analytics-count" style="color:#2E7D32;">{{ stats.walletTransactions }}</div>
-  </div>
-</div>
+        <div class="analytics-icon-wrap" style="background:#E8F5E9;">
+          <i class="pi pi-wallet" style="color:#2E7D32;"></i>
+        </div>
+        <div class="analytics-content">
+          <div class="analytics-label">Wallet Transactions</div>
+          <div class="analytics-count" style="color:#2E7D32;">{{ stats.walletTransactions }}</div>
+        </div>
+      </div>
+
+      <div class="analytics-card horizontal-card" (click)="openBsaBreakdown()">
+        <div class="analytics-icon-wrap" style="background:#F3E8FF;">
+          <i class="pi pi-chart-bar" style="color:#6B21A8;"></i>
+        </div>
+        <div class="analytics-content">
+          <div class="analytics-label">BSA Reports</div>
+          <div class="analytics-count" style="color:#6B21A8;">{{ stats.bsaReports }}</div>
+        </div>
+      </div>
       
 
     </div>
@@ -406,7 +416,13 @@
                 class="p-button-primary search-btn"
                 (click)="onBreakdownLazyLoad({ first: 0, rows: 10 })"
               >
-                <i class="pi pi-search"></i>
+                <img
+                  src="assets/images/icons/search.svg"
+                  alt="Search"
+                  width="16"
+                  height="16"
+                />
+                <!-- <i class="pi pi-search"></i> -->
               </button>
             </div>
           </div>
@@ -571,7 +587,13 @@
                 class="p-button-primary search-btn"
                 (click)="onCibilLazyLoad({ first: 0, rows: 10 })"
               >
-                <i class="pi pi-search"></i>
+                <img
+                  src="assets/images/icons/search.svg"
+                  alt="Search"
+                  width="16"
+                  height="16"
+                />
+                <!-- <i class="pi pi-search"></i> -->
               </button>
             </div>
           </div>
@@ -719,7 +741,13 @@
                 class="p-button-primary search-btn"
                 (click)="onAmountLazyLoad({ first: 0, rows: 10 })"
               >
-                <i class="pi pi-search"></i>
+                <img
+                  src="assets/images/icons/search.svg"
+                  alt="Search"
+                  width="16"
+                  height="16"
+                />
+                <!-- <i class="pi pi-search"></i> -->
               </button>
             </div>
           </div>
@@ -1184,7 +1212,13 @@
                 class="p-button-primary search-btn"
                 (click)="onLendersLazyLoad({ first: 0, rows: 10 })"
               >
-                <i class="pi pi-search"></i>
+                <img
+                  src="assets/images/icons/search.svg"
+                  alt="Search"
+                  width="16"
+                  height="16"
+                />
+                <!-- <i class="pi pi-search"></i> -->
               </button>
             </div>
           </div>
@@ -1293,7 +1327,13 @@
                 class="p-button-primary search-btn"
                 (click)="onUsersLazyLoad({ first: 0, rows: 10 })"
               >
-                <i class="pi pi-search"></i>
+                <img
+                  src="assets/images/icons/search.svg"
+                  alt="Search"
+                  width="16"
+                  height="16"
+                />
+                <!-- <i class="pi pi-search"></i> -->
               </button>
             </div>
           </div>
@@ -1414,7 +1454,13 @@
               />
               <button type="button" pButton class="p-button-primary search-btn"
                 (click)="onSubscriptionsLazyLoad({ first: 0, rows: 10 })">
-                <i class="pi pi-search"></i>
+                <img
+                  src="assets/images/icons/search.svg"
+                  alt="Search"
+                  width="16"
+                  height="16"
+                />
+                <!-- <i class="pi pi-search"></i> -->
               </button>
             </div>
           </div>
@@ -1434,7 +1480,7 @@
       </ng-template>
 
       <ng-template pTemplate="body" let-acc let-rowIndex="rowIndex">
-        <tr class="city-account-row" [pSelectableRow]="acc">
+        <tr [pSelectableRow]="acc">
           <td><span class="bpd-rank-num">{{ rowIndex + 1 }}</span></td>
           <td><div class="bpd-acc-id">{{ acc.accountId }}</div></td>
           <td><div class="bpd-acc-name text-capitalize">{{ acc.businessName }}</div></td>
@@ -1547,7 +1593,13 @@
               />
               <button type="button" pButton class="p-button-primary search-btn"
                 (click)="onWalletLazyLoad({ first: 0, rows: 10 })">
-                <i class="pi pi-search"></i>
+                <img
+                  src="assets/images/icons/search.svg"
+                  alt="Search"
+                  width="16"
+                  height="16"
+                />
+                <!-- <i class="pi pi-search"></i> -->
               </button>
             </div>
           </div>
@@ -1563,38 +1615,44 @@
           <th class="text-right">Total Credit</th>
           <th class="text-right">Total Debit</th>
           <th class="text-right">Net Credit</th>
-          <th class="text-nowrap">Last Transaction</th>
+           <th class="text-right">Wallet Balance</th>
+          <!-- <th class="text-nowrap">Last Transaction</th> -->
         </tr>
       </ng-template>
 
       <ng-template pTemplate="body" let-acc let-rowIndex="rowIndex">
-        <tr class="city-account-row" [pSelectableRow]="acc">
+        <tr [pSelectableRow]="acc">
           <td><span class="bpd-rank-num">{{ rowIndex + 1 }}</span></td>
           <td><div class="bpd-acc-id">{{ acc.accountId }}</div></td>
           <td><div class="bpd-acc-name text-capitalize">{{ acc.businessName }}</div></td>
           <td class="text-center">
             <span class="bpd-total-num">{{ acc.totalTransactions }}</span>
           </td>
-          <td class="text-right">
+          <td class="text-center">
             <span style="color:#2E7D32; font-weight:500;">
               {{ formatAmount(acc.totalCredit) }}
             </span>
           </td>
-          <td class="text-right">
+          <td class="text-center">
             <span style="color:#C62828; font-weight:500;">
               {{ formatAmount(acc.totalDebit) }}
             </span>
           </td>
-          <td class="text-right">
+          <td class="text-center">
             <span style="color:#534AB7; font-weight:500;">
               {{ formatAmount(acc.totalNetCredit) }}
             </span>
           </td>
-          <td>
+          <td class="text-center">
+            <span style="color:#2E7D32; font-weight:500;">
+              {{ formatAmount(acc.walletBalance) }}
+            </span>
+          </td>
+          <!-- <td>
             <span style="color:#888; font-size:12px;">
               {{ acc.lastTransactionOn ? (acc.lastTransactionOn | date:'dd/MM/yy') : '—' }}
             </span>
-          </td>
+          </td> -->
         </tr>
       </ng-template>
 
@@ -1610,5 +1668,217 @@
       </ng-template>
     </p-table>
 
+  </div>
+</p-dialog>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     STEP 2 — Add this full dialog AFTER the wallet dialog closing tag
+     ══════════════════════════════════════════════════════════════════ -->
+ 
+<p-dialog
+  [(visible)]="showBsaDialog"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [showHeader]="false"
+  [style]="{ width: '1100px', maxWidth: '96vw', padding: '0' }"
+  styleClass="breakdown-dialog-pro"
+  appendTo="body"
+  (onHide)="onBsaDialogHide()"
+>
+  <div class="bpd-wrap">
+ 
+    <!-- Dialog Header -->
+    <div class="bpd-header">
+      <div class="bpd-header-icon" style="background:#F3E8FF;">
+        <i class="pi pi-chart-bar" style="color:#6B21A8; font-size:16px;"></i>
+      </div>
+      <div class="bpd-header-text">
+        <h6 class="bpd-title">BSA Reports — Account Breakdown</h6>
+        <span class="bpd-subtitle">
+          <span *ngIf="!bsaDialogLoading">
+            {{ bsaGrandTotal }} total reports
+            <span class="bpd-dot">·</span>
+            {{ bsaTotal }} accounts
+            <span class="bpd-dot">·</span>
+            <span style="color:#0F6E56;">{{ bsaGrandAnalysed }} analysed</span>
+            <span class="bpd-dot">·</span>
+            <span style="color:#A32D2D;">{{ bsaGrandFailed }} failed</span>
+          </span>
+          <span *ngIf="bsaDialogLoading">Loading...</span>
+        </span>
+      </div>
+      <button class="bpd-close" (click)="showBsaDialog = false">
+        <i class="pi pi-times"></i>
+      </button>
+    </div>
+ 
+    <!-- Status summary chips (same pattern as CIBIL type chips) -->
+    <div class="cibil-type-grid" *ngIf="bsaStatusSummary.length > 0">
+      <div
+        class="cibil-type-card"
+        *ngFor="let s of bsaStatusSummary"
+        [class.active]="bsaSelectedStatus === s.status"
+        (click)="onBsaStatusSelect(s.status)"
+      >
+        <div class="cibil-type-icon" [style.background]="getBsaStatusBg(s.status)">
+          <i class="pi {{ getBsaStatusIcon(s.status) }}"
+             [style.color]="getBsaStatusColor(s.status)" style="font-size:15px;"></i>
+        </div>
+        <div>
+          <div class="cibil-type-count" [style.color]="getBsaStatusColor(s.status)">
+            {{ s.total }}
+          </div>
+          <div class="cibil-type-label">{{ s.status }}</div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- Active filter chip -->
+    <div class="cibil-filter-chip-wrap" *ngIf="bsaSelectedStatus">
+      <div class="cibil-filter-chip">
+        <i class="pi pi-filter" style="font-size:11px;"></i>
+        Filtered by: <strong>{{ bsaSelectedStatus }}</strong>
+        <span class="chip-clear" (click)="onBsaStatusSelect(bsaSelectedStatus)">
+          <i class="pi pi-times" style="font-size:10px;"></i>
+        </span>
+      </div>
+    </div>
+ 
+    <!-- Lazy Table -->
+    <p-table
+      #bsaTable
+      [value]="bsaAccounts"
+      [loading]="bsaDialogLoading"
+      [lazy]="true"
+      (onLazyLoad)="onBsaLazyLoad($event)"
+      selectionMode="single"
+      dataKey="accountId"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [totalRecords]="bsaTotal"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} accounts"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-customers"
+    >
+ 
+      <!-- Caption: search -->
+      <ng-template pTemplate="caption">
+        <div class="row g-2 align-items-center">
+          <div class="col-md-5">
+            <div class="p-inputgroup">
+              <input
+                type="text"
+                pInputText
+                placeholder="Search by business name..."
+                [(ngModel)]="bsaSearch"
+                (ngModelChange)="onBsaSearchChange()"
+                (keyup.enter)="onBsaLazyLoad({ first: 0, rows: 10 })"
+              />
+              <button
+                type="button"
+                pButton
+                class="p-button-primary search-btn"
+                (click)="onBsaLazyLoad({ first: 0, rows: 10 })"
+              >
+                <img
+                  src="assets/images/icons/search.svg"
+                  alt="Search"
+                  width="16"
+                  height="16"
+                />
+              </button>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+ 
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width:50px;">#</th>
+          <th>Account ID</th>
+          <th>Business Name</th>
+          <th class="text-center">Total Reports</th>
+          <th class="text-center">Analysed</th>
+          <th class="text-center">Pending</th>
+          <th class="text-center">In Progress</th>
+          <th class="text-center">Failed</th>
+          <!-- <th class="text-center">Unique Leads</th>
+          <th class="text-nowrap">Last Report</th> -->
+        </tr>
+      </ng-template>
+ 
+      <ng-template pTemplate="body" let-acc let-rowIndex="rowIndex">
+        <tr>
+          <td><span class="bpd-rank-num">{{ rowIndex + 1 }}</span></td>
+          <td><div class="bpd-acc-id">{{ acc.accountId }}</div></td>
+          <td><div class="bpd-acc-name text-capitalize">{{ acc.businessName }}</div></td>
+ 
+          <td class="text-center">
+            <span class="bpd-total-num">{{ acc.totalReports }}</span>
+          </td>
+ 
+          <td class="text-center">
+            <span
+              class="cibil-mini-badge"
+              style="background:#E1F5EE; color:#0F6E56;"
+              *ngIf="acc.analysedReports > 0"
+            >{{ acc.analysedReports }}</span>
+            <span *ngIf="acc.analysedReports === 0" style="color:#ccc;">—</span>
+          </td>
+ 
+          <td class="text-center">
+            <span
+              class="cibil-mini-badge"
+              style="background:#FAEEDA; color:#854F0B;"
+              *ngIf="acc.pendingReports > 0"
+            >{{ acc.pendingReports }}</span>
+            <span *ngIf="acc.pendingReports === 0" style="color:#ccc;">—</span>
+          </td>
+ 
+          <td class="text-center">
+            <span
+              class="cibil-mini-badge"
+              style="background:#E6F1FB; color:#185FA5;"
+              *ngIf="acc.inProgressReports > 0"
+            >{{ acc.inProgressReports }}</span>
+            <span *ngIf="acc.inProgressReports === 0" style="color:#ccc;">—</span>
+          </td>
+ 
+          <td class="text-center">
+            <span
+              class="cibil-mini-badge"
+              style="background:#FCEBEB; color:#A32D2D;"
+              *ngIf="acc.failedReports > 0"
+            >{{ acc.failedReports }}</span>
+            <span *ngIf="acc.failedReports === 0" style="color:#ccc;">—</span>
+          </td>
+ 
+          <!-- <td class="text-center">
+            <span style="font-weight:500; color:#534AB7;">{{ acc.uniqueLeads }}</span>
+          </td>
+ 
+          <td>
+            <span style="color:#888; font-size:12px;">
+              {{ acc.lastReportOn ? (acc.lastReportOn | date:'dd/MM/yy') : '—' }}
+            </span>
+          </td> -->
+        </tr>
+      </ng-template>
+ 
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="10" class="text-center py-4">
+            <i class="pi pi-inbox"
+              style="font-size:2rem;color:#ccc;display:block;margin-bottom:8px;">
+            </i>
+            <p style="color:#888;font-size:14px;margin:0;">No accounts found</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+ 
   </div>
 </p-dialog>

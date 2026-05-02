@@ -31,6 +31,7 @@ export class AccountsComponent implements AfterViewInit {
   initialRows: number = 10;
   version = projectConstantsLocal.VERSION_DESKTOP;
   @ViewChild('accountTable') accountTable!: Table;
+  private readonly FILTER_STORAGE_KEY = 'accountsFilters';
   loadingProviderLogin: { [accountId: string]: boolean } = {};
   accountInternalStatusList: any = projectConstantsLocal.ACCOUNTS_STATUS;
   selectedAccountStatus = this.accountInternalStatusList[1];
@@ -89,6 +90,7 @@ selectedRemarkFilter: any = 'ALL';
   ngOnInit(): void {
     this.restorePaginationState();
     this.loadAdminRemarks();
+    this.loadFiltersFromStorage();
 
     this.setFilterConfig();
     const storedAppliedFilter =
@@ -735,6 +737,7 @@ getTeam(filter = {}) {
 
   statusChange(event) {
   const selectedStatus = event.value.id; // 0, 1, 2
+  this.saveFiltersToStorage();
 
   // Clear old filters
   delete this.searchFilter['status-eq'];
@@ -753,14 +756,17 @@ getTeam(filter = {}) {
 
 onPlanTypeChange(event: any) {
   this.selectedPlanType = event.value;
+  this.saveFiltersToStorage();
   this.accountTable.reset(); // reload table + API
 }
 onStatusTypeChange(event: any) {
   this.selectedStatusType = event.value;
+  this.saveFiltersToStorage();
   this.accountTable.reset(); // reload table + API
 }
 onBillingCycleChange(event: any) {
   this.selectedBillingCycle = event.value;
+  this.saveFiltersToStorage();
   this.accountTable.reset();
 }
 onRemarkChange(lead: any, remarkId: any) {
@@ -786,7 +792,30 @@ onRemarkChange(lead: any, remarkId: any) {
 }
   onRemarkFilterChange(event: any) {
   this.selectedRemarkFilter = event.value;
+  this.saveFiltersToStorage();
   this.accountTable.reset(); // reload API
 }
+
+  private saveFiltersToStorage(): void {
+    const filters = {
+      selectedPlanType:     this.selectedPlanType,
+      selectedStatusType:   this.selectedStatusType,
+      selectedBillingCycle: this.selectedBillingCycle,
+      selectedRemarkFilter: this.selectedRemarkFilter,
+      selectedAccountStatus: this.selectedAccountStatus,
+    };
+    this.localStorageService.setItemOnLocalStorage(this.FILTER_STORAGE_KEY, filters);
+  }
+  private loadFiltersFromStorage(): void {
+    const stored = this.localStorageService.getItemFromLocalStorage(this.FILTER_STORAGE_KEY);
+    if (!stored) return;
+    this.selectedPlanType     = stored.selectedPlanType     ?? 'ALL';
+    this.selectedStatusType   = stored.selectedStatusType   ?? 'ALL';
+    this.selectedBillingCycle = stored.selectedBillingCycle ?? 'ALL';
+    this.selectedRemarkFilter = stored.selectedRemarkFilter ?? 'ALL';
+    if (stored.selectedAccountStatus) {
+      this.selectedAccountStatus = stored.selectedAccountStatus;
+    }
+  }
 
 }

@@ -1347,4 +1347,19 @@ addWalletBalance(accountId: string, amount: number): Observable<any> {
   return this.serviceMeta.httpPost(url, { accountId, amount });
 }
 
+createBooking(data: { phone: string; date: string; time: string; notes?: string; assign_to?: any }) {
+  return this.serviceMeta.httpPost('bookings/book-demo', data);
+}
+
+getBsaReportsBreakdown(params: any): Observable<any> {
+  return this.serviceMeta.httpGet('accounts/bsa-reports-breakdown', null, params);
+}
+markAsLoanEnquiry(id: number): Observable<any> {
+  const url = `social-media-leads/${id}/loan-enquiry`;
+  return this.serviceMeta.httpPut(url, {});
+}
+toggleLoanEnquiry(id: number): Observable<any> {
+  const url = `social-media-leads/${id}/loan-enquiry`;
+  return this.serviceMeta.httpPut(url, {});
+}
 }

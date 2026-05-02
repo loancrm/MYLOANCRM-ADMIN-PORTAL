@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,ViewChild  } from '@angular/core';
 import { CampaignService } from '../../services/campaign.service';
 import { LeadsService } from '../leads/leads.service';
 import { ToastService } from '../../services/toast.service';
@@ -27,7 +27,7 @@ export class CampaignComponent implements OnInit {
   searchFilter: any = {};
 
   platformOptions = [
-    { label: 'All', value: 'ALL' },
+    // { label: 'All', value: 'ALL' },
     { label: 'Facebook', value: 'Facebook' },
     { label: 'Instagram', value: 'Instagram' },
     { label: 'Manual', value: 'Manual' },
@@ -35,11 +35,13 @@ export class CampaignComponent implements OnInit {
     { label: 'Excel Import', value: 'ExcelImport' }
   ];
 
-  selectedPlatform: string = 'ALL';
+  // selectedPlatform: string = 'ALL';
+  selectedPlatforms: string[] = ['Facebook', 'Website'];
   selectedDemoStatus: string = '';
 
   demoStatusOptions = [
     { label: 'All', value: '' },
+    { label: 'Not Demo Booked', value: 'notBooked' }, 
     { label: 'Confirmed', value: 'confirmed' },
     { label: 'Completed', value: 'completed' },
     { label: 'Cancelled', value: 'cancelled' },
@@ -139,14 +141,46 @@ export class CampaignComponent implements OnInit {
   headerMediaUrl: string = '';
   headerMediaFile: File | null = null;
   headerMediaUploadMode: 'url' | 'upload' = 'url';
+  // ── PAGINATION ─────────────────────────────────────────
+  socialMediaTotal = 0;
+  accountsTotal = 0;
+  socialMediaFirst = 0;
+  accountsFirst = 0;
+  pageRows = 10;
+  contactsLoading = false;
 
+@ViewChild('socialMediaTable') socialMediaTable: any;
+@ViewChild('accountsTable') accountsTable: any;
+
+selectedRemark: string = '';
+adminRemarkOptions: { label: string; value: any }[] = [];
+// Add alongside other filter properties
+selectedEnquiryType: string = '';
+
+enquiryTypeOptions = [
+  { label: 'All',          value: '' },
+  { label: 'Loan Enquiry', value: 'loanEnquiry' },
+  { label: 'CRM Enquiry',  value: 'crmEnquiry' },
+];
+selectedAccountRemark: string = '';
+accountRemarkOptions: { label: string; value: any }[] = [];
+// Add alongside other properties
+socialMediaFilterConfig: any[] = [];
+accountsFilterConfig: any[] = [];
+socialMediaAppliedFilter: any = {};
+accountsAppliedFilter: any = {};
   // ── DYNAMIC DB FIELD OPTIONS ───────────────────────────
   get dbFieldOptions() {
     return this.activeTab === 'socialMedia'
       ? this.socialMediaDbFields
       : this.accountsDbFields;
   }
-
+  get remarkFilterOptions(): { label: string; value: any }[] {
+    return [{ label: 'All Remarks', value: '' }, ...this.adminRemarkOptions];
+  }
+  get accountRemarkFilterOptions(): { label: string; value: any }[] {
+    return [{ label: 'All Remarks', value: '' }, ...this.accountRemarkOptions];
+  }
   constructor(
     private campaignService: CampaignService,
     private leadsService: LeadsService,
@@ -159,134 +193,201 @@ export class CampaignComponent implements OnInit {
     this.searchFilter['status-eq'] = 1;
     this.loadSocialMediaLeads();
     this.loadTemplates();
+    this.loadAdminRemarks();
+    this.loadAccountRemarks();
+    this.setSocialMediaFilterConfig();
+this.setAccountsFilterConfig();
   }
 
   // ── TAB SWITCH ─────────────────────────────────────────
+  // switchTab(tab: 'socialMedia' | 'accounts'): void {
+  //   this.activeTab = tab;
+  //   this.selectedContacts = [];
+  //   this.searchText = '';
+  //   this.selectedPlatform = 'ALL';
+  //   this.selectedDemoStatus = '';
+  //   this.selectedRegistrationStatus = '';    // ✅ reset registration filter
+  //   this.searchFilter = {};
+  //   this.contacts = [];
+  //   this.filteredContacts = [];
+
+  //   // ✅ Reset account filters
+  //   this.selectedPlanType = 'ALL';
+  //   this.selectedStatusType = 'ALL';
+  //   this.selectedBillingCycle = 'ALL';
+  //   this.skipRegisteredAccounts = false;    // ✅ reset toggle
+
+  //   if (tab === 'socialMedia') {
+  //     this.searchFilter['status-eq'] = 1;
+  //     this.loadSocialMediaLeads();
+  //   } else {
+  //     this.loadAccounts();
+  //   }
+  // }
   switchTab(tab: 'socialMedia' | 'accounts'): void {
     this.activeTab = tab;
     this.selectedContacts = [];
     this.searchText = '';
-    this.selectedPlatform = 'ALL';
+    // this.selectedPlatform = 'ALL';
+    this.selectedPlatforms = ['Facebook', 'Website'];
     this.selectedDemoStatus = '';
-    this.selectedRegistrationStatus = '';    // ✅ reset registration filter
+    this.selectedRegistrationStatus = '';
     this.searchFilter = {};
     this.contacts = [];
     this.filteredContacts = [];
+    this.socialMediaTotal = 0;
+    this.accountsTotal = 0;
 
-    // ✅ Reset account filters
     this.selectedPlanType = 'ALL';
     this.selectedStatusType = 'ALL';
     this.selectedBillingCycle = 'ALL';
-    this.skipRegisteredAccounts = false;    // ✅ reset toggle
+    this.skipRegisteredAccounts = false;
+    this.selectedRemark = '';
+    this.selectedEnquiryType = '';
+    this.selectedAccountRemark = '';
+    
 
     if (tab === 'socialMedia') {
-      this.searchFilter['status-eq'] = 1;
-      this.loadSocialMediaLeads();
+      this.loadSocialMediaLeads({ first: 0, rows: 10 });
     } else {
-      this.loadAccounts();
+      this.loadAccounts({ first: 0, rows: 10 });
     }
   }
 
-  // ── LOAD SOCIAL MEDIA LEADS ────────────────────────────
-  loadSocialMediaLeads(): void {
-    this.loading = true;
 
-    // ✅ Pass registrationStatus filter to backend
-    const filter: any = { ...this.searchFilter };
-    if (this.selectedRegistrationStatus) {
-      filter['registrationStatus'] = this.selectedRegistrationStatus;
-    }
+loadSocialMediaLeads(event: any = { first: 0, rows: 10 }): void {
+  this.contactsLoading = true;
+  const filter: any = { ...this.searchFilter };
+  filter['status-eq'] = 1;
+  filter['from']  = event.first ?? 0;
+  filter['count'] = event.rows  ?? 10;
 
-    this.leadsService.getSocialMediaLeads(filter).subscribe(
-      (data: any) => {
-        this.contacts = data.map((lead: any) => ({
-          name: lead.Name || '',
-          mobileNumber: lead.PhoneNumber || '',
-          email: lead.Email || '',
-          city: lead.City || '',
-          company: lead.Company || '',
-          state: lead.State || '',
-          platform: lead.Platform || '',
-          isRegistered: lead.isRegistered || false,   // ✅ backend sends this flag
-        }));
-        this.filteredContacts = this.contacts;
-        this.loading = false;
-      },
-      () => {
-        this.errorMsg = 'Failed to load social media leads';
-        this.loading = false;
-      }
-    );
+  if (this.selectedRegistrationStatus) {
+    filter['registrationStatus'] = this.selectedRegistrationStatus;
   }
+  if (this.selectedPlatforms && this.selectedPlatforms.length > 0) {
+    filter['Platform-eq'] = this.selectedPlatforms.join(',');
+  }
+  if (this.selectedDemoStatus) {
+    filter['demoStatus-eq'] = this.selectedDemoStatus;
+  }
+  if (this.selectedRemark) {
+    filter['remarkId-eq'] = this.selectedRemark;
+  }
+  if (this.selectedEnquiryType) {
+    filter['enquiryType-eq'] = this.selectedEnquiryType;
+  }
+
+  // ✅ Also merge any applied filter from app-filter panel
+  Object.keys(this.socialMediaAppliedFilter).forEach(key => {
+    const val = this.socialMediaAppliedFilter[key];
+    if (val !== undefined && val !== null && val !== '') {
+      filter[key] = val;
+    }
+  });
+
+  this.leadsService.getSocilaMediaCount(filter).subscribe((count: any) => {
+    this.socialMediaTotal = Number(count) || 0;
+  });
+
+  this.leadsService.getSocialMediaLeads(filter).subscribe(
+    (data: any) => {
+      this.contacts = data.map((lead: any) => ({
+        name:         lead.Name         || '',
+        mobileNumber: lead.PhoneNumber  || '',
+        email:        lead.Email        || '',
+        city:         lead.City         || '',
+        company:      lead.Company      || '',
+        state:        lead.State        || '',
+        platform:     lead.Platform     || '',
+        isRegistered: lead.isRegistered || false,
+        id:           lead.id,
+      }));
+      this.filteredContacts  = this.contacts;
+      this.contactsLoading   = false;
+    },
+    () => {
+      this.errorMsg        = 'Failed to load social media leads';
+      this.contactsLoading = false;
+    }
+  );
+}
 
   // ── LOAD ACCOUNTS ──────────────────────────────────────
-  loadAccounts(): void {
-    this.loading = true;
 
-    const filter: any = { ...this.searchFilter };
-    filter['status-eq'] = 1;
+  loadAccounts(event: any = { first: 0, rows: 10 }): void {
+  this.contactsLoading = true;
+  const filter: any = { ...this.searchFilter };
+  filter['status-eq'] = 1;
+  filter['from']  = event.first ?? 0;
+  filter['count'] = event.rows  ?? 10;
 
-    if (this.selectedPlanType && this.selectedPlanType !== 'ALL') {
-      filter['latest_plan_name-eq'] = this.selectedPlanType;
-    }
-    if (this.selectedStatusType && this.selectedStatusType !== 'ALL') {
-      filter['latest_status-eq'] = this.selectedStatusType;
-    }
-    if (this.selectedBillingCycle && this.selectedBillingCycle !== 'ALL') {
-      filter['latest_billing_cycle-eq'] = this.selectedBillingCycle;
-    }
-
-    this.leadsService.getAccounts(filter).subscribe(
-      (data: any) => {
-        this.contacts = data.map((acc: any) => ({
-          name: acc.name || '',
-          businessName: acc.businessName || '',
-          mobileNumber: acc.mobile || '',
-          email: acc.emailId || '',
-          city: acc.city || '',
-          accountId: acc.accountId || '',
-          walletBalance: acc.walletBalance || '',
-          createdOn: acc.createdOn || '',
-          latest_plan_name: acc.latest_plan_name || '',
-          latest_status: acc.latest_status || '',
-          latest_billing_cycle: acc.latest_billing_cycle || '',
-          start_date: acc.start_date || '',
-          end_date: acc.end_date || '',
-        }));
-        this.filteredContacts = this.contacts;
-        this.loading = false;
-      },
-      () => {
-        this.errorMsg = 'Failed to load accounts';
-        this.loading = false;
-      }
-    );
+  if (this.selectedPlanType && this.selectedPlanType !== 'ALL') {
+    filter['latest_plan_name-eq'] = this.selectedPlanType;
+  }
+  if (this.selectedStatusType && this.selectedStatusType !== 'ALL') {
+    filter['latest_status-eq'] = this.selectedStatusType;
+  }
+  if (this.selectedBillingCycle && this.selectedBillingCycle !== 'ALL') {
+    filter['latest_billing_cycle-eq'] = this.selectedBillingCycle;
+  }
+  if (this.selectedAccountRemark) {
+    filter['remarkId-eq'] = this.selectedAccountRemark;
   }
 
-  // ── APPLY FILTERS ──────────────────────────────────────
+  // ✅ Also merge any applied filter from app-filter panel
+  Object.keys(this.accountsAppliedFilter).forEach(key => {
+    const val = this.accountsAppliedFilter[key];
+    if (val !== undefined && val !== null && val !== '') {
+      filter[key] = val;
+    }
+  });
+
+  this.leadsService.getAccountsCount(filter).subscribe((count: any) => {
+    this.accountsTotal = Number(count) || 0;
+  });
+
+  this.leadsService.getAccounts(filter).subscribe(
+    (data: any) => {
+      this.contacts = data.map((acc: any) => ({
+        name:                acc.name             || '',
+        businessName:        acc.businessName     || '',
+        mobileNumber:        acc.mobile           || '',
+        email:               acc.emailId          || '',
+        city:                acc.city             || '',
+        accountId:           acc.accountId        || '',
+        walletBalance:       acc.walletBalance    || '',
+        createdOn:           acc.createdOn        || '',
+        latest_plan_name:    acc.latest_plan_name || '',
+        latest_status:       acc.latest_status    || '',
+        latest_billing_cycle: acc.latest_billing_cycle || '',
+        start_date:          acc.start_date       || '',
+        end_date:            acc.end_date         || '',
+      }));
+      this.filteredContacts  = this.contacts;
+      this.contactsLoading   = false;
+    },
+    () => {
+      this.errorMsg        = 'Failed to load accounts';
+      this.contactsLoading = false;
+    }
+  );
+}
   applyFilters(): void {
-    delete this.searchFilter['search'];
-    delete this.searchFilter['Platform-eq'];
-    delete this.searchFilter['demoStatus-eq'];
-    delete this.searchFilter['status-eq'];
+  delete this.searchFilter['search'];
 
-    if (this.searchText?.trim()) {
-      this.searchFilter['search'] = this.searchText;
-    }
-
-    if (this.activeTab === 'socialMedia') {
-      if (this.selectedPlatform && this.selectedPlatform !== 'ALL') {
-        this.searchFilter['Platform-eq'] = this.selectedPlatform;
-      }
-      if (this.selectedDemoStatus) {
-        this.searchFilter['demoStatus-eq'] = this.selectedDemoStatus;
-      }
-      this.searchFilter['status-eq'] = 1;
-      this.loadSocialMediaLeads();       // ✅ registrationStatus handled inside loadSocialMediaLeads
-    } else {
-      this.loadAccounts();
-    }
+  if (this.searchText?.trim()) {
+    this.searchFilter['search'] = this.searchText;
   }
+
+  if (this.activeTab === 'socialMedia') {
+    if (this.socialMediaTable) this.socialMediaTable.first = 0;
+    this.loadSocialMediaLeads({ first: 0, rows: 10 });
+  } else {
+    if (this.accountsTable) this.accountsTable.first = 0;
+    this.loadAccounts({ first: 0, rows: 10 });
+  }
+}
 
   // ── LOAD TEMPLATES ─────────────────────────────────────
   loadTemplates(): void {
@@ -539,4 +640,151 @@ export class CampaignComponent implements OnInit {
   goBack() {
     this.location.back();
   }
+
+//   loadAdminRemarks(): void {
+//   const filter = { 'status-eq': 3, 'remarkInternalStatus-eq': 1 };
+//   this.leadsService.getAdminRemarks(filter).subscribe(
+//     (data: any) => {
+//       this.adminRemarkOptions = data.map((r: any) => ({
+//         label: r.displayName,
+//         value: String(r.remarkId),
+//       }));
+//     },
+//     () => {}
+//   );
+// }
+// loadAccountRemarks(): void {
+//   const filter = { 'status-eq': 1, 'remarkInternalStatus-eq': 1 };
+//   this.leadsService.getAdminRemarks(filter).subscribe(
+//     (data: any) => {
+//       this.accountRemarkOptions = data.map((r: any) => ({
+//         label: r.displayName,
+//         value: String(r.remarkId),
+//       }));
+//     },
+//     () => {}
+//   );
+// }
+
+loadAdminRemarks(): void {
+  const filter = { 'status-eq': 3, 'remarkInternalStatus-eq': 1 };
+  this.leadsService.getAdminRemarks(filter).subscribe(
+    (data: any) => {
+      this.adminRemarkOptions = data.map((r: any) => ({
+        label: r.displayName,
+        value: String(r.remarkId),
+      }));
+
+      // ✅ Update remarks options in filter configs
+      const remarkOptions = [
+        { label: 'All', value: '' },
+        ...this.adminRemarkOptions
+      ];
+      const smRemarkField = this.socialMediaFilterConfig
+        .find(c => c.header === 'Remarks')?.data?.[0];
+      if (smRemarkField) smRemarkField.options = remarkOptions;
+    },
+    () => {}
+  );
+}
+
+loadAccountRemarks(): void {
+  const filter = { 'status-eq': 1, 'remarkInternalStatus-eq': 1 };
+  this.leadsService.getAdminRemarks(filter).subscribe(
+    (data: any) => {
+      this.accountRemarkOptions = data.map((r: any) => ({
+        label: r.displayName,
+        value: String(r.remarkId),
+      }));
+
+      // ✅ Update remarks options in accounts filter config
+      const remarkOptions = [
+        { label: 'All', value: '' },
+        ...this.accountRemarkOptions
+      ];
+      const accRemarkField = this.accountsFilterConfig
+        .find(c => c.header === 'Remarks')?.data?.[0];
+      if (accRemarkField) accRemarkField.options = remarkOptions;
+    },
+    () => {}
+  );
+}
+
+setSocialMediaFilterConfig(): void {
+  this.socialMediaFilterConfig = [
+    {
+      header: 'Demo Status',
+      data: [{ field: 'demoStatus', title: 'Demo Status', type: 'dropdown', filterType: 'eq',
+        options: [
+          { label: 'All', value: '' },
+          { label: 'Not Demo Booked', value: 'notBooked' },
+          { label: 'Confirmed', value: 'confirmed' },
+          { label: 'Completed', value: 'completed' },
+          { label: 'Cancelled', value: 'cancelled' },
+          { label: 'Rescheduled', value: 'rescheduled' },
+        ]
+      }]
+    },
+    {
+      header: 'Registration Status',
+      data: [{ field: 'registrationStatus', title: 'Registration Status', type: 'dropdown', filterType: 'eq',
+        options: [
+          { label: 'All', value: '' },
+          { label: 'Not Registered', value: 'notRegistered' },
+          { label: 'Registered', value: 'registered' },
+        ]
+      }]
+    },
+    {
+      header: 'Enquiry Type',
+      data: [{ field: 'enquiryType', title: 'Enquiry Type', type: 'dropdown', filterType: 'eq',
+        options: [
+          { label: 'All', value: '' },
+          { label: 'Loan Enquiry', value: 'loanEnquiry' },
+          { label: 'CRM Enquiry', value: 'crmEnquiry' },
+        ]
+      }]
+    },
+    {
+      header: 'Remarks',
+      data: [{ field: 'remarkId', title: 'Remarks', type: 'dropdown', filterType: 'eq',
+        options: [] // loaded dynamically
+      }]
+    },
+  ];
+}
+
+setAccountsFilterConfig(): void {
+  this.accountsFilterConfig = [
+    {
+      header: 'Remarks',
+      data: [{ field: 'remarkId-eq', title: 'Remarks', type: 'dropdown', filterType: 'eq',
+        options: [] // loaded dynamically
+      }]
+    },
+  ];
+}
+
+applySocialMediaConfigFilters(event: any): void {
+  console.log('Filter event received:', event);
+  if (event['reset']) {
+    delete event['reset'];
+    this.socialMediaAppliedFilter = {};
+  } else {
+    this.socialMediaAppliedFilter = { ...event };
+  }
+  if (this.socialMediaTable) this.socialMediaTable.first = 0;
+  this.loadSocialMediaLeads({ first: 0, rows: 10 });
+}
+
+applyAccountsConfigFilters(event: any): void {
+  if (event['reset']) {
+    delete event['reset'];
+    this.accountsAppliedFilter = {};
+  } else {
+    this.accountsAppliedFilter = { ...event };
+  }
+  if (this.accountsTable) this.accountsTable.first = 0;
+  this.loadAccounts({ first: 0, rows: 10 });
+}
 }
