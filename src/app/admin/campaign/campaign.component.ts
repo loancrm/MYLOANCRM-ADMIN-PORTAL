@@ -253,14 +253,28 @@ this.setAccountsFilterConfig();
       this.loadAccounts({ first: 0, rows: 10 });
     }
   }
-
-
 loadSocialMediaLeads(event: any = { first: 0, rows: 10 }): void {
   this.contactsLoading = true;
-  const filter: any = { ...this.searchFilter };
-  filter['status-eq'] = 1;
-  filter['from']  = event.first ?? 0;
-  filter['count'] = event.rows  ?? 10;
+
+  const start  = event.first ?? 0;
+  const length = event.rows  ?? 10;
+
+  let sortField = 'CreatedOn';
+  let sortOrder = 'desc';
+
+  if (event.sortField) {
+    sortField = event.sortField;
+    sortOrder = event.sortOrder === 1 ? 'asc' : 'desc';
+  }
+
+  const filter: any = {
+    ...this.searchFilter,
+    start,
+    length,
+    sort:  sortField,
+    order: sortOrder,
+    'status-eq': 1,
+  };
 
   if (this.selectedRegistrationStatus) {
     filter['registrationStatus'] = this.selectedRegistrationStatus;
@@ -278,7 +292,7 @@ loadSocialMediaLeads(event: any = { first: 0, rows: 10 }): void {
     filter['enquiryType-eq'] = this.selectedEnquiryType;
   }
 
-  // ✅ Also merge any applied filter from app-filter panel
+  // Merge app-filter panel filters
   Object.keys(this.socialMediaAppliedFilter).forEach(key => {
     const val = this.socialMediaAppliedFilter[key];
     if (val !== undefined && val !== null && val !== '') {
@@ -286,7 +300,14 @@ loadSocialMediaLeads(event: any = { first: 0, rows: 10 }): void {
     }
   });
 
-  this.leadsService.getSocilaMediaCount(filter).subscribe((count: any) => {
+  // Count query — send same filter WITHOUT pagination params
+  const countFilter = { ...filter };
+  delete countFilter['start'];
+  delete countFilter['length'];
+  delete countFilter['sort'];
+  delete countFilter['order'];
+
+  this.leadsService.getSocilaMediaCount(countFilter).subscribe((count: any) => {
     this.socialMediaTotal = Number(count) || 0;
   });
 
@@ -303,8 +324,8 @@ loadSocialMediaLeads(event: any = { first: 0, rows: 10 }): void {
         isRegistered: lead.isRegistered || false,
         id:           lead.id,
       }));
-      this.filteredContacts  = this.contacts;
-      this.contactsLoading   = false;
+      this.filteredContacts = this.contacts;
+      this.contactsLoading  = false;
     },
     () => {
       this.errorMsg        = 'Failed to load social media leads';

@@ -222,16 +222,56 @@ socialMediaAppliedFilter: any = {};
   // }
 
   loadsocialmediaLeads(event: any) {
-    // console.log('TABLE EVENT:', event);
-    this.currentTableEvent = event;
-    let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
-    api_filter = Object.assign({}, api_filter, this.searchFilter, this.appliedFilter);
-      console.log('API Filter being sent:', api_filter);
-    if (api_filter) {
-      this.getSocilaMediaCount(api_filter);
-      this.getSocialMediaLeads(api_filter);
-    }
+  this.currentTableEvent = event;
+
+  // ── Build base pagination + sort params ─────────────────
+  const start  = event.first ?? 0;
+  const length = event.rows  ?? 10;
+
+  let sortField = 'CreatedOn'; // default
+  let sortOrder = 'desc';      // default
+
+  if (event.sortField) {
+    sortField = event.sortField;
+    sortOrder = event.sortOrder === 1 ? 'asc' : 'desc';
   }
+
+  const baseParams: any = {
+    start,
+    length,
+    sort:  sortField,
+    order: sortOrder,
+  };
+
+  // ── Merge with column filters from PrimeNG ───────────────
+  let columnFilters: any = {};
+  if (event.filters) {
+    Object.keys(event.filters).forEach(key => {
+      const filterMeta = event.filters[key];
+      const filterArr  = Array.isArray(filterMeta) ? filterMeta : [filterMeta];
+      filterArr.forEach((f: any) => {
+        if (f.value !== null && f.value !== undefined && f.value !== '') {
+          columnFilters[key] = f.value;
+        }
+      });
+    });
+  }
+
+  // ── Merge everything: base → column filters → search → applied ──
+  const api_filter = Object.assign(
+    {},
+    baseParams,
+    columnFilters,
+    this.searchFilter,
+    this.appliedFilter
+  );
+
+  console.log('API Filter being sent:', api_filter);
+
+  this.getSocilaMediaCount(api_filter);
+  this.getSocialMediaLeads(api_filter);
+}
+
 
   getSocialMediaLeads(filter = {}) {
   this.apiLoading = true;
@@ -693,6 +733,7 @@ private saveFiltersToStorage(): void {
     selectedStatus:              this.selectedStatus,
     selectedRegistrationStatus:  this.selectedRegistrationStatus,
     selectedEnquiryType:         this.selectedEnquiryType,
+    selectedDemoStatus:          this.selectedDemoStatus,
   };
   this.localStorageService.setItemOnLocalStorage(this.FILTER_STORAGE_KEY, filters);
 }
@@ -703,7 +744,9 @@ private loadFiltersFromStorage(): void {
   this.selectedPlatforms          = stored.selectedPlatforms          ?? ['Facebook', 'Website'];
   this.selectedStatus             = stored.selectedStatus             ?? 1;
   this.selectedRegistrationStatus = stored.selectedRegistrationStatus ?? '';
-  this.selectedEnquiryType = '';
+  // this.selectedEnquiryType = '';
+  this.selectedEnquiryType        = stored.selectedEnquiryType        ?? '';  // ✅ also fix this
+  this.selectedDemoStatus         = stored.selectedDemoStatus         ?? '';  // ✅ ADD THIS
 }
 
 openBookDemoDialog(lead: any): void {
@@ -864,7 +907,7 @@ setSocialMediaFilterConfig(): void {
   this.socialMediaFilterConfig = [
     {
       header: 'Demo Status',
-      data: [{ field: 'demoStatus-eq', title: 'Demo Status', type: 'dropdown', filterType: 'eq',
+      data: [{ field: 'demoStatus', title: 'Demo Status', type: 'dropdown', filterType: 'eq',
         options: [
           { label: 'All', value: '' },
           { label: 'Not Demo Booked', value: 'notBooked' },
@@ -898,56 +941,13 @@ setSocialMediaFilterConfig(): void {
   ];
 }
 
-// setSocialMediaFilterConfig(): void {
-//   this.socialMediaFilterConfig = [
-//     {
-//       header: 'Demo Status',
-//       data: [{ field: 'demoStatus', title: 'Demo Status', type: 'dropdown', filterType: 'eq',
-//         options: [
-//           { label: 'All', value: '' },
-//           { label: 'Not Demo Booked', value: 'notBooked' },
-//           { label: 'Confirmed', value: 'confirmed' },
-//           { label: 'Completed', value: 'completed' },
-//           { label: 'Cancelled', value: 'cancelled' },
-//           { label: 'Rescheduled', value: 'rescheduled' },
-//         ]
-//       }]
-//     },
-//     {
-//       header: 'Registration Status',
-//       data: [{ field: 'registrationStatus', title: 'Registration Status', type: 'dropdown', filterType: 'eq',
-//         options: [
-//           { label: 'All', value: '' },
-//           { label: 'Not Registered', value: 'notRegistered' },
-//           { label: 'Registered', value: 'registered' },
-//         ]
-//       }]
-//     },
-//     {
-//       header: 'Enquiry Type',
-//       data: [{ field: 'enquiryType', title: 'Enquiry Type', type: 'dropdown', filterType: 'eq',
-//         options: [
-//           { label: 'All', value: '' },
-//           { label: 'Loan Enquiry', value: 'loanEnquiry' },
-//           { label: 'CRM Enquiry', value: 'crmEnquiry' },
-//         ]
-//       }]
-//     },
-//     {
-//       header: 'Remarks',
-//       data: [{ field: 'remarkId', title: 'Remarks', type: 'dropdown', filterType: 'eq',
-//         options: [] // loaded dynamically
-//       }]
-//     },
-//   ];
-// }
 
 applySocialMediaConfigFilters(event: any): void {
+  // console.log('Filter event received:', event); 
   if (event['reset']) {
     delete event['reset'];
     this.socialMediaAppliedFilter = {};
-    // ✅ Reset individual filter values too
-    this.selectedDemoStatus = '';
+    this.selectedDemoStatus = '';           // ✅ sync UI dropdown
     this.selectedRegistrationStatus = '';
     this.selectedEnquiryType = '';
     this.selectedRemark = '';
@@ -955,29 +955,39 @@ applySocialMediaConfigFilters(event: any): void {
     delete this.appliedFilter['registrationStatus'];
     delete this.appliedFilter['enquiryType-eq'];
     delete this.appliedFilter['remarkId-eq'];
+    this.saveFiltersToStorage();            // ✅ ADD THIS
   } else {
     this.socialMediaAppliedFilter = { ...event };
-    // ✅ Sync to appliedFilter so loadsocialmediaLeads picks them up
+
     if (event['demoStatus-eq']) {
       this.appliedFilter['demoStatus-eq'] = event['demoStatus-eq'];
+      this.selectedDemoStatus = event['demoStatus-eq'];   // ✅ sync UI dropdown
     } else {
       delete this.appliedFilter['demoStatus-eq'];
+      this.selectedDemoStatus = '';
     }
+
     if (event['registrationStatus']) {
       this.appliedFilter['registrationStatus'] = event['registrationStatus'];
     } else {
       delete this.appliedFilter['registrationStatus'];
     }
+
     if (event['enquiryType-eq']) {
       this.appliedFilter['enquiryType-eq'] = event['enquiryType-eq'];
+      this.selectedEnquiryType = event['enquiryType-eq'];  // ✅ sync UI dropdown
     } else {
       delete this.appliedFilter['enquiryType-eq'];
+      this.selectedEnquiryType = '';
     }
+
     if (event['remarkId-eq']) {
       this.appliedFilter['remarkId-eq'] = event['remarkId-eq'];
     } else {
       delete this.appliedFilter['remarkId-eq'];
     }
+
+    this.saveFiltersToStorage();   // ✅ ADD THIS
   }
   this.reloadTable();
 }

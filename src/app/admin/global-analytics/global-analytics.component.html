@@ -1805,6 +1805,7 @@
           <th class="text-center">Pending</th>
           <th class="text-center">In Progress</th>
           <th class="text-center">Failed</th>
+          <th class="text-center">On Hold</th>
           <!-- <th class="text-center">Unique Leads</th>
           <th class="text-nowrap">Last Report</th> -->
         </tr>
@@ -1854,6 +1855,14 @@
               *ngIf="acc.failedReports > 0"
             >{{ acc.failedReports }}</span>
             <span *ngIf="acc.failedReports === 0" style="color:#ccc;">—</span>
+          </td>
+          <td class="text-center">
+            <span
+              class="cibil-mini-badge"
+              style="background:#F1EFE8; color:#5F5E5A;"
+              *ngIf="acc.onHoldReports > 0"
+            >{{ acc.onHoldReports }}</span>
+            <span *ngIf="acc.onHoldReports === 0" style="color:#ccc;">—</span>
           </td>
  
           <!-- <td class="text-center">

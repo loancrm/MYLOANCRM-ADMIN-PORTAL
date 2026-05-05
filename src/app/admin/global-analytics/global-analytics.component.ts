@@ -180,6 +180,7 @@ bsaGrandAnalysed       = 0;
 bsaGrandPending        = 0;
 bsaGrandInProgress     = 0;
 bsaGrandFailed         = 0;
+bsaGrandOnHold: number = 0;
 bsaGrandAccounts       = 0;
 bsaStatusSummary: any[]= [];
 bsaSearch              = '';
@@ -1207,6 +1208,7 @@ onBsaLazyLoad(event: any): void {
         this.bsaGrandPending   = res.grandPending   || 0;
         this.bsaGrandInProgress= res.grandInProgress|| 0;
         this.bsaGrandFailed    = res.grandFailed    || 0;
+        this.bsaGrandOnHold     = res.grandOnHold      || 0;
         this.bsaGrandAccounts  = res.grandAccounts  || 0;
         this.bsaStatusSummary  = res.statusSummary  || [];
       }
@@ -1239,6 +1241,7 @@ getBsaStatusColor(status: string): string {
     'IN_PROGRESS': '#185FA5',
     'FAILED':      '#A32D2D',
     'TIMEOUT':     '#6B21A8',
+    'ANALYSIS ON HOLD':  '#5F5E5A', 
   };
   return map[status] || '#534AB7';
 }
@@ -1250,6 +1253,7 @@ getBsaStatusBg(status: string): string {
     'IN_PROGRESS': '#E6F1FB',
     'FAILED':      '#FCEBEB',
     'TIMEOUT':     '#F3E8FF',
+    'ANALYSIS ON HOLD':  '#F1EFE8',
   };
   return map[status] || '#EEEDFE';
 }
@@ -1261,6 +1265,7 @@ getBsaStatusIcon(status: string): string {
     'IN_PROGRESS': 'pi-spin pi-spinner',
     'FAILED':      'pi-times-circle',
     'TIMEOUT':     'pi-exclamation-triangle',
+    'ANALYSIS ON HOLD':  'pi-pause-circle',
   };
   return map[status] || 'pi-file';
 }
