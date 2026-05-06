@@ -368,179 +368,298 @@ if (this.selectedRemarkFilter && this.selectedRemarkFilter !== 'ALL') {
     this.routingService.handleRoute('accounts/profile/' + lead.accountId, null);
   }
   setFilterConfig() {
-    const followupDateRangeFilter = () => [
-      { field: 'followupDate', title: 'From', type: 'date', filterType: 'gte' },
-      { field: 'followupDate', title: 'To', type: 'date', filterType: 'lte' },
-    ];
-    this.filterConfig = [
-      {
-        header: 'Account Id',
-        data: [
-          {
-            field: 'accountId',
-            title: 'Account Id',
-            type: 'text',
-            filterType: 'like',
-          },
-        ],
-      },
-      {
-        header: 'Name',
-        data: [
-          {
-            field: 'name',
-            title: 'Name',
-            type: 'text',
-            filterType: 'like',
-          },
-        ],
-      },
-      {
-        header: 'Latest Plan',
-        data: [
-          {
-            field: 'latest_plan_name',
-            title: 'Plan',
-            type: 'text',
-            filterType: 'like',
-          },
-        ],
-      },
-      {
-        header: 'Latest Status',
-        data: [
-          {
-            field: 'latest_status',
-            title: 'Status',
-            type: 'text',
-            filterType: 'like',
-          },
-        ],
-      },
-      {
-        header: 'Latest Remark',
-        data: [
-          {
-            field: 'latest_remark',
-            title: 'Latest Remark',
-            type: 'text',
-            filterType: 'like',
-          },
-        ],
-      },
+  const followupDateRangeFilter = () => [
+    { field: 'followupDate', title: 'From', type: 'date', filterType: 'gte' },
+    { field: 'followupDate', title: 'To',   type: 'date', filterType: 'lte' },
+  ];
 
-      {
-        header: 'Mobile',
-        data: [
-          {
-            field: 'mobile',
-            title: 'Mobile',
-            type: 'text',
-            filterType: 'like',
-          },
-        ],
-      },
-      {
-        header: 'Email ID',
-        data: [
-          {
-            field: 'emailId',
-            title: 'Email ID',
-            type: 'text',
-            filterType: 'like',
-          },
-        ],
-      },
-      {
-        header: 'City',
-        data: [
-          {
-            field: 'city',
-            title: 'City',
-            type: 'text',
-            filterType: 'like',
-          },
-        ],
-      },
-      // {
-      //   header: 'Plan',
-      //   data: [
-      //     {
-      //       field: 'latest_plan_name',
-      //       title: 'Plan',
-      //       type: 'text',
-      //       filterType: 'like',
-      //     },
-      //   ],
-      // },
-      // {
-      //   header: 'Status',
-      //   data: [
-      //     {
-      //       field: 'latest_status',
-      //       title: 'Status',
-      //       type: 'text',
-      //       filterType: 'like',
-      //     },
-      //   ],
-      // },
-      { header: 'FollowUp Date Range', data: followupDateRangeFilter() },
+  this.filterConfig = [
+    // ── existing filters ──────────────────────────────────
+    {
+      header: 'Account Id',
+      data: [{ field: 'accountId', title: 'Account Id', type: 'text', filterType: 'like' }],
+    },
+    {
+      header: 'Name',
+      data: [{ field: 'name', title: 'Name', type: 'text', filterType: 'like' }],
+    },
+    {
+      header: 'Mobile',
+      data: [{ field: 'mobile', title: 'Mobile', type: 'text', filterType: 'like' }],
+    },
+    {
+      header: 'Email ID',
+      data: [{ field: 'emailId', title: 'Email ID', type: 'text', filterType: 'like' }],
+    },
+    {
+      header: 'City',
+      data: [{ field: 'city', title: 'City', type: 'text', filterType: 'like' }],
+    },
+    {
+      header: 'Latest Plan',
+      data: [{ field: 'latest_plan_name', title: 'Plan', type: 'text', filterType: 'like' }],
+    },
+    {
+      header: 'Latest Status',
+      data: [{ field: 'latest_status', title: 'Status', type: 'text', filterType: 'like' }],
+    },
+    {
+      header: 'Latest Remark',
+      data: [{ field: 'latest_remark', title: 'Latest Remark', type: 'text', filterType: 'like' }],
+    },
+    { header: 'FollowUp Date Range', data: followupDateRangeFilter() },
+    {
+      header: 'Date Range',
+      data: [
+        { field: 'createdOn', title: 'From', type: 'date', filterType: 'gte' },
+        { field: 'createdOn', title: 'To',   type: 'date', filterType: 'lte' },
+      ],
+    },
+    {
+      header: 'Last Updated Date Range',
+      data: [
+        { field: 'updatedOn', title: 'From', type: 'date', filterType: 'gte' },
+        { field: 'updatedOn', title: 'To',   type: 'date', filterType: 'lte' },
+      ],
+    },
+    {
+      header: 'Expired Date Range',
+      data: [
+        { field: 'end_date', title: 'From', type: 'date', filterType: 'gte' },
+        { field: 'end_date', title: 'To',   type: 'date', filterType: 'lte' },
+      ],
+    },
 
-      {
-        header: 'Date Range',
-        data: [
-          {
-            field: 'createdOn',
-            title: 'From',
-            type: 'date',
-            filterType: 'gte',
-          },
-          {
-            field: 'createdOn',
-            title: 'To',
-            type: 'date',
-            filterType: 'lte',
-          },
+    // ── NEW: Pack completed period (days until end_date expires) ──
+    {
+      header: 'Pack Expiry (days left)',
+      data: [{
+        field: 'daysUntilExpiry',
+        title: 'Days Until Expiry',
+        type: 'dropdown',
+        filterType: 'eq',
+        options: [
+          { label: 'All',        value: '' },
+          { label: '5 days',     value: '5' },
+          { label: '10 days',    value: '10' },
+          { label: '15 days',    value: '15' },
+          { label: '20 days',    value: '20' },
+          { label: '28 days',    value: '28' },
+          { label: 'Expired',    value: 'expired' },
         ],
-      },
+      }],
+    },
 
-      {
-        header: 'Last Updated Date Range',
-        data: [
-          {
-            field: 'updatedOn',
-            title: 'From',
-            type: 'date',
-            filterType: 'gte',
-          },
-          {
-            field: 'updatedOn',
-            title: 'To',
-            type: 'date',
-            filterType: 'lte',
-          },
+    // ── NEW: Inactive period (days since last activity log) ──
+    {
+      header: 'Inactive Since (days)',
+      data: [{
+        field: 'inactiveDays',
+        title: 'Inactive Since',
+        type: 'dropdown',
+        filterType: 'eq',
+        options: [
+          { label: 'All',     value: '' },
+          { label: '5 days',  value: '5' },
+          { label: '10 days', value: '10' },
+          { label: '15 days', value: '15' },
+          { label: '20 days', value: '20' },
+          { label: '28 days', value: '28' },
         ],
-      },
+      }],
+    },
 
-      {
-        header: 'Expired Date Range',
-        data: [
-          {
-            field: 'end_date',
-            title: 'From',
-            type: 'date',
-            filterType: 'gte',
-          },
-          {
-            field: 'end_date',
-            title: 'To',
-            type: 'date',
-            filterType: 'lte',
-          },
+    // ── NEW: Feature activity (active/inactive in last 7 days) ──
+    {
+      header: 'Feature Activity',
+      data: [{
+        field: 'featureActivity',
+        title: 'Feature Activity',
+        type: 'dropdown',
+        filterType: 'eq',
+        options: [
+          { label: 'All',      value: '' },
+          { label: 'Active',   value: 'active' },
+          { label: 'Inactive', value: 'inactive' },
         ],
-      },
-    ];
-  }
+      }],
+    },
+  ];
+}
+  // setFilterConfig() {
+  //   const followupDateRangeFilter = () => [
+  //     { field: 'followupDate', title: 'From', type: 'date', filterType: 'gte' },
+  //     { field: 'followupDate', title: 'To', type: 'date', filterType: 'lte' },
+  //   ];
+  //   this.filterConfig = [
+  //     {
+  //       header: 'Account Id',
+  //       data: [
+  //         {
+  //           field: 'accountId',
+  //           title: 'Account Id',
+  //           type: 'text',
+  //           filterType: 'like',
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       header: 'Name',
+  //       data: [
+  //         {
+  //           field: 'name',
+  //           title: 'Name',
+  //           type: 'text',
+  //           filterType: 'like',
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       header: 'Latest Plan',
+  //       data: [
+  //         {
+  //           field: 'latest_plan_name',
+  //           title: 'Plan',
+  //           type: 'text',
+  //           filterType: 'like',
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       header: 'Latest Status',
+  //       data: [
+  //         {
+  //           field: 'latest_status',
+  //           title: 'Status',
+  //           type: 'text',
+  //           filterType: 'like',
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       header: 'Latest Remark',
+  //       data: [
+  //         {
+  //           field: 'latest_remark',
+  //           title: 'Latest Remark',
+  //           type: 'text',
+  //           filterType: 'like',
+  //         },
+  //       ],
+  //     },
+
+  //     {
+  //       header: 'Mobile',
+  //       data: [
+  //         {
+  //           field: 'mobile',
+  //           title: 'Mobile',
+  //           type: 'text',
+  //           filterType: 'like',
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       header: 'Email ID',
+  //       data: [
+  //         {
+  //           field: 'emailId',
+  //           title: 'Email ID',
+  //           type: 'text',
+  //           filterType: 'like',
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       header: 'City',
+  //       data: [
+  //         {
+  //           field: 'city',
+  //           title: 'City',
+  //           type: 'text',
+  //           filterType: 'like',
+  //         },
+  //       ],
+  //     },
+  //     // {
+  //     //   header: 'Plan',
+  //     //   data: [
+  //     //     {
+  //     //       field: 'latest_plan_name',
+  //     //       title: 'Plan',
+  //     //       type: 'text',
+  //     //       filterType: 'like',
+  //     //     },
+  //     //   ],
+  //     // },
+  //     // {
+  //     //   header: 'Status',
+  //     //   data: [
+  //     //     {
+  //     //       field: 'latest_status',
+  //     //       title: 'Status',
+  //     //       type: 'text',
+  //     //       filterType: 'like',
+  //     //     },
+  //     //   ],
+  //     // },
+  //     { header: 'FollowUp Date Range', data: followupDateRangeFilter() },
+
+  //     {
+  //       header: 'Date Range',
+  //       data: [
+  //         {
+  //           field: 'createdOn',
+  //           title: 'From',
+  //           type: 'date',
+  //           filterType: 'gte',
+  //         },
+  //         {
+  //           field: 'createdOn',
+  //           title: 'To',
+  //           type: 'date',
+  //           filterType: 'lte',
+  //         },
+  //       ],
+  //     },
+
+  //     {
+  //       header: 'Last Updated Date Range',
+  //       data: [
+  //         {
+  //           field: 'updatedOn',
+  //           title: 'From',
+  //           type: 'date',
+  //           filterType: 'gte',
+  //         },
+  //         {
+  //           field: 'updatedOn',
+  //           title: 'To',
+  //           type: 'date',
+  //           filterType: 'lte',
+  //         },
+  //       ],
+  //     },
+
+  //     {
+  //       header: 'Expired Date Range',
+  //       data: [
+  //         {
+  //           field: 'end_date',
+  //           title: 'From',
+  //           type: 'date',
+  //           filterType: 'gte',
+  //         },
+  //         {
+  //           field: 'end_date',
+  //           title: 'To',
+  //           type: 'date',
+  //           filterType: 'lte',
+  //         },
+  //       ],
+  //     },
+  //   ];
+  // }
 
   inputValueChangeEvent(dataType, value) {
     if (value == '') {

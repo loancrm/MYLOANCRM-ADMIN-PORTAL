@@ -336,12 +336,87 @@ loadSocialMediaLeads(event: any = { first: 0, rows: 10 }): void {
 
   // ── LOAD ACCOUNTS ──────────────────────────────────────
 
-  loadAccounts(event: any = { first: 0, rows: 10 }): void {
+//   loadAccounts(event: any = { first: 0, rows: 10 }): void {
+//   this.contactsLoading = true;
+//   const filter: any = { ...this.searchFilter };
+//   filter['status-eq'] = 1;
+//   filter['from']  = event.first ?? 0;
+//   filter['count'] = event.rows  ?? 10;
+
+//   if (this.selectedPlanType && this.selectedPlanType !== 'ALL') {
+//     filter['latest_plan_name-eq'] = this.selectedPlanType;
+//   }
+//   if (this.selectedStatusType && this.selectedStatusType !== 'ALL') {
+//     filter['latest_status-eq'] = this.selectedStatusType;
+//   }
+//   if (this.selectedBillingCycle && this.selectedBillingCycle !== 'ALL') {
+//     filter['latest_billing_cycle-eq'] = this.selectedBillingCycle;
+//   }
+//   if (this.selectedAccountRemark) {
+//     filter['remarkId-eq'] = this.selectedAccountRemark;
+//   }
+
+//   // ✅ Also merge any applied filter from app-filter panel
+//   Object.keys(this.accountsAppliedFilter).forEach(key => {
+//     const val = this.accountsAppliedFilter[key];
+//     if (val !== undefined && val !== null && val !== '') {
+//       filter[key] = val;
+//     }
+//   });
+
+//   this.leadsService.getAccountsCount(filter).subscribe((count: any) => {
+//     this.accountsTotal = Number(count) || 0;
+//   });
+
+//   this.leadsService.getAccounts(filter).subscribe(
+//     (data: any) => {
+//       this.contacts = data.map((acc: any) => ({
+//         name:                acc.name             || '',
+//         businessName:        acc.businessName     || '',
+//         mobileNumber:        acc.mobile           || '',
+//         email:               acc.emailId          || '',
+//         city:                acc.city             || '',
+//         accountId:           acc.accountId        || '',
+//         walletBalance:       acc.walletBalance    || '',
+//         createdOn:           acc.createdOn        || '',
+//         latest_plan_name:    acc.latest_plan_name || '',
+//         latest_status:       acc.latest_status    || '',
+//         latest_billing_cycle: acc.latest_billing_cycle || '',
+//         start_date:          acc.start_date       || '',
+//         end_date:            acc.end_date         || '',
+//       }));
+//       this.filteredContacts  = this.contacts;
+//       this.contactsLoading   = false;
+//     },
+//     () => {
+//       this.errorMsg        = 'Failed to load accounts';
+//       this.contactsLoading = false;
+//     }
+//   );
+// }
+
+loadAccounts(event: any = { first: 0, rows: 10 }): void {
   this.contactsLoading = true;
-  const filter: any = { ...this.searchFilter };
-  filter['status-eq'] = 1;
-  filter['from']  = event.first ?? 0;
-  filter['count'] = event.rows  ?? 10;
+
+  const start  = event.first ?? 0;
+  const length = event.rows  ?? 10;
+
+  let sortField = 'createdOn';
+  let sortOrder = 'desc';
+
+  if (event.sortField) {
+    sortField = event.sortField;
+    sortOrder = event.sortOrder === 1 ? 'asc' : 'desc';
+  }
+
+  const filter: any = {
+    ...this.searchFilter,
+    start,
+    length,
+    sort:       sortField,
+    order:      sortOrder,
+    'status-eq': 1,
+  };
 
   if (this.selectedPlanType && this.selectedPlanType !== 'ALL') {
     filter['latest_plan_name-eq'] = this.selectedPlanType;
@@ -356,7 +431,7 @@ loadSocialMediaLeads(event: any = { first: 0, rows: 10 }): void {
     filter['remarkId-eq'] = this.selectedAccountRemark;
   }
 
-  // ✅ Also merge any applied filter from app-filter panel
+  // ── Merge app-filter panel filters ──────────────────────
   Object.keys(this.accountsAppliedFilter).forEach(key => {
     const val = this.accountsAppliedFilter[key];
     if (val !== undefined && val !== null && val !== '') {
@@ -364,29 +439,36 @@ loadSocialMediaLeads(event: any = { first: 0, rows: 10 }): void {
     }
   });
 
-  this.leadsService.getAccountsCount(filter).subscribe((count: any) => {
+  // ── Count query — strip pagination params ────────────────
+  const countFilter = { ...filter };
+  delete countFilter['start'];
+  delete countFilter['length'];
+  delete countFilter['sort'];
+  delete countFilter['order'];
+
+  this.leadsService.getAccountsCount(countFilter).subscribe((count: any) => {
     this.accountsTotal = Number(count) || 0;
   });
 
   this.leadsService.getAccounts(filter).subscribe(
     (data: any) => {
       this.contacts = data.map((acc: any) => ({
-        name:                acc.name             || '',
-        businessName:        acc.businessName     || '',
-        mobileNumber:        acc.mobile           || '',
-        email:               acc.emailId          || '',
-        city:                acc.city             || '',
-        accountId:           acc.accountId        || '',
-        walletBalance:       acc.walletBalance    || '',
-        createdOn:           acc.createdOn        || '',
-        latest_plan_name:    acc.latest_plan_name || '',
-        latest_status:       acc.latest_status    || '',
-        latest_billing_cycle: acc.latest_billing_cycle || '',
-        start_date:          acc.start_date       || '',
-        end_date:            acc.end_date         || '',
+        name:                 acc.name                  || '',
+        businessName:         acc.businessName          || '',
+        mobileNumber:         acc.mobile                || '',
+        email:                acc.emailId               || '',
+        city:                 acc.city                  || '',
+        accountId:            acc.accountId             || '',
+        walletBalance:        acc.walletBalance         || '',
+        createdOn:            acc.createdOn             || '',
+        latest_plan_name:     acc.latest_plan_name      || '',
+        latest_status:        acc.latest_status         || '',
+        latest_billing_cycle: acc.latest_billing_cycle  || '',
+        start_date:           acc.start_date            || '',
+        end_date:             acc.end_date              || '',
       }));
-      this.filteredContacts  = this.contacts;
-      this.contactsLoading   = false;
+      this.filteredContacts = this.contacts;
+      this.contactsLoading  = false;
     },
     () => {
       this.errorMsg        = 'Failed to load accounts';
@@ -394,6 +476,7 @@ loadSocialMediaLeads(event: any = { first: 0, rows: 10 }): void {
     }
   );
 }
+
   applyFilters(): void {
   delete this.searchFilter['search'];
 
@@ -775,12 +858,60 @@ setSocialMediaFilterConfig(): void {
   ];
 }
 
+// setAccountsFilterConfig(): void {
+//   this.accountsFilterConfig = [
+//     {
+//       header: 'Remarks',
+//       data: [{ field: 'remarkId-eq', title: 'Remarks', type: 'dropdown', filterType: 'eq',
+//         options: [] // loaded dynamically
+//       }]
+//     },
+//   ];
+// }
+
 setAccountsFilterConfig(): void {
   this.accountsFilterConfig = [
     {
       header: 'Remarks',
       data: [{ field: 'remarkId-eq', title: 'Remarks', type: 'dropdown', filterType: 'eq',
         options: [] // loaded dynamically
+      }]
+    },
+    {
+      header: 'Pack Expiry (days left)',
+      data: [{ field: 'daysUntilExpiry', title: 'Days Until Expiry', type: 'dropdown', filterType: 'eq',
+        options: [
+          { label: 'All',      value: '' },
+          { label: '5 days',   value: '5' },
+          { label: '10 days',  value: '10' },
+          { label: '15 days',  value: '15' },
+          { label: '20 days',  value: '20' },
+          { label: '28 days',  value: '28' },
+          { label: 'Expired',  value: 'expired' },
+        ]
+      }]
+    },
+    {
+      header: 'Inactive Since (days)',
+      data: [{ field: 'inactiveDays', title: 'Inactive Since', type: 'dropdown', filterType: 'eq',
+        options: [
+          { label: 'All',     value: '' },
+          { label: '5 days',  value: '5' },
+          { label: '10 days', value: '10' },
+          { label: '15 days', value: '15' },
+          { label: '20 days', value: '20' },
+          { label: '28 days', value: '28' },
+        ]
+      }]
+    },
+    {
+      header: 'Feature Activity',
+      data: [{ field: 'featureActivity', title: 'Feature Activity', type: 'dropdown', filterType: 'eq',
+        options: [
+          { label: 'All',      value: '' },
+          { label: 'Active',   value: 'active' },
+          { label: 'Inactive', value: 'inactive' },
+        ]
       }]
     },
   ];
