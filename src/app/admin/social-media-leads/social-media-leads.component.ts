@@ -707,18 +707,21 @@ saveRemark(lead: any, event: Event) {
     }
   );
 }
+
 onRemarkChange(team: any, remarkId: any) {
 
   const finalRemarkId = remarkId ? String(remarkId) : null;
 
   this.leadsService.updateLeadRemark(team.id, finalRemarkId).subscribe(
-    () => {
+    (res: any) => {
       team.remarkId = finalRemarkId;
+
+      team.updatedBy = res.updatedBy;
 
       if (finalRemarkId) {
         this.toastService.showSuccess('Remark saved');
       } else {
-        this.toastService.showSuccess('Remark removed'); // ✅ NEW
+        this.toastService.showSuccess('Remark removed');
       }
     },
     () => {
