@@ -291,7 +291,7 @@
             }}</span>
           </td>
 
-           <td (click)="$event.stopPropagation()" >
+           <!-- <td (click)="$event.stopPropagation()" >
             <p-dropdown
               [options]="adminRemarkOptions"
               [(ngModel)]="team.remarkId"
@@ -304,6 +304,35 @@
               appendTo="body"
               [showClear]="true"
             ></p-dropdown>
+          </td> -->
+          <td (click)="$event.stopPropagation()">
+            <!-- If Demo Completed → show static badge only -->
+            <ng-container *ngIf="isDemoCompleted(team.remarkId); else showDropdown">
+              <span 
+                class="badge"
+                style="background:#E1F5EE; color:#0F6E56; font-size:12px; padding:6px 12px; border-radius:16px; font-weight:500; cursor:default;"
+              >
+                <i class="pi pi-check-circle me-1"></i>
+                Demo Completed
+              </span>
+            </ng-container>
+
+            <!-- Otherwise → show the dropdown as normal -->
+            <ng-template #showDropdown>
+              <p-dropdown
+                [options]="adminRemarkOptions"
+                [(ngModel)]="team.remarkId"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select Remark"
+                [style]="{ width: '100%' }"
+                (onChange)="onRemarkChange(team, team.remarkId)"
+                (click)="$event.stopPropagation()"
+                appendTo="body"
+                [showClear]="true"
+              ></p-dropdown>
+            </ng-template>
+
           </td>
 
           <!-- <td>

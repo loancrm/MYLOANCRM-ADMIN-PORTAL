@@ -1362,4 +1362,10 @@ toggleLoanEnquiry(id: number): Observable<any> {
   const url = `social-media-leads/${id}/loan-enquiry`;
   return this.serviceMeta.httpPut(url, {});
 }
+
+submitWhatsappTemplate(id: number) {
+  const url = 'whatsapp-templates/submit/' + id;
+  return this.serviceMeta.httpPost(url, {});
+}
+
 }

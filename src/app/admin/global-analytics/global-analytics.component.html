@@ -1614,7 +1614,7 @@
           <th class="text-center">Transactions</th>
           <th class="text-right">Total Credit</th>
           <th class="text-right">Total Debit</th>
-          <th class="text-right">Net Credit</th>
+          <!-- <th class="text-right">Net Credit</th> -->
            <th class="text-right">Wallet Balance</th>
           <!-- <th class="text-nowrap">Last Transaction</th> -->
         </tr>
@@ -1638,11 +1638,11 @@
               {{ formatAmount(acc.totalDebit) }}
             </span>
           </td>
-          <td class="text-center">
+          <!-- <td class="text-center">
             <span style="color:#534AB7; font-weight:500;">
               {{ formatAmount(acc.totalNetCredit) }}
             </span>
-          </td>
+          </td> -->
           <td class="text-center">
             <span style="color:#2E7D32; font-weight:500;">
               {{ formatAmount(acc.walletBalance) }}

@@ -14,7 +14,8 @@ import { Location } from '@angular/common';
 export class CampaignComponent implements OnInit {
 
   // ── TABS ───────────────────────────────────────────────
-  activeTab: 'socialMedia' | 'accounts' = 'socialMedia';
+  // activeTab: 'socialMedia' | 'accounts' = 'socialMedia';
+  activeTab: 'socialMedia' | 'accounts' | 'manual' = 'socialMedia';
 
   // ── CONTACTS ───────────────────────────────────────────
   contacts: Contact[] = [];
@@ -169,6 +170,12 @@ socialMediaFilterConfig: any[] = [];
 accountsFilterConfig: any[] = [];
 socialMediaAppliedFilter: any = {};
 accountsAppliedFilter: any = {};
+
+// ── MANUAL NUMBERS TAB ─────────────────────────────────
+manualNumbersVisible = false;
+manualNumbersRaw = '';
+parsedManualContacts: Contact[] = [];
+
   // ── DYNAMIC DB FIELD OPTIONS ───────────────────────────
   get dbFieldOptions() {
     return this.activeTab === 'socialMedia'
@@ -224,35 +231,65 @@ this.setAccountsFilterConfig();
   //     this.loadAccounts();
   //   }
   // }
-  switchTab(tab: 'socialMedia' | 'accounts'): void {
-    this.activeTab = tab;
-    this.selectedContacts = [];
-    this.searchText = '';
-    // this.selectedPlatform = 'ALL';
-    this.selectedPlatforms = ['Facebook', 'Website'];
-    this.selectedDemoStatus = '';
-    this.selectedRegistrationStatus = '';
-    this.searchFilter = {};
-    this.contacts = [];
-    this.filteredContacts = [];
-    this.socialMediaTotal = 0;
-    this.accountsTotal = 0;
+  switchTab(tab: 'socialMedia' | 'accounts' | 'manual'): void {
+  // add 'manual' to the type above in activeTab declaration too
+  this.activeTab = tab as any;
+  this.selectedContacts = [];
+  this.searchText = '';
+  this.selectedPlatforms = ['Facebook', 'Website'];
+  this.selectedDemoStatus = '';
+  this.selectedRegistrationStatus = '';
+  this.searchFilter = {};
+  this.contacts = [];
+  this.filteredContacts = [];
+  this.socialMediaTotal = 0;
+  this.accountsTotal = 0;
+  this.selectedPlanType = 'ALL';
+  this.selectedStatusType = 'ALL';
+  this.selectedBillingCycle = 'ALL';
+  this.skipRegisteredAccounts = false;
+  this.selectedRemark = '';
+  this.selectedEnquiryType = '';
+  this.selectedAccountRemark = '';
+  // reset manual tab
+  this.manualNumbersRaw = '';
+  this.parsedManualContacts = [];
 
-    this.selectedPlanType = 'ALL';
-    this.selectedStatusType = 'ALL';
-    this.selectedBillingCycle = 'ALL';
-    this.skipRegisteredAccounts = false;
-    this.selectedRemark = '';
-    this.selectedEnquiryType = '';
-    this.selectedAccountRemark = '';
+  if (tab === 'socialMedia') {
+    this.loadSocialMediaLeads({ first: 0, rows: 10 });
+  } else if (tab === 'accounts') {
+    this.loadAccounts({ first: 0, rows: 10 });
+  }
+}
+  // switchTab(tab: 'socialMedia' | 'accounts'): void {
+  //   this.activeTab = tab;
+  //   this.selectedContacts = [];
+  //   this.searchText = '';
+  //   // this.selectedPlatform = 'ALL';
+  //   this.selectedPlatforms = ['Facebook', 'Website'];
+  //   this.selectedDemoStatus = '';
+  //   this.selectedRegistrationStatus = '';
+  //   this.searchFilter = {};
+  //   this.contacts = [];
+  //   this.filteredContacts = [];
+  //   this.socialMediaTotal = 0;
+  //   this.accountsTotal = 0;
+
+  //   this.selectedPlanType = 'ALL';
+  //   this.selectedStatusType = 'ALL';
+  //   this.selectedBillingCycle = 'ALL';
+  //   this.skipRegisteredAccounts = false;
+  //   this.selectedRemark = '';
+  //   this.selectedEnquiryType = '';
+  //   this.selectedAccountRemark = '';
     
 
-    if (tab === 'socialMedia') {
-      this.loadSocialMediaLeads({ first: 0, rows: 10 });
-    } else {
-      this.loadAccounts({ first: 0, rows: 10 });
-    }
-  }
+  //   if (tab === 'socialMedia') {
+  //     this.loadSocialMediaLeads({ first: 0, rows: 10 });
+  //   } else {
+  //     this.loadAccounts({ first: 0, rows: 10 });
+  //   }
+  // }
 loadSocialMediaLeads(event: any = { first: 0, rows: 10 }): void {
   this.contactsLoading = true;
 
@@ -663,57 +700,110 @@ loadAccounts(event: any = { first: 0, rows: 10 }): void {
   }
 
   // ── SEND CAMPAIGN ──────────────────────────────────────
+  // canSend(): boolean {
+  //   if (!this.selectedContacts.length || !this.selectedTemplate || !this.campaignName) return false;
+
+  //   // ✅ If accounts tab + skip toggle ON → nothing will be sent → disable button
+  //   if (this.activeTab === 'accounts' && this.skipRegisteredAccounts) return false;
+
+  //   if (['IMAGE','VIDEO','DOCUMENT'].includes(this.templateHeaderType)) {
+  //     if (this.headerUploading) return false;
+  //     if (!this.headerMediaUrl.trim()) return false;
+  //   }
+
+  //   return this.paramMappings.every((m) =>
+  //     m.type === 'manual' ? m.manualValue.trim() !== '' : m.dbField !== ''
+  //   );
+  // }
+
+  // sendCampaign(): void {
+  //   if (!this.canSend()) return;
+  //   this.sending = true;
+  //   this.result = null;
+
+  //   const textParamCount = this.paramMappings.filter(m => !m.isButtonParam).length;
+
+  //   const contactsWithParams = this.selectedContacts.map((contact) => ({
+  //     ...contact,
+  //     resolvedParams: this.templateParams.map((_, i) => this.resolveParam(contact, i))
+  //   }));
+
+  //   const hasMediaHeader = ['IMAGE','VIDEO','DOCUMENT'].includes(this.templateHeaderType);
+
+  //   this.campaignService.sendCampaign({
+  //     campaignName: this.campaignName,
+  //     contacts: contactsWithParams,
+  //     templateName: this.selectedTemplate.name,
+  //     templateBodyText: this.templateBodyText,
+  //     languageCode: this.languageCode,
+  //     sendType: 'bulk',
+  //     buttonParamStartIndex: textParamCount,
+  //     hasImageHeader: hasMediaHeader,
+  //     headerMediaType: this.templateHeaderType,
+  //     imageUrl: this.headerMediaUrl,
+  //     headerIsMetaHandle: this.headerIsMetaHandle,
+  //     // ✅ Tell backend whether to skip registered accounts
+  //     skipRegistered: this.activeTab === 'accounts' ? this.skipRegisteredAccounts : false,
+  //     sourceTab: this.activeTab,
+  //   }).subscribe({
+  //     next: (res) => { this.result = res; this.sending = false; },
+  //     error: () => { this.errorMsg = 'Failed to send campaign'; this.sending = false; }
+  //   });
+  // }
+
   canSend(): boolean {
-    if (!this.selectedContacts.length || !this.selectedTemplate || !this.campaignName) return false;
-
-    // ✅ If accounts tab + skip toggle ON → nothing will be sent → disable button
-    if (this.activeTab === 'accounts' && this.skipRegisteredAccounts) return false;
-
-    if (['IMAGE','VIDEO','DOCUMENT'].includes(this.templateHeaderType)) {
-      if (this.headerUploading) return false;
-      if (!this.headerMediaUrl.trim()) return false;
-    }
-
-    return this.paramMappings.every((m) =>
-      m.type === 'manual' ? m.manualValue.trim() !== '' : m.dbField !== ''
-    );
+  const hasContacts = this.selectedContacts.length > 0 
+    || this.parsedManualContacts.length > 0;
+  if (!hasContacts || !this.selectedTemplate || !this.campaignName) return false;
+  if (this.activeTab === 'accounts' && this.skipRegisteredAccounts) return false;
+  if (['IMAGE','VIDEO','DOCUMENT'].includes(this.templateHeaderType)) {
+    if (this.headerUploading) return false;
+    if (!this.headerMediaUrl.trim()) return false;
   }
+  return this.paramMappings.every((m) =>
+    m.type === 'manual' ? m.manualValue.trim() !== '' : m.dbField !== ''
+  );
+}
 
-  sendCampaign(): void {
-    if (!this.canSend()) return;
-    this.sending = true;
-    this.result = null;
+sendCampaign(): void {
+  if (!this.canSend()) return;
+  this.sending = true;
+  this.result = null;
 
-    const textParamCount = this.paramMappings.filter(m => !m.isButtonParam).length;
+  const textParamCount = this.paramMappings.filter(m => !m.isButtonParam).length;
 
-    const contactsWithParams = this.selectedContacts.map((contact) => ({
-      ...contact,
-      resolvedParams: this.templateParams.map((_, i) => this.resolveParam(contact, i))
-    }));
+  // Merge selected + manual contacts
+  const allContacts = [
+    ...this.selectedContacts,
+    ...this.parsedManualContacts,
+  ];
 
-    const hasMediaHeader = ['IMAGE','VIDEO','DOCUMENT'].includes(this.templateHeaderType);
+  const contactsWithParams = allContacts.map((contact) => ({
+    ...contact,
+    resolvedParams: this.templateParams.map((_, i) => this.resolveParam(contact, i))
+  }));
 
-    this.campaignService.sendCampaign({
-      campaignName: this.campaignName,
-      contacts: contactsWithParams,
-      templateName: this.selectedTemplate.name,
-      templateBodyText: this.templateBodyText,
-      languageCode: this.languageCode,
-      sendType: 'bulk',
-      buttonParamStartIndex: textParamCount,
-      hasImageHeader: hasMediaHeader,
-      headerMediaType: this.templateHeaderType,
-      imageUrl: this.headerMediaUrl,
-      headerIsMetaHandle: this.headerIsMetaHandle,
-      // ✅ Tell backend whether to skip registered accounts
-      skipRegistered: this.activeTab === 'accounts' ? this.skipRegisteredAccounts : false,
-      sourceTab: this.activeTab,
-    }).subscribe({
-      next: (res) => { this.result = res; this.sending = false; },
-      error: () => { this.errorMsg = 'Failed to send campaign'; this.sending = false; }
-    });
-  }
+  const hasMediaHeader = ['IMAGE','VIDEO','DOCUMENT'].includes(this.templateHeaderType);
 
+  this.campaignService.sendCampaign({
+    campaignName: this.campaignName,
+    contacts: contactsWithParams,
+    templateName: this.selectedTemplate.name,
+    templateBodyText: this.templateBodyText,
+    languageCode: this.languageCode,
+    sendType: 'bulk',
+    buttonParamStartIndex: textParamCount,
+    hasImageHeader: hasMediaHeader,
+    headerMediaType: this.templateHeaderType,
+    imageUrl: this.headerMediaUrl,
+    headerIsMetaHandle: this.headerIsMetaHandle,
+    skipRegistered: this.activeTab === 'accounts' ? this.skipRegisteredAccounts : false,
+    sourceTab: this.activeTab,
+  }).subscribe({
+    next: (res) => { this.result = res; this.sending = false; },
+    error: () => { this.errorMsg = 'Failed to send campaign'; this.sending = false; }
+  });
+}
   onHeaderFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files || !input.files[0]) return;
@@ -938,5 +1028,83 @@ applyAccountsConfigFilters(event: any): void {
   }
   if (this.accountsTable) this.accountsTable.first = 0;
   this.loadAccounts({ first: 0, rows: 10 });
+}
+
+toggleManualNumbers() {
+  this.manualNumbersVisible = !this.manualNumbersVisible;
+  if (!this.manualNumbersVisible) {
+    this.manualNumbersRaw = '';
+    this.parsedManualContacts = [];
+  }
+}
+
+// parseManualNumbers() {
+//   const raw = this.manualNumbersRaw || '';
+
+//   // Auto comma-segregate after every 10 digits
+//   const allDigits = raw.replace(/\D+/g, '');
+//   if (allDigits.length > 0) {
+//     const chunks: string[] = [];
+//     for (let i = 0; i < allDigits.length; i += 10) {
+//       chunks.push(allDigits.slice(i, i + 10));
+//     }
+//     this.manualNumbersRaw = chunks.join(', ');
+//   }
+
+//   this.parsedManualContacts = this.manualNumbersRaw
+//     .split(',')
+//     .map(n => n.trim().replace(/\D/g, ''))
+//     .filter(n => n.length >= 10)
+//     .slice(0, 500)
+//     .map(n => ({
+//       name: '',
+//       mobileNumber: n,
+//       id: 'manual_' + n,
+//     }));
+// }
+
+parseManualNumbers() {
+  const raw = this.manualNumbersRaw || '';
+
+  const allDigits = raw.replace(/\D+/g, '');
+  if (allDigits.length > 0) {
+    const chunks: string[] = [];
+    for (let i = 0; i < allDigits.length; i += 10) {
+      chunks.push(allDigits.slice(i, i + 10));
+    }
+    this.manualNumbersRaw = chunks.join(', ');
+  }
+
+  this.parsedManualContacts = this.manualNumbersRaw
+    .split(',')
+    .map(n => n.trim().replace(/\D/g, ''))
+    .filter(n => n.length >= 10)
+    .slice(0, 500)
+    .map(n => ({
+      name: '',
+      mobileNumber: n,
+      email: '',      // ← add missing Contact fields
+      message: '',    // ← add missing Contact fields
+      id: 'manual_' + n,
+    } as Contact));   // ← cast to Contact
+}
+
+onPasteNumbers(event: ClipboardEvent) {
+  event.preventDefault();
+  const pasted = event.clipboardData?.getData('text') || '';
+  const allDigits = pasted.replace(/\D+/g, '');
+  if (!allDigits) return;
+
+  const chunks: string[] = [];
+  for (let i = 0; i < allDigits.length; i += 10) {
+    chunks.push(allDigits.slice(i, i + 10));
+  }
+
+  const existing = this.manualNumbersRaw?.trim();
+  this.manualNumbersRaw = existing
+    ? existing + ', ' + chunks.join(', ')
+    : chunks.join(', ');
+
+  this.parseManualNumbers();
 }
 }

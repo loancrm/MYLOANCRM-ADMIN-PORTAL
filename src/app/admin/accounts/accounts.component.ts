@@ -937,4 +937,10 @@ onRemarkChange(lead: any, remarkId: any) {
     }
   }
 
+  isDemoCompleted(remarkId: any): boolean {
+    if (!remarkId || !this.adminRemarkOptions.length) return false;
+    const found = this.adminRemarkOptions.find(r => r.value === String(remarkId));
+    return found?.label?.toLowerCase().includes('demo completed') ?? false;
+  }
+
 }

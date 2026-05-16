@@ -72,7 +72,7 @@ bankLoanTypeOptions = [
 walletAmountToAdd: number = 0;
 addingWallet: boolean = false;
 showWalletConfirm: boolean = false;
-
+adminRemarkOptions: { label: string; value: any }[] = [];
   constructor(
     private route: ActivatedRoute,
     private location: Location,
@@ -100,6 +100,7 @@ showWalletConfirm: boolean = false;
     if (adminDetails && adminDetails.user) {
       this.loggedInUserRole = Number(adminDetails.user.role);
     }
+    this.loadAdminRemarks();
     // this.loadBankAnalytics();
   }
   setFilterConfig() {
@@ -194,6 +195,8 @@ showWalletConfirm: boolean = false;
       this.apiEnabled = this.accountDetails.isApiEnabled === 1;
 
       this.loading = false;
+      this.loadAdminRemarks(); 
+      
     },
     error: (err) => {
       console.error(err);
@@ -738,5 +741,79 @@ addWalletBalance(): void {
     }
   });
 }
+// loadAdminRemarks(): void {
+//   const filter = { 'status-eq': 1, 'remarkInternalStatus-eq': 1 };
+//   this.leadService.getAdminRemarks(filter).subscribe(
+//     (data: any) => {
+//       this.adminRemarkOptions = data.map((r: any) => ({
+//         label: r.displayName,
+//         value: String(r.remarkId),
+//       }));
 
+//       // ── Auto-select Demo Completed if no remark set ──
+//       if (!this.accountDetails?.remarkId) {
+//         const demoOption = this.adminRemarkOptions.find(r =>
+//           r.label.toLowerCase().includes('demo completed')
+//         );
+//         if (demoOption) {
+//           this.accountDetails.remarkId = demoOption.value;
+//           // Save to backend immediately
+//           this.saveRemark(demoOption.value);
+//         }
+//       } else {
+//         // Ensure it's a string for dropdown matching
+//         this.accountDetails.remarkId = String(this.accountDetails.remarkId);
+//       }
+//     },
+//     () => this.toastService.showError('Failed to load remarks')
+//   );
+// }
+
+// onProfileRemarkChange(event: any): void {
+//   const remarkId = event.value ? String(event.value) : null;
+//   this.saveRemark(remarkId);
+// }
+
+loadAdminRemarks(): void {
+  const filter = { 'status-eq': 1, 'remarkInternalStatus-eq': 1 };
+  this.leadService.getAdminRemarks(filter).subscribe(
+    (data: any) => {
+      this.adminRemarkOptions = data.map((r: any) => ({
+        label: r.displayName,
+        value: String(r.remarkId),
+      }));
+    },
+    () => this.toastService.showError('Failed to load remarks')
+  );
+}
+
+onProfileRemarkChange(event: any): void {
+  const remarkId = event.value ? String(event.value) : null;
+
+  this.leadService.updateLeadaccountRemark(
+    this.accountDetails.id,
+    remarkId
+  ).subscribe(
+    () => {
+      this.accountDetails.remarkId = remarkId;
+      this.toastService.showSuccess(remarkId ? 'Remark updated' : 'Remark removed');
+    },
+    () => this.toastService.showError('Failed to update remark')
+  );
+}
+
+saveRemark(remarkId: string | null): void {
+  this.leadService.updateLeadaccountRemark(
+    this.accountDetails.id,
+    remarkId
+  ).subscribe(
+    () => {
+      this.accountDetails.remarkId = remarkId;
+      this.toastService.showSuccess(
+        remarkId ? 'Remark updated' : 'Remark removed'
+      );
+    },
+    () => this.toastService.showError('Failed to update remark')
+  );
+}
 }

@@ -1,4 +1,3 @@
-
 <p-dialog
   [(visible)]="visible"
   [modal]="true"
@@ -14,7 +13,9 @@
   <div class="p-fluid">
     <div class="row g-3">
 
-      <!-- Left: Form -->
+      <!-- ══════════════════════════════════════════════════════════
+           LEFT: Form
+      ══════════════════════════════════════════════════════════ -->
       <div class="col-md-6">
 
         <!-- Template Name -->
@@ -25,6 +26,7 @@
           <input
             pInputText
             [(ngModel)]="newTemplate.name"
+            (ngModelChange)="onTemplateNameChange()"
             placeholder="e.g. loan_offer_march"
             class="w-100"
           />
@@ -72,12 +74,13 @@
             appendTo="body"
           ></p-dropdown>
 
-          <!-- Text Header -->
+          <!-- TEXT Header -->
           <div class="mt-2" *ngIf="newTemplate.header_type === 'TEXT'">
             <input
               pInputText
               [(ngModel)]="newTemplate.header_text"
               placeholder="e.g. Special Loan Offer 🎉"
+              maxlength="60"
               class="w-100"
             />
             <small class="text-muted d-block mt-1">
@@ -85,19 +88,56 @@
             </small>
           </div>
 
-          <!-- Image Header -->
+          <!-- IMAGE Header -->
           <div class="mt-2" *ngIf="newTemplate.header_type === 'IMAGE'">
-            <input
-              type="file"
-              id="headerImageFile"
-              accept=".jpg,.jpeg,.png"
-              (change)="onHeaderFileSelected($event, 'IMAGE')"
-              class="form-control"
-            />
+            <!-- Upload mode toggle -->
+            <div class="d-flex gap-3 mb-2">
+              <div class="form-check">
+                <input class="form-check-input" type="radio"
+                  [(ngModel)]="headerUploadMode" value="url" name="headerUploadMode" />
+                <label class="form-check-label small">Paste URL</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio"
+                  [(ngModel)]="headerUploadMode" value="upload" name="headerUploadMode" />
+                <label class="form-check-label small">Upload File</label>
+              </div>
+            </div>
+
+            <div *ngIf="headerUploadMode === 'url'">
+              <input type="url" [(ngModel)]="newTemplate.header_file_url"
+                (ngModelChange)="onHeaderUrlChange()"
+                placeholder="https://example.com/image.jpg" class="form-control form-control-sm" />
+            </div>
+
+            <div *ngIf="headerUploadMode === 'upload'">
+              <input
+                type="file"
+                id="headerImageFile"
+                accept=".jpg,.jpeg,.png"
+                (change)="onHeaderFileSelected($event, 'IMAGE')"
+                class="form-control form-control-sm"
+                [disabled]="headerUploading"
+              />
+              <small *ngIf="headerUploading" class="text-muted d-block mt-1">
+                <i class="pi pi-spin pi-spinner me-1"></i>Uploading...
+              </small>
+              <small *ngIf="newTemplate.header_file_url && !headerUploading" class="text-success d-block mt-1">
+                <i class="pi pi-check-circle me-1"></i>Uploaded successfully
+              </small>
+            </div>
+
             <small class="text-muted d-block mt-1">
               <i class="pi pi-info-circle me-1"></i>JPG, PNG | Max 5MB
             </small>
-            <div *ngIf="newTemplate.header_file_name"
+
+            <!-- Image preview -->
+            <div *ngIf="headerImagePreview" class="mt-2">
+              <img [src]="headerImagePreview" alt="Preview"
+                style="max-height: 100px; border-radius: 6px; border: 1px solid #dee2e6;" />
+            </div>
+
+            <div *ngIf="newTemplate.header_file_name && !headerImagePreview"
               class="d-flex align-items-center border rounded p-2 bg-light mt-2">
               <i class="pi pi-image text-success me-2"></i>
               <div class="flex-grow-1 small fw-semibold">{{ newTemplate.header_file_name }}</div>
@@ -108,18 +148,43 @@
             </div>
           </div>
 
-          <!-- Video Header -->
+          <!-- VIDEO Header -->
           <div class="mt-2" *ngIf="newTemplate.header_type === 'VIDEO'">
-            <input
-              type="file"
-              id="headerVideoFile"
-              accept=".mp4"
-              (change)="onHeaderFileSelected($event, 'VIDEO')"
-              class="form-control"
-            />
-            <small class="text-muted d-block mt-1">
-              <i class="pi pi-info-circle me-1"></i>MP4 | Max 16MB
-            </small>
+            <div class="d-flex gap-3 mb-2">
+              <div class="form-check">
+                <input class="form-check-input" type="radio"
+                  [(ngModel)]="headerUploadMode" value="url" name="headerUploadMode" />
+                <label class="form-check-label small">Paste URL</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio"
+                  [(ngModel)]="headerUploadMode" value="upload" name="headerUploadMode" />
+                <label class="form-check-label small">Upload File</label>
+              </div>
+            </div>
+
+            <div *ngIf="headerUploadMode === 'url'">
+              <input type="url" [(ngModel)]="newTemplate.header_file_url"
+                placeholder="https://example.com/video.mp4" class="form-control form-control-sm" />
+            </div>
+
+            <div *ngIf="headerUploadMode === 'upload'">
+              <input
+                type="file"
+                id="headerVideoFile"
+                accept=".mp4"
+                (change)="onHeaderFileSelected($event, 'VIDEO')"
+                class="form-control form-control-sm"
+                [disabled]="headerUploading"
+              />
+              <small *ngIf="headerUploading" class="text-muted d-block mt-1">
+                <i class="pi pi-spin pi-spinner me-1"></i>Uploading...
+              </small>
+              <small *ngIf="newTemplate.header_file_url && !headerUploading" class="text-success d-block mt-1">
+                <i class="pi pi-check-circle me-1"></i>Uploaded successfully
+              </small>
+            </div>
+
             <div *ngIf="newTemplate.header_file_name"
               class="d-flex align-items-center border rounded p-2 bg-light mt-2">
               <i class="pi pi-video text-success me-2"></i>
@@ -129,20 +194,48 @@
                 <i class="pi pi-times"></i>
               </button>
             </div>
+            <small class="text-muted d-block mt-1">
+              <i class="pi pi-info-circle me-1"></i>MP4 | Max 16MB
+            </small>
           </div>
 
-          <!-- Document Header -->
+          <!-- DOCUMENT Header -->
           <div class="mt-2" *ngIf="newTemplate.header_type === 'DOCUMENT'">
-            <input
-              type="file"
-              id="headerDocumentFile"
-              accept=".pdf"
-              (change)="onHeaderFileSelected($event, 'DOCUMENT')"
-              class="form-control"
-            />
-            <small class="text-muted d-block mt-1">
-              <i class="pi pi-info-circle me-1"></i>PDF | Max 100MB
-            </small>
+            <div class="d-flex gap-3 mb-2">
+              <div class="form-check">
+                <input class="form-check-input" type="radio"
+                  [(ngModel)]="headerUploadMode" value="url" name="headerUploadMode" />
+                <label class="form-check-label small">Paste URL</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio"
+                  [(ngModel)]="headerUploadMode" value="upload" name="headerUploadMode" />
+                <label class="form-check-label small">Upload File</label>
+              </div>
+            </div>
+
+            <div *ngIf="headerUploadMode === 'url'">
+              <input type="url" [(ngModel)]="newTemplate.header_file_url"
+                placeholder="https://example.com/document.pdf" class="form-control form-control-sm" />
+            </div>
+
+            <div *ngIf="headerUploadMode === 'upload'">
+              <input
+                type="file"
+                id="headerDocumentFile"
+                accept=".pdf"
+                (change)="onHeaderFileSelected($event, 'DOCUMENT')"
+                class="form-control form-control-sm"
+                [disabled]="headerUploading"
+              />
+              <small *ngIf="headerUploading" class="text-muted d-block mt-1">
+                <i class="pi pi-spin pi-spinner me-1"></i>Uploading...
+              </small>
+              <small *ngIf="newTemplate.header_file_url && !headerUploading" class="text-success d-block mt-1">
+                <i class="pi pi-check-circle me-1"></i>Uploaded successfully
+              </small>
+            </div>
+
             <div *ngIf="newTemplate.header_file_name"
               class="d-flex align-items-center border rounded p-2 bg-light mt-2">
               <i class="pi pi-file-pdf text-success me-2"></i>
@@ -152,6 +245,9 @@
                 <i class="pi pi-times"></i>
               </button>
             </div>
+            <small class="text-muted d-block mt-1">
+              <i class="pi pi-info-circle me-1"></i>PDF | Max 100MB
+            </small>
           </div>
         </div>
 
@@ -162,14 +258,65 @@
           </label>
           <textarea
             [(ngModel)]="newTemplate.body_text"
-            placeholder="Hi {{1}}, your loan offer is ready!"
+            (ngModelChange)="syncVariableSamples()"
+            placeholder="Hi {{1}}, your loan offer is ready! Amount: ₹{{2}}"
             class="form-control template-textarea"
             rows="6"
           ></textarea>
+          <div class="d-flex justify-content-between align-items-center mt-1">
+            <small class="text-muted">
+              <i class="pi pi-info-circle me-1"></i>
+              Use <code>{{'{{'}}1{{'}}'}}</code>, <code>{{'{{'}}2{{'}}'}}</code> for dynamic values.
+              Bold: *text* &nbsp;|&nbsp; Italic: _text_
+            </small>
+            <small class="text-primary fw-semibold" *ngIf="detectedVariableCount > 0">
+              {{ detectedVariableCount }} variable(s) detected
+            </small>
+          </div>
+        </div>
+
+        <!-- ── Variable Sample Values ── -->
+        <div class="mb-3" *ngIf="detectedVariableCount > 0">
+          <label class="form-label fw-semibold small">
+            Sample Values for Variables
+            <span class="badge bg-warning text-dark ms-1">Required by Meta</span>
+          </label>
+          <div
+            *ngFor="let v of newTemplate.variablesSample; let i = index"
+            class="d-flex align-items-center gap-2 mb-2"
+          >
+            <span
+              class="badge bg-secondary flex-shrink-0"
+              style="min-width: 36px; text-align: center; font-size: 12px;"
+              [textContent]="'{{' + (i + 1) + '}}'">
+            </span>
+            <input
+              pInputText
+              [(ngModel)]="newTemplate.variablesSample[i]"
+              [placeholder]="'Sample for {{' + (i + 1) + '}}, e.g. John'"
+              class="flex-grow-1"
+            />
+          </div>
           <small class="text-muted">
             <i class="pi pi-info-circle me-1"></i>
-            Use <code>{{1}}</code>, <code>{{2}}</code> for dynamic values
+            Meta requires example values (min. 2 chars each) for template approval.
           </small>
+        </div>
+
+        <!-- Footer Text -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold small">
+            Footer Text
+            <span class="badge bg-secondary ms-1">Optional</span>
+          </label>
+          <input
+            pInputText
+            [(ngModel)]="newTemplate.footer_text"
+            placeholder="e.g. Reply STOP to unsubscribe"
+            maxlength="60"
+            class="w-100"
+          />
+          <small class="text-muted">Max 60 characters.</small>
         </div>
 
         <!-- Buttons Section -->
@@ -197,13 +344,16 @@
                     ></p-dropdown>
                   </div>
                   <div class="col-md-4">
-                    <input pInputText [(ngModel)]="btn.text" placeholder="Button Label" class="w-100" />
+                    <input pInputText [(ngModel)]="btn.text"
+                      placeholder="Button Label" maxlength="20" class="w-100" />
                   </div>
                   <div class="col-md-3" *ngIf="btn.type === 'URL'">
-                    <input pInputText [(ngModel)]="btn.url" placeholder="https://..." class="w-100" />
+                    <input pInputText [(ngModel)]="btn.url"
+                      placeholder="https://..." class="w-100" />
                   </div>
                   <div class="col-md-3" *ngIf="btn.type === 'PHONE_NUMBER'">
-                    <input pInputText [(ngModel)]="btn.phone" placeholder="+91XXXXXXXXXX" class="w-100" />
+                    <input pInputText [(ngModel)]="btn.phone"
+                      placeholder="+91XXXXXXXXXX" class="w-100" />
                   </div>
                   <div class="col-md-3" *ngIf="btn.type === 'QUICK_REPLY'">
                     <small class="text-muted">
@@ -232,8 +382,11 @@
         </div>
 
       </div>
+      <!-- end left col -->
 
-      <!-- Right: WhatsApp Preview -->
+      <!-- ══════════════════════════════════════════════════════════
+           RIGHT: WhatsApp Live Preview
+      ══════════════════════════════════════════════════════════ -->
       <div class="col-md-6">
         <label class="form-label fw-semibold small">
           <i class="pi pi-eye me-1"></i>Live Preview
@@ -260,59 +413,81 @@
 
               <div class="whatsapp-chat-area">
 
-                <!-- Header Preview -->
-                <div class="whatsapp-message-row" *ngIf="newTemplate.header_type !== 'NONE'">
+                <!-- Bubble with header -->
+                <div class="whatsapp-message-row"
+                  *ngIf="newTemplate.header_type !== 'NONE' && (newTemplate.body_text || newTemplate.header_text || newTemplate.header_file_url)">
                   <div class="whatsapp-bubble whatsapp-bubble--header">
                     <div class="bubble-triangle"></div>
-                    <div class="bubble-header-text" *ngIf="newTemplate.header_type === 'TEXT'">
+
+                    <!-- TEXT header preview -->
+                    <div class="bubble-header-text fw-semibold mb-1"
+                      *ngIf="newTemplate.header_type === 'TEXT'">
                       {{ newTemplate.header_text || 'Header Text' }}
                     </div>
+
+                    <!-- IMAGE header preview -->
                     <div class="bubble-header-media" *ngIf="newTemplate.header_type === 'IMAGE'">
-                      <img *ngIf="headerImagePreview" [src]="headerImagePreview"
+                      <img *ngIf="headerImagePreview || newTemplate.header_file_url"
+                        [src]="headerImagePreview || newTemplate.header_file_url"
                         class="bubble-header-image" alt="Header" />
-                      <div *ngIf="!headerImagePreview" class="bubble-header-media-placeholder">
+                      <div *ngIf="!headerImagePreview && !newTemplate.header_file_url"
+                        class="bubble-header-media-placeholder">
                         <i class="pi pi-image"></i>
-                        <span>Upload Image</span>
+                        <span>Image Header</span>
                       </div>
                     </div>
+
+                    <!-- VIDEO header preview -->
                     <div class="bubble-header-media" *ngIf="newTemplate.header_type === 'VIDEO'">
-                      <i class="pi pi-video"></i>
-                      <span>Video</span>
+                      <i class="pi pi-video" style="font-size:1.5rem;"></i>
+                      <span class="ms-2">Video</span>
                     </div>
+
+                    <!-- DOCUMENT header preview -->
                     <div class="bubble-header-media" *ngIf="newTemplate.header_type === 'DOCUMENT'">
-                      <i class="pi pi-file-pdf"></i>
-                      <span>Document</span>
+                      <i class="pi pi-file-pdf" style="font-size:1.5rem;"></i>
+                      <span class="ms-2">Document</span>
                     </div>
-                    <div class="bubble-text mt-1" *ngIf="newTemplate.body_text">
+
+                    <!-- Body text in same bubble -->
+                    <div class="bubble-text mt-1" *ngIf="templatePreviewText">
                       {{ templatePreviewText }}
                     </div>
-                    <div class="bubble-footer" *ngIf="newTemplate.body_text">
+
+                    <!-- Footer text -->
+                    <div class="bubble-footer-text text-muted"
+                      *ngIf="newTemplate.footer_text" style="font-size:11px; margin-top:4px;">
+                      {{ newTemplate.footer_text }}
+                    </div>
+
+                    <div class="bubble-footer">
                       <span class="bubble-time">{{ getCurrentTime() }}</span>
-                      <svg width="15" height="11" viewBox="0 0 15 11">
-                        <path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36035L1.99377 6.05469C1.8111 5.87402 1.59839 5.78369 1.35557 5.78369C1.10168 5.78369 0.887817 5.87402 0.714233 6.05469L0.658936 6.10999C0.495883 6.28564 0.414357 6.50635 0.414357 6.77002C0.414357 7.03369 0.495883 7.25439 0.658936 7.43005L3.78516 10.7032C3.9502 10.8789 4.15137 10.9668 4.39014 10.9668C4.60339 10.9668 4.79541 10.8789 4.9668 10.7032L11.8325 2.3545C11.9979 2.17383 12.0806 1.96069 12.0806 1.71484C12.0806 1.49902 12.001 1.30713 11.8418 1.13904L11.0714 0.652832Z" fill="#4FC3F7"/>
-                        <path d="M14.1069 0.652832C14.0264 0.585124 13.9249 0.55127 13.8022 0.55127C13.6541 0.55127 13.527 0.610514 13.4213 0.729004L7.67773 8.36035C7.60144 8.43945 7.5127 8.47412 7.41162 8.47412C7.31055 8.47412 7.22181 8.43945 7.14552 8.36035L6.89893 8.08203C6.72900 7.89893 6.51953 7.80811 6.27051 7.80811L6.21240 7.80811C6.05420 7.80811 5.90503 7.84961 5.77441 7.93262L8.89063 11.0635C9.05566 11.2393 9.25684 11.3271 9.49561 11.3271C9.70886 11.3271 9.90088 11.2393 10.0723 11.0635L14.8979 2.3545C15.0632 2.17383 15.146 1.96069 15.146 1.71484C15.146 1.49902 15.0664 1.30713 14.9072 1.13904L14.1069 0.652832Z" fill="#4FC3F7"/>
-                      </svg>
+                      <i class="pi pi-check-circle" style="color:#4FC3F7; font-size:11px;"></i>
                     </div>
                   </div>
                 </div>
 
-                <!-- Normal Bubble (no header) -->
+                <!-- Normal bubble (no header) -->
                 <div class="whatsapp-message-row"
                   *ngIf="newTemplate.body_text && newTemplate.header_type === 'NONE'">
                   <div class="whatsapp-bubble">
                     <div class="bubble-triangle"></div>
                     <div class="bubble-text">{{ templatePreviewText }}</div>
+
+                    <!-- Footer text -->
+                    <div class="bubble-footer-text text-muted"
+                      *ngIf="newTemplate.footer_text" style="font-size:11px; margin-top:4px;">
+                      {{ newTemplate.footer_text }}
+                    </div>
+
                     <div class="bubble-footer">
                       <span class="bubble-time">{{ getCurrentTime() }}</span>
-                      <svg width="15" height="11" viewBox="0 0 15 11">
-                        <path d="M11.0714 0.652832C10.991 0.585124 10.8894 0.55127 10.7667 0.55127C10.6186 0.55127 10.4916 0.610514 10.3858 0.729004L4.19688 8.36035L1.99377 6.05469C1.8111 5.87402 1.59839 5.78369 1.35557 5.78369C1.10168 5.78369 0.887817 5.87402 0.714233 6.05469L0.658936 6.10999C0.495883 6.28564 0.414357 6.50635 0.414357 6.77002C0.414357 7.03369 0.495883 7.25439 0.658936 7.43005L3.78516 10.7032C3.9502 10.8789 4.15137 10.9668 4.39014 10.9668C4.60339 10.9668 4.79541 10.8789 4.9668 10.7032L11.8325 2.3545C11.9979 2.17383 12.0806 1.96069 12.0806 1.71484C12.0806 1.49902 12.001 1.30713 11.8418 1.13904L11.0714 0.652832Z" fill="#4FC3F7"/>
-                        <path d="M14.1069 0.652832C14.0264 0.585124 13.9249 0.55127 13.8022 0.55127C13.6541 0.55127 13.527 0.610514 13.4213 0.729004L7.67773 8.36035C7.60144 8.43945 7.5127 8.47412 7.41162 8.47412C7.31055 8.47412 7.22181 8.43945 7.14552 8.36035L6.89893 8.08203C6.72900 7.89893 6.51953 7.80811 6.27051 7.80811L6.21240 7.80811C6.05420 7.80811 5.90503 7.84961 5.77441 7.93262L8.89063 11.0635C9.05566 11.2393 9.25684 11.3271 9.49561 11.3271C9.70886 11.3271 9.90088 11.2393 10.0723 11.0635L14.8979 2.3545C15.0632 2.17383 15.146 1.96069 15.146 1.71484C15.146 1.49902 15.0664 1.30713 14.9072 1.13904L14.1069 0.652832Z" fill="#4FC3F7"/>
-                      </svg>
+                      <i class="pi pi-check-circle" style="color:#4FC3F7; font-size:11px;"></i>
                     </div>
                   </div>
                 </div>
 
-                <!-- Button Previews -->
+                <!-- Button previews -->
                 <div class="whatsapp-buttons-preview"
                   *ngIf="newTemplate.buttons && newTemplate.buttons.length > 0">
                   <div *ngFor="let btn of newTemplate.buttons" class="whatsapp-button-preview">
@@ -327,7 +502,7 @@
                   </div>
                 </div>
 
-                <!-- Empty State -->
+                <!-- Empty state -->
                 <div class="template-empty-preview"
                   *ngIf="!newTemplate.body_text && newTemplate.header_type === 'NONE'">
                   <i class="pi pi-comment"></i>
@@ -350,6 +525,7 @@
           </div>
         </div>
       </div>
+      <!-- end right col -->
 
     </div>
   </div>
@@ -363,7 +539,7 @@
       icon="pi pi-check"
       class="p-button-success"
       (click)="saveTemplate()"
-      [disabled]="!newTemplate.name || !newTemplate.body_text || templateSaving"
+      [disabled]="!newTemplate.name || !newTemplate.body_text || templateSaving || headerUploading"
       [loading]="templateSaving"
     ></button>
   </ng-template>

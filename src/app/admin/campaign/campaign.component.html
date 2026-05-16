@@ -357,11 +357,20 @@
             </div> -->
 
             <div class="mb-2">
-              <small class="text-muted">
+              <!-- <small class="text-muted">
                 <i class="pi pi-users me-1"></i>
                 Selected: <strong>{{ selectedContacts.length }}</strong>
                 of {{ contacts.length }} contacts
-              </small>
+              </small> -->
+              <!-- In Step 5 card-body, update the selected count small tag: -->
+<small class="text-muted">
+  <i class="pi pi-users me-1"></i>
+  Selected: <strong>{{ selectedContacts.length + parsedManualContacts.length }}</strong>
+  <span *ngIf="activeTab !== 'manual'"> of {{ contacts.length }} contacts</span>
+  <span *ngIf="parsedManualContacts.length > 0" class="text-success ms-1">
+    (incl. {{ parsedManualContacts.length }} manual)
+  </span>
+</small>
               <!-- ✅ Show will-send breakdown when skip toggle is visible -->
               <div *ngIf="activeTab === 'accounts' && selectedContacts.length > 0" class="mt-1">
                 <small *ngIf="!skipRegisteredAccounts" class="text-success">
@@ -375,8 +384,15 @@
               </div>
             </div>
 
-            <button pButton
+            <!-- <button pButton
               [label]="sending ? 'Sending...' : '🚀 Send to ' + selectedContacts.length + ' Contacts'"
+              icon="pi pi-send" class="p-button-success w-100"
+              (click)="sendCampaign()"
+              [disabled]="!canSend() || sending" [loading]="sending">
+            </button> -->
+            <!-- Find this line in Step 5 and update: -->
+            <button pButton
+              [label]="sending ? 'Sending...' : '🚀 Send to ' + (selectedContacts.length + parsedManualContacts.length) + ' Contacts'"
               icon="pi pi-send" class="p-button-success w-100"
               (click)="sendCampaign()"
               [disabled]="!canSend() || sending" [loading]="sending">
@@ -433,6 +449,13 @@
                   <i class="pi pi-briefcase me-1"></i> Accounts
                 </button>
               </li>
+              <li class="nav-item">
+      <button class="nav-link"
+        [class.active]="activeTab === 'manual'"
+        (click)="switchTab('manual')">
+        <i class="pi pi-hashtag me-1"></i> Enter Numbers
+      </button>
+    </li>
             </ul>
           </div>
 
@@ -647,6 +670,7 @@
                 [rows]="10"
                 [rowsPerPageOptions]="[10, 25, 50, 100, 200]"
                 [totalRecords]="accountsTotal"
+                
                 [showCurrentPageReport]="true"
                 currentPageReportTemplate="Showing {first} to {last} of {totalRecords} accounts"
                 styleClass="p-datatable-striped"
@@ -800,6 +824,54 @@
                 <tr><td colspan="6" class="text-center p-4 text-muted">No accounts found.</td></tr>
               </ng-template>
             </p-table>
+
+            <!-- MANUAL NUMBERS PANEL -->
+            <div *ngIf="activeTab === 'manual'" class="p-3">
+              <div class="mb-2">
+                <small class="text-muted">
+                  <i class="pi pi-info-circle me-1"></i>
+                  Paste or type comma-separated numbers. Auto-formats every 10 digits.
+                  These are not saved — sent directly for this campaign only.
+                </small>
+              </div>
+
+              <textarea
+                pInputTextarea
+                [(ngModel)]="manualNumbersRaw"
+                rows="6"
+                placeholder="e.g. 9876543210, 9123456780, 9000000001"
+                class="w-100 mb-2"
+                style="resize:vertical; font-family: monospace; font-size: .85rem"
+                (ngModelChange)="parseManualNumbers()"
+                (paste)="onPasteNumbers($event)"
+              ></textarea>
+
+              <div class="d-flex align-items-center gap-3 flex-wrap">
+                <span class="badge bg-success" style="font-size:.9rem">
+                  <i class="pi pi-check me-1"></i>
+                  {{ parsedManualContacts.length }} number(s) detected
+                </span>
+                <button pButton type="button" icon="pi pi-times"
+                  label="Clear"
+                  class="p-button-outlined p-button-sm p-button-secondary"
+                  (click)="manualNumbersRaw = ''; parsedManualContacts = []">
+                </button>
+              </div>
+
+              <!-- Preview list (first 5) -->
+              <div *ngIf="parsedManualContacts.length > 0" class="mt-3">
+                <small class="text-muted d-block mb-1">Preview (first 5):</small>
+                <div *ngFor="let c of parsedManualContacts.slice(0,5)"
+                  class="badge bg-light text-dark border me-1 mb-1"
+                  style="font-size:.8rem; font-family:monospace">
+                  {{ c.mobileNumber }}
+                </div>
+                <span *ngIf="parsedManualContacts.length > 5"
+                  class="text-muted small">
+                  + {{ parsedManualContacts.length - 5 }} more
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 

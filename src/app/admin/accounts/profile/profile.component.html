@@ -42,6 +42,34 @@
         />
       </div>
     </div>
+    <!-- <div class="d-flex align-items-center gap-2 mt-2">
+      <b>Remark:</b>
+      <p-dropdown
+        [options]="adminRemarkOptions"
+        [(ngModel)]="accountDetails.remarkId"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select Remark"
+        [style]="{ minWidth: '200px' }"
+        appendTo="body"
+        [showClear]="true"
+        (onChange)="onProfileRemarkChange($event)"
+      ></p-dropdown>
+    </div> -->
+    <div class="d-flex align-items-center gap-2 mt-2">
+      <b>Remark:</b>
+      <p-dropdown
+        [options]="adminRemarkOptions"
+        [(ngModel)]="accountDetails.remarkId"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select Remark"
+        [style]="{ minWidth: '200px' }"
+        appendTo="body"
+        [showClear]="true"
+        (onChange)="onProfileRemarkChange($event)"
+      ></p-dropdown>
+    </div>
       <button
         pButton
         type="button"
