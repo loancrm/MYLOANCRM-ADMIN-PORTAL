@@ -223,6 +223,9 @@
           <th pSortableColumn="createdOn" class="text-nowrap">
             Created Date <p-sortIcon field="createdOn"></p-sortIcon>
           </th>
+          <th class="text-nowrap">
+            UpdatedBy
+          </th>
           <!-- <th pSortableColumn="updatedOn" class="text-nowrap">
             Updated Date <p-sortIcon field="updatedOn"></p-sortIcon>
           </th> -->
@@ -383,6 +386,12 @@
           <td>
             <span class="table-column-data" *ngIf="team.createdOn">{{
               team.createdOn | date
+            }}</span>
+          </td>
+
+          <td>
+            <span class="table-column-data" *ngIf="team.adminUpdatedBy">{{
+              team.adminUpdatedBy
             }}</span>
           </td>
 
