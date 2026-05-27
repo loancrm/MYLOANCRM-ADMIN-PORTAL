@@ -1363,6 +1363,11 @@ toggleLoanEnquiry(id: number): Observable<any> {
   return this.serviceMeta.httpPut(url, {});
 }
 
+updateLeadAssign(id: number, assignTo: any): Observable<any> {
+  const url = `social-media-leads/${id}/assign`;
+  return this.serviceMeta.httpPut(url, { assign_to: assignTo });
+}
+
 submitWhatsappTemplate(id: number) {
   const url = 'whatsapp-templates/submit/' + id;
   return this.serviceMeta.httpPost(url, {});

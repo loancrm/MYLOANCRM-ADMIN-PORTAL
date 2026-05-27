@@ -749,6 +749,19 @@
         [style]="{ width: '100%' }"
       ></p-dropdown>
     </div>
+    <div class="col-md-2 mt-2 no-padding-small" *ngIf="loggedInUserRole === 1">
+      <label class="fw-label">Assigned To</label>
+      <p-dropdown
+        [options]="assignFilterOptions"
+        [(ngModel)]="selectedAssignFilter"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="All Users"
+        (onChange)="onAssignFilterChange()"
+        [style]="{ width: '100%' }"
+        [showClear]="true"
+      ></p-dropdown>
+    </div>
 
     <!-- ✅ app-filter replaces Demo Status, Enquiry Type, Remarks dropdowns -->
     <div class="col-md-1 mt-2 no-padding-small d-flex align-items-end">
@@ -786,6 +799,7 @@
 
           <th pSortableColumn="CreatedOn" class="text-nowrap">Created Time <p-sortIcon field="CreatedOn"></p-sortIcon></th>
           <th class="text-nowrap">Status</th>
+          <th class="text-nowrap" *ngIf="loggedInUserRole === 1">Assigned To</th>
           <th class="text-nowrap">Quick Actions</th>
         </tr>
       </ng-template>
@@ -910,6 +924,21 @@
               </div>
             </div>
           </td> -->
+
+          <td *ngIf="loggedInUserRole === 1" (click)="$event.stopPropagation()">
+            <p-dropdown
+              [options]="assignFilterOptions"
+              [(ngModel)]="team.assign_to"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Unassigned"
+              [style]="{ width: '150px' }"
+              (onChange)="onLeadAssignChange(team, $event.value)"
+              (click)="$event.stopPropagation()"
+              appendTo="body"
+              [showClear]="true"
+            ></p-dropdown>
+          </td>
 
           <td>
             <div class="d-flex tableimage pointer-cursor">

@@ -27,11 +27,10 @@ export class SocialMediaLeadsComponent {
   filterConfig: any[] = [];
   accountsCount: any = 0;
   viewDialogVisible = false;
-selectedLead: any = null;
+  selectedLead: any = null;
   version = projectConstantsLocal.VERSION_DESKTOP;
   @ViewChild('SocialMediaLeadsTable') socialMediaLeadsTable!: Table;
   private readonly FILTER_STORAGE_KEY = 'socialMediaLeadsFilters';
-
   // ── Bulk Upload ────────────────────────────────────────
   bulkUploadVisible: boolean = false;
   selectedBulkFile: File | null = null;
@@ -41,12 +40,12 @@ selectedLead: any = null;
   isBulkValidating: boolean = false;
   handleDuplicates: string = 'skip';
   globalSearchValue: string = '';
-// Add this new property alongside handleDuplicates
-handleExcelDuplicates: string = 'skip';
-// selectedPlatform: string = 'all';
-// selectedPlatforms: string[] = [];
-selectedPlatforms: string[] = ['Facebook', 'Website'];
-platformOptions: { label: string; value: string }[] = [
+  // Add this new property alongside handleDuplicates
+  handleExcelDuplicates: string = 'skip';
+  // selectedPlatform: string = 'all';
+  // selectedPlatforms: string[] = [];
+  selectedPlatforms: string[] = ['Facebook', 'Website'];
+  platformOptions: { label: string; value: string }[] = [
   // { label: 'All Platforms', value: 'all' },
   { label: 'Facebook',      value: 'Facebook' },
   { label: 'Instagram',     value: 'Instagram' },
@@ -58,13 +57,13 @@ platformOptions: { label: string; value: string }[] = [
   // { label: 'Twitter',       value: 'Twitter' },
   // { label: 'YouTube',       value: 'YouTube' },
   // ← Add / remove platforms to match your actual data
-];
-selectedStatus: number = 1;
-statusOptions = [
-  { label: 'Active', value: 1 },
-  { label: 'Inactive', value: 2 },
-  { label: 'All', value: 'all' }
-];
+  ];
+  selectedStatus: number = 1;
+  statusOptions = [
+    { label: 'Active', value: 1 },
+    { label: 'Inactive', value: 2 },
+    { label: 'All', value: 'all' }
+  ];
   // ── Admin Remarks Dropdown ─────────────────────────────
   adminRemarkOptions: { label: string; value: any }[] = [];
   adminRemarksLoaded: boolean = false;
@@ -107,6 +106,9 @@ selectedRemark: string = '';
 // Add alongside other properties
 socialMediaFilterConfig: any[] = [];
 socialMediaAppliedFilter: any = {};
+assignFilterOptions: { label: string; value: any }[] = [];
+selectedAssignFilter: any = null;
+loggedInUserRole: number = 0;
   constructor(
     private location: Location,
     private routingService: RoutingService,
@@ -149,6 +151,12 @@ socialMediaAppliedFilter: any = {};
     if (this.selectedEnquiryType) {
       this.appliedFilter['enquiryType-eq'] = this.selectedEnquiryType;
     }
+
+    const adminDetails = JSON.parse(localStorage.getItem('adminDetails') || '{}');
+      this.loggedInUserRole = Number(adminDetails?.user?.role || 0);
+      if (this.loggedInUserRole === 1) {
+        this.loadAssignFilterOptions();
+      }
 
     this.loadAdminRemarks();
     this.loadBookDemoUsers();
@@ -941,6 +949,23 @@ setSocialMediaFilterConfig(): void {
         options: []
        }]
     },
+    {
+      header: 'Created Date Range',
+      data: [
+        {
+          field: 'fromDate',
+          title: 'From Date',
+          type: 'date',
+          filterType: 'eq'
+        },
+        {
+          field: 'toDate',
+          title: 'To Date',
+          type: 'date',
+          filterType: 'eq'
+        }
+      ]
+    },
   ];
 }
 
@@ -958,9 +983,12 @@ applySocialMediaConfigFilters(event: any): void {
     delete this.appliedFilter['registrationStatus'];
     delete this.appliedFilter['enquiryType-eq'];
     delete this.appliedFilter['remarkId-eq'];
+    delete this.appliedFilter['fromDate'];
+    delete this.appliedFilter['toDate'];
     this.saveFiltersToStorage();            // ✅ ADD THIS
   } else {
     this.socialMediaAppliedFilter = { ...event };
+    
 
     if (event['demoStatus-eq']) {
       this.appliedFilter['demoStatus-eq'] = event['demoStatus-eq'];
@@ -989,10 +1017,48 @@ applySocialMediaConfigFilters(event: any): void {
     } else {
       delete this.appliedFilter['remarkId-eq'];
     }
+     if (event['fromDate-eq']) {
+  this.appliedFilter['fromDate'] = event['fromDate-eq'];
+} else {
+  delete this.appliedFilter['fromDate'];
+}
+
+if (event['toDate-eq']) {
+  this.appliedFilter['toDate'] = event['toDate-eq'];
+} else {
+  delete this.appliedFilter['toDate'];
+}
 
     this.saveFiltersToStorage();   // ✅ ADD THIS
   }
   this.reloadTable();
 }
+loadAssignFilterOptions(): void {
+  this.leadsService.getUsers({ 'status-eq': 1 }).subscribe((data: any) => {
+    this.assignFilterOptions = [
+      { label: 'All Users', value: null },
+      ...data.filter((u: any) => u.status === 1)
+             .map((u: any) => ({ label: u.name, value: u.id }))
+    ];
+  });
+}
 
+onAssignFilterChange(): void {
+  if (this.selectedAssignFilter === null || this.selectedAssignFilter === undefined) {
+    delete this.appliedFilter['assign_to-eq'];
+  } else {
+    this.appliedFilter['assign_to-eq'] = this.selectedAssignFilter;
+  }
+  this.reloadTable();
+}
+
+onLeadAssignChange(lead: any, userId: any): void {
+  this.leadsService.updateLeadAssign(lead.id, userId).subscribe(
+    () => {
+      lead.assign_to = userId;
+      this.toastService.showSuccess('Lead reassigned successfully');
+    },
+    () => this.toastService.showError('Failed to reassign lead')
+  );
+}
 }
