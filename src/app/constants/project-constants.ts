@@ -16,6 +16,7 @@ export const projectConstantsLocal = {
     { id: 1, name: 'active',   displayName: 'Active'   },
     { id: 2, name: 'inactive', displayName: 'Inactive' },
   ],
+  
   // BASE_URL: 'http://localhost:5002/',
 
   // BASE_URL: 'https://rest.thefintalk.in:5002/',
