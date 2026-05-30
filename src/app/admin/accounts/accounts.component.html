@@ -153,6 +153,21 @@
             ></p-dropdown>
           </div>
 
+          <div class="filter-col mt-2 no-padding-small" *ngIf="loggedInUserRole === 1">
+            <label class="fw-label">Assigned To</label>
+            <p-dropdown
+              [style]="{ width: '100%' }"
+              [options]="assignFilterOptions"
+              [(ngModel)]="selectedAssignFilter"
+              optionLabel="label"
+              optionValue="value"
+              (onChange)="onAssignFilterChange($event)"
+              appendTo="body"
+              [showClear]="true"
+              placeholder="All Users"
+            ></p-dropdown>
+          </div>
+
           <div class="filter-col mt-2 no-padding-small text-right">
             <div class="d-flex">
               <div class="flex-grow-1 me-2"></div>
@@ -171,7 +186,6 @@
               </div>
             </div>
           </div>
-
         </div>
       </ng-template>
       <!-- <ng-template pTemplate="header" let-columns>
@@ -226,6 +240,7 @@
           <th class="text-nowrap">
             UpdatedBy
           </th>
+          <th class="text-nowrap" *ngIf="loggedInUserRole === 1">Assigned To</th>
           <!-- <th pSortableColumn="updatedOn" class="text-nowrap">
             Updated Date <p-sortIcon field="updatedOn"></p-sortIcon>
           </th> -->
@@ -395,6 +410,31 @@
             }}</span>
           </td>
 
+          <!-- <td *ngIf="loggedInUserRole === 1" (click)="$event.stopPropagation()">
+            <p-dropdown
+              [options]="assignFilterOptions"
+              [(ngModel)]="team.assign_to"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Unassigned"
+              [style]="{ width: '150px' }"
+              (onChange)="onAccountAssignChange(team, $event.value)"
+              (click)="$event.stopPropagation()"
+              appendTo="body"
+              [showClear]="true"
+            ></p-dropdown>
+          </td> -->
+
+          <td *ngIf="loggedInUserRole === 1">
+            <span
+              *ngIf="team.assignedUserName; else unassigned"
+            >
+              {{ team.assignedUserName }}
+            </span>
+            <ng-template #unassigned>
+              <span class="text-muted" style="font-size:12px;">—</span>
+            </ng-template>
+          </td>
           <!-- <td>
             <span class="table-column-data" *ngIf="team.updatedOn">{{
               team.updatedOn | date

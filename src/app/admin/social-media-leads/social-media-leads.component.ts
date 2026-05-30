@@ -289,6 +289,7 @@ loggedInUserRole: number = 0;
         ...lead,
         remarkId: lead.remarkId != null ? String(lead.remarkId) : null,
         isRegistered: lead.isRegistered || false,  // ✅ ADD THIS
+        assignedUserName: lead.assignedUserName || null,
       }));
       this.apiLoading = false;
     },
@@ -1033,12 +1034,14 @@ if (event['toDate-eq']) {
   }
   this.reloadTable();
 }
+// REPLACE existing loadAssignFilterOptions()
 loadAssignFilterOptions(): void {
-  this.leadsService.getUsers({ 'status-eq': 1 }).subscribe((data: any) => {
+  this.leadsService.getUsers({ 'status-eq': 1, 'role-eq': 2 }).subscribe((data: any) => {
     this.assignFilterOptions = [
       { label: 'All Users', value: null },
-      ...data.filter((u: any) => u.status === 1)
-             .map((u: any) => ({ label: u.name, value: u.id }))
+      ...data
+        .filter((u: any) => u.status === 1 && Number(u.role) === 2)
+        .map((u: any) => ({ label: u.name, value: u.id }))
     ];
   });
 }
@@ -1052,13 +1055,27 @@ onAssignFilterChange(): void {
   this.reloadTable();
 }
 
+// REPLACE existing onLeadAssignChange()
 onLeadAssignChange(lead: any, userId: any): void {
   this.leadsService.updateLeadAssign(lead.id, userId).subscribe(
     () => {
       lead.assign_to = userId;
+      // ✅ Update displayed name instantly — same pattern as accounts table
+      const found = this.assignFilterOptions.find(u => u.value === userId);
+      lead.assignedUserName = found ? found.label : null;
       this.toastService.showSuccess('Lead reassigned successfully');
     },
     () => this.toastService.showError('Failed to reassign lead')
   );
 }
+
+// onLeadAssignChange(lead: any, userId: any): void {
+//   this.leadsService.updateLeadAssign(lead.id, userId).subscribe(
+//     () => {
+//       lead.assign_to = userId;
+//       this.toastService.showSuccess('Lead reassigned successfully');
+//     },
+//     () => this.toastService.showError('Failed to reassign lead')
+//   );
+// }
 }

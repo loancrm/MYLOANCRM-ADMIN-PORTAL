@@ -925,7 +925,16 @@
             </div>
           </td> -->
 
+          <!-- REPLACE the existing assigned td in social-media-leads.component.html -->
           <td *ngIf="loggedInUserRole === 1" (click)="$event.stopPropagation()">
+            <span *ngIf="team.assignedUserName; else unassigned">
+              {{ team.assignedUserName }}
+            </span>
+            <ng-template #unassigned>
+              <span class="text-muted" style="font-size:12px;">—</span>
+            </ng-template>
+          </td>
+          <!-- <td *ngIf="loggedInUserRole === 1" (click)="$event.stopPropagation()">
             <p-dropdown
               [options]="assignFilterOptions"
               [(ngModel)]="team.assign_to"
@@ -938,7 +947,7 @@
               appendTo="body"
               [showClear]="true"
             ></p-dropdown>
-          </td>
+          </td> -->
 
           <td>
             <div class="d-flex tableimage pointer-cursor">
@@ -1221,6 +1230,39 @@
         <button class="lead-card__action-btn" (click)="editLead(selectedLead); viewDialogVisible = false">
           <img alt="Update User" src="../../../assets/images/icons/edit.svg" width="24px" height="24px" class="me-2" pTooltip="Update User" tooltipPosition="top" />
         </button>
+         <div class="assigned-to-container">
+
+  <label class="assigned-label">Assigned To</label>
+
+
+
+  <p-dropdown
+
+    [options]="assignFilterOptions"
+
+    [(ngModel)]="selectedLead.assign_to"
+
+    optionLabel="label"
+
+    optionValue="value"
+
+    placeholder="Unassigned"
+
+    [style]="{ width: '180px' }"
+
+    (onChange)="onLeadAssignChange(selectedLead, $event.value)"
+
+    (click)="$event.stopPropagation()"
+
+    appendTo="body"
+
+    [showClear]="true"
+
+  >
+
+  </p-dropdown>
+
+</div>
       </div>
 
       <!-- Detail Rows -->

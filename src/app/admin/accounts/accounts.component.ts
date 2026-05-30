@@ -65,10 +65,12 @@ billingCycleOptions = [
   //     { label: 'Premium', value: 'Premium' },
   //     { label: 'Professional', value: 'Professional' }
   //   ];
-adminRemarkOptions: { label: string; value: any }[] = [];
+  adminRemarkOptions: { label: string; value: any }[] = [];
   adminRemarksLoaded: boolean = false;
   adminRemarkFilterOptions: any[] = [];
-selectedRemarkFilter: any = 'ALL';
+  selectedRemarkFilter: any = 'ALL';
+  assignFilterOptions: { label: string; value: any }[] = [];
+  selectedAssignFilter: any = null;
   constructor(
     private routingService: RoutingService,
     private location: Location,
@@ -106,7 +108,10 @@ selectedRemarkFilter: any = 'ALL';
   if (adminDetails && adminDetails.user) {
     this.loggedInUserRole = Number(adminDetails.user.role);
     console.log(this.loggedInUserRole);
-    
+  }
+
+  if (this.loggedInUserRole === 1) {
+    this.loadAssignFilterOptions();
   }
     
   }
@@ -349,6 +354,11 @@ if (this.selectedBillingCycle && this.selectedBillingCycle !== 'ALL') {
 // ✅ ADD THIS
 if (this.selectedRemarkFilter && this.selectedRemarkFilter !== 'ALL') {
   api_filter['remarkId-eq'] = this.selectedRemarkFilter;
+}
+
+// replace the existing selectedAssignFilter check with:
+if (this.selectedAssignFilter && this.selectedAssignFilter !== 'ALL') {
+  api_filter['assign_to-eq'] = this.selectedAssignFilter;
 }
   // ✅ NO CHANGE to end_date
   // console.log('FINAL API Filter:', api_filter);
@@ -922,6 +932,7 @@ onRemarkChange(lead: any, remarkId: any) {
       selectedBillingCycle: this.selectedBillingCycle,
       selectedRemarkFilter: this.selectedRemarkFilter,
       selectedAccountStatus: this.selectedAccountStatus,
+      selectedAssignFilter: this.selectedAssignFilter
     };
     this.localStorageService.setItemOnLocalStorage(this.FILTER_STORAGE_KEY, filters);
   }
@@ -932,6 +943,7 @@ onRemarkChange(lead: any, remarkId: any) {
     this.selectedStatusType   = stored.selectedStatusType   ?? 'ALL';
     this.selectedBillingCycle = stored.selectedBillingCycle ?? 'ALL';
     this.selectedRemarkFilter = stored.selectedRemarkFilter ?? 'ALL';
+    this.selectedAssignFilter = stored.selectedAssignFilter ?? 'ALL';
     if (stored.selectedAccountStatus) {
       this.selectedAccountStatus = stored.selectedAccountStatus;
     }
@@ -943,4 +955,33 @@ onRemarkChange(lead: any, remarkId: any) {
     return found?.label?.toLowerCase().includes('demo completed') ?? false;
   }
 
+  loadAssignFilterOptions(): void {
+    this.leadsService.getUsers({ 'status-eq': 1, 'role-eq': 2 }).subscribe((data: any) => {
+      this.assignFilterOptions = [
+        { label: 'All Users', value: 'ALL' },  // ✅ use 'ALL' not null
+        ...data
+          .filter((u: any) => u.status === 1 && Number(u.role) === 2)  // ✅ Number() for type safety
+          .map((u: any) => ({ label: u.name, value: u.id }))
+      ];
+    });
+  }
+
+  onAccountAssignChange(team: any, userId: any): void {
+    this.leadsService.updateAccountAssign(team.accountId, userId).subscribe(
+      () => {
+        team.assign_to = userId;
+        // ✅ Update displayed name instantly
+        const found = this.assignFilterOptions.find(u => u.value === userId);
+        team.assignedUserName = found ? found.label : null;
+        this.toastService.showSuccess('Assigned successfully');
+      },
+      () => this.toastService.showError('Failed to assign')
+    );
+  }
+
+  onAssignFilterChange(event: any): void {
+  this.selectedAssignFilter = event.value;
+  this.saveFiltersToStorage();
+  this.accountTable.reset();
+}
 }

@@ -197,6 +197,7 @@ parsedManualContacts: Contact[] = [];
   ) {}
 
   ngOnInit(): void {
+    this.searchFilter = {};  
     this.searchFilter['status-eq'] = 1;
     this.loadSocialMediaLeads();
     this.loadTemplates();
@@ -233,6 +234,7 @@ this.setAccountsFilterConfig();
   // }
   switchTab(tab: 'socialMedia' | 'accounts' | 'manual'): void {
   // add 'manual' to the type above in activeTab declaration too
+  this.searchFilter = {}; 
   this.activeTab = tab as any;
   this.selectedContacts = [];
   this.searchText = '';
@@ -435,25 +437,32 @@ loadSocialMediaLeads(event: any = { first: 0, rows: 10 }): void {
 loadAccounts(event: any = { first: 0, rows: 10 }): void {
   this.contactsLoading = true;
 
-  const start  = event.first ?? 0;
-  const length = event.rows  ?? 10;
+  const start  = event?.first ?? 0;
+  const length = event?.rows  ?? 10;
 
   let sortField = 'createdOn';
   let sortOrder = 'desc';
 
-  if (event.sortField) {
+  if (event?.sortField) {
     sortField = event.sortField;
     sortOrder = event.sortOrder === 1 ? 'asc' : 'desc';
   }
 
-  const filter: any = {
-    ...this.searchFilter,
-    start,
-    length,
-    sort:       sortField,
-    order:      sortOrder,
-    'status-eq': 1,
-  };
+  // ✅ Build filter FIRST, then override start/length at the end
+  const filter: any = { ...this.searchFilter };
+
+  // Remove any stale pagination keys from searchFilter
+  delete filter['start'];
+  delete filter['length'];
+  delete filter['sort'];
+  delete filter['order'];
+
+  // Now set pagination (cannot be overridden)
+  filter['start']     = start;
+  filter['length']    = length;
+  filter['sort']      = sortField;
+  filter['order']     = sortOrder;
+  filter['status-eq'] = 1;
 
   if (this.selectedPlanType && this.selectedPlanType !== 'ALL') {
     filter['latest_plan_name-eq'] = this.selectedPlanType;
@@ -468,15 +477,17 @@ loadAccounts(event: any = { first: 0, rows: 10 }): void {
     filter['remarkId-eq'] = this.selectedAccountRemark;
   }
 
-  // ── Merge app-filter panel filters ──────────────────────
+  // Merge app-filter panel filters (also clean pagination from these)
   Object.keys(this.accountsAppliedFilter).forEach(key => {
-    const val = this.accountsAppliedFilter[key];
-    if (val !== undefined && val !== null && val !== '') {
-      filter[key] = val;
+    if (!['start','length','sort','order'].includes(key)) {  // ✅ never override pagination
+      const val = this.accountsAppliedFilter[key];
+      if (val !== undefined && val !== null && val !== '') {
+        filter[key] = val;
+      }
     }
   });
 
-  // ── Count query — strip pagination params ────────────────
+  // Count query — strip pagination params
   const countFilter = { ...filter };
   delete countFilter['start'];
   delete countFilter['length'];
@@ -514,8 +525,92 @@ loadAccounts(event: any = { first: 0, rows: 10 }): void {
   );
 }
 
+// loadAccounts(event: any = { first: 0, rows: 10 }): void {
+//   this.contactsLoading = true;
+
+//   const start  = event.first ?? 0;
+//   const length = event.rows  ?? 10;
+
+//   let sortField = 'createdOn';
+//   let sortOrder = 'desc';
+
+//   if (event.sortField) {
+//     sortField = event.sortField;
+//     sortOrder = event.sortOrder === 1 ? 'asc' : 'desc';
+//   }
+
+//   const filter: any = {
+//     ...this.searchFilter,
+//     start,
+//     length,
+//     sort:       sortField,
+//     order:      sortOrder,
+//     'status-eq': 1,
+//   };
+
+//   if (this.selectedPlanType && this.selectedPlanType !== 'ALL') {
+//     filter['latest_plan_name-eq'] = this.selectedPlanType;
+//   }
+//   if (this.selectedStatusType && this.selectedStatusType !== 'ALL') {
+//     filter['latest_status-eq'] = this.selectedStatusType;
+//   }
+//   if (this.selectedBillingCycle && this.selectedBillingCycle !== 'ALL') {
+//     filter['latest_billing_cycle-eq'] = this.selectedBillingCycle;
+//   }
+//   if (this.selectedAccountRemark) {
+//     filter['remarkId-eq'] = this.selectedAccountRemark;
+//   }
+
+//   // ── Merge app-filter panel filters ──────────────────────
+//   Object.keys(this.accountsAppliedFilter).forEach(key => {
+//     const val = this.accountsAppliedFilter[key];
+//     if (val !== undefined && val !== null && val !== '') {
+//       filter[key] = val;
+//     }
+//   });
+
+//   // ── Count query — strip pagination params ────────────────
+//   const countFilter = { ...filter };
+//   delete countFilter['start'];
+//   delete countFilter['length'];
+//   delete countFilter['sort'];
+//   delete countFilter['order'];
+
+//   this.leadsService.getAccountsCount(countFilter).subscribe((count: any) => {
+//     this.accountsTotal = Number(count) || 0;
+//   });
+
+//   this.leadsService.getAccounts(filter).subscribe(
+//     (data: any) => {
+//       this.contacts = data.map((acc: any) => ({
+//         name:                 acc.name                  || '',
+//         businessName:         acc.businessName          || '',
+//         mobileNumber:         acc.mobile                || '',
+//         email:                acc.emailId               || '',
+//         city:                 acc.city                  || '',
+//         accountId:            acc.accountId             || '',
+//         walletBalance:        acc.walletBalance         || '',
+//         createdOn:            acc.createdOn             || '',
+//         latest_plan_name:     acc.latest_plan_name      || '',
+//         latest_status:        acc.latest_status         || '',
+//         latest_billing_cycle: acc.latest_billing_cycle  || '',
+//         start_date:           acc.start_date            || '',
+//         end_date:             acc.end_date              || '',
+//       }));
+//       this.filteredContacts = this.contacts;
+//       this.contactsLoading  = false;
+//     },
+//     () => {
+//       this.errorMsg        = 'Failed to load accounts';
+//       this.contactsLoading = false;
+//     }
+//   );
+// }
+
   applyFilters(): void {
   delete this.searchFilter['search'];
+  delete this.searchFilter['start'];    // ✅ ADD THIS
+  delete this.searchFilter['length'];   // ✅ ADD THIS
 
   if (this.searchText?.trim()) {
     this.searchFilter['search'] = this.searchText;

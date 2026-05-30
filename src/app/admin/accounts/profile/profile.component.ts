@@ -73,6 +73,7 @@ walletAmountToAdd: number = 0;
 addingWallet: boolean = false;
 showWalletConfirm: boolean = false;
 adminRemarkOptions: { label: string; value: any }[] = [];
+assignFilterOptions: { label: string; value: any }[] = [];
   constructor(
     private route: ActivatedRoute,
     private location: Location,
@@ -100,7 +101,11 @@ adminRemarkOptions: { label: string; value: any }[] = [];
     if (adminDetails && adminDetails.user) {
       this.loggedInUserRole = Number(adminDetails.user.role);
     }
+    if (adminDetails && adminDetails.user) {
+      this.loggedInUserRole = Number(adminDetails.user.role);
+    }
     this.loadAdminRemarks();
+    this.loadAssignFilterOptions();
     // this.loadBankAnalytics();
   }
   setFilterConfig() {
@@ -814,6 +819,27 @@ saveRemark(remarkId: string | null): void {
       );
     },
     () => this.toastService.showError('Failed to update remark')
+  );
+}
+loadAssignFilterOptions(): void {
+  this.leadService.getUsers({ 'status-eq': 1, 'role-eq': 2 }).subscribe((data: any) => {
+    this.assignFilterOptions = data
+      .filter((u: any) => u.status === 1 && Number(u.role) === 2)
+      .map((u: any) => ({ label: u.name, value: u.id }));
+  });
+}
+onProfileAssignChange(event: any): void {
+  const userId = event.value || null;
+
+  this.leadService.updateAccountAssign(this.accountDetails.accountId, userId).subscribe(
+    () => {
+      this.accountDetails.assign_to = userId;
+      const found = this.assignFilterOptions.find(u => u.value === userId);
+      this.toastService.showSuccess(
+        found ? `Assigned to ${found.label}` : 'Assignment removed'
+      );
+    },
+    () => this.toastService.showError('Failed to update assignment')
   );
 }
 }

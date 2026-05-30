@@ -1368,6 +1368,10 @@ updateLeadAssign(id: number, assignTo: any): Observable<any> {
   return this.serviceMeta.httpPut(url, { assign_to: assignTo });
 }
 
+updateAccountAssign(accountId: string, assignTo: any): Observable<any> {
+  const url = `accounts/${accountId}/assign`;
+  return this.serviceMeta.httpPut(url, { assign_to: assignTo });
+}
 submitWhatsappTemplate(id: number) {
   const url = 'whatsapp-templates/submit/' + id;
   return this.serviceMeta.httpPost(url, {});
