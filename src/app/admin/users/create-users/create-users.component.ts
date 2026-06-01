@@ -20,6 +20,7 @@ export class CreateUsersComponent implements OnInit {
   roleOptions = [
     { label: 'Admin', value: 1 },
     { label: 'Sales', value: 2 },
+    { label: 'Support Team', value: 3 },
   ];
 
   constructor(

@@ -100,7 +100,8 @@
           <td>{{ user.name }}</td>
           <td>{{ user.email }}</td>
           <td>{{ user.phone }}</td>
-          <td>{{ user.role === '1' ? 'Admin' : 'Sales' }}</td>
+          <!-- <td>{{ user.role === '1' ? 'Admin' : 'Sales' }}</td> -->
+           <td>{{ user.role === '1' ? 'Admin' : user.role === '2' ? 'Sales' : user.role === '3' ? 'Support Team' : 'Unknown' }}</td>
           <td>{{ user.created_on | date }}</td>
           <td>
             <span

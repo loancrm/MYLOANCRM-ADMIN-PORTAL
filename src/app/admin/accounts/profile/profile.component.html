@@ -70,6 +70,21 @@
         (onChange)="onProfileRemarkChange($event)"
       ></p-dropdown>
     </div>
+    <!-- ✅ Assign To — Super Admin only -->
+      <div class="d-flex align-items-center gap-2 mt-2" *ngIf="loggedInUserRole === 1">
+        <b>Assigned To:</b>
+        <p-dropdown
+          [options]="assignFilterOptions"
+          [(ngModel)]="accountDetails.assign_to"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Unassigned"
+          [style]="{ minWidth: '200px' }"
+          appendTo="body"
+          [showClear]="true"
+          (onChange)="onProfileAssignChange($event)"
+        ></p-dropdown>
+      </div>
       <button
         pButton
         type="button"

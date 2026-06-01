@@ -118,14 +118,30 @@ subscriptionLoading: boolean = false;
   ];
 
   selectedDateOption: string = 'thisMonth';
-  selectedTodayTable: 'accounts' | 'contacts' | 'subscribers' | 'subscription' | 'expired' = 'accounts';
+  selectedTodayTable: 'accounts' | 'contacts' | 'subscribers' | 'subscription' | 'expired' | 'renewals' | 'upgraded' | 'degraded' = 'accounts';
   selectedtableoptions = [
     { label: 'Today Accounts', value: 'accounts' },
     { label: 'Today Contacts', value: 'contacts' },
     { label: 'Today Subscribers', value: 'subscribers' },
     { label: 'Today Subscriptions', value: 'subscription' },
     { label: 'Today Expired',     value: 'expired'     },
+    { label: 'Today Renewals',  value: 'renewals'  },
+    { label: 'Today Upgraded',  value: 'upgraded'  },
+    { label: 'Today Degraded',  value: 'degraded'  },
   ]
+  todayRenewals: any[] = [];
+  todayRenewalsCount: number = 0;
+  todayUpgraded: any[] = [];
+  todayUpgradedCount: number = 0;
+  todayDegraded: any[] = [];
+  todayDegradedCount: number = 0;
+  renewalLoading: boolean = false;
+  readonly PLAN_TIER: any = {
+    'Free Trial': 0,
+    'Basic': 1,
+    'Premium': 2,
+    'Professional': 3
+  };
 
   constructor(
     private routingService: RoutingService,
@@ -166,6 +182,7 @@ subscriptionLoading: boolean = false;
     this.updateCountsAnalytics();
     this.loadCounts();
     this.onLazyLoadCreated({ first: 0, rows: 10 });
+    this.loadTodayPlanChanges();
   }
 
   getMonthName(offset: number): string {
@@ -694,5 +711,118 @@ loadTodaySubscription(api_filter: any): void {
       this.subscriptionLoading = false;
     }
   );
+}
+loadTodayPlanChanges(): void {
+  this.renewalLoading = true;
+
+  const startIST = this.moment().startOf('day');
+  const endIST   = this.moment().endOf('day');
+
+  const api_filter: any = {
+    'start_date-gte': startIST.format('YYYY-MM-DD'),
+    'start_date-lte': endIST.format('YYYY-MM-DD'),
+  };
+
+  // Step 1: get today's subscriptions
+  this.leadsService.getSubscriptions(api_filter).subscribe(
+    (subscriptions: any) => {
+      if (!subscriptions || subscriptions.length === 0) {
+        this.todayRenewals = [];
+        this.todayUpgraded = [];
+        this.todayDegraded = [];
+        this.todayRenewalsCount = 0;
+        this.todayUpgradedCount = 0;
+        this.todayDegradedCount = 0;
+        this.renewalLoading = false;
+        return;
+      }
+
+      // Step 2: enrich with account info
+      const accountRequests = subscriptions.map((sub: any) =>
+        this.leadsService.getAccountById(sub.accountId)
+      );
+
+      forkJoin(accountRequests).subscribe(
+        (accounts: any) => {
+          const enriched = subscriptions.map((sub: any, i: number) => ({
+            ...sub,
+            businessName: accounts[i]?.businessName || '-',
+            mobile:       accounts[i]?.mobile       || '-',
+          }));
+
+          // Step 3: for each, get previous subscription of same account
+          const prevRequests = enriched.map((sub: any) => {
+            const prevFilter: any = {
+              'accountId-eq':   sub.accountId,
+              'id-lt':          sub.id,       // earlier record
+              'limit':          1,
+              'sortField':      'id',
+              'sortOrder':      -1,
+            };
+            return this.leadsService.getSubscriptions(prevFilter);
+          });
+
+          forkJoin(prevRequests).subscribe(
+            (prevResults: any) => {
+              const renewals: any[] = [];
+              const upgraded: any[] = [];
+              const degraded: any[] = [];
+
+              enriched.forEach((sub: any, i: number) => {
+                const prevList = prevResults[i];
+
+                // No previous subscription → first time, skip
+                if (!prevList || prevList.length === 0) return;
+
+                const prevPlan    = prevList[0].plan_name;
+                const currentPlan = sub.plan_name;
+
+                const prevTier    = this.PLAN_TIER[prevPlan]    ?? -1;
+                const currentTier = this.PLAN_TIER[currentPlan] ?? -1;
+
+                if (currentPlan === prevPlan) {
+                  renewals.push({ ...sub, previousPlan: prevPlan });
+                } else if (currentTier > prevTier) {
+                  upgraded.push({ ...sub, previousPlan: prevPlan });
+                } else if (currentTier < prevTier) {
+                  degraded.push({ ...sub, previousPlan: prevPlan });
+                }
+              });
+
+              this.todayRenewals      = renewals;
+              this.todayUpgraded      = upgraded;
+              this.todayDegraded      = degraded;
+              this.todayRenewalsCount = renewals.length;
+              this.todayUpgradedCount = upgraded.length;
+              this.todayDegradedCount = degraded.length;
+              this.renewalLoading     = false;
+            },
+            (err) => {
+              this.toastService.showError(err);
+              this.renewalLoading = false;
+            }
+          );
+        },
+        (err) => {
+          this.toastService.showError(err);
+          this.renewalLoading = false;
+        }
+      );
+    },
+    (err) => {
+      this.toastService.showError(err);
+      this.renewalLoading = false;
+    }
+  );
+}
+
+onLazyLoadTodayRenewals(event: any): void {
+  this.loadTodayPlanChanges();
+}
+onLazyLoadTodayUpgraded(event: any): void {
+  if (this.todayUpgraded.length === 0) this.loadTodayPlanChanges();
+}
+onLazyLoadTodayDegraded(event: any): void {
+  if (this.todayDegraded.length === 0) this.loadTodayPlanChanges();
 }
 }

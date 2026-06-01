@@ -213,3 +213,27 @@
   margin-bottom: 4px;
   display: block;
 }
+
+.assigned-to-container {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+
+  min-width: 180px;
+
+}
+
+
+
+.assigned-label {
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  color: #6c757d;
+
+}
