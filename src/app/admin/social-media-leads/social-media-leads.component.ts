@@ -128,39 +128,42 @@ loggedInUserRole: number = 0;
     ];
   }
   ngOnInit(): void {
-    this.loadFiltersFromStorage(); // ✅ restore first
-    this.setSocialMediaFilterConfig();
+  this.loadFiltersFromStorage();
+  this.setSocialMediaFilterConfig();
 
-    // ✅ Sync appliedFilter from restored values (not hardcoded)
-    if (this.selectedStatus && this.selectedStatus !== ('all' as any)) {
-      this.appliedFilter['status-eq'] = this.selectedStatus;
-    }
-
-    if (this.selectedPlatforms && this.selectedPlatforms.length > 0) {
-      this.appliedFilter['Platform-eq'] = this.selectedPlatforms.join(',');
-    }
-
-    if (this.selectedRegistrationStatus) {
-      this.appliedFilter['registrationStatus'] = this.selectedRegistrationStatus;
-    }
-
-    if (this.selectedDemoStatus) {                              // ✅ ADD
-      this.appliedFilter['demoStatus-eq'] = this.selectedDemoStatus;
-    }
-
-    if (this.selectedEnquiryType) {
-      this.appliedFilter['enquiryType-eq'] = this.selectedEnquiryType;
-    }
-
-    const adminDetails = JSON.parse(localStorage.getItem('adminDetails') || '{}');
-      this.loggedInUserRole = Number(adminDetails?.user?.role || 0);
-      if (this.loggedInUserRole === 1) {
-        this.loadAssignFilterOptions();
-      }
-
-    this.loadAdminRemarks();
-    this.loadBookDemoUsers();
+  // ✅ Sync appliedFilter from restored values
+  if (this.selectedStatus && this.selectedStatus !== ('all' as any)) {
+    this.appliedFilter['status-eq'] = this.selectedStatus;
   }
+  if (this.selectedPlatforms && this.selectedPlatforms.length > 0) {
+    this.appliedFilter['Platform-eq'] = this.selectedPlatforms.join(',');
+  }
+  if (this.selectedRegistrationStatus) {
+    this.appliedFilter['registrationStatus'] = this.selectedRegistrationStatus;
+  }
+  if (this.selectedDemoStatus) {
+    this.appliedFilter['demoStatus-eq'] = this.selectedDemoStatus;
+  }
+  if (this.selectedEnquiryType) {
+    this.appliedFilter['enquiryType-eq'] = this.selectedEnquiryType;
+  }
+
+  const adminDetails = JSON.parse(localStorage.getItem('adminDetails') || '{}');
+  this.loggedInUserRole = Number(adminDetails?.user?.role || 0);
+  const loggedInUserId = adminDetails?.user?.id;
+
+  // ✅ Role 2: only show leads assigned to this user (exclude null assign_to)
+  if (this.loggedInUserRole === 2 && loggedInUserId) {
+    this.appliedFilter['assign_to-eq'] = loggedInUserId;
+  }
+
+  if (this.loggedInUserRole === 1) {
+    this.loadAssignFilterOptions();
+  }
+
+  this.loadAdminRemarks();
+  this.loadBookDemoUsers();
+}
 
   loadBookDemoUsers(): void {
     this.leadsService.getUsers({ 'status-eq': 1 }).subscribe(
@@ -210,53 +213,27 @@ loggedInUserRole: number = 0;
     }
   );
 }
-  //  loadAdminRemarks() {
-  //   const filter = { 'status-eq': 3,'remarkInternalStatus-eq': 1  };
-  //   this.leadsService.getAdminRemarks(filter).subscribe(
-  //     (data: any) => {
-  //       // ✅ Convert remarkId to STRING — DB may return number,
-  //       //    but [(ngModel)] needs exact type match for pre-selection
-  //       this.adminRemarkOptions = data.map((r: any) => ({
-  //         label: r.displayName,
-  //         value: String(r.remarkId),
-  //       }));
-  //       this.adminRemarksLoaded = true;
-  //     },
-  //     (error: any) => {
-  //       this.toastService.showError('Failed to load remarks');
-  //       this.adminRemarksLoaded = true;
-  //     }
-  //   );
-  // }
-
-  loadsocialmediaLeads(event: any) {
+ 
+loadsocialmediaLeads(event: any) {
   this.currentTableEvent = event;
 
-  // ── Build base pagination + sort params ─────────────────
   const start  = event.first ?? 0;
   const length = event.rows  ?? 10;
-
-  let sortField = 'CreatedOn'; // default
-  let sortOrder = 'desc';      // default
+  let sortField = 'CreatedOn';
+  let sortOrder = 'desc';
 
   if (event.sortField) {
     sortField = event.sortField;
     sortOrder = event.sortOrder === 1 ? 'asc' : 'desc';
   }
 
-  const baseParams: any = {
-    start,
-    length,
-    sort:  sortField,
-    order: sortOrder,
-  };
+  const baseParams: any = { start, length, sort: sortField, order: sortOrder };
 
-  // ── Merge with column filters from PrimeNG ───────────────
   let columnFilters: any = {};
   if (event.filters) {
     Object.keys(event.filters).forEach(key => {
       const filterMeta = event.filters[key];
-      const filterArr  = Array.isArray(filterMeta) ? filterMeta : [filterMeta];
+      const filterArr = Array.isArray(filterMeta) ? filterMeta : [filterMeta];
       filterArr.forEach((f: any) => {
         if (f.value !== null && f.value !== undefined && f.value !== '') {
           columnFilters[key] = f.value;
@@ -265,32 +242,92 @@ loggedInUserRole: number = 0;
     });
   }
 
-  // ── Merge everything: base → column filters → search → applied ──
-  const api_filter = Object.assign(
-    {},
-    baseParams,
-    columnFilters,
-    this.searchFilter,
-    this.appliedFilter
-  );
+  const api_filter = Object.assign({}, baseParams, columnFilters, this.searchFilter, this.appliedFilter);
 
-  console.log('API Filter being sent:', api_filter);
+  // ✅ Role 2: always force assign_to filter
+  if (this.loggedInUserRole === 2) {
+    const adminDetails = JSON.parse(localStorage.getItem('adminDetails') || '{}');
+    const loggedInUserId = adminDetails?.user?.id;
+    api_filter['assign_to-eq'] = loggedInUserId;
+    api_filter['excludeNullAssign'] = true;
+  }
 
-  this.getSocilaMediaCount(api_filter);
-  this.getSocialMediaLeads(api_filter);
+  // ✅ For role 2, skip separate count call - set count from data length
+  if (this.loggedInUserRole === 2) {
+    this.getSocialMediaLeadsWithCount(api_filter);
+  } else {
+    this.getSocilaMediaCount(api_filter);
+    this.getSocialMediaLeads(api_filter);
+  }
 }
 
+getSocialMediaLeadsWithCount(filter = {}) {
+  this.apiLoading = true;
+  
+  // ✅ First get total count with a high limit to know actual total
+  const countFilter = { ...filter, start: 0, length: 99999 };
+  
+  this.leadsService.getSocialMediaLeads(countFilter).subscribe(
+    (allData: any) => {
+      const adminDetails = JSON.parse(localStorage.getItem('adminDetails') || '{}');
+      const loggedInUserId = Number(adminDetails?.user?.id);
 
-  getSocialMediaLeads(filter = {}) {
+      // Filter strictly
+      const allFiltered = allData
+        .map((lead: any) => ({
+          ...lead,
+          remarkId: lead.remarkId != null ? String(lead.remarkId) : null,
+          isRegistered: lead.isRegistered || false,
+          assignedUserName: lead.assignedUserName || null,
+        }))
+        .filter((lead: any) =>
+          lead.assign_to !== null &&
+          lead.assign_to !== undefined &&
+          Number(lead.assign_to) === loggedInUserId
+        );
+
+      // ✅ Set the TRUE count
+      this.socialMediaLeadsCount = allFiltered.length;
+
+      // ✅ Now paginate on frontend
+      const start = filter['start'] || 0;
+      const length = filter['length'] || 10;
+      this.socialMediaLeads = allFiltered.slice(start, start + length);
+
+      this.apiLoading = false;
+    },
+    (error) => {
+      this.toastService.showError('Error fetching social media leads');
+      this.apiLoading = false;
+    }
+  );
+}
+
+getSocialMediaLeads(filter = {}) {
   this.apiLoading = true;
   this.leadsService.getSocialMediaLeads(filter).subscribe(
     (data: any) => {
-      this.socialMediaLeads = data.map((lead: any) => ({
+      const adminDetails = JSON.parse(localStorage.getItem('adminDetails') || '{}');
+      const loggedInUserId = Number(adminDetails?.user?.id);
+
+      let leads = data.map((lead: any) => ({
         ...lead,
         remarkId: lead.remarkId != null ? String(lead.remarkId) : null,
-        isRegistered: lead.isRegistered || false,  // ✅ ADD THIS
+        isRegistered: lead.isRegistered || false,
         assignedUserName: lead.assignedUserName || null,
       }));
+
+      if (this.loggedInUserRole === 2) {
+        leads = leads.filter((lead: any) => 
+          lead.assign_to !== null && 
+          lead.assign_to !== undefined && 
+          Number(lead.assign_to) === loggedInUserId
+        );
+        // ✅ Fix count to match actual filtered data
+        this.socialMediaLeadsCount = leads.length;
+      }
+
+      this.socialMediaLeads = leads;
       this.apiLoading = false;
     },
     (error) => {
@@ -322,8 +359,19 @@ onRegistrationStatusChange(event: any): void {
   //     }
   //   );
   // }
-  getSocilaMediaCount(filter = {}) {
-  this.leadsService.getSocilaMediaCount(filter).subscribe(  // ✅ PASS FILTER
+ getSocilaMediaCount(filter = {}) {
+  if (this.loggedInUserRole === 2) {
+    const adminDetails = JSON.parse(localStorage.getItem('adminDetails') || '{}');
+    const loggedInUserId = adminDetails?.user?.id;
+    filter = { 
+      ...filter, 
+      'assign_to-eq': loggedInUserId, 
+      'excludeNullAssign': true,
+      'assign_to-notnull': true  // ✅ add this explicit not-null filter
+    };
+  }
+
+  this.leadsService.getSocilaMediaCount(filter).subscribe(
     (socialmediaCount) => {
       this.socialMediaLeadsCount = socialmediaCount;
     },

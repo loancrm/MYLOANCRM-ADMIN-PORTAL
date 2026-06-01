@@ -1230,39 +1230,38 @@
         <button class="lead-card__action-btn" (click)="editLead(selectedLead); viewDialogVisible = false">
           <img alt="Update User" src="../../../assets/images/icons/edit.svg" width="24px" height="24px" class="me-2" pTooltip="Update User" tooltipPosition="top" />
         </button>
-         <div class="assigned-to-container">
+         <div class="assigned-to-container"  *ngIf="loggedInUserRole === 1">
 
-  <label class="assigned-label">Assigned To</label>
+          <label class="assigned-label">Assigned To</label>
 
 
 
-  <p-dropdown
+          <p-dropdown
 
-    [options]="assignFilterOptions"
+            [options]="assignFilterOptions"
 
-    [(ngModel)]="selectedLead.assign_to"
+            [(ngModel)]="selectedLead.assign_to"
 
-    optionLabel="label"
+            optionLabel="label"
 
-    optionValue="value"
+            optionValue="value"
 
-    placeholder="Unassigned"
+            placeholder="Unassigned"
 
-    [style]="{ width: '180px' }"
+            [style]="{ width: '180px' }"
 
-    (onChange)="onLeadAssignChange(selectedLead, $event.value)"
+            (onChange)="onLeadAssignChange(selectedLead, $event.value)"
 
-    (click)="$event.stopPropagation()"
+            (click)="$event.stopPropagation()"
 
-    appendTo="body"
+            appendTo="body"
 
-    [showClear]="true"
+            [showClear]="true"
 
-  >
+          >
+          </p-dropdown>
 
-  </p-dropdown>
-
-</div>
+        </div>
       </div>
 
       <!-- Detail Rows -->
