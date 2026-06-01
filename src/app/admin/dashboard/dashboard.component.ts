@@ -752,13 +752,20 @@ loadTodayPlanChanges(): void {
 
           // Step 3: for each, get previous subscription of same account
           const prevRequests = enriched.map((sub: any) => {
+            // const prevFilter: any = {
+            //   'accountId-eq':   sub.accountId,
+            //   'id-lt':          sub.id,       // earlier record
+            //   'limit':          1,
+            //   'sortField':      'id',
+            //   'sortOrder':      -1,
+            // };
             const prevFilter: any = {
-              'accountId-eq':   sub.accountId,
-              'id-lt':          sub.id,       // earlier record
-              'limit':          1,
-              'sortField':      'id',
-              'sortOrder':      -1,
-            };
+  'accountId-eq':   sub.accountId,
+  'id-lt':          sub.id,
+  'limit':          10,   // ← changed from 1 to 10
+  'sortField':      'id',
+  'sortOrder':      -1,
+};
             return this.leadsService.getSubscriptions(prevFilter);
           });
 
@@ -769,25 +776,50 @@ loadTodayPlanChanges(): void {
               const degraded: any[] = [];
 
               enriched.forEach((sub: any, i: number) => {
-                const prevList = prevResults[i];
+                // const prevList = prevResults[i];
 
-                // No previous subscription → first time, skip
-                if (!prevList || prevList.length === 0) return;
+                // // No previous subscription → first time, skip
+                // if (!prevList || prevList.length === 0) return;
 
-                const prevPlan    = prevList[0].plan_name;
-                const currentPlan = sub.plan_name;
+                // const prevPlan    = prevList[0].plan_name;
+                // const currentPlan = sub.plan_name;
 
-                const prevTier    = this.PLAN_TIER[prevPlan]    ?? -1;
-                const currentTier = this.PLAN_TIER[currentPlan] ?? -1;
+                // const prevTier    = this.PLAN_TIER[prevPlan]    ?? -1;
+                // const currentTier = this.PLAN_TIER[currentPlan] ?? -1;
 
-                if (currentPlan === prevPlan) {
-                  renewals.push({ ...sub, previousPlan: prevPlan });
-                } else if (currentTier > prevTier) {
-                  upgraded.push({ ...sub, previousPlan: prevPlan });
-                } else if (currentTier < prevTier) {
-                  degraded.push({ ...sub, previousPlan: prevPlan });
-                }
-              });
+                // if (currentPlan === prevPlan) {
+                //   renewals.push({ ...sub, previousPlan: prevPlan });
+                // } else if (currentTier > prevTier) {
+                //   upgraded.push({ ...sub, previousPlan: prevPlan });
+                // } else if (currentTier < prevTier) {
+                //   degraded.push({ ...sub, previousPlan: prevPlan });
+                // }
+                const prevList: any[] = prevResults[i];
+if (!prevList || prevList.length === 0) return;
+if (sub.plan_name === 'Free Trial') return; // skip if current is free trial
+
+// find latest previous plan that is NOT Free Trial
+const prevSub = prevList
+  .sort((a: any, b: any) => b.id - a.id)
+  .find((p: any) => p.plan_name !== 'Free Trial');
+
+if (!prevSub) return; // no paid plan history → skip
+
+const prevPlan    = prevSub.plan_name;
+const currentPlan = sub.plan_name;
+
+const prevTier    = this.PLAN_TIER[prevPlan]    ?? -1;
+const currentTier = this.PLAN_TIER[currentPlan] ?? -1;
+
+if (currentPlan === prevPlan) {
+  renewals.push({ ...sub, previousPlan: prevPlan });
+} else if (currentTier > prevTier) {
+  upgraded.push({ ...sub, previousPlan: prevPlan });
+} else if (currentTier < prevTier) {
+  degraded.push({ ...sub, previousPlan: prevPlan });
+}
+              }
+            );
 
               this.todayRenewals      = renewals;
               this.todayUpgraded      = upgraded;
