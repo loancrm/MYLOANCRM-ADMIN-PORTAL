@@ -581,14 +581,10 @@
                     <td>{{ row.businessName || '-' }}</td>
                     <td>{{ row.mobile || '-' }}</td>
                     <td>
-                      <span class="badge" style="background:#FFF3CD;color:#856404;">
-                        {{ row.previousPlan || '-' }}
-                      </span>
+                      {{ row.previousPlan || '-' }}
                     </td>
                     <td>
-                      <span class="badge" style="background:#D1E7DD;color:#0F5132;">
-                        {{ row.plan_name || '-' }}
-                      </span>
+                      {{ row.plan_name || '-' }}
                     </td>
                     <td>{{ row.start_date | date:'dd MMM yyyy' }}</td>
                   </tr>
