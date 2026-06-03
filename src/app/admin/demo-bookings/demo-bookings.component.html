@@ -63,6 +63,7 @@
       <ng-template pTemplate="caption">
         <div class="row">
           <div class="col-md-3 mt-2 no-padding-small">
+            <label class="fw-label">Search</label>
             <div class="p-inputgroup">
               <input
                 pInputText
@@ -89,6 +90,7 @@
             </div>
           </div>
           <div class="col-md-3 mt-2 no-padding-small">
+            <label class="fw-label">Demo Status</label>
              <p-dropdown
                 [options]="statusOptions"
                 [(ngModel)]="selectedStatus"
@@ -99,8 +101,24 @@
                 styleClass="w-100"
               ></p-dropdown>
           </div>
+          <div class="col-md-3 mt-2 no-padding-small">
+            <label class="fw-label">Demo Date</label>
+            <div class="p-inputgroup">
+              <p-calendar
+                [(ngModel)]="selectedDate"
+                dateFormat="yy-mm-dd"
+                placeholder="Select Date"
+                (onSelect)="onDateChange()"
+                (onClearClick)="clearDate()"
+                [showButtonBar]="true"
+                [style]="{ width: '100%' }"
+                appendTo="body"
+              ></p-calendar>
+            </div>
+          </div>
           <!-- Assign To Filter -->
           <div class="col-md-3 mt-2 no-padding-small" *ngIf="loggedInUserRole === 1">
+            <label class="fw-label">Assigned To</label>
             <p-dropdown
               [options]="assignFilterOptions"
               [(ngModel)]="selectedAssignFilter"
