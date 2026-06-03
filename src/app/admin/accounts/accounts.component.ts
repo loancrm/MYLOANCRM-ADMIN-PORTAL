@@ -93,7 +93,6 @@ billingCycleOptions = [
     this.restorePaginationState();
     this.loadAdminRemarks();
     this.loadFiltersFromStorage();
-
     this.setFilterConfig();
     const storedAppliedFilter =
       this.localStorageService.getItemFromLocalStorage('accountAppliedFilter');
@@ -101,19 +100,22 @@ billingCycleOptions = [
       this.appliedFilter = storedAppliedFilter;
     }
 
-   const adminDetails = this.localStorageService.getItemFromLocalStorage('adminDetails');
-   console.log(adminDetails);
-   
+    const adminDetails = this.localStorageService.getItemFromLocalStorage('adminDetails');
+    if (adminDetails && adminDetails.user) {
+      this.loggedInUserRole = Number(adminDetails.user.role);
+    }
 
-  if (adminDetails && adminDetails.user) {
-    this.loggedInUserRole = Number(adminDetails.user.role);
-    console.log(this.loggedInUserRole);
-  }
+    // ✅ Role 2: force assign_to filter
+    if (this.loggedInUserRole === 2 && adminDetails?.user?.id) {
+      this.appliedFilter = {
+        ...this.appliedFilter,
+        'assign_to-eq': adminDetails.user.id
+      };
+    }
 
-  if (this.loggedInUserRole === 1) {
-    this.loadAssignFilterOptions();
-  }
-    
+    if (this.loggedInUserRole === 1) {
+      this.loadAssignFilterOptions();
+    }
   }
 
   loadAdminRemarks() {
@@ -297,7 +299,6 @@ billingCycleOptions = [
   }
 
 loadAccounts(event) {
-  // 1️⃣ Use event or fallback to saved state
   if (!event) {
     event = {
       first: this.initialFirst,
@@ -308,60 +309,47 @@ loadAccounts(event) {
   }
 
   this.currentTableEvent = event;
-  
-
-  // 2️⃣ Save current page and rows to localStorage
   if (event && (event.first !== undefined || event.first === 0)) {
     const rows = event.rows || 10;
     const currentPage =
       event.first === 0 ? 1 : Math.floor(event.first / rows) + 1;
 
-    this.localStorageService.setItemOnLocalStorage(
-      'disbursalsCurrentPage',
-      currentPage.toString()
-    );
-    this.localStorageService.setItemOnLocalStorage(
-      'disbursalsRowsPerPage',
-      rows.toString()
-    );
+    this.localStorageService.setItemOnLocalStorage('disbursalsCurrentPage', currentPage.toString());
+    this.localStorageService.setItemOnLocalStorage('disbursalsRowsPerPage', rows.toString());
 
-    // Update initial values for future fallback
     this.initialFirst = event.first;
     this.initialRows = rows;
   }
 
-  // 3️⃣ Create API filter from Prime table event
   let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
 
-  // 4️⃣ Add default account status filter
   if (!this.selectedAccountStatus || this.selectedAccountStatus.id === 1) {
     api_filter['status-eq'] = 1;
   }
 
-  // 5️⃣ Merge other filters
   api_filter = Object.assign({}, api_filter, this.searchFilter, this.appliedFilter);
-  // ✅ APPLY PLAN FILTER ONLY HERE
+
   if (this.selectedPlanType && this.selectedPlanType !== 'ALL') {
     api_filter['latest_plan_name-eq'] = this.selectedPlanType;
   }
   if (this.selectedStatusType && this.selectedStatusType !== 'ALL') {
     api_filter['latest_status-eq'] = this.selectedStatusType;
   }
-  // ✅ NEW
-if (this.selectedBillingCycle && this.selectedBillingCycle !== 'ALL') {
-  api_filter['latest_billing_cycle-eq'] = this.selectedBillingCycle;
-}
-// ✅ ADD THIS
-if (this.selectedRemarkFilter && this.selectedRemarkFilter !== 'ALL') {
-  api_filter['remarkId-eq'] = this.selectedRemarkFilter;
-}
+  if (this.selectedBillingCycle && this.selectedBillingCycle !== 'ALL') {
+    api_filter['latest_billing_cycle-eq'] = this.selectedBillingCycle;
+  }
+  if (this.selectedRemarkFilter && this.selectedRemarkFilter !== 'ALL') {
+    api_filter['remarkId-eq'] = this.selectedRemarkFilter;
+  }
+  if (this.selectedAssignFilter && this.selectedAssignFilter !== 'ALL') {
+    api_filter['assign_to-eq'] = this.selectedAssignFilter;
+  }
 
-// replace the existing selectedAssignFilter check with:
-if (this.selectedAssignFilter && this.selectedAssignFilter !== 'ALL') {
-  api_filter['assign_to-eq'] = this.selectedAssignFilter;
-}
-  // ✅ NO CHANGE to end_date
-  // console.log('FINAL API Filter:', api_filter);
+  // ✅ Role 2: always force their own assign_to — cannot be overridden
+  if (this.loggedInUserRole === 2) {
+    const adminDetails = this.localStorageService.getItemFromLocalStorage('adminDetails');
+    api_filter['assign_to-eq'] = adminDetails?.user?.id;
+  }
 
   this.getTeamCount(api_filter);
   this.getTeam(api_filter);

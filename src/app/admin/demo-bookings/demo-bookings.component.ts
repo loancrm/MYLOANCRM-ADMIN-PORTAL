@@ -16,12 +16,14 @@ export class DemoBookingsComponent {
   demoBookings: any[] = [];
   demoBookingsCount = 0;
   loading = false;
-
+  
   globalSearch = '';
   selectedStatus: any = 'confirmed';
 
   showCompletedDialog  = false;
-selectedCompletedRow: any = null;
+  selectedCompletedRow: any = null;
+  // selectedDate: Date = new Date();
+  selectedDate: Date | null = new Date();
 
   statusOptions = [
     { label: 'All', value: '' },
@@ -52,14 +54,14 @@ selectedCompletedRow: any = null;
   ) {}
 
   ngOnInit() {
-     this.loadUsers();
-      const adminDetails =
+    this.loadUsers();
+    const adminDetails =
     JSON.parse(localStorage.getItem('adminDetails') || '{}');
 
-  this.loggedInUserRole = Number(adminDetails?.user?.role || 0);
+    this.loggedInUserRole = Number(adminDetails?.user?.role || 0);
 
-  this.loadUsers();
-  this.loadDemoBookings({ first: 0, rows: 10 });
+    this.loadUsers();
+    this.loadDemoBookings({ first: 0, rows: 10 });
     // this.loadDemoBookings({ first: 0, rows: 10 });
   }
 
@@ -88,50 +90,108 @@ selectedCompletedRow: any = null;
   //   });
   // }
 
-  loadDemoBookings(event: any) {
-    this.currentEvent = event;
+  // Update loadDemoBookings to include date filter
+loadDemoBookings(event: any) {
+  this.currentEvent = event;
 
-    // const filter: any = {
-    //   from: event.first,
-    //   count: event.rows,
-    //   search: this.globalSearch || '',
-    //   status: this.selectedStatus || ''
-    // };
-    const filter: any = {
-      from: event.first,
-      count: event.rows
-    };
+  const filter: any = {
+    from: event.first,
+    count: event.rows
+  };
 
-    if (this.globalSearch && this.globalSearch.trim() !== '') {
-      filter.search = this.globalSearch.trim();
-    }
-
-    if (this.selectedStatus) {
-      filter.status = this.selectedStatus;
-    }
-    if (this.selectedAssignFilter !== null && this.selectedAssignFilter !== undefined) {
-      filter['assign_to-eq'] = this.selectedAssignFilter;
-    }
-
-    this.loading = true;
-
-    this.leadsService.getDemoBookings(filter).subscribe(
-      (res: any) => {
-        this.demoBookings = res;
-        this.loading = false;
-      },
-      () => {
-        this.toast.showError('Failed to load bookings');
-        this.loading = false;
-      }
-    );
-
-    this.leadsService.getDemoBookingsCount(filter).subscribe(
-      (count: any) => {
-        this.demoBookingsCount = Number(count);
-      }
-    );
+  if (this.globalSearch && this.globalSearch.trim() !== '') {
+    filter.search = this.globalSearch.trim();
   }
+
+  if (this.selectedStatus) {
+    filter.status = this.selectedStatus;
+  }
+
+  if (this.selectedAssignFilter !== null && this.selectedAssignFilter !== undefined) {
+    filter['assign_to-eq'] = this.selectedAssignFilter;
+  }
+
+  // ✅ Add date filter
+  if (this.selectedDate) {
+    filter.demo_date = this.selectedDate.toLocaleDateString('en-CA'); // YYYY-MM-DD
+  }
+
+  this.loading = true;
+
+  this.leadsService.getDemoBookings(filter).subscribe(
+    (res: any) => {
+      this.demoBookings = res;
+      this.loading = false;
+    },
+    () => {
+      this.toast.showError('Failed to load bookings');
+      this.loading = false;
+    }
+  );
+
+  this.leadsService.getDemoBookingsCount(filter).subscribe(
+    (count: any) => {
+      this.demoBookingsCount = Number(count);
+    }
+  );
+}
+
+// Add date change handler
+onDateChange(): void {
+  this.reload();
+}
+
+// Add clear date handler
+clearDate(): void {
+  this.selectedDate = null;
+  this.reload();
+}
+
+
+  // loadDemoBookings(event: any) {
+  //   this.currentEvent = event;
+
+  //   // const filter: any = {
+  //   //   from: event.first,
+  //   //   count: event.rows,
+  //   //   search: this.globalSearch || '',
+  //   //   status: this.selectedStatus || ''
+  //   // };
+  //   const filter: any = {
+  //     from: event.first,
+  //     count: event.rows
+  //   };
+
+  //   if (this.globalSearch && this.globalSearch.trim() !== '') {
+  //     filter.search = this.globalSearch.trim();
+  //   }
+
+  //   if (this.selectedStatus) {
+  //     filter.status = this.selectedStatus;
+  //   }
+  //   if (this.selectedAssignFilter !== null && this.selectedAssignFilter !== undefined) {
+  //     filter['assign_to-eq'] = this.selectedAssignFilter;
+  //   }
+
+  //   this.loading = true;
+
+  //   this.leadsService.getDemoBookings(filter).subscribe(
+  //     (res: any) => {
+  //       this.demoBookings = res;
+  //       this.loading = false;
+  //     },
+  //     () => {
+  //       this.toast.showError('Failed to load bookings');
+  //       this.loading = false;
+  //     }
+  //   );
+
+  //   this.leadsService.getDemoBookingsCount(filter).subscribe(
+  //     (count: any) => {
+  //       this.demoBookingsCount = Number(count);
+  //     }
+  //   );
+  // }
 
   onSearch() {
     this.reload();

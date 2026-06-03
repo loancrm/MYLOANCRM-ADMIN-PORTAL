@@ -858,16 +858,8 @@
               {{ team.Platform === 'ExcelImport' ? 'Excel Import' : team.Platform }}
             </span>
           </td>
+
           <!-- <td (click)="$event.stopPropagation()">
-            <textarea
-              class="form-control form-control-sm"
-              rows="2"
-              placeholder="Add remark"
-              (click)="$event.stopPropagation()"
-              (keydown.enter)="saveRemark(team, $event); $event.preventDefault(); $event.stopPropagation()"
-            >{{ team.remarks }}</textarea>
-          </td> -->
-          <td (click)="$event.stopPropagation()">
             <p-dropdown
               [options]="adminRemarkOptions"
               [(ngModel)]="team.remarkId"
@@ -880,6 +872,29 @@
               appendTo="body"
               [showClear]="true"
             ></p-dropdown>
+          </td> -->
+          <td (click)="$event.stopPropagation()">
+            <span 
+              *ngIf="isDemoCompleted(team.remarkId); else tableDropdown"
+              class="badge"
+              style="background:#E1F5EE; color:#0F6E56; font-size:12px; padding:6px 12px; border-radius:16px; font-weight:500; cursor:default;">
+              <i class="pi pi-check-circle me-1"></i>
+              Demo Completed
+            </span>
+            <ng-template #tableDropdown>
+              <p-dropdown
+                [options]="adminRemarkOptions"
+                [(ngModel)]="team.remarkId"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select Remark"
+                [style]="{ width: '160px' }"
+                (onChange)="onRemarkChange(team, $event.value)"
+                (click)="$event.stopPropagation()"
+                appendTo="body"
+                [showClear]="true"
+              ></p-dropdown>
+            </ng-template>
           </td>
 
           <ng-template #dash>-</ng-template>
@@ -1231,36 +1246,20 @@
           <img alt="Update User" src="../../../assets/images/icons/edit.svg" width="24px" height="24px" class="me-2" pTooltip="Update User" tooltipPosition="top" />
         </button>
          <div class="assigned-to-container"  *ngIf="loggedInUserRole === 1">
-
           <label class="assigned-label">Assigned To</label>
-
-
-
           <p-dropdown
-
             [options]="assignFilterOptions"
-
             [(ngModel)]="selectedLead.assign_to"
-
             optionLabel="label"
-
             optionValue="value"
-
             placeholder="Unassigned"
-
             [style]="{ width: '180px' }"
-
             (onChange)="onLeadAssignChange(selectedLead, $event.value)"
-
             (click)="$event.stopPropagation()"
-
             appendTo="body"
-
             [showClear]="true"
-
           >
           </p-dropdown>
-
         </div>
       </div>
 
@@ -1344,6 +1343,25 @@
         <div class="lead-card__row" style="border-bottom: none;">
           <i class="pi pi-comment lead-card__icon"></i>
           <div>
+            <div class="lead-card__label">Drop Down Remarks</div>
+            <div class="lead-card__value">
+              <p-dropdown
+                [options]="adminRemarkOptions"
+                [(ngModel)]="selectedLead.remarkId"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select Remark"
+                [style]="{ width: '200px' }"
+                (onChange)="onRemarkChange(selectedLead, $event.value)"
+                appendTo="body"
+                [showClear]="true"
+              ></p-dropdown>
+            </div>
+          </div>
+        </div>
+        <div class="lead-card__row" style="border-bottom: none;">
+          <i class="pi pi-comment lead-card__icon"></i>
+          <div>
             <div class="lead-card__label">Remarks</div>
             <div class="lead-card__value">{{ selectedLead.remarks || 'N/A' }}</div>
              <!-- <textarea
@@ -1386,7 +1404,6 @@
           </div>
         </div>
       </div>
-
   </div>
 </p-dialog>
 </div>

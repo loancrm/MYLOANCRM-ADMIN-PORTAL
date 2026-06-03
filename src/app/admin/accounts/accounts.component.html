@@ -210,6 +210,7 @@
       </ng-template> -->
       <ng-template pTemplate="header" let-columns>
         <tr>
+          <th>Id</th>
           <th pSortableColumn="accountId" class="text-nowrap">
             Account Id <p-sortIcon field="accountId"></p-sortIcon>
           </th>
@@ -247,12 +248,15 @@
           <th class="text-nowrap">Quick Actions</th>
         </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-team>
+      <ng-template pTemplate="body" let-team  let-rowIndex="rowIndex">
         <tr
           [pSelectableRow]="team"
           class="text-capitalize"
           [ngClass]="{ 'disabled-row': team.disabled }"
         >
+          
+          <td>{{ rowIndex + 1 }}</td>
+          
           <td>
             <span class="table-column-data" *ngIf="team.accountId">{{
               team.accountId
