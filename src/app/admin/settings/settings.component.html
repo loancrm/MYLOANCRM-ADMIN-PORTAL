@@ -254,6 +254,168 @@
 
     </p-tabPanel>
 
+    <!-- ══════════════════════════════════════════════════════════
+        TAB 3 – PAYMENT LINKS
+        Drop this <p-tabPanel> block inside the existing <p-tabView>
+        right after the "Time Slots" </p-tabPanel> closing tag.
+    ══════════════════════════════════════════════════════════ -->
+    <p-tabPanel header="Payment Links">
+
+      <!-- ── Create Payment Link button ─────────────────────── -->
+      <div class="d-flex justify-content-end mb-2">
+        <button pButton type="button" class="p-button-primary" icon="pi pi-plus"
+          label="Create Payment Link" (click)="openPaymentLinkDialog()">
+        </button>
+      </div>
+
+      <!-- ── Filters row ────────────────────────────────────── -->
+      <div class="row mb-3">
+        <div class="col-md-3">
+          <p-dropdown [options]="plStatusFilterOptions"
+            [(ngModel)]="selectedPlStatusFilter"
+            optionLabel="label" optionValue="value"
+            placeholder="Filter by Status"
+            [style]="{ width: '100%' }"
+            (onChange)="onPlStatusFilterChange($event)"
+            appendTo="body">
+          </p-dropdown>
+        </div>
+      </div>
+
+      <!-- ── Payment Links Table ────────────────────────────── -->
+      <p-table #plTable [value]="paymentLinks" [lazy]="true"
+        (onLazyLoad)="loadPaymentLinks($event)"
+        [totalRecords]="paymentLinksCount"
+        [loading]="plLoading" [rows]="10" [paginator]="true"
+        [rowsPerPageOptions]="[10, 25, 50]" [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Payment Links"
+        class="p-datatable-striped" responsiveLayout="scroll">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="text-nowrap">ID</th>
+            <th class="text-nowrap">Name</th>
+            <th class="text-nowrap">Phone Number</th>
+            <th class="text-nowrap">Amount (₹)</th>
+            <!-- <th class="text-nowrap">Customer</th> -->
+            <th class="text-nowrap">Status</th>
+            <th class="text-nowrap">Expires At</th>
+            <th class="text-nowrap">Created At</th>
+            <th class="text-nowrap">Actions</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-pl  let-rowIndex="rowIndex">
+          <tr>
+            <td>{{ rowIndex + 1 }}</td>
+            <!-- <td>
+              <span class="text-xs text-muted" style="font-size:11px;">{{ pl.id }}</span>
+            </td> -->
+            <!-- <td>{{ pl.description || '-' }}</td> -->
+             <td>{{ pl.customer?.name || '-' }}</td>
+             <td>{{ pl.customer?.contact ? ('+91 ' + pl.customer.contact) : '-' }}</td>
+            
+            <!-- <td>
+              <div>{{ pl.customer?.name || '-' }}</div>
+              <small class="text-muted">{{ pl.customer?.contact || '' }}</small>
+            </td> -->
+            <td>
+              <strong>{{ (pl.amount / 100) | currency:'INR':'symbol':'1.0-2' }}</strong>
+            </td>
+            <td>
+              <span class="status-badge"
+                [ngClass]="{
+                  'status-active':   pl.status === 'created',
+                  'status-inactive': pl.status === 'cancelled',
+                  'badge-paid':      pl.status === 'paid',
+                  'badge-expired':   pl.status === 'expired'
+                }">
+                <span class="status-dot"></span>
+                {{ pl.status | titlecase }}
+              </span>
+            </td>
+            <td>
+              {{ pl.expire_by ? (pl.expire_by * 1000 | date:'dd MMM yyyy, hh:mm a') : '-' }}
+            </td>
+            <td>{{ pl.created_at * 1000 | date:'dd MMM yyyy' }}</td>
+            <!-- <td>
+              <div class="d-flex align-items-center gap-2">
+
+                <button pButton icon="pi pi-copy" class="p-button-text p-button-sm"
+                  pTooltip="Copy Link" tooltipPosition="top"
+                  (click)="copyPaymentLink(pl.short_url)">
+                </button>
+
+                <button pButton icon="pi pi-send" class="p-button-text p-button-sm p-button-success"
+                  pTooltip="Resend Notification" tooltipPosition="top"
+                  *ngIf="pl.status === 'created' || pl.status === 'partially_paid'"
+                  (click)="resendPaymentLinkNotification(pl.id)">
+                </button>
+
+                <button pButton icon="pi pi-times-circle" class="p-button-text p-button-sm p-button-danger"
+                  pTooltip="Cancel Link" tooltipPosition="top"
+                  *ngIf="pl.status === 'created' || pl.status === 'partially_paid'"
+                  (click)="cancelPaymentLink(pl.id)">
+                </button>
+
+                <button pButton icon="pi pi-eye" class="p-button-text p-button-sm p-button-secondary"
+                  pTooltip="View Details" tooltipPosition="top"
+                  (click)="viewPaymentLinkDetails(pl)">
+                </button>
+
+              </div>
+            </td> -->
+            <td>
+              <div class="d-flex align-items-center gap-2">
+
+                <!-- Copy Link -->
+                <button pButton class="p-button-text p-button-sm"
+                  pTooltip="Copy Link" tooltipPosition="top"
+                  (click)="copyPaymentLink(pl.short_url)">
+                  <lucide-icon name="copy" [size]="20"></lucide-icon>
+                </button>
+
+                <!-- Resend Notification -->
+                <button pButton class="p-button-text p-button-sm"
+                  pTooltip="Resend Notification" tooltipPosition="top"
+                  *ngIf="pl.status === 'created' || pl.status === 'partially_paid'"
+                  (click)="resendPaymentLinkNotification(pl.id)">
+                  <lucide-icon name="send" [size]="20"></lucide-icon>
+                </button>
+
+                <!-- Cancel Link -->
+                <button pButton class="p-button-text p-button-sm p-button-danger"
+                  pTooltip="Cancel Link" tooltipPosition="top"
+                  *ngIf="pl.status === 'created' || pl.status === 'partially_paid'"
+                  (click)="cancelPaymentLink(pl.id)">
+                  <lucide-icon name="circle-x" [size]="20"></lucide-icon>
+                </button>
+
+                <!-- View Details -->
+                <button pButton class="p-button-text p-button-sm p-button-secondary"
+                  pTooltip="View Details" tooltipPosition="top"
+                  (click)="viewPaymentLinkDetails(pl)">
+                  <lucide-icon name="eye" [size]="20"></lucide-icon>
+                </button>
+
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="8" class="text-center fw-bold">
+              <img alt="No Data" src="../../../assets/images/menu/no-data.gif"
+                width="200" height="200" />
+              <p>No Payment Links Found</p>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+    </p-tabPanel>
+
   </p-tabView>
 </div>
 
@@ -325,3 +487,361 @@
     </div>
   </form>
 </p-dialog>
+
+
+<!-- ══════════════════════════════════════════════════════════
+    CREATE PAYMENT LINK DIALOG
+    Add this after the existing slot dialog, before the last </div>
+══════════════════════════════════════════════════════════ -->
+
+<p-dialog [(visible)]="showPlDialog"
+  header="Create Payment Link"
+  [modal]="true" [style]="{ width: '520px' }"
+  [draggable]="false" [resizable]="false" appendTo="body">
+
+  <form [formGroup]="plForm">
+    <div class="p-fluid">
+
+      <!-- ── Amount ─────────────────────────────────────────────────── -->
+      <div class="p-field mb-3">
+        <label class="mb-1 d-block fw-semibold">
+          Amount (₹) <span class="text-danger">*</span>
+        </label>
+        <p-inputNumber formControlName="amount"
+          placeholder="e.g. 5000" [min]="1" [useGrouping]="false"
+          class="w-100">
+        </p-inputNumber>
+        <small class="text-danger"
+          *ngIf="plForm.get('amount')?.invalid && plForm.get('amount')?.touched">
+          Valid amount is required
+        </small>
+      </div>
+
+      <!-- ── Description ────────────────────────────────────────────── -->
+      <div class="p-field mb-3">
+        <label class="mb-1 d-block fw-semibold">
+          Description <span class="text-danger">*</span>
+        </label>
+        <input pInputText formControlName="description"
+          placeholder="e.g. Loan Processing Fee" class="w-100" />
+        <small class="text-danger"
+          *ngIf="plForm.get('description')?.invalid && plForm.get('description')?.touched">
+          Description is required
+        </small>
+      </div>
+
+      <!-- ── Customer Details ───────────────────────────────────────── -->
+      <h6 class="fw-semibold text-muted mb-2"
+        style="font-size:13px; letter-spacing:.5px; text-transform:uppercase;">
+        Customer Details
+      </h6>
+
+      <!-- Customer Name -->
+      <div class="p-field mb-3">
+        <label class="mb-1 d-block fw-semibold">
+          Customer Name <span class="text-danger">*</span>
+        </label>
+        <input pInputText formControlName="customer_name"
+          placeholder="Full Name" class="w-100" />
+        <small class="text-danger"
+          *ngIf="plForm.get('customer_name')?.invalid && plForm.get('customer_name')?.touched">
+          Customer name is required
+        </small>
+      </div>
+
+      <!-- Customer Email -->
+      <div class="p-field mb-3">
+        <label class="mb-1 d-block fw-semibold">Customer Email</label>
+        <input pInputText formControlName="customer_email"
+          placeholder="customer@email.com" class="w-100" />
+        <small class="text-danger"
+          *ngIf="plForm.get('customer_email')?.invalid && plForm.get('customer_email')?.touched">
+          Enter a valid email
+        </small>
+      </div>
+
+      <!-- Notify checkboxes — same pattern as your existing slot/remark dialogs -->
+      <div class="p-field mb-3 d-flex align-items-center gap-2">
+        <!-- <p-checkbox formControlName="send_email" inputId="sendEmail"></p-checkbox>
+        <label for="sendEmail" class="mb-0">Notify via Email</label>
+
+        <p-checkbox formControlName="send_sms" inputId="sendSms" class="ms-3"></p-checkbox>
+        <label for="sendSms" class="mb-0">Notify via SMS</label> -->
+        <!-- Notify checkboxes -->
+        <p-checkbox [binary]="true" formControlName="send_email" inputId="sendEmail"></p-checkbox>
+        <label for="sendEmail" class="mb-0">Notify via Email</label>
+
+        <p-checkbox [binary]="true" formControlName="send_sms" inputId="sendSms" class="ms-3"></p-checkbox>
+        <label for="sendSms" class="mb-0">Notify via SMS</label>
+      </div>
+
+      <!-- Customer Mobile -->
+      <div class="p-field mb-3">
+        <label class="mb-1 d-block fw-semibold">
+          Mobile Number <span class="text-danger">*</span>
+        </label>
+        <div class="p-inputgroup">
+          <span class="p-inputgroup-addon">🇮🇳 +91</span>
+          <input pInputText formControlName="customer_contact"
+            placeholder="10-digit mobile" maxlength="10" />
+        </div>
+        <small class="text-danger"
+          *ngIf="plForm.get('customer_contact')?.invalid && plForm.get('customer_contact')?.touched">
+          Valid 10-digit mobile is required
+        </small>
+      </div>
+
+      <!-- ── Reference ID ───────────────────────────────────────────── -->
+      <div class="p-field mb-3">
+        <label class="mb-1 d-block fw-semibold">
+          Reference ID
+          <small class="text-muted fw-normal ms-1">(optional)</small>
+        </label>
+        <input pInputText formControlName="reference_id"
+          placeholder="e.g. LEAD-1234" class="w-100" />
+      </div>
+
+      <!-- ── Link Expiry ────────────────────────────────────────────── -->
+      <div class="p-field mb-3">
+        <label class="mb-1 d-block fw-semibold">Link Expiry</label>
+
+        <!-- No Expiry checkbox — same pattern as existing dialogs -->
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <!-- <p-checkbox formControlName="no_expiry" inputId="noExpiry"></p-checkbox>
+          <label for="noExpiry" class="mb-0">No Expiry</label> -->
+          <p-checkbox [binary]="true" formControlName="no_expiry" inputId="noExpiry"></p-checkbox>
+          <label for="noExpiry" class="mb-0">No Expiry</label>
+        </div>
+
+        <!-- Calendar hidden when no_expiry is checked -->
+        <ng-container *ngIf="!plForm.get('no_expiry')?.value">
+          <p-calendar formControlName="expire_by"
+            [showTime]="true" [showSeconds]="false"
+            [minDate]="minExpiryDate"
+            dateFormat="dd/mm/yy"
+            placeholder="DD/MM/YYYY"
+            [style]="{ width: '100%' }"
+            appendTo="body">
+          </p-calendar>
+          <small class="text-danger"
+            *ngIf="plForm.get('expire_by')?.invalid && plForm.get('expire_by')?.touched">
+            Expiry date is required
+          </small>
+          <small class="text-muted d-block mt-1">
+            <i class="pi pi-info-circle me-1"></i>
+            Reminders are not sent for payment links with no expiry date.
+          </small>
+        </ng-container>
+      </div>
+
+      <!-- ── Reminders (only when expiry is set) ───────────────────── -->
+      <div class="p-field mb-3" *ngIf="!plForm.get('no_expiry')?.value">
+        <div class="d-flex align-items-center gap-2">
+          <!-- <p-checkbox formControlName="reminder_enable" inputId="reminderEnable"></p-checkbox>
+          <label for="reminderEnable" class="mb-0">Enable Reminders</label> -->
+          <p-checkbox [binary]="true" formControlName="reminder_enable" inputId="reminderEnable"></p-checkbox>
+          <label for="reminderEnable" class="mb-0">Enable Reminders</label>
+        </div>
+        <small class="text-muted d-block mt-1">
+          Razorpay will automatically remind the customer before the link expires.
+        </small>
+      </div>
+
+      <!-- ── Partial Payment ────────────────────────────────────────── -->
+      <!-- <div class="p-field mb-2">
+        <div class="d-flex align-items-center gap-2">
+          <p-checkbox formControlName="accept_partial" inputId="acceptPartial"></p-checkbox>
+          <label for="acceptPartial" class="mb-0 fw-semibold">Enable Partial Payment</label>
+        </div>
+        <small class="text-muted d-block mt-1">
+          Allow the customer to pay in multiple instalments.
+        </small>
+      </div> -->
+
+      <!-- Min partial amount — shown only when accept_partial is checked -->
+      <div class="p-field mb-3 ps-3" *ngIf="plForm.get('accept_partial')?.value">
+        <label class="mb-1 d-block fw-semibold">
+          Minimum First Payment (₹)
+          <small class="text-muted fw-normal ms-1">(optional)</small>
+        </label>
+        <p-inputNumber formControlName="first_min_partial_amount"
+          placeholder="e.g. 500" [min]="1" [useGrouping]="false"
+          class="w-100">
+        </p-inputNumber>
+        <small class="text-danger"
+          *ngIf="plForm.get('first_min_partial_amount')?.invalid
+                 && plForm.get('first_min_partial_amount')?.touched">
+          Must be at least ₹1 and less than total amount
+        </small>
+      </div>
+
+      <!-- ── Notes ─────────────────────────────────────────────────── -->
+      <!-- <div class="p-field mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <label class="fw-semibold mb-0">Notes</label>
+          <button pButton type="button" icon="pi pi-plus" label="Add New"
+            class="p-button-text p-button-sm"
+            [disabled]="plNotes.length >= 15"
+            (click)="addNote()">
+          </button>
+        </div>
+
+        <div *ngFor="let note of plNotes; let i = index"
+          class="d-flex gap-2 mb-2 align-items-center">
+          <input pInputText [(ngModel)]="note.key"
+            [ngModelOptions]="{ standalone: true }"
+            placeholder="Key" style="flex:1" />
+          <input pInputText [(ngModel)]="note.value"
+            [ngModelOptions]="{ standalone: true }"
+            placeholder="Value" style="flex:2" />
+          <button pButton type="button" icon="pi pi-times"
+            class="p-button-text p-button-danger p-button-sm"
+            (click)="removeNote(i)">
+          </button>
+        </div>
+
+        <small class="text-muted" *ngIf="plNotes.length === 0">
+          No notes added. Notes are visible in your Razorpay dashboard.
+        </small>
+        <small class="text-warning" *ngIf="plNotes.length >= 15">
+          Maximum 15 notes reached.
+        </small>
+      </div> -->
+
+    </div><!-- /p-fluid -->
+
+    <div class="d-flex justify-content-end mt-2 gap-2">
+      <button pButton label="Cancel" class="p-button-text"
+        type="button" (click)="showPlDialog = false">
+      </button>
+      <button pButton label="Create Payment Link" icon="pi pi-send"
+        class="p-button-primary" type="button"
+        (click)="createPaymentLink()"
+        [disabled]="plForm.invalid || plCreating">
+      </button>
+    </div>
+  </form>
+</p-dialog>
+
+
+<!-- ══════════════════════════════════════════════════════════
+    PAYMENT LINK DETAIL DIALOG (view-only)
+══════════════════════════════════════════════════════════ -->
+<p-dialog [(visible)]="showPlDetailDialog"
+  header="Payment Link Details"
+  [modal]="true" [style]="{ width: '620px' }"
+  [draggable]="false" [resizable]="false" appendTo="body">
+
+  <div *ngIf="selectedPaymentLink" class="p-3">
+
+    <div class="row mb-2">
+      <div class="col-5 fw-semibold text-muted">Link ID</div>
+      <div class="col-7">
+        <code style="font-size:12px;">{{ selectedPaymentLink.id }}</code>
+      </div>
+    </div>
+
+    <div class="row mb-2">
+      <div class="col-5 fw-semibold text-muted">Amount</div>
+      <div class="col-7">
+        <strong>{{ (selectedPaymentLink.amount / 100) | currency:'INR':'symbol':'1.0-2' }}</strong>
+        <span class="ms-2 text-muted" style="font-size:12px;">
+          (Paid: {{ (selectedPaymentLink.amount_paid / 100) | currency:'INR':'symbol':'1.0-2' }})
+        </span>
+      </div>
+    </div>
+
+    <div class="row mb-2">
+      <div class="col-5 fw-semibold text-muted">Description</div>
+      <div class="col-7">{{ selectedPaymentLink.description }}</div>
+    </div>
+
+    <div class="row mb-2">
+      <div class="col-5 fw-semibold text-muted">Status</div>
+      <div class="col-7">
+        <span class="status-badge"
+          [ngClass]="{
+            'status-active':   selectedPaymentLink.status === 'created',
+            'badge-paid':      selectedPaymentLink.status === 'paid',
+            'status-inactive': selectedPaymentLink.status === 'cancelled',
+            'badge-expired':   selectedPaymentLink.status === 'expired'
+          }">
+          {{ selectedPaymentLink.status | titlecase }}
+        </span>
+      </div>
+    </div>
+
+    <div class="row mb-2">
+      <div class="col-5 fw-semibold text-muted">Customer</div>
+      <div class="col-7">
+        {{ selectedPaymentLink.customer?.name }}<br/>
+        <small class="text-muted">{{ selectedPaymentLink.customer?.contact }}</small><br/>
+        <small class="text-muted">{{ selectedPaymentLink.customer?.email }}</small>
+      </div>
+    </div>
+
+    <div class="row mb-2">
+      <div class="col-5 fw-semibold text-muted">Short URL</div>
+      <div class="col-7">
+        <a [href]="selectedPaymentLink.short_url" target="_blank">
+          {{ selectedPaymentLink.short_url }}
+        </a>
+        <button pButton icon="pi pi-copy" class="p-button-text p-button-sm ms-2"
+          pTooltip="Copy" (click)="copyPaymentLink(selectedPaymentLink.short_url)">
+        </button>
+      </div>
+    </div>
+
+    <div class="row mb-2">
+      <div class="col-5 fw-semibold text-muted">Reference ID</div>
+      <div class="col-7">{{ selectedPaymentLink.reference_id || '-' }}</div>
+    </div>
+
+    <div class="row mb-2">
+      <div class="col-5 fw-semibold text-muted">Expires At</div>
+      <div class="col-7">
+        {{ selectedPaymentLink.expire_by
+            ? (selectedPaymentLink.expire_by * 1000 | date:'dd MMM yyyy, hh:mm a')
+            : '-' }}
+      </div>
+    </div>
+
+    <div class="row mb-2">
+      <div class="col-5 fw-semibold text-muted">Created At</div>
+      <div class="col-7">
+        {{ selectedPaymentLink.created_at * 1000 | date:'dd MMM yyyy, hh:mm a' }}
+      </div>
+    </div>
+
+    <!-- Payments made against this link -->
+    <div *ngIf="selectedPaymentLink.payments?.length > 0" class="mt-3">
+      <h6 class="fw-semibold mb-2">Payments Received</h6>
+      <p-table [value]="selectedPaymentLink.payments" [paginator]="false">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Payment ID</th>
+            <th>Amount</th>
+            <th>Method</th>
+            <th>Status</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-pay>
+          <tr>
+            <td><code style="font-size:11px;">{{ pay.payment_id }}</code></td>
+            <td>{{ (pay.amount / 100) | currency:'INR':'symbol':'1.0-2' }}</td>
+            <td>{{ pay.method | titlecase }}</td>
+            <td>{{ pay.status | titlecase }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+  </div>
+
+  <div class="d-flex justify-content-end mt-2 p-2">
+    <button pButton label="Close" class="p-button-text"
+      (click)="showPlDetailDialog = false">
+    </button>
+  </div>
+</p-dialog>
+

@@ -8,6 +8,7 @@ import { projectConstantsLocal } from 'src/app/constants/project-constants';
 import { BehaviorSubject, Observable,from } from 'rxjs';
 import { HttpClient, HttpParams,HttpResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { map } from 'rxjs/operators'; 
 
 @Injectable({
   providedIn: 'root',
@@ -1377,4 +1378,57 @@ submitWhatsappTemplate(id: number) {
   return this.serviceMeta.httpPost(url, {});
 }
 
+// ── Payment Links ─────────────────────────────────────────────────────
+
+getPaymentLinks(filter: any = {}) {
+  return this.serviceMeta.httpGet('payment-links', null, filter).pipe(
+    map((res: any) => res?.data || res || [])
+  );
+}
+
+getPaymentLinksCount(filter: any = {}) {
+  return this.serviceMeta.httpGet('payment-links/total', null, filter).pipe(
+    map((res: any) => (typeof res === 'object' ? res?.data ?? res?.count ?? 0 : res))
+  );
+}
+
+getPaymentLinkById(linkId: string) {
+  return this.serviceMeta.httpGet('payment-links/' + linkId).pipe(
+    map((res: any) => res?.data || res)
+  );
+}
+ 
+  /**
+   * Create a new Razorpay Payment Link.
+   * Payload shape matches Razorpay's /v1/payment_links API.
+   */
+  createPaymentLink(data: {
+    amount: number;           // in paise
+    currency: string;         // 'INR'
+    accept_partial?: boolean;
+    description: string;
+    customer: {
+      name: string;
+      contact: string;
+      email?: string;
+    };
+    expire_by: number;        // Unix timestamp (seconds)
+    notify: {
+      sms: boolean;
+      email: boolean;
+    };
+    reference_id?: string;
+  }) {
+    return this.serviceMeta.httpPost('payment-links', data);
+  }
+ 
+  /** Cancel a payment link (sets status → cancelled) */
+  cancelPaymentLink(linkId: string) {
+    return this.serviceMeta.httpPost(`payment-links/${linkId}/cancel`, {});
+  }
+ 
+  /** Resend SMS / Email notification to customer */
+  resendPaymentLinkNotification(linkId: string) {
+    return this.serviceMeta.httpPost(`payment-links/${linkId}/notify`, {});
+  }
 }

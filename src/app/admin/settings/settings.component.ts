@@ -6,6 +6,7 @@ import { Location } from '@angular/common';
 import { LeadsService } from '../leads/leads.service';
 import { ToastService } from 'src/app/services/toast.service';
 import { projectConstantsLocal } from 'src/app/constants/project-constants';
+import { Clipboard } from '@angular/cdk/clipboard'; 
 
 @Component({
   selector: 'app-settings',
@@ -60,17 +61,49 @@ export class SettingsComponent implements OnInit {
   // ── Slot Config ────────────────────────────────────────────────────────────
   maxUsersPerSlot = 5;
 
+    // ── Table ──────────────────────────────────────────────────────────────
+  @ViewChild('plTable') plTable!: Table;
+ 
+  paymentLinks: any[]      = [];
+  paymentLinksCount        = 0;
+  plLoading                = false;
+  currentPlEvent: any;
+ 
+  // ── Filters ────────────────────────────────────────────────────────────
+  selectedPlStatusFilter   = 'all';
+  plStatusFilterOptions    = [
+    { label: 'All',               value: 'all'            },
+    { label: 'Created (Pending)', value: 'created'        },
+    { label: 'Paid',              value: 'paid'           },
+    { label: 'Partially Paid',    value: 'partially_paid' },
+    { label: 'Cancelled',         value: 'cancelled'      },
+    { label: 'Expired',           value: 'expired'        },
+  ];
+ 
+  // ── Create dialog ──────────────────────────────────────────────────────
+  showPlDialog   = false;
+  plCreating     = false;
+  plForm!: FormGroup;
+  minExpiryDate  = new Date();   // p-calendar min date
+ 
+  // ── Detail dialog ──────────────────────────────────────────────────────
+  showPlDetailDialog  = false;
+  selectedPaymentLink: any = null;
+  plNotes: { key: string; value: string }[] = []; 
+
   constructor(
     private leadsService: LeadsService,
     private toastService: ToastService,
     private fb: FormBuilder,
     private location: Location,
+    private clipboard: Clipboard,
   ) {}
 
   ngOnInit(): void {
     this.initRemarkForm();
     this.initSlotForm();
     this.loadSlotConfig();
+    this.initPlForm();
   }
 
   // ── Form init ──────────────────────────────────────────────────────────────
@@ -267,6 +300,287 @@ export class SettingsComponent implements OnInit {
       },
       (error: any) => { this.toastService.showError(error); }
     );
+  }
+
+  // initPlForm() {
+  //   this.plForm = this.fb.group({
+  //     amount:           [null, [Validators.required, Validators.min(1)]],
+  //     description:      ['',   Validators.required],
+  //     customer_name:    ['',   Validators.required],
+  //     customer_contact: ['',   [Validators.required, Validators.pattern(/^\d{10}$/)]],
+  //     customer_email:   ['',   [Validators.email]],
+  //     expire_by:        [null, Validators.required],
+  //     send_sms:         [true],
+  //     send_email:       [false],
+  //     reference_id:     [''],
+  //   });
+  // }
+
+  initPlForm() {
+    this.plForm = this.fb.group({
+      amount:                   [null, [Validators.required, Validators.min(1)]],
+      description:              ['',   Validators.required],
+      customer_name:            ['',   Validators.required],
+      customer_contact:         ['',   [Validators.required, Validators.pattern(/^\d{10}$/)]],
+      customer_email:           ['',   [Validators.email]],
+ 
+      // Expiry
+      no_expiry:                [false],             // ← NEW
+      expire_by:                [null],              // required only when no_expiry=false
+ 
+      // Notifications
+      send_sms:                 [true],
+      send_email:               [false],
+      reminder_enable:          [true],              // ← NEW
+ 
+      // Partial payment
+      accept_partial:           [false],             // ← NEW
+      first_min_partial_amount: [null],              // ← NEW (paise – set by UX)
+ 
+      // Reference
+      reference_id:             [''],
+    });
+ 
+    // Reset notes list too
+    this.plNotes = [];
+ 
+    // When no_expiry is toggled, clear/restore the expire_by validator
+    this.plForm.get('no_expiry')!.valueChanges.subscribe((noExpiry: boolean) => {
+      const expireByCtrl = this.plForm.get('expire_by')!;
+      if (noExpiry) {
+        expireByCtrl.clearValidators();
+        expireByCtrl.setValue(null);
+      } else {
+        expireByCtrl.setValidators(Validators.required);
+      }
+      expireByCtrl.updateValueAndValidity();
+    });
+ 
+    // When accept_partial is toggled, manage first_min_partial_amount validator
+    this.plForm.get('accept_partial')!.valueChanges.subscribe((partial: boolean) => {
+      const minCtrl = this.plForm.get('first_min_partial_amount')!;
+      if (partial) {
+        minCtrl.setValidators([Validators.min(1)]);
+      } else {
+        minCtrl.clearValidators();
+        minCtrl.setValue(null);
+      }
+      minCtrl.updateValueAndValidity();
+    });
+  }
+ 
+// ── Note helpers (ADD THESE METHODS) ──────────────────────────────────────
+ 
+  addNote() {
+    if (this.plNotes.length < 15) {
+      this.plNotes.push({ key: '', value: '' });
+    }
+  }
+ 
+  removeNote(index: number) {
+    this.plNotes.splice(index, 1);
+  }
+ 
+// ── Replace createPaymentLink() with this ─────────────────────────────────
+ 
+  createPaymentLink() {
+    if (this.plForm.invalid) { this.plForm.markAllAsTouched(); return; }
+ 
+    const v = this.plForm.value;
+ 
+    // Validate notes (no empty keys)
+    const validNotes = this.plNotes.filter(n => n.key?.trim() && n.value?.trim());
+ 
+    // Convert Date → Unix timestamp (Razorpay expects seconds)
+    const expireByUnix = (!v.no_expiry && v.expire_by)
+      ? Math.floor(new Date(v.expire_by).getTime() / 1000)
+      : null;
+ 
+    const payload: any = {
+      amount:          v.amount * 100,          // paise
+      currency:        'INR',
+      accept_partial:  v.accept_partial,
+      description:     v.description,
+      customer: {
+        name:    v.customer_name,
+        contact: v.customer_contact,
+        email:   v.customer_email || undefined,
+      },
+      no_expiry:       v.no_expiry,
+      expire_by:       expireByUnix,
+      notify: {
+        sms:   v.send_sms,
+        email: v.send_email,
+      },
+      reminder_enable: v.reminder_enable,
+      notes:           validNotes,
+    };
+ 
+    // Partial minimum (convert ₹ → paise)
+    if (v.accept_partial && v.first_min_partial_amount && v.first_min_partial_amount > 0) {
+      payload.first_min_partial_amount = v.first_min_partial_amount * 100;
+    }
+ 
+    if (v.reference_id?.trim()) {
+      payload.reference_id = v.reference_id.trim();
+    }
+ 
+    this.plCreating = true;
+ 
+    this.leadsService.createPaymentLink(payload).subscribe(
+      (res: any) => {
+        this.plCreating   = false;
+        this.showPlDialog = false;
+        this.toastService.showSuccess('Payment link created & sent successfully');
+        this.loadPaymentLinks(this.currentPlEvent || { first: 0, rows: 10 });
+      },
+      (err: any) => {
+        this.plCreating = false;
+        this.toastService.showError(err);
+      }
+    );
+  }
+
+   loadPaymentLinks(event: any) {
+    this.currentPlEvent = event;
+ 
+    const filter: any = {
+      from:  event.first,
+      count: event.rows,
+    };
+ 
+    if (this.selectedPlStatusFilter !== 'all') {
+      filter['status'] = this.selectedPlStatusFilter;
+    }
+ 
+    this.plLoading = true;
+ 
+    this.leadsService.getPaymentLinksCount(filter).subscribe(
+      (count: any) => { this.paymentLinksCount = Number(count); },
+      (err: any)   => { this.toastService.showError(err); }
+    );
+ 
+    this.leadsService.getPaymentLinks(filter).subscribe(
+      (data: any) => { this.paymentLinks = data; this.plLoading = false; },
+      (err: any)  => { this.toastService.showError(err); this.plLoading = false; }
+    );
+  }
+ 
+  // ── Filter change ──────────────────────────────────────────────────────
+  onPlStatusFilterChange(event: any) {
+    this.selectedPlStatusFilter = event.value;
+    if (this.plTable) this.plTable.first = 0;
+    const ev = this.currentPlEvent
+      ? { ...this.currentPlEvent, first: 0 }
+      : { first: 0, rows: 10 };
+    this.loadPaymentLinks(ev);
+  }
+ 
+  // ── Open create dialog ─────────────────────────────────────────────────
+  openPaymentLinkDialog() {
+    this.initPlForm();
+    this.minExpiryDate = new Date();
+    this.showPlDialog  = true;
+  }
+ 
+  // ── Create & send ──────────────────────────────────────────────────────
+  // createPaymentLink() {
+  //   if (this.plForm.invalid) { this.plForm.markAllAsTouched(); return; }
+ 
+  //   const v = this.plForm.value;
+ 
+  //   // Convert Date → Unix timestamp (Razorpay expects seconds)
+  //   const expireByUnix = Math.floor(new Date(v.expire_by).getTime() / 1000);
+ 
+  //   const payload: any = {
+  //     amount:      v.amount * 100,           // paise
+  //     currency:    'INR',
+  //     accept_partial: false,
+  //     description: v.description,
+  //     customer: {
+  //       name:    v.customer_name,
+  //       contact: v.customer_contact,
+  //       email:   v.customer_email || undefined,
+  //     },
+  //     expire_by:   expireByUnix,
+  //     notify: {
+  //       sms:   v.send_sms,
+  //       email: v.send_email,
+  //     },
+  //   };
+ 
+  //   if (v.reference_id?.trim()) {
+  //     payload.reference_id = v.reference_id.trim();
+  //   }
+ 
+  //   this.plCreating = true;
+ 
+  //   this.leadsService.createPaymentLink(payload).subscribe(
+  //     (res: any) => {
+  //       this.plCreating    = false;
+  //       this.showPlDialog  = false;
+  //       this.toastService.showSuccess('Payment link created & sent successfully');
+  //       this.loadPaymentLinks(this.currentPlEvent || { first: 0, rows: 10 });
+  //     },
+  //     (err: any) => {
+  //       this.plCreating = false;
+  //       this.toastService.showError(err);
+  //     }
+  //   );
+  // }
+ 
+  // ── Resend notification ────────────────────────────────────────────────
+  resendPaymentLinkNotification(linkId: string) {
+    this.leadsService.resendPaymentLinkNotification(linkId).subscribe(
+      () => { this.toastService.showSuccess('Notification resent successfully'); },
+      (err: any) => { this.toastService.showError(err); }
+    );
+  }
+ 
+  // ── Cancel ─────────────────────────────────────────────────────────────
+  cancelPaymentLink(linkId: string) {
+    if (!confirm('Are you sure you want to cancel this payment link? This cannot be undone.')) {
+      return;
+    }
+    this.leadsService.cancelPaymentLink(linkId).subscribe(
+      () => {
+        this.toastService.showSuccess('Payment link cancelled');
+        this.loadPaymentLinks(this.currentPlEvent || { first: 0, rows: 10 });
+      },
+      (err: any) => { this.toastService.showError(err); }
+    );
+  }
+ 
+  // ── View details ───────────────────────────────────────────────────────
+  viewPaymentLinkDetails(pl: any) {
+    // Fetch fresh from server to get latest payments array
+    this.leadsService.getPaymentLinkById(pl.id).subscribe(
+      (data: any) => {
+        this.selectedPaymentLink   = data;
+        this.showPlDetailDialog    = true;
+      },
+      (err: any) => { this.toastService.showError(err); }
+    );
+  }
+ 
+  // ── Copy short URL ─────────────────────────────────────────────────────
+  copyPaymentLink(url: string) {
+    if (!url) return;
+    // Works without CDK – fallback using execCommand
+    try {
+      const el = document.createElement('textarea');
+      el.value = url;
+      el.style.position = 'fixed';
+      el.style.opacity  = '0';
+      document.body.appendChild(el);
+      el.focus();
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      this.toastService.showSuccess('Payment link copied to clipboard');
+    } catch {
+      this.toastService.showError('Could not copy link');
+    }
   }
 
   goBack() { this.location.back(); }
