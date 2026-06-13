@@ -842,4 +842,6 @@ onProfileAssignChange(event: any): void {
     () => this.toastService.showError('Failed to update assignment')
   );
 }
+
+
 }

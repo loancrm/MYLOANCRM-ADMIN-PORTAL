@@ -1,4 +1,5 @@
 <div class="wt-wrapper">
+  
   <div class="p-1 m-2 fixed-card">
     <div class="d-flex justify-content-between">
       <div
@@ -24,6 +25,7 @@
       </div>
     </div>
   </div>
+
   <!-- ── Tabs ─────────────────────────────────────────────────────────────── -->
   <!-- <div class="wt-tabs">
     <button class="wt-tab active">
@@ -36,36 +38,37 @@
       Approved Templates <span class="wt-tab-count">{{ templatesCount }}</span>
     </button>
   </div> -->
+
   <div class="wt-tabs">
 
-  <button
-    class="wt-tab"
-    [class.active]="activeTab === 'META'"
-    (click)="changeTab('META')">
+    <button
+      class="wt-tab"
+      [class.active]="activeTab === 'META'"
+      (click)="changeTab('META')">
 
-    Meta Templates
-    <span class="wt-tab-count">{{ templatesCount }}</span>
-  </button>
+      Meta Templates
+      <span class="wt-tab-count">{{ templatesCount }}</span>
+    </button>
 
-  <button
-    class="wt-tab"
-    [class.active]="activeTab === 'CUSTOM'"
-    (click)="changeTab('CUSTOM')">
+    <button
+      class="wt-tab"
+      [class.active]="activeTab === 'CUSTOM'"
+      (click)="changeTab('CUSTOM')">
 
-    Custom Templates
-    <span class="wt-tab-count">{{ customTemplatesCount }}</span>
-  </button>
+      Custom Templates
+      <span class="wt-tab-count">{{ customTemplatesCount }}</span>
+    </button>
 
-  <button
-    class="wt-tab"
-    [class.active]="activeTab === 'APPROVED'"
-    (click)="changeTab('APPROVED')">
+    <button
+      class="wt-tab"
+      [class.active]="activeTab === 'APPROVED'"
+      (click)="changeTab('APPROVED')">
 
-    Approved Templates
-    <span class="wt-tab-count">{{ approvedTemplatesCount }}</span>
-  </button>
+      Approved Templates
+      <span class="wt-tab-count">{{ approvedTemplatesCount }}</span>
+    </button>
 
-</div>
+  </div>
 
   <!-- ── Filters Row ───────────────────────────────────────────────────────── -->
   <div class="wt-filters">
@@ -169,13 +172,12 @@
             (click)="openEditDialog(t)">
             <i class="pi pi-pencil"></i>
           </button>
-          <button class="wt-icon-btn delete" pTooltip="Delete" tooltipPosition="top"
+          <!-- <button class="wt-icon-btn delete" pTooltip="Delete" tooltipPosition="top"
             (click)="deleteTemplate(t)">
             <i class="pi pi-trash"></i>
-          </button>
+          </button> -->
         </div>
       </div>
-
     </div>
   </div>
 
