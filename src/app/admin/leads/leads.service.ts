@@ -1431,4 +1431,19 @@ getPaymentLinkById(linkId: string) {
   resendPaymentLinkNotification(linkId: string) {
     return this.serviceMeta.httpPost(`payment-links/${linkId}/notify`, {});
   }
+
+  // campaign.service.ts — admin panel version
+getRecentNumbers(): Observable<string[]> {
+  // calls GET /campaign/logs and extracts numbers from last 24h
+  // OR if you have a dedicated endpoint, use it directly
+  return this.http.get<any>(`${this.baseUrl}campaign/recent-numbers`).pipe(
+    map((res: any) => res?.numbers || [])
+  );
+}
+
+// campaign.service.ts
+getCampaignJobStatus(jobId: string): Observable<any> {
+  return this.http.get(`${this.baseUrl}campaign/job-status/${jobId}`);
+}
+
 }
