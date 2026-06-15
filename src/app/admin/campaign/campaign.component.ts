@@ -1,17 +1,16 @@
-import { Component, OnInit,ViewChild  } from '@angular/core';
+import { Component, OnInit,ViewChild, OnDestroy  } from '@angular/core';
 import { CampaignService } from '../../services/campaign.service';
 import { LeadsService } from '../leads/leads.service';
 import { ToastService } from '../../services/toast.service';
 import { Contact } from '../modules/models';
 import { RoutingService } from 'src/app/services/routing-service';
 import { Location } from '@angular/common';
-
 @Component({
   selector: 'app-campaign',
   templateUrl: './campaign.component.html',
   styleUrl: './campaign.component.scss'
 })
-export class CampaignComponent implements OnInit {
+export class CampaignComponent implements OnInit, OnDestroy{
 
   // ── TABS ───────────────────────────────────────────────
   // activeTab: 'socialMedia' | 'accounts' = 'socialMedia';
@@ -176,6 +175,39 @@ manualNumbersVisible = false;
 manualNumbersRaw = '';
 parsedManualContacts: Contact[] = [];
 
+// ── SELECT BY COUNT ────────────────────────────────────────
+selectByCountVisible = false;
+selectByCountValue: number | null = null;
+selectByCountLoading = false;
+
+// ── SELECT BY PAGE ─────────────────────────────────────────
+selectByPageVisible = false;
+selectByPageStart: number | null = null;
+selectByPageEnd: number | null = null;
+selectByPageLoading = false;
+PAGE_SIZE = 10;
+
+get totalPages(): number {
+  const total = this.activeTab === 'accounts' ? this.accountsTotal : this.socialMediaTotal;
+  return Math.ceil(total / this.PAGE_SIZE) || 1;
+}
+
+get pageRangeLeadCount(): number {
+  if (!this.selectByPageStart || !this.selectByPageEnd) return 0;
+  const pages = this.selectByPageEnd - this.selectByPageStart + 1;
+  return pages * this.PAGE_SIZE;
+}
+
+// ── REMOVE DUPLICATES ──────────────────────────────────────
+removeDuplicates = false;
+duplicatesCount = 0;
+
+// ── REMOVE 24H CONTACTED ───────────────────────────────────
+removeRecent24h = false;
+recent24hNumbers = new Set<string>();
+recent24hLoading = false;
+recent24hCount = 0;
+
   // ── DYNAMIC DB FIELD OPTIONS ───────────────────────────
   get dbFieldOptions() {
     return this.activeTab === 'socialMedia'
@@ -188,6 +220,15 @@ parsedManualContacts: Contact[] = [];
   get accountRemarkFilterOptions(): { label: string; value: any }[] {
     return [{ label: 'All Remarks', value: '' }, ...this.accountRemarkOptions];
   }
+
+  // ── JOB POLLING ────────────────────────────────────────────
+  campaignJobId: string | null = null;
+  campaignJobStatus: {
+    total: number; sent: number; failed: number;
+    skipped: number; pending: number; completed: boolean;
+  } | null = null;
+  private jobPollInterval: any = null;
+
   constructor(
     private campaignService: CampaignService,
     private leadsService: LeadsService,
@@ -375,94 +416,12 @@ loadSocialMediaLeads(event: any = { first: 0, rows: 10 }): void {
 
   // ── LOAD ACCOUNTS ──────────────────────────────────────
 
-//   loadAccounts(event: any = { first: 0, rows: 10 }): void {
-//   this.contactsLoading = true;
-//   const filter: any = { ...this.searchFilter };
-//   filter['status-eq'] = 1;
-//   filter['from']  = event.first ?? 0;
-//   filter['count'] = event.rows  ?? 10;
-
-//   if (this.selectedPlanType && this.selectedPlanType !== 'ALL') {
-//     filter['latest_plan_name-eq'] = this.selectedPlanType;
-//   }
-//   if (this.selectedStatusType && this.selectedStatusType !== 'ALL') {
-//     filter['latest_status-eq'] = this.selectedStatusType;
-//   }
-//   if (this.selectedBillingCycle && this.selectedBillingCycle !== 'ALL') {
-//     filter['latest_billing_cycle-eq'] = this.selectedBillingCycle;
-//   }
-//   if (this.selectedAccountRemark) {
-//     filter['remarkId-eq'] = this.selectedAccountRemark;
-//   }
-
-//   // ✅ Also merge any applied filter from app-filter panel
-//   Object.keys(this.accountsAppliedFilter).forEach(key => {
-//     const val = this.accountsAppliedFilter[key];
-//     if (val !== undefined && val !== null && val !== '') {
-//       filter[key] = val;
-//     }
-//   });
-
-//   this.leadsService.getAccountsCount(filter).subscribe((count: any) => {
-//     this.accountsTotal = Number(count) || 0;
-//   });
-
-//   this.leadsService.getAccounts(filter).subscribe(
-//     (data: any) => {
-//       this.contacts = data.map((acc: any) => ({
-//         name:                acc.name             || '',
-//         businessName:        acc.businessName     || '',
-//         mobileNumber:        acc.mobile           || '',
-//         email:               acc.emailId          || '',
-//         city:                acc.city             || '',
-//         accountId:           acc.accountId        || '',
-//         walletBalance:       acc.walletBalance    || '',
-//         createdOn:           acc.createdOn        || '',
-//         latest_plan_name:    acc.latest_plan_name || '',
-//         latest_status:       acc.latest_status    || '',
-//         latest_billing_cycle: acc.latest_billing_cycle || '',
-//         start_date:          acc.start_date       || '',
-//         end_date:            acc.end_date         || '',
-//       }));
-//       this.filteredContacts  = this.contacts;
-//       this.contactsLoading   = false;
-//     },
-//     () => {
-//       this.errorMsg        = 'Failed to load accounts';
-//       this.contactsLoading = false;
-//     }
-//   );
-// }
-
-loadAccounts(event: any = { first: 0, rows: 10 }): void {
+  loadAccounts(event: any = { first: 0, rows: 10 }): void {
   this.contactsLoading = true;
-
-  const start  = event?.first ?? 0;
-  const length = event?.rows  ?? 10;
-
-  let sortField = 'createdOn';
-  let sortOrder = 'desc';
-
-  if (event?.sortField) {
-    sortField = event.sortField;
-    sortOrder = event.sortOrder === 1 ? 'asc' : 'desc';
-  }
-
-  // ✅ Build filter FIRST, then override start/length at the end
   const filter: any = { ...this.searchFilter };
-
-  // Remove any stale pagination keys from searchFilter
-  delete filter['start'];
-  delete filter['length'];
-  delete filter['sort'];
-  delete filter['order'];
-
-  // Now set pagination (cannot be overridden)
-  filter['start']     = start;
-  filter['length']    = length;
-  filter['sort']      = sortField;
-  filter['order']     = sortOrder;
   filter['status-eq'] = 1;
+  filter['from']  = event.first ?? 0;
+  filter['count'] = event.rows  ?? 10;
 
   if (this.selectedPlanType && this.selectedPlanType !== 'ALL') {
     filter['latest_plan_name-eq'] = this.selectedPlanType;
@@ -477,46 +436,37 @@ loadAccounts(event: any = { first: 0, rows: 10 }): void {
     filter['remarkId-eq'] = this.selectedAccountRemark;
   }
 
-  // Merge app-filter panel filters (also clean pagination from these)
+  // ✅ Also merge any applied filter from app-filter panel
   Object.keys(this.accountsAppliedFilter).forEach(key => {
-    if (!['start','length','sort','order'].includes(key)) {  // ✅ never override pagination
-      const val = this.accountsAppliedFilter[key];
-      if (val !== undefined && val !== null && val !== '') {
-        filter[key] = val;
-      }
+    const val = this.accountsAppliedFilter[key];
+    if (val !== undefined && val !== null && val !== '') {
+      filter[key] = val;
     }
   });
 
-  // Count query — strip pagination params
-  const countFilter = { ...filter };
-  delete countFilter['start'];
-  delete countFilter['length'];
-  delete countFilter['sort'];
-  delete countFilter['order'];
-
-  this.leadsService.getAccountsCount(countFilter).subscribe((count: any) => {
+  this.leadsService.getAccountsCount(filter).subscribe((count: any) => {
     this.accountsTotal = Number(count) || 0;
   });
 
   this.leadsService.getAccounts(filter).subscribe(
     (data: any) => {
       this.contacts = data.map((acc: any) => ({
-        name:                 acc.name                  || '',
-        businessName:         acc.businessName          || '',
-        mobileNumber:         acc.mobile                || '',
-        email:                acc.emailId               || '',
-        city:                 acc.city                  || '',
-        accountId:            acc.accountId             || '',
-        walletBalance:        acc.walletBalance         || '',
-        createdOn:            acc.createdOn             || '',
-        latest_plan_name:     acc.latest_plan_name      || '',
-        latest_status:        acc.latest_status         || '',
-        latest_billing_cycle: acc.latest_billing_cycle  || '',
-        start_date:           acc.start_date            || '',
-        end_date:             acc.end_date              || '',
+        name:                acc.name             || '',
+        businessName:        acc.businessName     || '',
+        mobileNumber:        acc.mobile           || '',
+        email:               acc.emailId          || '',
+        city:                acc.city             || '',
+        accountId:           acc.accountId        || '',
+        walletBalance:       acc.walletBalance    || '',
+        createdOn:           acc.createdOn        || '',
+        latest_plan_name:    acc.latest_plan_name || '',
+        latest_status:       acc.latest_status    || '',
+        latest_billing_cycle: acc.latest_billing_cycle || '',
+        start_date:          acc.start_date       || '',
+        end_date:            acc.end_date         || '',
       }));
-      this.filteredContacts = this.contacts;
-      this.contactsLoading  = false;
+      this.filteredContacts  = this.contacts;
+      this.contactsLoading   = false;
     },
     () => {
       this.errorMsg        = 'Failed to load accounts';
@@ -524,6 +474,8 @@ loadAccounts(event: any = { first: 0, rows: 10 }): void {
     }
   );
 }
+
+
 
 // loadAccounts(event: any = { first: 0, rows: 10 }): void {
 //   this.contactsLoading = true;
@@ -795,57 +747,6 @@ loadAccounts(event: any = { first: 0, rows: 10 }): void {
   }
 
   // ── SEND CAMPAIGN ──────────────────────────────────────
-  // canSend(): boolean {
-  //   if (!this.selectedContacts.length || !this.selectedTemplate || !this.campaignName) return false;
-
-  //   // ✅ If accounts tab + skip toggle ON → nothing will be sent → disable button
-  //   if (this.activeTab === 'accounts' && this.skipRegisteredAccounts) return false;
-
-  //   if (['IMAGE','VIDEO','DOCUMENT'].includes(this.templateHeaderType)) {
-  //     if (this.headerUploading) return false;
-  //     if (!this.headerMediaUrl.trim()) return false;
-  //   }
-
-  //   return this.paramMappings.every((m) =>
-  //     m.type === 'manual' ? m.manualValue.trim() !== '' : m.dbField !== ''
-  //   );
-  // }
-
-  // sendCampaign(): void {
-  //   if (!this.canSend()) return;
-  //   this.sending = true;
-  //   this.result = null;
-
-  //   const textParamCount = this.paramMappings.filter(m => !m.isButtonParam).length;
-
-  //   const contactsWithParams = this.selectedContacts.map((contact) => ({
-  //     ...contact,
-  //     resolvedParams: this.templateParams.map((_, i) => this.resolveParam(contact, i))
-  //   }));
-
-  //   const hasMediaHeader = ['IMAGE','VIDEO','DOCUMENT'].includes(this.templateHeaderType);
-
-  //   this.campaignService.sendCampaign({
-  //     campaignName: this.campaignName,
-  //     contacts: contactsWithParams,
-  //     templateName: this.selectedTemplate.name,
-  //     templateBodyText: this.templateBodyText,
-  //     languageCode: this.languageCode,
-  //     sendType: 'bulk',
-  //     buttonParamStartIndex: textParamCount,
-  //     hasImageHeader: hasMediaHeader,
-  //     headerMediaType: this.templateHeaderType,
-  //     imageUrl: this.headerMediaUrl,
-  //     headerIsMetaHandle: this.headerIsMetaHandle,
-  //     // ✅ Tell backend whether to skip registered accounts
-  //     skipRegistered: this.activeTab === 'accounts' ? this.skipRegisteredAccounts : false,
-  //     sourceTab: this.activeTab,
-  //   }).subscribe({
-  //     next: (res) => { this.result = res; this.sending = false; },
-  //     error: () => { this.errorMsg = 'Failed to send campaign'; this.sending = false; }
-  //   });
-  // }
-
   canSend(): boolean {
   const hasContacts = this.selectedContacts.length > 0 
     || this.parsedManualContacts.length > 0;
@@ -864,20 +765,15 @@ sendCampaign(): void {
   if (!this.canSend()) return;
   this.sending = true;
   this.result = null;
+  this.campaignJobStatus = null;
+  this.campaignJobId = null;
 
   const textParamCount = this.paramMappings.filter(m => !m.isButtonParam).length;
-
-  // Merge selected + manual contacts
-  const allContacts = [
-    ...this.selectedContacts,
-    ...this.parsedManualContacts,
-  ];
-
-  const contactsWithParams = allContacts.map((contact) => ({
+  const allContacts = [...this.selectedContacts, ...this.parsedManualContacts];
+  const contactsWithParams = allContacts.map(contact => ({
     ...contact,
     resolvedParams: this.templateParams.map((_, i) => this.resolveParam(contact, i))
   }));
-
   const hasMediaHeader = ['IMAGE','VIDEO','DOCUMENT'].includes(this.templateHeaderType);
 
   this.campaignService.sendCampaign({
@@ -895,10 +791,63 @@ sendCampaign(): void {
     skipRegistered: this.activeTab === 'accounts' ? this.skipRegisteredAccounts : false,
     sourceTab: this.activeTab,
   }).subscribe({
-    next: (res) => { this.result = res; this.sending = false; },
-    error: () => { this.errorMsg = 'Failed to send campaign'; this.sending = false; }
+    next: (res: any) => {
+      this.sending = false;
+      if (res.jobId) {
+        // ✅ Job-based — start polling
+        this.campaignJobId = res.jobId;
+        this.campaignJobStatus = {
+          total: res.total, sent: 0, failed: 0,
+          skipped: 0, pending: res.total, completed: false,
+        };
+        this.startJobPolling();
+      } else {
+        // Fallback: old sync response
+        this.result = res;
+      }
+    },
+    error: () => {
+      this.errorMsg = 'Failed to send campaign';
+      this.sending = false;
+    }
   });
 }
+
+startJobPolling(): void {
+  if (this.jobPollInterval) clearInterval(this.jobPollInterval);
+  this.jobPollInterval = setInterval(() => {
+    if (!this.campaignJobId) return;
+    this.leadsService.getCampaignJobStatus(this.campaignJobId).subscribe({
+      next: (res: any) => {
+        this.campaignJobStatus = res;
+        if (res.completed) {
+          clearInterval(this.jobPollInterval);
+          this.jobPollInterval = null;
+        }
+      },
+      error: () => {
+        clearInterval(this.jobPollInterval);
+        this.jobPollInterval = null;
+      }
+    });
+  }, 2000);
+}
+
+finishCampaign(): void {
+  this.campaignJobId = null;
+  this.campaignJobStatus = null;
+  this.result = null;
+  this.selectedContacts = [];
+  this.parsedManualContacts = [];
+  this.campaignName = '';
+  this.selectedTemplate = null;
+  this.templateBodyText = '';
+}
+
+ngOnDestroy(): void {
+  if (this.jobPollInterval) clearInterval(this.jobPollInterval);
+}
+
   onHeaderFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files || !input.files[0]) return;
@@ -929,31 +878,6 @@ sendCampaign(): void {
   goBack() {
     this.location.back();
   }
-
-//   loadAdminRemarks(): void {
-//   const filter = { 'status-eq': 3, 'remarkInternalStatus-eq': 1 };
-//   this.leadsService.getAdminRemarks(filter).subscribe(
-//     (data: any) => {
-//       this.adminRemarkOptions = data.map((r: any) => ({
-//         label: r.displayName,
-//         value: String(r.remarkId),
-//       }));
-//     },
-//     () => {}
-//   );
-// }
-// loadAccountRemarks(): void {
-//   const filter = { 'status-eq': 1, 'remarkInternalStatus-eq': 1 };
-//   this.leadsService.getAdminRemarks(filter).subscribe(
-//     (data: any) => {
-//       this.accountRemarkOptions = data.map((r: any) => ({
-//         label: r.displayName,
-//         value: String(r.remarkId),
-//       }));
-//     },
-//     () => {}
-//   );
-// }
 
 loadAdminRemarks(): void {
   const filter = { 'status-eq': 3, 'remarkInternalStatus-eq': 1 };
@@ -1202,4 +1126,156 @@ onPasteNumbers(event: ClipboardEvent) {
 
   this.parseManualNumbers();
 }
+
+// ── SELECT BY COUNT ────────────────────────────────────────
+applySelectByCount(): void {
+  if (!this.selectByCountValue || this.selectByCountValue < 1) return;
+  this.selectByCountLoading = true;
+
+  const count = Math.min(this.selectByCountValue, 500);
+  const filter: any = { ...this.searchFilter, start: 0, length: count, 'status-eq': 1 };
+
+  const load$ = this.activeTab === 'accounts'
+    ? this.leadsService.getAccounts(filter)
+    : this.leadsService.getSocialMediaLeads(filter);
+
+  load$.subscribe(
+    (data: any) => {
+      const mapped = this.activeTab === 'accounts'
+        ? data.map((acc: any) => ({
+            name: acc.name || '', businessName: acc.businessName || '',
+            mobileNumber: acc.mobile || '', email: acc.emailId || '',
+            city: acc.city || '', accountId: acc.accountId || '',
+          }))
+        : data.map((lead: any) => ({
+            name: lead.Name || '', mobileNumber: lead.PhoneNumber || '',
+            email: lead.Email || '', city: lead.City || '',
+            company: lead.Company || '', state: lead.State || '',
+            platform: lead.Platform || '', isRegistered: lead.isRegistered || false,
+            id: lead.id,
+          }));
+
+      this.selectedContacts = mapped;
+      this.selectByCountLoading = false;
+      this.applyDuplicateFilter();
+      this.applyRecent24hFilter();
+    },
+    () => { this.selectByCountLoading = false; }
+  );
+}
+
+clearSelectByCount(): void {
+  this.selectByCountVisible = false;
+  this.selectByCountValue = null;
+  this.selectedContacts = [];
+}
+
+// ── SELECT BY PAGE ─────────────────────────────────────────
+applySelectByPage(): void {
+  if (!this.selectByPageStart || !this.selectByPageEnd) return;
+  if (this.selectByPageStart > this.selectByPageEnd) return;
+  if (this.pageRangeLeadCount > 500) return;
+
+  this.selectByPageLoading = true;
+
+  const start  = (this.selectByPageStart - 1) * this.PAGE_SIZE;
+  const length = (this.selectByPageEnd - this.selectByPageStart + 1) * this.PAGE_SIZE;
+
+  const filter: any = { ...this.searchFilter, start, length, 'status-eq': 1 };
+
+  const load$ = this.activeTab === 'accounts'
+    ? this.leadsService.getAccounts(filter)
+    : this.leadsService.getSocialMediaLeads(filter);
+
+  load$.subscribe(
+    (data: any) => {
+      const mapped = this.activeTab === 'accounts'
+        ? data.map((acc: any) => ({
+            name: acc.name || '', businessName: acc.businessName || '',
+            mobileNumber: acc.mobile || '', email: acc.emailId || '',
+            city: acc.city || '', accountId: acc.accountId || '',
+          }))
+        : data.map((lead: any) => ({
+            name: lead.Name || '', mobileNumber: lead.PhoneNumber || '',
+            email: lead.Email || '', city: lead.City || '',
+            company: lead.Company || '', state: lead.State || '',
+            platform: lead.Platform || '', isRegistered: lead.isRegistered || false,
+            id: lead.id,
+          }));
+
+      this.selectedContacts = mapped;
+      this.selectByPageLoading = false;
+      this.applyDuplicateFilter();
+      this.applyRecent24hFilter();
+    },
+    () => { this.selectByPageLoading = false; }
+  );
+}
+
+clearSelectByPage(): void {
+  this.selectByPageVisible = false;
+  this.selectByPageStart = null;
+  this.selectByPageEnd = null;
+  this.selectedContacts = [];
+}
+
+// ── REMOVE DUPLICATES ──────────────────────────────────────
+toggleRemoveDuplicates(): void {
+  this.removeDuplicates = !this.removeDuplicates;
+  this.applyDuplicateFilter();
+}
+
+applyDuplicateFilter(): void {
+  if (!this.removeDuplicates) {
+    this.duplicatesCount = 0;
+    return;
+  }
+  const seen = new Set<string>();
+  const before = this.selectedContacts.length;
+  this.selectedContacts = this.selectedContacts.filter(c => {
+    const num = String(c.mobileNumber).replace(/\D/g, '').slice(-10);
+    if (seen.has(num)) return false;
+    seen.add(num);
+    return true;
+  });
+  this.duplicatesCount = before - this.selectedContacts.length;
+}
+
+// ── REMOVE 24H CONTACTED ───────────────────────────────────
+toggleRemoveRecent24h(): void {
+  this.removeRecent24h = !this.removeRecent24h;
+
+  if (!this.removeRecent24h) {
+    this.recent24hNumbers = new Set();
+    this.recent24hCount = 0;
+    return;
+  }
+
+  this.recent24hLoading = true;
+
+  // ✅ Uses the existing /last-interaction endpoint via the campaign service
+  // OR if you have getRecentlyContactedNumbers in admin panel, use that
+  this.leadsService.getRecentNumbers().subscribe(
+    (numbers: string[]) => {
+      this.recent24hNumbers = new Set(numbers.map(n => String(n).replace(/\D/g, '').slice(-10)));
+      this.recent24hLoading = false;
+      this.applyRecent24hFilter();
+    },
+    () => { this.recent24hLoading = false; }
+  );
+}
+
+applyRecent24hFilter(): void {
+  if (!this.removeRecent24h || this.recent24hNumbers.size === 0) {
+    this.recent24hCount = 0;
+    return;
+  }
+  const before = this.selectedContacts.length;
+  this.selectedContacts = this.selectedContacts.filter(c => {
+    const num = String(c.mobileNumber).replace(/\D/g, '').slice(-10);
+    return !this.recent24hNumbers.has(num);
+  });
+  this.recent24hCount = before - this.selectedContacts.length;
+}
+
 }

@@ -39,8 +39,9 @@ export class AnalyticsComponent implements OnInit {
     bankRejects:    0,
     cniRejects:     0,
     bankers:        0,
-     sanctionedFiles: 0,
-  disbursedFiles:  0,
+    sanctionedFiles: 0,
+    disbursedFiles:  0,
+    users:           0,
   };
 
   // ✅ Bank wise data
@@ -84,6 +85,7 @@ export class AnalyticsComponent implements OnInit {
         this.stats.bankRejects    = kpi.bankRejects?.total    || 0;
         this.stats.cniRejects     = kpi.cniRejects?.total     || 0;
         this.stats.bankers        = kpi.bankers?.total        || 0;
+        this.stats.users          = kpi.users?.total          || 0
         this.stats.sanctionedFiles = kpi.sanctionedFiles?.total || 0;
         this.stats.disbursedFiles  = kpi.disbursedFiles?.total  || 0;
         this.loading = false;
