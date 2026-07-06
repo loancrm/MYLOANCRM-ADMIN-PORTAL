@@ -27,6 +27,8 @@ export class SocialMediaLeadsComponent {
   filterConfig: any[] = [];
   accountsCount: any = 0;
   viewDialogVisible = false;
+  showBulkAssignDialog = false;
+  selectedLeads: any[] = [];
   selectedLead: any = null;
   version = projectConstantsLocal.VERSION_DESKTOP;
   @ViewChild('SocialMediaLeadsTable') socialMediaLeadsTable!: Table;
@@ -44,7 +46,7 @@ export class SocialMediaLeadsComponent {
   handleExcelDuplicates: string = 'skip';
   // selectedPlatform: string = 'all';
   // selectedPlatforms: string[] = [];
-  selectedPlatforms: string[] = ['Facebook', 'Website'];
+  selectedPlatforms: string[] = ['Facebook', 'Website']; // ✅ default to these three
   platformOptions: { label: string; value: string }[] = [
   // { label: 'All Platforms', value: 'all' },
   { label: 'Facebook',      value: 'Facebook' },
@@ -109,6 +111,16 @@ socialMediaAppliedFilter: any = {};
 assignFilterOptions: { label: string; value: any }[] = [];
 selectedAssignFilter: any = null;
 loggedInUserRole: number = 0;
+salesUsers: any[];
+duplicateOptions = [
+  { label: 'All', value: '' },
+  { label: 'Duplicate Numbers', value: 'duplicate' },
+  { label: 'Unique Numbers', value: 'unique' }
+];
+
+selectedDuplicateStatus = '';
+
+
   constructor(
     private location: Location,
     private routingService: RoutingService,
@@ -159,10 +171,19 @@ loggedInUserRole: number = 0;
 
   if (this.loggedInUserRole === 1) {
     this.loadAssignFilterOptions();
+     this.loadSalesUsers();
   }
 
   this.loadAdminRemarks();
   this.loadBookDemoUsers();
+this.getSocialMediaLeads(this.appliedFilter);
+this.socialMediaLeadsCount(this.appliedFilter);
+}
+openBulkAssign() {
+    this.showBulkAssignDialog = true;
+}
+closeBulkAssign() {
+    this.showBulkAssignDialog = false;
 }
 
   loadBookDemoUsers(): void {
@@ -185,7 +206,32 @@ loggedInUserRole: number = 0;
   //   this.loadAdminRemarks();
   // }
   // ── Table Methods ──────────────────────────────────────
+loadSalesUsers(): void {
+  this.leadsService.getUsers({
+    'status-eq': 1,
+    'role-eq': 2
+  }).subscribe((data: any) => {
 
+    this.salesUsers = data
+      .filter((u: any) => u.status === 1 && Number(u.role) === 2)
+      .map((u: any) => ({
+        id: u.id,
+        name: u.name
+      }));
+
+  });
+}
+onDuplicateFilterChange() {
+
+  if (this.selectedDuplicateStatus) {
+    this.appliedFilter['duplicateStatus'] = this.selectedDuplicateStatus;
+  } else {
+    delete this.appliedFilter['duplicateStatus'];
+  }
+
+  this.loadsocialmediaLeads(this.currentTableEvent);
+
+}
  loadAdminRemarks() {
   const filter = { 'status-eq': 3, 'remarkInternalStatus-eq': 1 };
   this.leadsService.getAdminRemarks(filter).subscribe(
@@ -254,7 +300,7 @@ loadsocialmediaLeads(event: any) {
 
   // ✅ For role 2, skip separate count call - set count from data length
   if (this.loggedInUserRole === 2) {
-    this.getSocialMediaLeadsWithCount(api_filter);
+    this.getSocialMediaLeadsWithCount(api_filter);  
   } else {
     this.getSocilaMediaCount(api_filter);
     this.getSocialMediaLeads(api_filter);
@@ -336,7 +382,11 @@ getSocialMediaLeads(filter = {}) {
     }
   );
 }
+refreshAfterBulkAssign() {
+  this.showBulkAssignDialog = false;
 
+  this.loadsocialmediaLeads(this.currentTableEvent);
+}
 onRegistrationStatusChange(event: any): void {
   const value = event.value;
 
@@ -1085,6 +1135,7 @@ if (event['toDate-eq']) {
 // REPLACE existing loadAssignFilterOptions()
 loadAssignFilterOptions(): void {
   this.leadsService.getUsers({ 'status-eq': 1, 'role-eq': 2 }).subscribe((data: any) => {
+     this.salesUsers = data;
     this.assignFilterOptions = [
       { label: 'All Users', value: null },
       ...data

@@ -6,6 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { AdminRoutingModule } from './admin-routing.module';
 import { HeaderModule } from './header/header.module';
 import { SidebarMenuModule } from './sidebar-menu/sidebar-menu.module';
+import { BulkAssignModule } from './bulk-assign/bulk-assign.module';
 // import { WhatsappTemplatesComponent } from './whatsapp-templates/whatsapp-templates.component';
 // import { CampaignComponent } from './campaign/campaign.component';
 // import { LogsComponent } from './logs/logs.component';
@@ -20,7 +21,7 @@ import { SidebarMenuModule } from './sidebar-menu/sidebar-menu.module';
     HttpClientModule,
     HeaderModule,
     SidebarMenuModule,
-    // BulkWhatsappModalModule, // ✅ ADD THIS LINE
+    BulkAssignModule,
   ],
   exports: [AdminComponent],
 })

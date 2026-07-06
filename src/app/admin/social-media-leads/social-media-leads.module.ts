@@ -22,6 +22,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { CalendarModule } from 'primeng/calendar';
 import { LucideAngularModule, CalendarDays } from 'lucide-angular';
+import { BulkAssignModule } from '../bulk-assign/bulk-assign.module';
 // const routes: Routes = [
 //   { path: '', component: SocialMediaLeadsComponent },
 
@@ -64,8 +65,10 @@ const routes: Routes = [
     FormsModule,
     InputSwitchModule,
     MatMenuModule,
+     BulkAssignModule, 
     MatButtonModule,
     CalendarModule,
+  
     LucideAngularModule.pick({ CalendarDays }),
     [RouterModule.forChild(routes)],
   ]

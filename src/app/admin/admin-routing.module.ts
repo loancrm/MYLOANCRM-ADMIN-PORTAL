@@ -24,11 +24,11 @@ const routes: Routes = [
         loadChildren: () =>
           import('./accounts/accounts.module').then((m) => m.AccountsModule),
       },
-    //   {
-    //   path: 'bulk-whatsapp',
-    //   loadChildren: () =>
-    //     import('./bulk-whatsapp-modal/bulk-whatsapp-modal.module').then((m) => m.BulkWhatsappModalModule),
-    // },
+      //   {
+      //   path: 'bulk-whatsapp',
+      //   loadChildren: () =>
+      //     import('./bulk-whatsapp-modal/bulk-whatsapp-modal.module').then((m) => m.BulkWhatsappModalModule),
+      // },
       {
         path: 'subscription-plans',
         loadChildren: () =>
@@ -66,14 +66,14 @@ const routes: Routes = [
             (m) => m.IpAddressModule
           ),
       },
-       {
+      {
         path: 'cibil-reports',
         loadChildren: () =>
           import('./cibil-reports/cibil-reports.module').then(
             (m) => m.CibilReportsModule
           ),
       },
-       {
+      {
         path: 'cam-reports',
         loadChildren: () =>
           import('./cam-reports/cam-reports.module').then(
@@ -125,6 +125,12 @@ const routes: Routes = [
         loadChildren: () =>
           import('./demo-bookings/demo-bookings.module').then((m) => m.DemoBookingsModule),
       },
+      {
+        path: 'client-requirements',
+        loadChildren: () =>
+          import('./client-requirements/client-requirements.module').then((m) => m.ClientRequirementsModule),
+      },
+
     ],
   },
 ];

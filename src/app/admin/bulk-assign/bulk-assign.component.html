@@ -1,0 +1,86 @@
+<div class="p-fluid">
+
+  <p class="text-muted mb-3">
+    Reassign leads to a user. Use checkboxes on the table for selected rows.
+  </p>
+
+  <div class="mb-3">
+
+    <label class="fw-bold">Assign scope</label>
+
+    <div class="mt-2">
+
+    <div class="assign-option">
+        <p-radioButton
+            name="scope"
+            value="all"
+            [(ngModel)]="assignScope">
+        </p-radioButton>
+
+        <label>
+            All leads matching current filters ({{ totalLeads }})
+        </label>
+        </div>
+
+      <div class="assign-option">
+        <p-radioButton
+          name="scope"
+          value="page"
+          [(ngModel)]="assignScope">
+        </p-radioButton>
+
+        <label>
+          Current page only ({{ currentPageLeads.length }})
+        </label>
+      </div>
+
+      <!-- <div class="assign-option">
+        <p-radioButton
+          name="scope"
+          value="selected"
+          [(ngModel)]="assignScope">
+        </p-radioButton>
+
+        <label>
+          Checked rows only ({{ selectedLeads.length }})
+        </label>
+      </div> -->
+
+    </div>
+
+  </div>
+
+  <div class="mb-3">
+
+    <label class="fw-bold">
+      Assign To <span class="text-danger">*</span>
+    </label>
+<p-dropdown
+    [options]="salesUsers"
+    [(ngModel)]="selectedAssignee"
+    optionLabel="name"
+    optionValue="id"
+    placeholder="Select Sales User"
+    [filter]="true"
+    [showClear]="true"
+    appendTo="body"
+    styleClass="assign-dropdown">
+</p-dropdown>
+
+  </div>
+
+<div class="button-wrapper">
+
+<div class="button-wrapper">
+  <button
+    pButton
+    type="button"
+    [label]="'Assign ' + getAssignCount() + ' Leads'"
+    [disabled]="!selectedAssignee"
+    [ngClass]="selectedAssignee ? 'assign-btn-active' : 'assign-btn-disabled'"
+    (click)="submit()">
+  </button>
+</div>
+</div>
+
+</div>  
