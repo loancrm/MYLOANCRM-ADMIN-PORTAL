@@ -1,0 +1,164 @@
+<div>
+  <div class="p-1 m-2 fixed-card">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img
+            src="../../../assets/images/icons/left-arrow.svg"
+            alt="Back"
+          />
+        </span>
+
+        <b>
+          <span class="back-btn-text">Profile</span>
+        </b>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loader -->
+
+<div *ngIf="loading">
+  <app-preloader></app-preloader>
+</div>
+
+<!-- Profile -->
+
+<div class="card m-2">
+
+  <ng-container *ngIf="!loading && requirement">
+
+    <!-- ================= BASIC INFORMATION ================= -->
+
+    <h4 class="fw-bold mt-3">
+      Basic Information
+    </h4>
+
+    <div class="row mt-3">
+
+      <!-- Left -->
+
+      <div class="col-md-4">
+
+        <p>
+          <b>Account ID:</b>
+          {{ requirement.accountID }}
+        </p>
+  
+        <p>
+          <b>Status:</b>
+
+          <span
+            class="status-badge"
+            [ngClass]="{
+              'status-active': requirement.status == 'Active',
+              'status-inactive': requirement.status == 'Inactive'
+            }"
+          >
+            <span class="status-dot"></span>
+            {{ requirement.status }}
+          </span>
+
+        </p>
+        <p>
+                <b>Requirement:</b>
+
+                {{ requirement.requirement }}
+
+                </p>
+        <p>
+          <b>Requirement Status:</b>
+
+          <span
+            class="fw-bold"
+            [ngStyle]="{
+              color:
+                requirement.requirementStatus == 'Completed'
+                  ? '#28a745'
+                  : requirement.requirementStatus == 'Pending'
+                  ? '#ff9800'
+                  : requirement.requirementStatus == 'In Progress'
+                  ? '#2196f3'
+                  : '#dc3545'
+            }"
+          >
+            {{ requirement.requirementStatus }}
+          </span>
+
+        </p>
+        
+
+      </div>
+
+      <!-- Center -->
+
+      <div class="col-md-4">
+
+        <p>
+          <b>Deadline Date:</b>
+          {{ requirement.deadlineDate | date:'dd-MMM-yyyy' }}
+        </p>
+
+        <p>
+          <b>Created By:</b>
+          {{ requirement.createdBy }}
+        </p>
+
+        <p>
+          <b>Updated By:</b>
+          {{ requirement.updatedBy }}
+        </p>
+     
+
+           
+
+      </div>
+
+      <!-- Right -->
+
+      <div class="col-md-4">
+
+        <p>
+          <b>Created On:</b>
+          {{ requirement.createdOn | date:'dd-MMM-yyyy hh:mm a' }}
+        </p>
+
+        <p>
+          <b>Updated On:</b>
+          {{ requirement.updatedOn | date:'dd-MMM-yyyy hh:mm a' }}
+        </p>
+
+      </div>
+
+    </div>
+
+    <!-- ================= REMARKS ================= -->
+
+    <h4 class="fw-bold mt-4">
+      Remarks
+    </h4>
+
+    <div class="row mt-3">
+
+      <div class="col-md-12">
+
+        <textarea
+          pInputTextarea
+          rows="6"
+          class="w-100"
+          [value]="requirement.remarks"
+          readonly
+        >
+        </textarea>
+
+      </div>
+
+    </div>
+
+  </ng-container>
+
+</div>

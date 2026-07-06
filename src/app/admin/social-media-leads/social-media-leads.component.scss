@@ -123,13 +123,13 @@
   }
 }
 
-:host ::ng-deep {
-  .p-dialog .p-dialog-content {
-    padding: 0 !important;
-    border-radius: 12px;
-    overflow: hidden;
-  }
-}
+// :host ::ng-deep {
+//   .p-dialog .p-dialog-content {
+//     padding: 0 !important;
+//     border-radius: 12px;
+//     overflow: hidden;
+//   }
+// }
 
 .search-btn {
   background-color: #fff !important;
@@ -236,4 +236,18 @@
 
   color: #6c757d;
 
+}
+
+:host ::ng-deep .bulk-assign-dialog .p-dialog-content {
+    padding: 20px !important;
+    overflow: hidden !important;
+}
+
+:host ::ng-deep .bulk-assign-dialog .p-dialog-header {
+    border-bottom: none;
+}
+
+:host ::ng-deep .bulk-assign-dialog {
+    overflow: hidden;
+    border-radius: 10px;
 }

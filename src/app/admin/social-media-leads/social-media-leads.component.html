@@ -28,6 +28,14 @@
           class="p-button-info  m-1"
           (click)="showBulkUploadDialog()"
         ></button>
+          <button
+              pButton
+              type="button"
+              icon="pi pi-users"
+              label="Bulk Assign"
+              class="p-button-info m-1"
+              (click)="showBulkAssignDialog = true">
+          </button>
         <button
           pButton
           label="Add Enquiries"
@@ -691,7 +699,7 @@
     </ng-template> -->
     <ng-template pTemplate="caption">
   <div class="row">
-    <div class="col-md-2 mt-2 no-padding-small">
+    <div class="col mt-2 no-padding-small">
       <label class="fw-label">Search</label>
       <div class="p-inputgroup">
         <input
@@ -708,7 +716,7 @@
       </div>
     </div>
 
-    <div class="col-md-2 mt-2 no-padding-small">
+    <div class="col mt-2 no-padding-small">
       <label class="fw-label">Select Platform</label>
       <p-multiSelect
         [options]="platformOptions"
@@ -724,7 +732,7 @@
       ></p-multiSelect>
     </div>
 
-    <div class="col-md-2 mt-2 no-padding-small">
+    <div class="col mt-2 no-padding-small">
       <label class="fw-label">Select Status</label>
       <p-dropdown
         [options]="statusOptions"
@@ -737,7 +745,7 @@
       ></p-dropdown>
     </div>
 
-    <div class="col-md-2 mt-2 no-padding-small">
+    <div class="col mt-2 no-padding-small">
       <label class="fw-label">Select Account Status</label>
       <p-dropdown
         [options]="registrationStatusOptions"
@@ -749,7 +757,7 @@
         [style]="{ width: '100%' }"
       ></p-dropdown>
     </div>
-    <div class="col-md-2 mt-2 no-padding-small" *ngIf="loggedInUserRole === 1">
+    <div class="col mt-2 no-padding-small" *ngIf="loggedInUserRole === 1">
       <label class="fw-label">Assigned To</label>
       <p-dropdown
         [options]="assignFilterOptions"
@@ -762,9 +770,24 @@
         [showClear]="true"
       ></p-dropdown>
     </div>
+    <div class="col mt-2 no-padding-small">
+  <label class="fw-label">Duplicate Number</label>
 
+  <p-dropdown
+    [options]="duplicateOptions"
+    [(ngModel)]="selectedDuplicateStatus"
+    optionLabel="label"
+    optionValue="value"
+    placeholder="All Numbers"
+    (onChange)="onDuplicateFilterChange()"
+    [style]="{ width: '100%' }"
+    [showClear]="true"
+    appendTo="body">
+  </p-dropdown>
+</div>
+    
     <!-- ✅ app-filter replaces Demo Status, Enquiry Type, Remarks dropdowns -->
-    <div class="col-md-1 mt-2 no-padding-small d-flex align-items-end">
+    <div class="col-auto mt-2 no-padding-small d-flex align-items-end">
       <app-filter
         [position]="'right'"
         [iconColor]="'#33009C'"
@@ -1407,3 +1430,22 @@
   </div>
 </p-dialog>
 </div>
+<p-dialog
+  header="Bulk Assign Leads"
+  [(visible)]="showBulkAssignDialog"
+  [modal]="true"
+  [style]="{ width: '650px' }"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="bulk-assign-dialog">
+
+  <app-bulk-assign
+    [(visible)]="showBulkAssignDialog"
+    [selectedLeads]="selectedLeads"
+    [currentPageLeads]="socialMediaLeads"
+    [totalLeads]="socialMediaLeadsCount"
+    [salesUsers]="salesUsers"
+   (assignComplete)="refreshAfterBulkAssign()">
+  </app-bulk-assign>
+
+</p-dialog>

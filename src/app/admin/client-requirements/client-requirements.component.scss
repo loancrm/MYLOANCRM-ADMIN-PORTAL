@@ -1,0 +1,65 @@
+.search-btn {
+  background-color: #fff !important;
+  border-color: lightgray !important;
+  border-bottom-right-radius: 8px !important;
+  border-top-right-radius: 8px !important;
+  border-bottom-left-radius: 0 !important;
+  border-top-left-radius: 0 !important;
+}
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Dot */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* Active / Inactive */
+.status-active {
+  background-color: #E6F4EA; /* light green */
+  color: #1E7E34;
+}
+
+.status-active .status-dot {
+  background-color: #28A745;
+}
+
+/* ❌ Inactive (Red) */
+.status-inactive {
+  background-color: #FDECEA; /* light red */
+  color: #C82333;
+}
+
+.status-inactive .status-dot {
+  background-color: #DC3545;
+}
+
+/* Requirement Status */
+.status-pending {
+  color: #ff9800;
+  background: #fff3cd;
+}
+
+.status-progress {
+  color: #0d6efd;
+  background: #e7f1ff;
+}
+
+.status-completed {
+  color: #28a745;
+  background: #e8f8ec;
+}
+
+.status-rejected {
+  color: #dc3545;
+  background: #fdecec;
+}

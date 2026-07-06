@@ -1,0 +1,151 @@
+<div>
+  <div>
+    <div class="p-1 m-2">
+      <div class="d-flex justify-content-between">
+        <div
+          class="d-flex align-items-center justify-content-center pointer-cursor"
+          (click)="goBack()"
+        >
+          <span class="me-2 d-flex align-items-center">
+            <img
+              src="../../../assets/images/icons/left-arrow.svg"
+              alt="Back"
+            />
+          </span>
+          <b>
+            <span class="back-btn-text text-capitalize">
+              {{ heading }}
+            </span>
+          </b>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="loading">
+  <app-preloader></app-preloader>
+</div>
+
+<form
+  [formGroup]="requirementForm"
+  (ngSubmit)="onSubmit(requirementForm.value)"
+>
+  <div class="card m-2 border-0">
+
+    <div class="row p-3">
+
+      <!-- Account ID -->
+      <div class="col-md-6 mb-3">
+        <label>Account ID</label>
+        <input
+          pInputText
+          type="text"
+          formControlName="accountId"
+          placeholder="Enter Account ID"
+          class="w-100"
+        />
+      </div>
+     
+
+      <!-- Status -->
+      <div class="col-md-6 mb-3">
+        <label>Status</label>
+
+        <p-dropdown
+          [options]="statusOptions"
+          formControlName="status"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select Status"
+          styleClass="w-100"
+        >
+        </p-dropdown>
+      </div>
+
+      <!-- Requirement Status -->
+      <div class="col-md-6 mb-3">
+        <label>Requirement Status</label>
+
+        <p-dropdown
+          [options]="requirementStatusOptions"
+          formControlName="requirementStatus"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select Requirement Status"
+          styleClass="w-100"
+        >
+        </p-dropdown>
+      </div>
+
+      <!-- Deadline Date -->
+      <div class="col-md-6 mb-3">
+        <label>Deadline Date</label>
+
+        <p-calendar
+          formControlName="deadlineDate"
+          dateFormat="dd/mm/yy"
+          appendTo="body"
+          [showIcon]="true"
+          placeholder="Select Deadline Date"
+          styleClass="w-100"
+        >
+        </p-calendar>
+      </div>
+      <div class="col-md-6">
+
+        <label>Requirement</label>
+
+        <input
+          pInputText
+          type="text"
+          formControlName="requirement"
+          placeholder="Enter Requirement"
+          class="w-100"
+        />
+
+      </div>
+      <!-- Remarks -->
+      <div class="col-md-12 mb-3">
+        <label>Remarks</label>
+
+        <textarea
+          pInputTextarea
+          rows="5"
+          formControlName="remarks"
+          class="w-100"
+          placeholder="Enter Remarks"
+          [autoResize]="true"
+        >
+        </textarea>
+      </div>
+
+      <!-- Buttons -->
+      <div class="d-flex justify-content-center mt-3 mb-4">
+
+        <button
+          pButton
+          pRipple
+          type="button"
+          class="p-button-secondary me-2"
+          (click)="goBack()"
+        >
+          Go Back
+        </button>
+
+        <button
+          pButton
+          pRipple
+          type="submit"
+          class="p-button-primary"
+          [disabled]="loading"
+          [label]="actionType == 'create' ? 'Add Requirement' : 'Update Requirement'"
+        >
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+</form>

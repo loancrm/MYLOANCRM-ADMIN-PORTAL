@@ -14,6 +14,14 @@ import { map } from 'rxjs/operators';
   providedIn: 'root',
 })
 export class LeadsService {
+  changeClientRequirementStatus(id: number, status: string) {
+
+  return this.serviceMeta.httpPut(
+    'clientRequirements/' + id + '/status/' + status,
+    {}
+  );
+
+}
   moment: any;
   status: any;
   private sidebarVisible = new BehaviorSubject<boolean>(true);
@@ -371,6 +379,35 @@ updateContactRemarkText(contactId: number, remarks: string) {
     const url = 'subscriptionPlans';
     return this.serviceMeta.httpPost(url, data);
   }
+    createClientRequirement(data: any) {
+  const url = 'clientRequirements';
+  return this.serviceMeta.httpPost(url, data);
+}
+
+updateClientRequirement(id: number, data: any) {
+  const url = 'clientRequirements/' + id;
+  return this.serviceMeta.httpPut(url, data);
+}
+
+getClientRequirements(filter = {}) {
+  const url = 'clientRequirements';
+  return this.serviceMeta.httpGet(url, null, filter);
+}
+
+getClientRequirementsCount(filter = {}) {
+  const url = 'clientRequirements/total';
+  return this.serviceMeta.httpGet(url, null, filter);
+}
+
+
+getClientRequirementById(id: number) {
+
+  return this.serviceMeta.httpGet(
+    'clientRequirements/' + id
+  );
+
+}
+
   updatePlan(bankersId, data) {
     const url = 'subscriptionPlans/' + bankersId;
     return this.serviceMeta.httpPut(url, data);
@@ -1373,6 +1410,10 @@ updateAccountAssign(accountId: string, assignTo: any): Observable<any> {
   const url = `accounts/${accountId}/assign`;
   return this.serviceMeta.httpPut(url, { assign_to: assignTo });
 }
+bulkAssignSocialMediaLeads(data: any): Observable<any> {
+  const url = 'social-media-leads/bulk-assign';
+  return this.serviceMeta.httpPut(url, data);
+} //for bulk assigning social media leads
 submitWhatsappTemplate(id: number) {
   const url = 'whatsapp-templates/submit/' + id;
   return this.serviceMeta.httpPost(url, {});
