@@ -5,6 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { RoutingService } from 'src/app/services/routing-service';
 import { ToastService } from 'src/app/services/toast.service';
 import { LeadsService } from '../../leads/leads.service';
+import { DateTimeProcessorService } from 'src/app/services/date-time-processor.service';
 
 @Component({
   selector: 'app-create',
@@ -17,7 +18,7 @@ export class CreateComponent implements OnInit {
 
   loading = false;
   submitted = false;
-
+  moment: any;
   requirementId: any;
 
   heading = 'Create Client Requirement';
@@ -40,14 +41,15 @@ export class CreateComponent implements OnInit {
     private location: Location,
     private fb: FormBuilder,
     private toastService: ToastService,
+    private dateTimeProcessor: DateTimeProcessorService,
     private activatedRoute: ActivatedRoute,
     private routingService: RoutingService,
     private leadsService: LeadsService
   ) {
-
+    this.moment = this.dateTimeProcessor.getMoment();
     this.activatedRoute.params.subscribe(params => {
 
-       if (params['id']) {
+      if (params['id']) {
 
         this.requirementId = params['id'];
 
@@ -62,42 +64,42 @@ export class CreateComponent implements OnInit {
     });
 
   }
-getRequirementById() {
+  getRequirementById() {
 
-  this.loading = true;
+    this.loading = true;
 
-  this.leadsService.getClientRequirementById(this.requirementId).subscribe(
-    (data: any) => {
+    this.leadsService.getClientRequirementById(this.requirementId).subscribe(
+      (data: any) => {
 
-      this.loading = false;
+        this.loading = false;
 
-      this.requirementForm.patchValue({
+        this.requirementForm.patchValue({
 
-        accountId: data.accountID,
+          accountId: data.accountID,
 
-        requirement: data.requirement,
+          requirement: data.requirement,
 
-        remarks: data.remarks,
+          remarks: data.remarks,
 
-        status: data.status,
+          status: data.status,
 
-        requirementStatus: data.requirementStatus,
+          requirementStatus: data.requirementStatus,
 
         deadlineDate: new Date(data.deadlineDate)
 
-      });
+        });
 
-    },
-    (error: any) => {
+      },
+      (error: any) => {
 
-      this.loading = false;
+        this.loading = false;
 
-      this.toastService.showError(error);
+        this.toastService.showError(error);
 
-    }
-  );
+      }
+    );
 
-}
+  }
 
   ngOnInit(): void {
     this.createForm();
@@ -121,7 +123,7 @@ getRequirementById() {
     });
 
   }
- 
+
 
   onSubmit(formValues: any) {
 
@@ -143,7 +145,8 @@ getRequirementById() {
 
       requirementStatus: formValues.requirementStatus,
 
-      deadlineDate: formValues.deadlineDate
+      deadlineDate:
+        this.moment(formValues.deadlineDate).format('YYYY-MM-DD')
 
     };
 
