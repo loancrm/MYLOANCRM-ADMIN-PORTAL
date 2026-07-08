@@ -29,7 +29,7 @@ export class ProfileComponent implements OnInit {
       this.requirementId = params['id'];
 
       this.getRequirement();
-
+                                      
     });
 
   }

@@ -30,6 +30,7 @@ export class SocialMediaLeadsComponent {
   showBulkAssignDialog = false;
   selectedLeads: any[] = [];
   selectedLead: any = null;
+  duplicateCount: number = 0;
   version = projectConstantsLocal.VERSION_DESKTOP;
   @ViewChild('SocialMediaLeadsTable') socialMediaLeadsTable!: Table;
   private readonly FILTER_STORAGE_KEY = 'socialMediaLeadsFilters';
@@ -421,9 +422,17 @@ onRegistrationStatusChange(event: any): void {
     };
   }
 
-  this.leadsService.getSocilaMediaCount(filter).subscribe(
-    (socialmediaCount) => {
-      this.socialMediaLeadsCount = socialmediaCount;
+  // this.leadsService.getSocilaMediaCount(filter).subscribe(
+  //   (socialmediaCount) => {
+  //     this.socialMediaLeadsCount = socialmediaCount;
+  //   },
+  //   (error: any) => {
+  //     this.toastService.showError(error);
+  //   }
+  // );
+    this.leadsService.getSocilaMediaCount(filter).subscribe(
+    (response: any) => {
+      this.socialMediaLeadsCount = response.socialmedialeadsCount;
     },
     (error: any) => {
       this.toastService.showError(error);
@@ -857,6 +866,8 @@ private loadFiltersFromStorage(): void {
   // this.selectedEnquiryType = '';
   this.selectedEnquiryType        = stored.selectedEnquiryType        ?? '';  // ✅ also fix this
   this.selectedDemoStatus         = stored.selectedDemoStatus         ?? '';  // ✅ ADD THIS
+
+   this.selectedDuplicateStatus    = stored.selectedDuplicateStatus ?? '';
 }
 
 openBookDemoDialog(lead: any): void {
