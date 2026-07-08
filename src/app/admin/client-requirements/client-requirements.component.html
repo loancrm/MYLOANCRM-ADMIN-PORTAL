@@ -151,6 +151,7 @@
           <th>Requirement Status</th>
           <th>Deadline Date</th>
           <th>Created By</th>
+          <th>Assigned To</th>
            <th class="text-center">Actions</th>
         </tr>
       </ng-template>
@@ -232,6 +233,11 @@
           <td>
             <span class="table-column-data">
               {{ item.createdBy }}
+            </span>
+          </td>
+          <td>
+            <span class="table-column-data">
+              {{ item.assignedToName}}
             </span>
           </td>
           <td>

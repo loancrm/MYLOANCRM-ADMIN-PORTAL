@@ -28,14 +28,15 @@
           class="p-button-info  m-1"
           (click)="showBulkUploadDialog()"
         ></button>
-          <button
-              pButton
-              type="button"
-              icon="pi pi-users"
-              label="Bulk Assign"
-              class="p-button-info m-1"
-              (click)="showBulkAssignDialog = true">
-          </button>
+      <button
+          *ngIf="loggedInUserRole === 1"
+          pButton
+          type="button"
+          icon="pi pi-users"
+          label="Bulk Assign"
+          class="p-button-info m-1"
+          (click)="showBulkAssignDialog = true">
+      </button>
         <button
           pButton
           label="Add Enquiries"
