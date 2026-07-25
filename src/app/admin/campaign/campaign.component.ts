@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit,ViewChild, OnDestroy  } from '@angular/core';
 import { CampaignService } from '../../services/campaign.service';
 import { LeadsService } from '../leads/leads.service';
 import { ToastService } from '../../services/toast.service';
@@ -149,26 +149,26 @@ export class CampaignComponent implements OnInit, OnDestroy{
   pageRows = 10;
   contactsLoading = false;
 
-  @ViewChild('socialMediaTable') socialMediaTable: any;
-  @ViewChild('accountsTable') accountsTable: any;
+@ViewChild('socialMediaTable') socialMediaTable: any;
+@ViewChild('accountsTable') accountsTable: any;
 
-  selectedRemark: string = '';
-  adminRemarkOptions: { label: string; value: any }[] = [];
-  // Add alongside other filter properties
-  selectedEnquiryType: string = '';
+selectedRemark: string = '';
+adminRemarkOptions: { label: string; value: any }[] = [];
+// Add alongside other filter properties
+selectedEnquiryType: string = '';
 
-  enquiryTypeOptions = [
-    { label: 'All', value: '' },
-    { label: 'Loan Enquiry', value: 'loanEnquiry' },
-    { label: 'CRM Enquiry', value: 'crmEnquiry' },
-  ];
-  selectedAccountRemark: string = '';
-  accountRemarkOptions: { label: string; value: any }[] = [];
-  // Add alongside other properties
-  socialMediaFilterConfig: any[] = [];
-  accountsFilterConfig: any[] = [];
-  socialMediaAppliedFilter: any = {};
-  accountsAppliedFilter: any = {};
+enquiryTypeOptions = [
+  { label: 'All',          value: '' },
+  { label: 'Loan Enquiry', value: 'loanEnquiry' },
+  { label: 'CRM Enquiry',  value: 'crmEnquiry' },
+];
+selectedAccountRemark: string = '';
+accountRemarkOptions: { label: string; value: any }[] = [];
+// Add alongside other properties
+socialMediaFilterConfig: any[] = [];
+accountsFilterConfig: any[] = [];
+socialMediaAppliedFilter: any = {};
+accountsAppliedFilter: any = {};
 
 // ── MANUAL NUMBERS TAB ─────────────────────────────────
 manualNumbersVisible = false;
@@ -235,7 +235,7 @@ recent24hCount = 0;
     private toastService: ToastService,
     private routingService: RoutingService,
     private location: Location,
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.searchFilter = {};
@@ -245,7 +245,7 @@ recent24hCount = 0;
     this.loadAdminRemarks();
     this.loadAccountRemarks();
     this.setSocialMediaFilterConfig();
-    this.setAccountsFilterConfig();
+this.setAccountsFilterConfig();
   }
 
   // ── TAB SWITCH ─────────────────────────────────────────
@@ -274,36 +274,36 @@ recent24hCount = 0;
   //   }
   // }
   switchTab(tab: 'socialMedia' | 'accounts' | 'manual'): void {
-    // add 'manual' to the type above in activeTab declaration too
-    this.searchFilter = {};
-    this.activeTab = tab as any;
-    this.selectedContacts = [];
-    this.searchText = '';
-    this.selectedPlatforms = ['Facebook', 'Website'];
-    this.selectedDemoStatus = '';
-    this.selectedRegistrationStatus = '';
-    this.searchFilter = {};
-    this.contacts = [];
-    this.filteredContacts = [];
-    this.socialMediaTotal = 0;
-    this.accountsTotal = 0;
-    this.selectedPlanType = 'ALL';
-    this.selectedStatusType = 'ALL';
-    this.selectedBillingCycle = 'ALL';
-    this.skipRegisteredAccounts = false;
-    this.selectedRemark = '';
-    this.selectedEnquiryType = '';
-    this.selectedAccountRemark = '';
-    // reset manual tab
-    this.manualNumbersRaw = '';
-    this.parsedManualContacts = [];
+  // add 'manual' to the type above in activeTab declaration too
+  this.searchFilter = {};
+  this.activeTab = tab as any;
+  this.selectedContacts = [];
+  this.searchText = '';
+  this.selectedPlatforms = ['Facebook', 'Website'];
+  this.selectedDemoStatus = '';
+  this.selectedRegistrationStatus = '';
+  this.searchFilter = {};
+  this.contacts = [];
+  this.filteredContacts = [];
+  this.socialMediaTotal = 0;
+  this.accountsTotal = 0;
+  this.selectedPlanType = 'ALL';
+  this.selectedStatusType = 'ALL';
+  this.selectedBillingCycle = 'ALL';
+  this.skipRegisteredAccounts = false;
+  this.selectedRemark = '';
+  this.selectedEnquiryType = '';
+  this.selectedAccountRemark = '';
+  // reset manual tab
+  this.manualNumbersRaw = '';
+  this.parsedManualContacts = [];
 
-    if (tab === 'socialMedia') {
-      this.loadSocialMediaLeads({ first: 0, rows: 10 });
-    } else if (tab === 'accounts') {
-      this.loadAccounts({ first: 0, rows: 10 });
-    }
+  if (tab === 'socialMedia') {
+    this.loadSocialMediaLeads({ first: 0, rows: 10 });
+  } else if (tab === 'accounts') {
+    this.loadAccounts({ first: 0, rows: 10 });
   }
+}
   // switchTab(tab: 'socialMedia' | 'accounts'): void {
   //   this.activeTab = tab;
   //   this.selectedContacts = [];
@@ -333,180 +333,89 @@ recent24hCount = 0;
   //     this.loadAccounts({ first: 0, rows: 10 });
   //   }
   // }
-  loadSocialMediaLeads(event: any = { first: 0, rows: 10 }): void {
-    this.contactsLoading = true;
+loadSocialMediaLeads(event: any = { first: 0, rows: 10 }): void {
+  this.contactsLoading = true;
 
-    const start = event.first ?? 0;
-    const length = event.rows ?? 10;
+  const start  = event.first ?? 0;
+  const length = event.rows  ?? 10;
 
-    let sortField = 'CreatedOn';
-    let sortOrder = 'desc';
+  let sortField = 'CreatedOn';
+  let sortOrder = 'desc';
 
-    if (event.sortField) {
-      sortField = event.sortField;
-      sortOrder = event.sortOrder === 1 ? 'asc' : 'desc';
-    }
-
-    const filter: any = {
-      ...this.searchFilter,
-      start,
-      length,
-      sort: sortField,
-      order: sortOrder,
-      'status-eq': 1,
-    };
-
-    if (this.selectedRegistrationStatus) {
-      filter['registrationStatus'] = this.selectedRegistrationStatus;
-    }
-    if (this.selectedPlatforms && this.selectedPlatforms.length > 0) {
-      filter['Platform-eq'] = this.selectedPlatforms.join(',');
-    }
-    if (this.selectedDemoStatus) {
-      filter['demoStatus-eq'] = this.selectedDemoStatus;
-    }
-    if (this.selectedRemark) {
-      filter['remarkId-eq'] = this.selectedRemark;
-    }
-    if (this.selectedEnquiryType) {
-      filter['enquiryType-eq'] = this.selectedEnquiryType;
-    }
-
-    // Merge app-filter panel filters
-    Object.keys(this.socialMediaAppliedFilter).forEach(key => {
-      const val = this.socialMediaAppliedFilter[key];
-      if (val !== undefined && val !== null && val !== '') {
-        filter[key] = val;
-      }
-    });
-
-    // Count query — send same filter WITHOUT pagination params
-    const countFilter = { ...filter };
-    delete countFilter['start'];
-    delete countFilter['length'];
-    delete countFilter['sort'];
-    delete countFilter['order'];
-
-    // this.leadsService.getSocilaMediaCount(countFilter).subscribe((count: any) => {
-    //   this.socialMediaTotal = Number(count) || 0;
-    // });
-    this.leadsService.getSocilaMediaCount(countFilter).subscribe((response: any) => {
-      this.socialMediaTotal = Number(response.socialmedialeadsCount) || 0;
-    });
-
-    this.leadsService.getSocialMediaLeads(filter).subscribe(
-      (data: any) => {
-        this.contacts = data.map((lead: any) => ({
-          name: lead.Name || '',
-          mobileNumber: lead.PhoneNumber || '',
-          email: lead.Email || '',
-          city: lead.City || '',
-          company: lead.Company || '',
-          state: lead.State || '',
-          platform: lead.Platform || '',
-          isRegistered: lead.isRegistered || false,
-          id: lead.id,
-        }));
-        this.filteredContacts = this.contacts;
-        this.contactsLoading = false;
-      },
-      () => {
-        this.errorMsg = 'Failed to load social media leads';
-        this.contactsLoading = false;
-      }
-    );
+  if (event.sortField) {
+    sortField = event.sortField;
+    sortOrder = event.sortOrder === 1 ? 'asc' : 'desc';
   }
+
+  const filter: any = {
+    ...this.searchFilter,
+    start,
+    length,
+    sort:  sortField,
+    order: sortOrder,
+    'status-eq': 1,
+  };
+
+  if (this.selectedRegistrationStatus) {
+    filter['registrationStatus'] = this.selectedRegistrationStatus;
+  }
+  if (this.selectedPlatforms && this.selectedPlatforms.length > 0) {
+    filter['Platform-eq'] = this.selectedPlatforms.join(',');
+  }
+  if (this.selectedDemoStatus) {
+    filter['demoStatus-eq'] = this.selectedDemoStatus;
+  }
+  if (this.selectedRemark) {
+    filter['remarkId-eq'] = this.selectedRemark;
+  }
+  if (this.selectedEnquiryType) {
+    filter['enquiryType-eq'] = this.selectedEnquiryType;
+  }
+
+  // Merge app-filter panel filters
+  Object.keys(this.socialMediaAppliedFilter).forEach(key => {
+    const val = this.socialMediaAppliedFilter[key];
+    if (val !== undefined && val !== null && val !== '') {
+      filter[key] = val;
+    }
+  });
+
+  // Count query — send same filter WITHOUT pagination params
+  const countFilter = { ...filter };
+  delete countFilter['start'];
+  delete countFilter['length'];
+  delete countFilter['sort'];
+  delete countFilter['order'];
+
+  this.leadsService.getSocilaMediaCount(countFilter).subscribe((count: any) => {
+    this.socialMediaTotal = Number(count) || 0;
+  });
+
+  this.leadsService.getSocialMediaLeads(filter).subscribe(
+    (data: any) => {
+      this.contacts = data.map((lead: any) => ({
+        name:         lead.Name         || '',
+        mobileNumber: lead.PhoneNumber  || '',
+        email:        lead.Email        || '',
+        city:         lead.City         || '',
+        company:      lead.Company      || '',
+        state:        lead.State        || '',
+        platform:     lead.Platform     || '',
+        isRegistered: lead.isRegistered || false,
+        id:           lead.id,
+      }));
+      this.filteredContacts = this.contacts;
+      this.contactsLoading  = false;
+    },
+    () => {
+      this.errorMsg        = 'Failed to load social media leads';
+      this.contactsLoading = false;
+    }
+  );
+}
 
   // ── LOAD ACCOUNTS ──────────────────────────────────────
 
-  //   loadAccounts(event: any = { first: 0, rows: 10 }): void {
-  //   this.contactsLoading = true;
-  //   const filter: any = { ...this.searchFilter };
-  //   filter['status-eq'] = 1;
-  //   filter['from']  = event.first ?? 0;
-  //   filter['count'] = event.rows  ?? 10;
-
-  //   if (this.selectedPlanType && this.selectedPlanType !== 'ALL') {
-  //     filter['latest_plan_name-eq'] = this.selectedPlanType;
-  //   }
-  //   if (this.selectedStatusType && this.selectedStatusType !== 'ALL') {
-  //     filter['latest_status-eq'] = this.selectedStatusType;
-  //   }
-  //   if (this.selectedBillingCycle && this.selectedBillingCycle !== 'ALL') {
-  //     filter['latest_billing_cycle-eq'] = this.selectedBillingCycle;
-  //   }
-  //   if (this.selectedAccountRemark) {
-  //     filter['remarkId-eq'] = this.selectedAccountRemark;
-  //   }
-
-  //   // ✅ Also merge any applied filter from app-filter panel
-  //   Object.keys(this.accountsAppliedFilter).forEach(key => {
-  //     const val = this.accountsAppliedFilter[key];
-  //     if (val !== undefined && val !== null && val !== '') {
-  //       filter[key] = val;
-  //     }
-  //   });
-
-  //   this.leadsService.getAccountsCount(filter).subscribe((count: any) => {
-  //     this.accountsTotal = Number(count) || 0;
-  //   });
-
-  //   this.leadsService.getAccounts(filter).subscribe(
-  //     (data: any) => {
-  //       this.contacts = data.map((acc: any) => ({
-  //         name:                acc.name             || '',
-  //         businessName:        acc.businessName     || '',
-  //         mobileNumber:        acc.mobile           || '',
-  //         email:               acc.emailId          || '',
-  //         city:                acc.city             || '',
-  //         accountId:           acc.accountId        || '',
-  //         walletBalance:       acc.walletBalance    || '',
-  //         createdOn:           acc.createdOn        || '',
-  //         latest_plan_name:    acc.latest_plan_name || '',
-  //         latest_status:       acc.latest_status    || '',
-  //         latest_billing_cycle: acc.latest_billing_cycle || '',
-  //         start_date:          acc.start_date       || '',
-  //         end_date:            acc.end_date         || '',
-  //       }));
-  //       this.filteredContacts  = this.contacts;
-  //       this.contactsLoading   = false;
-  //     },
-  //     () => {
-  //       this.errorMsg        = 'Failed to load accounts';
-  //       this.contactsLoading = false;
-  //     }
-  //   );
-  // }
-
-  loadAccounts(event: any = { first: 0, rows: 10 }): void {
-    this.contactsLoading = true;
-
-    const start = event?.first ?? 0;
-    const length = event?.rows ?? 10;
-
-    let sortField = 'createdOn';
-    let sortOrder = 'desc';
-
-    if (event?.sortField) {
-      sortField = event.sortField;
-      sortOrder = event.sortOrder === 1 ? 'asc' : 'desc';
-    }
-
-    // ✅ Build filter FIRST, then override start/length at the end
-    const filter: any = { ...this.searchFilter };
-
-    // Remove any stale pagination keys from searchFilter
-    delete filter['start'];
-    delete filter['length'];
-    delete filter['sort'];
-    delete filter['order'];
-
-    // Now set pagination (cannot be overridden)
-    filter['start'] = start;
-    filter['length'] = length;
-    filter['sort'] = sortField;
-    filter['order'] = sortOrder;
-    filter['status-eq'] = 1;
   loadAccounts(event: any = { first: 0, rows: 10 }): void {
   this.contactsLoading = true;
   const filter: any = { ...this.searchFilter };
@@ -514,35 +423,19 @@ recent24hCount = 0;
   filter['from']  = event.first ?? 0;
   filter['count'] = event.rows  ?? 10;
 
-    if (this.selectedPlanType && this.selectedPlanType !== 'ALL') {
-      filter['latest_plan_name-eq'] = this.selectedPlanType;
-    }
-    if (this.selectedStatusType && this.selectedStatusType !== 'ALL') {
-      filter['latest_status-eq'] = this.selectedStatusType;
-    }
-    if (this.selectedBillingCycle && this.selectedBillingCycle !== 'ALL') {
-      filter['latest_billing_cycle-eq'] = this.selectedBillingCycle;
-    }
-    if (this.selectedAccountRemark) {
-      filter['remarkId-eq'] = this.selectedAccountRemark;
-    }
+  if (this.selectedPlanType && this.selectedPlanType !== 'ALL') {
+    filter['latest_plan_name-eq'] = this.selectedPlanType;
+  }
+  if (this.selectedStatusType && this.selectedStatusType !== 'ALL') {
+    filter['latest_status-eq'] = this.selectedStatusType;
+  }
+  if (this.selectedBillingCycle && this.selectedBillingCycle !== 'ALL') {
+    filter['latest_billing_cycle-eq'] = this.selectedBillingCycle;
+  }
+  if (this.selectedAccountRemark) {
+    filter['remarkId-eq'] = this.selectedAccountRemark;
+  }
 
-    // Merge app-filter panel filters (also clean pagination from these)
-    Object.keys(this.accountsAppliedFilter).forEach(key => {
-      if (!['start', 'length', 'sort', 'order'].includes(key)) {  // ✅ never override pagination
-        const val = this.accountsAppliedFilter[key];
-        if (val !== undefined && val !== null && val !== '') {
-          filter[key] = val;
-        }
-      }
-    });
-
-    // Count query — strip pagination params
-    const countFilter = { ...filter };
-    delete countFilter['start'];
-    delete countFilter['length'];
-    delete countFilter['sort'];
-    delete countFilter['order'];
   // ✅ Also merge any applied filter from app-filter panel
   Object.keys(this.accountsAppliedFilter).forEach(key => {
     const val = this.accountsAppliedFilter[key];
@@ -551,39 +444,10 @@ recent24hCount = 0;
     }
   });
 
-    this.leadsService.getAccountsCount(countFilter).subscribe((count: any) => {
-      this.accountsTotal = Number(count) || 0;
-    });
   this.leadsService.getAccountsCount(filter).subscribe((count: any) => {
     this.accountsTotal = Number(count) || 0;
   });
 
-    this.leadsService.getAccounts(filter).subscribe(
-      (data: any) => {
-        this.contacts = data.map((acc: any) => ({
-          name: acc.name || '',
-          businessName: acc.businessName || '',
-          mobileNumber: acc.mobile || '',
-          email: acc.emailId || '',
-          city: acc.city || '',
-          accountId: acc.accountId || '',
-          walletBalance: acc.walletBalance || '',
-          createdOn: acc.createdOn || '',
-          latest_plan_name: acc.latest_plan_name || '',
-          latest_status: acc.latest_status || '',
-          latest_billing_cycle: acc.latest_billing_cycle || '',
-          start_date: acc.start_date || '',
-          end_date: acc.end_date || '',
-        }));
-        this.filteredContacts = this.contacts;
-        this.contactsLoading = false;
-      },
-      () => {
-        this.errorMsg = 'Failed to load accounts';
-        this.contactsLoading = false;
-      }
-    );
-  }
   this.leadsService.getAccounts(filter).subscribe(
     (data: any) => {
       this.contacts = data.map((acc: any) => ({
@@ -613,105 +477,105 @@ recent24hCount = 0;
 
 
 
-  // loadAccounts(event: any = { first: 0, rows: 10 }): void {
-  //   this.contactsLoading = true;
+// loadAccounts(event: any = { first: 0, rows: 10 }): void {
+//   this.contactsLoading = true;
 
-  //   const start  = event.first ?? 0;
-  //   const length = event.rows  ?? 10;
+//   const start  = event.first ?? 0;
+//   const length = event.rows  ?? 10;
 
-  //   let sortField = 'createdOn';
-  //   let sortOrder = 'desc';
+//   let sortField = 'createdOn';
+//   let sortOrder = 'desc';
 
-  //   if (event.sortField) {
-  //     sortField = event.sortField;
-  //     sortOrder = event.sortOrder === 1 ? 'asc' : 'desc';
-  //   }
+//   if (event.sortField) {
+//     sortField = event.sortField;
+//     sortOrder = event.sortOrder === 1 ? 'asc' : 'desc';
+//   }
 
-  //   const filter: any = {
-  //     ...this.searchFilter,
-  //     start,
-  //     length,
-  //     sort:       sortField,
-  //     order:      sortOrder,
-  //     'status-eq': 1,
-  //   };
+//   const filter: any = {
+//     ...this.searchFilter,
+//     start,
+//     length,
+//     sort:       sortField,
+//     order:      sortOrder,
+//     'status-eq': 1,
+//   };
 
-  //   if (this.selectedPlanType && this.selectedPlanType !== 'ALL') {
-  //     filter['latest_plan_name-eq'] = this.selectedPlanType;
-  //   }
-  //   if (this.selectedStatusType && this.selectedStatusType !== 'ALL') {
-  //     filter['latest_status-eq'] = this.selectedStatusType;
-  //   }
-  //   if (this.selectedBillingCycle && this.selectedBillingCycle !== 'ALL') {
-  //     filter['latest_billing_cycle-eq'] = this.selectedBillingCycle;
-  //   }
-  //   if (this.selectedAccountRemark) {
-  //     filter['remarkId-eq'] = this.selectedAccountRemark;
-  //   }
+//   if (this.selectedPlanType && this.selectedPlanType !== 'ALL') {
+//     filter['latest_plan_name-eq'] = this.selectedPlanType;
+//   }
+//   if (this.selectedStatusType && this.selectedStatusType !== 'ALL') {
+//     filter['latest_status-eq'] = this.selectedStatusType;
+//   }
+//   if (this.selectedBillingCycle && this.selectedBillingCycle !== 'ALL') {
+//     filter['latest_billing_cycle-eq'] = this.selectedBillingCycle;
+//   }
+//   if (this.selectedAccountRemark) {
+//     filter['remarkId-eq'] = this.selectedAccountRemark;
+//   }
 
-  //   // ── Merge app-filter panel filters ──────────────────────
-  //   Object.keys(this.accountsAppliedFilter).forEach(key => {
-  //     const val = this.accountsAppliedFilter[key];
-  //     if (val !== undefined && val !== null && val !== '') {
-  //       filter[key] = val;
-  //     }
-  //   });
+//   // ── Merge app-filter panel filters ──────────────────────
+//   Object.keys(this.accountsAppliedFilter).forEach(key => {
+//     const val = this.accountsAppliedFilter[key];
+//     if (val !== undefined && val !== null && val !== '') {
+//       filter[key] = val;
+//     }
+//   });
 
-  //   // ── Count query — strip pagination params ────────────────
-  //   const countFilter = { ...filter };
-  //   delete countFilter['start'];
-  //   delete countFilter['length'];
-  //   delete countFilter['sort'];
-  //   delete countFilter['order'];
+//   // ── Count query — strip pagination params ────────────────
+//   const countFilter = { ...filter };
+//   delete countFilter['start'];
+//   delete countFilter['length'];
+//   delete countFilter['sort'];
+//   delete countFilter['order'];
 
-  //   this.leadsService.getAccountsCount(countFilter).subscribe((count: any) => {
-  //     this.accountsTotal = Number(count) || 0;
-  //   });
+//   this.leadsService.getAccountsCount(countFilter).subscribe((count: any) => {
+//     this.accountsTotal = Number(count) || 0;
+//   });
 
-  //   this.leadsService.getAccounts(filter).subscribe(
-  //     (data: any) => {
-  //       this.contacts = data.map((acc: any) => ({
-  //         name:                 acc.name                  || '',
-  //         businessName:         acc.businessName          || '',
-  //         mobileNumber:         acc.mobile                || '',
-  //         email:                acc.emailId               || '',
-  //         city:                 acc.city                  || '',
-  //         accountId:            acc.accountId             || '',
-  //         walletBalance:        acc.walletBalance         || '',
-  //         createdOn:            acc.createdOn             || '',
-  //         latest_plan_name:     acc.latest_plan_name      || '',
-  //         latest_status:        acc.latest_status         || '',
-  //         latest_billing_cycle: acc.latest_billing_cycle  || '',
-  //         start_date:           acc.start_date            || '',
-  //         end_date:             acc.end_date              || '',
-  //       }));
-  //       this.filteredContacts = this.contacts;
-  //       this.contactsLoading  = false;
-  //     },
-  //     () => {
-  //       this.errorMsg        = 'Failed to load accounts';
-  //       this.contactsLoading = false;
-  //     }
-  //   );
-  // }
+//   this.leadsService.getAccounts(filter).subscribe(
+//     (data: any) => {
+//       this.contacts = data.map((acc: any) => ({
+//         name:                 acc.name                  || '',
+//         businessName:         acc.businessName          || '',
+//         mobileNumber:         acc.mobile                || '',
+//         email:                acc.emailId               || '',
+//         city:                 acc.city                  || '',
+//         accountId:            acc.accountId             || '',
+//         walletBalance:        acc.walletBalance         || '',
+//         createdOn:            acc.createdOn             || '',
+//         latest_plan_name:     acc.latest_plan_name      || '',
+//         latest_status:        acc.latest_status         || '',
+//         latest_billing_cycle: acc.latest_billing_cycle  || '',
+//         start_date:           acc.start_date            || '',
+//         end_date:             acc.end_date              || '',
+//       }));
+//       this.filteredContacts = this.contacts;
+//       this.contactsLoading  = false;
+//     },
+//     () => {
+//       this.errorMsg        = 'Failed to load accounts';
+//       this.contactsLoading = false;
+//     }
+//   );
+// }
 
   applyFilters(): void {
-    delete this.searchFilter['search'];
-    delete this.searchFilter['start'];    // ✅ ADD THIS
-    delete this.searchFilter['length'];   // ✅ ADD THIS
+  delete this.searchFilter['search'];
+  delete this.searchFilter['start'];    // ✅ ADD THIS
+  delete this.searchFilter['length'];   // ✅ ADD THIS
 
-    if (this.searchText?.trim()) {
-      this.searchFilter['search'] = this.searchText;
-    }
-
-    if (this.activeTab === 'socialMedia') {
-      if (this.socialMediaTable) this.socialMediaTable.first = 0;
-      this.loadSocialMediaLeads({ first: 0, rows: 10 });
-    } else {
-      if (this.accountsTable) this.accountsTable.first = 0;
-      this.loadAccounts({ first: 0, rows: 10 });
-    }
+  if (this.searchText?.trim()) {
+    this.searchFilter['search'] = this.searchText;
   }
+
+  if (this.activeTab === 'socialMedia') {
+    if (this.socialMediaTable) this.socialMediaTable.first = 0;
+    this.loadSocialMediaLeads({ first: 0, rows: 10 });
+  } else {
+    if (this.accountsTable) this.accountsTable.first = 0;
+    this.loadAccounts({ first: 0, rows: 10 });
+  }
+}
 
   // ── LOAD TEMPLATES ─────────────────────────────────────
   loadTemplates(): void {
@@ -738,28 +602,28 @@ recent24hCount = 0;
 
     const components = this.selectedTemplate.components || [];
     const headerComp = components.find((c: any) => c.type === 'HEADER');
-    const bodyComp = components.find((c: any) => c.type === 'BODY');
+    const bodyComp   = components.find((c: any) => c.type === 'BODY');
     const footerComp = components.find((c: any) => c.type === 'FOOTER');
     const buttonComp = components.find((c: any) => c.type === 'BUTTONS');
 
     const headerFormat = headerComp?.format?.toUpperCase() || 'NONE';
-    this.templateHeaderType = ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat)
+    this.templateHeaderType = ['IMAGE','VIDEO','DOCUMENT'].includes(headerFormat)
       ? headerFormat
       : (headerComp?.text ? 'TEXT' : 'NONE');
 
     this.templateHeaderText = headerComp?.text || '';
-    this.templateBodyText = bodyComp?.text || this.selectedTemplate.body_text || '';
+    this.templateBodyText   = bodyComp?.text || this.selectedTemplate.body_text || '';
     this.templateFooterText = footerComp?.text || '';
-    this.templateButtons = buttonComp?.buttons || [];
+    this.templateButtons    = buttonComp?.buttons || [];
 
     const existingHeaderHandle = headerComp?.example?.header_handle?.[0] || null;
     if (existingHeaderHandle) {
-      this.headerMediaUrl = existingHeaderHandle;
+      this.headerMediaUrl  = existingHeaderHandle;
       this.headerMediaFile = null;
       this.headerAlreadyUploaded = true;
-      this.headerIsMetaHandle = true;
+      this.headerIsMetaHandle   = true;
     } else {
-      this.headerMediaUrl = '';
+      this.headerMediaUrl  = '';
       this.headerMediaFile = null;
       this.headerAlreadyUploaded = false;
     }
@@ -778,13 +642,13 @@ recent24hCount = 0;
 
     const textSources = [this.templateHeaderText, this.templateBodyText].join(' ');
     const textMatches = textSources.match(/{{\d+}}/g) || [];
-    const textParams = [...new Set(textMatches)] as string[];
+    const textParams  = [...new Set(textMatches)] as string[];
 
-    const startIndex = textParams.length + 1;
+    const startIndex   = textParams.length + 1;
     const buttonParams = Array.from({ length: buttonParamCount }, (_, i) => `{{${startIndex + i}}}`);
 
     this.templateParams = [...textParams, ...buttonParams];
-    this.languageCode = this.selectedTemplate.language || 'en_US';
+    this.languageCode   = this.selectedTemplate.language || 'en_US';
 
     this.paramMappings = this.templateParams.map((param, i) => {
       const isButtonParam = i >= textParams.length;
@@ -884,18 +748,18 @@ recent24hCount = 0;
 
   // ── SEND CAMPAIGN ──────────────────────────────────────
   canSend(): boolean {
-    const hasContacts = this.selectedContacts.length > 0
-      || this.parsedManualContacts.length > 0;
-    if (!hasContacts || !this.selectedTemplate || !this.campaignName) return false;
-    if (this.activeTab === 'accounts' && this.skipRegisteredAccounts) return false;
-    if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(this.templateHeaderType)) {
-      if (this.headerUploading) return false;
-      if (!this.headerMediaUrl.trim()) return false;
-    }
-    return this.paramMappings.every((m) =>
-      m.type === 'manual' ? m.manualValue.trim() !== '' : m.dbField !== ''
-    );
+  const hasContacts = this.selectedContacts.length > 0
+    || this.parsedManualContacts.length > 0;
+  if (!hasContacts || !this.selectedTemplate || !this.campaignName) return false;
+  if (this.activeTab === 'accounts' && this.skipRegisteredAccounts) return false;
+  if (['IMAGE','VIDEO','DOCUMENT'].includes(this.templateHeaderType)) {
+    if (this.headerUploading) return false;
+    if (!this.headerMediaUrl.trim()) return false;
   }
+  return this.paramMappings.every((m) =>
+    m.type === 'manual' ? m.manualValue.trim() !== '' : m.dbField !== ''
+  );
+}
 
 sendCampaign(): void {
   if (!this.canSend()) return;
@@ -990,18 +854,18 @@ ngOnDestroy(): void {
 
     const file = input.files[0];
     this.headerMediaFile = file;
-    this.headerMediaUrl = '';
+    this.headerMediaUrl  = '';
     this.headerUploading = true;
 
     this.leadsService.uploadWhatsappMedia(file).subscribe({
       next: (res: any) => {
-        this.headerMediaUrl = res.url;
+        this.headerMediaUrl  = res.url;
         this.headerUploading = false;
       },
       error: () => {
         this.toastService.showError('Failed to upload media');
         this.headerMediaFile = null;
-        this.headerMediaUrl = '';
+        this.headerMediaUrl  = '';
         this.headerUploading = false;
       }
     });
@@ -1024,249 +888,241 @@ loadAdminRemarks(): void {
         value: String(r.remarkId),
       }));
 
-        // ✅ Update remarks options in filter configs
-        const remarkOptions = [
+      // ✅ Update remarks options in filter configs
+      const remarkOptions = [
+        { label: 'All', value: '' },
+        ...this.adminRemarkOptions
+      ];
+      const smRemarkField = this.socialMediaFilterConfig
+        .find(c => c.header === 'Remarks')?.data?.[0];
+      if (smRemarkField) smRemarkField.options = remarkOptions;
+    },
+    () => {}
+  );
+}
+
+loadAccountRemarks(): void {
+  const filter = { 'status-eq': 1, 'remarkInternalStatus-eq': 1 };
+  this.leadsService.getAdminRemarks(filter).subscribe(
+    (data: any) => {
+      this.accountRemarkOptions = data.map((r: any) => ({
+        label: r.displayName,
+        value: String(r.remarkId),
+      }));
+
+      // ✅ Update remarks options in accounts filter config
+      const remarkOptions = [
+        { label: 'All', value: '' },
+        ...this.accountRemarkOptions
+      ];
+      const accRemarkField = this.accountsFilterConfig
+        .find(c => c.header === 'Remarks')?.data?.[0];
+      if (accRemarkField) accRemarkField.options = remarkOptions;
+    },
+    () => {}
+  );
+}
+
+setSocialMediaFilterConfig(): void {
+  this.socialMediaFilterConfig = [
+    {
+      header: 'Demo Status',
+      data: [{ field: 'demoStatus', title: 'Demo Status', type: 'dropdown', filterType: 'eq',
+        options: [
           { label: 'All', value: '' },
-          ...this.adminRemarkOptions
-        ];
-        const smRemarkField = this.socialMediaFilterConfig
-          .find(c => c.header === 'Remarks')?.data?.[0];
-        if (smRemarkField) smRemarkField.options = remarkOptions;
-      },
-      () => { }
-    );
-  }
-
-  loadAccountRemarks(): void {
-    const filter = { 'status-eq': 1, 'remarkInternalStatus-eq': 1 };
-    this.leadsService.getAdminRemarks(filter).subscribe(
-      (data: any) => {
-        this.accountRemarkOptions = data.map((r: any) => ({
-          label: r.displayName,
-          value: String(r.remarkId),
-        }));
-
-        // ✅ Update remarks options in accounts filter config
-        const remarkOptions = [
+          { label: 'Not Demo Booked', value: 'notBooked' },
+          { label: 'Confirmed', value: 'confirmed' },
+          { label: 'Completed', value: 'completed' },
+          { label: 'Cancelled', value: 'cancelled' },
+          { label: 'Rescheduled', value: 'rescheduled' },
+        ]
+      }]
+    },
+    {
+      header: 'Registration Status',
+      data: [{ field: 'registrationStatus', title: 'Registration Status', type: 'dropdown', filterType: 'eq',
+        options: [
           { label: 'All', value: '' },
-          ...this.accountRemarkOptions
-        ];
-        const accRemarkField = this.accountsFilterConfig
-          .find(c => c.header === 'Remarks')?.data?.[0];
-        if (accRemarkField) accRemarkField.options = remarkOptions;
-      },
-      () => { }
-    );
+          { label: 'Not Registered', value: 'notRegistered' },
+          { label: 'Registered', value: 'registered' },
+        ]
+      }]
+    },
+    {
+      header: 'Enquiry Type',
+      data: [{ field: 'enquiryType', title: 'Enquiry Type', type: 'dropdown', filterType: 'eq',
+        options: [
+          { label: 'All', value: '' },
+          { label: 'Loan Enquiry', value: 'loanEnquiry' },
+          { label: 'CRM Enquiry', value: 'crmEnquiry' },
+        ]
+      }]
+    },
+    {
+      header: 'Remarks',
+      data: [{ field: 'remarkId', title: 'Remarks', type: 'dropdown', filterType: 'eq',
+        options: [] // loaded dynamically
+      }]
+    },
+  ];
+}
+
+// setAccountsFilterConfig(): void {
+//   this.accountsFilterConfig = [
+//     {
+//       header: 'Remarks',
+//       data: [{ field: 'remarkId-eq', title: 'Remarks', type: 'dropdown', filterType: 'eq',
+//         options: [] // loaded dynamically
+//       }]
+//     },
+//   ];
+// }
+
+setAccountsFilterConfig(): void {
+  this.accountsFilterConfig = [
+    {
+      header: 'Remarks',
+      data: [{ field: 'remarkId-eq', title: 'Remarks', type: 'dropdown', filterType: 'eq',
+        options: [] // loaded dynamically
+      }]
+    },
+    {
+      header: 'Pack Expiry (days left)',
+      data: [{ field: 'daysUntilExpiry', title: 'Days Until Expiry', type: 'dropdown', filterType: 'eq',
+        options: [
+          { label: 'All',      value: '' },
+          { label: '5 days',   value: '5' },
+          { label: '10 days',  value: '10' },
+          { label: '15 days',  value: '15' },
+          { label: '20 days',  value: '20' },
+          { label: '28 days',  value: '28' },
+          { label: 'Expired',  value: 'expired' },
+        ]
+      }]
+    },
+    {
+      header: 'Inactive Since (days)',
+      data: [{ field: 'inactiveDays', title: 'Inactive Since', type: 'dropdown', filterType: 'eq',
+        options: [
+          { label: 'All',     value: '' },
+          { label: '5 days',  value: '5' },
+          { label: '10 days', value: '10' },
+          { label: '15 days', value: '15' },
+          { label: '20 days', value: '20' },
+          { label: '28 days', value: '28' },
+        ]
+      }]
+    },
+    {
+      header: 'Feature Activity',
+      data: [{ field: 'featureActivity', title: 'Feature Activity', type: 'dropdown', filterType: 'eq',
+        options: [
+          { label: 'All',      value: '' },
+          { label: 'Active',   value: 'active' },
+          { label: 'Inactive', value: 'inactive' },
+        ]
+      }]
+    },
+  ];
+}
+
+applySocialMediaConfigFilters(event: any): void {
+  console.log('Filter event received:', event);
+  if (event['reset']) {
+    delete event['reset'];
+    this.socialMediaAppliedFilter = {};
+  } else {
+    this.socialMediaAppliedFilter = { ...event };
   }
+  if (this.socialMediaTable) this.socialMediaTable.first = 0;
+  this.loadSocialMediaLeads({ first: 0, rows: 10 });
+}
 
-  setSocialMediaFilterConfig(): void {
-    this.socialMediaFilterConfig = [
-      {
-        header: 'Demo Status',
-        data: [{
-          field: 'demoStatus', title: 'Demo Status', type: 'dropdown', filterType: 'eq',
-          options: [
-            { label: 'All', value: '' },
-            { label: 'Not Demo Booked', value: 'notBooked' },
-            { label: 'Confirmed', value: 'confirmed' },
-            { label: 'Completed', value: 'completed' },
-            { label: 'Cancelled', value: 'cancelled' },
-            { label: 'Rescheduled', value: 'rescheduled' },
-          ]
-        }]
-      },
-      {
-        header: 'Registration Status',
-        data: [{
-          field: 'registrationStatus', title: 'Registration Status', type: 'dropdown', filterType: 'eq',
-          options: [
-            { label: 'All', value: '' },
-            { label: 'Not Registered', value: 'notRegistered' },
-            { label: 'Registered', value: 'registered' },
-          ]
-        }]
-      },
-      {
-        header: 'Enquiry Type',
-        data: [{
-          field: 'enquiryType', title: 'Enquiry Type', type: 'dropdown', filterType: 'eq',
-          options: [
-            { label: 'All', value: '' },
-            { label: 'Loan Enquiry', value: 'loanEnquiry' },
-            { label: 'CRM Enquiry', value: 'crmEnquiry' },
-          ]
-        }]
-      },
-      {
-        header: 'Remarks',
-        data: [{
-          field: 'remarkId', title: 'Remarks', type: 'dropdown', filterType: 'eq',
-          options: [] // loaded dynamically
-        }]
-      },
-    ];
+applyAccountsConfigFilters(event: any): void {
+  if (event['reset']) {
+    delete event['reset'];
+    this.accountsAppliedFilter = {};
+  } else {
+    this.accountsAppliedFilter = { ...event };
   }
+  if (this.accountsTable) this.accountsTable.first = 0;
+  this.loadAccounts({ first: 0, rows: 10 });
+}
 
-  // setAccountsFilterConfig(): void {
-  //   this.accountsFilterConfig = [
-  //     {
-  //       header: 'Remarks',
-  //       data: [{ field: 'remarkId-eq', title: 'Remarks', type: 'dropdown', filterType: 'eq',
-  //         options: [] // loaded dynamically
-  //       }]
-  //     },
-  //   ];
-  // }
-
-  setAccountsFilterConfig(): void {
-    this.accountsFilterConfig = [
-      {
-        header: 'Remarks',
-        data: [{
-          field: 'remarkId-eq', title: 'Remarks', type: 'dropdown', filterType: 'eq',
-          options: [] // loaded dynamically
-        }]
-      },
-      {
-        header: 'Pack Expiry (days left)',
-        data: [{
-          field: 'daysUntilExpiry', title: 'Days Until Expiry', type: 'dropdown', filterType: 'eq',
-          options: [
-            { label: 'All', value: '' },
-            { label: '5 days', value: '5' },
-            { label: '10 days', value: '10' },
-            { label: '15 days', value: '15' },
-            { label: '20 days', value: '20' },
-            { label: '28 days', value: '28' },
-            { label: 'Expired', value: 'expired' },
-          ]
-        }]
-      },
-      {
-        header: 'Inactive Since (days)',
-        data: [{
-          field: 'inactiveDays', title: 'Inactive Since', type: 'dropdown', filterType: 'eq',
-          options: [
-            { label: 'All', value: '' },
-            { label: '5 days', value: '5' },
-            { label: '10 days', value: '10' },
-            { label: '15 days', value: '15' },
-            { label: '20 days', value: '20' },
-            { label: '28 days', value: '28' },
-          ]
-        }]
-      },
-      {
-        header: 'Feature Activity',
-        data: [{
-          field: 'featureActivity', title: 'Feature Activity', type: 'dropdown', filterType: 'eq',
-          options: [
-            { label: 'All', value: '' },
-            { label: 'Active', value: 'active' },
-            { label: 'Inactive', value: 'inactive' },
-          ]
-        }]
-      },
-    ];
+toggleManualNumbers() {
+  this.manualNumbersVisible = !this.manualNumbersVisible;
+  if (!this.manualNumbersVisible) {
+    this.manualNumbersRaw = '';
+    this.parsedManualContacts = [];
   }
+}
 
-  applySocialMediaConfigFilters(event: any): void {
-    console.log('Filter event received:', event);
-    if (event['reset']) {
-      delete event['reset'];
-      this.socialMediaAppliedFilter = {};
-    } else {
-      this.socialMediaAppliedFilter = { ...event };
-    }
-    if (this.socialMediaTable) this.socialMediaTable.first = 0;
-    this.loadSocialMediaLeads({ first: 0, rows: 10 });
-  }
+// parseManualNumbers() {
+//   const raw = this.manualNumbersRaw || '';
 
-  applyAccountsConfigFilters(event: any): void {
-    if (event['reset']) {
-      delete event['reset'];
-      this.accountsAppliedFilter = {};
-    } else {
-      this.accountsAppliedFilter = { ...event };
-    }
-    if (this.accountsTable) this.accountsTable.first = 0;
-    this.loadAccounts({ first: 0, rows: 10 });
-  }
+//   // Auto comma-segregate after every 10 digits
+//   const allDigits = raw.replace(/\D+/g, '');
+//   if (allDigits.length > 0) {
+//     const chunks: string[] = [];
+//     for (let i = 0; i < allDigits.length; i += 10) {
+//       chunks.push(allDigits.slice(i, i + 10));
+//     }
+//     this.manualNumbersRaw = chunks.join(', ');
+//   }
 
-  toggleManualNumbers() {
-    this.manualNumbersVisible = !this.manualNumbersVisible;
-    if (!this.manualNumbersVisible) {
-      this.manualNumbersRaw = '';
-      this.parsedManualContacts = [];
-    }
-  }
+//   this.parsedManualContacts = this.manualNumbersRaw
+//     .split(',')
+//     .map(n => n.trim().replace(/\D/g, ''))
+//     .filter(n => n.length >= 10)
+//     .slice(0, 500)
+//     .map(n => ({
+//       name: '',
+//       mobileNumber: n,
+//       id: 'manual_' + n,
+//     }));
+// }
 
-  // parseManualNumbers() {
-  //   const raw = this.manualNumbersRaw || '';
+parseManualNumbers() {
+  const raw = this.manualNumbersRaw || '';
 
-  //   // Auto comma-segregate after every 10 digits
-  //   const allDigits = raw.replace(/\D+/g, '');
-  //   if (allDigits.length > 0) {
-  //     const chunks: string[] = [];
-  //     for (let i = 0; i < allDigits.length; i += 10) {
-  //       chunks.push(allDigits.slice(i, i + 10));
-  //     }
-  //     this.manualNumbersRaw = chunks.join(', ');
-  //   }
-
-  //   this.parsedManualContacts = this.manualNumbersRaw
-  //     .split(',')
-  //     .map(n => n.trim().replace(/\D/g, ''))
-  //     .filter(n => n.length >= 10)
-  //     .slice(0, 500)
-  //     .map(n => ({
-  //       name: '',
-  //       mobileNumber: n,
-  //       id: 'manual_' + n,
-  //     }));
-  // }
-
-  parseManualNumbers() {
-    const raw = this.manualNumbersRaw || '';
-
-    const allDigits = raw.replace(/\D+/g, '');
-    if (allDigits.length > 0) {
-      const chunks: string[] = [];
-      for (let i = 0; i < allDigits.length; i += 10) {
-        chunks.push(allDigits.slice(i, i + 10));
-      }
-      this.manualNumbersRaw = chunks.join(', ');
-    }
-
-    this.parsedManualContacts = this.manualNumbersRaw
-      .split(',')
-      .map(n => n.trim().replace(/\D/g, ''))
-      .filter(n => n.length >= 10)
-      .slice(0, 500)
-      .map(n => ({
-        name: '',
-        mobileNumber: n,
-        email: '',      // ← add missing Contact fields
-        message: '',    // ← add missing Contact fields
-        id: 'manual_' + n,
-      } as Contact));   // ← cast to Contact
-  }
-
-  onPasteNumbers(event: ClipboardEvent) {
-    event.preventDefault();
-    const pasted = event.clipboardData?.getData('text') || '';
-    const allDigits = pasted.replace(/\D+/g, '');
-    if (!allDigits) return;
-
+  const allDigits = raw.replace(/\D+/g, '');
+  if (allDigits.length > 0) {
     const chunks: string[] = [];
     for (let i = 0; i < allDigits.length; i += 10) {
       chunks.push(allDigits.slice(i, i + 10));
     }
+    this.manualNumbersRaw = chunks.join(', ');
+  }
 
-    const existing = this.manualNumbersRaw?.trim();
-    this.manualNumbersRaw = existing
-      ? existing + ', ' + chunks.join(', ')
-      : chunks.join(', ');
+  this.parsedManualContacts = this.manualNumbersRaw
+    .split(',')
+    .map(n => n.trim().replace(/\D/g, ''))
+    .filter(n => n.length >= 10)
+    .slice(0, 500)
+    .map(n => ({
+      name: '',
+      mobileNumber: n,
+      email: '',      // ← add missing Contact fields
+      message: '',    // ← add missing Contact fields
+      id: 'manual_' + n,
+    } as Contact));   // ← cast to Contact
+}
+
+onPasteNumbers(event: ClipboardEvent) {
+  event.preventDefault();
+  const pasted = event.clipboardData?.getData('text') || '';
+  const allDigits = pasted.replace(/\D+/g, '');
+  if (!allDigits) return;
+
+  const chunks: string[] = [];
+  for (let i = 0; i < allDigits.length; i += 10) {
+    chunks.push(allDigits.slice(i, i + 10));
+  }
+
+  const existing = this.manualNumbersRaw?.trim();
+  this.manualNumbersRaw = existing
+    ? existing + ', ' + chunks.join(', ')
+    : chunks.join(', ');
 
   this.parseManualNumbers();
 }
