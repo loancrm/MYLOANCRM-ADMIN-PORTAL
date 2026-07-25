@@ -30,6 +30,11 @@ import { BulkAssignModule } from '../bulk-assign/bulk-assign.module';
 const routes: Routes = [
   { path: '', component: SocialMediaLeadsComponent },
   {
+    path: 'profile/:id',
+    loadChildren: () =>
+      import('./profile/profile.module').then(m => m.ProfileModule)
+  },
+  {
     path: 'create',
     loadChildren: () =>
       import('./create-social-media-lead/create-social-media-lead.module').then((m) => m.CreateSocialMediaLeadModule),

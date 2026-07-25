@@ -12,24 +12,24 @@ import { MenuItem } from 'primeng/api';
   styleUrls: ['./client-requirements.component.scss']
 })
 export class ClientRequirementsComponent implements OnInit {
-requirementStatusChange(event: any): void {
+  requirementStatusChange(event: any): void {
 
-  this.selectedRequirementStatus = event.value;
+    this.selectedRequirementStatus = event.value;
 
-  this.loadRequirements(this.currentTableEvent);
+    this.loadRequirements(this.currentTableEvent);
 
-}
-inputValueChangeEvent(value: string): void {
-
-  if (value === '') {
-
-    this.accountIdToSearch = '';
-
-    this.requirementTable.reset();   
-    this.loadRequirements();         
   }
+  inputValueChangeEvent(value: string): void {
 
-}
+    if (value === '') {
+
+      this.accountIdToSearch = '';
+
+      this.requirementTable.reset();
+      this.loadRequirements();
+    }
+
+  }
 
   @ViewChild('requirementTable') requirementTable!: Table;
 
@@ -46,65 +46,70 @@ inputValueChangeEvent(value: string): void {
   appliedFilter: any = {};
 
   filterConfig: any[] = [];
+  loggedInUserRole: number = 0;
+  assignedToOptions: any[] = [];
+  selectedAssignedTo: any = [];
 
-  selectedStatus= 'Active';
+  selectedStatus = 'Active';
 
-statusOptions = [
-  {
-    label: 'All',
-    value: 'All'
-  },
-  {
-    label: 'Active',
-    value: 'Active'
-  },
-  {
-    label: 'Inactive',
-    value: 'Inactive'
-  }
-];
-selectedRequirementStatus = 'All';
-
-requirementStatusOptions = [
-  {
-    label: 'All',
-    value: 'All'
-  },
-  {
-    label: 'Pending',
-    value: 'Pending'
-  },
-  {
-    label: 'In Progress',
-    value: 'In Progress'
-  },
-  {
-    label: 'Completed',
-    value: 'Completed'
-  },
-  {
-    label: 'Rejected',
-    value: 'Rejected'
-  }
-];
-setFilterConfig() {
-
-  this.filterConfig = [
-
+  statusOptions = [
     {
-      header: 'Account ID',
-      data: [
-        {
-          field: 'accountID',
-          title: 'Account ID',
-          type: 'text',
-          filterType: 'like'
-        }
-      ]
+      label: 'All',
+      value: 'All'
     },
+    {
+      label: 'Active',
+      value: 'Active'
+    },
+    {
+      label: 'Inactive',
+      value: 'Inactive'
+    }
+  ];
+  selectedRequirementStatus = 'Pending';
+
+  requirementStatusOptions = [
+    {
+      label: 'All',
+      value: 'All'
+    },
+    {
+      label: 'Pending',
+      value: 'Pending'
+    },
+    {
+      label: 'In Progress',
+      value: 'In Progress'
+    },
+    {
+      label: 'Completed',
+      value: 'Completed'
+    },
+    {
+      label: 'Rejected',
+      value: 'Rejected'
+    }
 
 
+  ];
+  setFilterConfig() {
+
+    this.filterConfig = [
+
+      {
+        header: 'Account ID',
+        data: [
           {
+            field: 'accountID',
+            title: 'Account ID',
+            type: 'text',
+            filterType: 'like'
+          }
+        ]
+      },
+
+
+      {
         header: 'Requirement',
         data: [
           {
@@ -116,99 +121,99 @@ setFilterConfig() {
         ]
       },
 
-    {
-      header: 'Remarks',
-      data: [
-        {
-          field: 'remarks',
-          title: 'Remarks',
-          type: 'text',
-          filterType: 'like'
-        }
-      ]
-    },
+      {
+        header: 'Remarks',
+        data: [
+          {
+            field: 'remarks',
+            title: 'Remarks',
+            type: 'text',
+            filterType: 'like'
+          }
+        ]
+      },
 
-    {
-      header: 'Status',
-      data: [
-        {
-          field: 'status',
-          title: 'Status',
-          type: 'dropdown',
-          filterType: 'eq',
-          options: [
-            { label: 'All', value: '' },
-            { label: 'Active', value: 'Active' },
-            { label: 'Inactive', value: 'Inactive' }
-          ]
-        }
-      ]
-    },
+      {
+        header: 'Status',
+        data: [
+          {
+            field: 'status',
+            title: 'Status',
+            type: 'dropdown',
+            filterType: 'eq',
+            options: [
+              { label: 'All', value: '' },
+              { label: 'Active', value: 'Active' },
+              { label: 'Inactive', value: 'Inactive' }
+            ]
+          }
+        ]
+      },
 
-    {
-      header: 'Requirement Status',
-      data: [
-        {
-          field: 'requirementStatus',
-          title: 'Requirement Status',
-          type: 'dropdown',
-          filterType: 'eq',
-          options: [
-            { label: 'All', value: '' },
-            { label: 'Pending', value: 'Pending' },
-            { label: 'In Progress', value: 'In Progress' },
-            { label: 'Completed', value: 'Completed' },
-            { label: 'Rejected', value: 'Rejected' }
-          ]
-        }
-      ]
-    },
+      {
+        header: 'Requirement Status',
+        data: [
+          {
+            field: 'requirementStatus',
+            title: 'Requirement Status',
+            type: 'dropdown',
+            filterType: 'eq',
+            options: [
+              { label: 'All', value: '' },
+              { label: 'Pending', value: 'Pending' },
+              { label: 'In Progress', value: 'In Progress' },
+              { label: 'Completed', value: 'Completed' },
+              { label: 'Rejected', value: 'Rejected' }
+            ]
+          }
+        ]
+      },
 
-    {
-      header: 'Deadline Date',
-      data: [
+      {
+        header: 'Deadline Date',
+        data: [
 
-        {
-          field: 'deadlineDate',
-          title: 'From',
-          type: 'date',
-          filterType: 'gte'
-        },
+          {
+            field: 'deadlineDate',
+            title: 'From',
+            type: 'date',
+            filterType: 'gte'
+          },
 
-        {
-          field: 'deadlineDate',
-          title: 'To',
-          type: 'date',
-          filterType: 'lte'
-        }
+          {
+            field: 'deadlineDate',
+            title: 'To',
+            type: 'date',
+            filterType: 'lte'
+          }
 
-      ]
-    },
+        ]
+      },
 
-    {
-      header: 'Created Date',
-      data: [
+      {
+        header: 'Created Date',
+        data: [
 
-        {
-          field: 'createdOn',
-          title: 'From',
-          type: 'date',
-          filterType: 'gte'
-        },
+          {
+            field: 'createdOn',
+            title: 'From',
+            type: 'date',
+            filterType: 'gte'
+          },
 
-        {
-          field: 'createdOn',
-          title: 'To',
-          type: 'date',
-          filterType: 'lte'
-        }
+          {
+            field: 'createdOn',
+            title: 'To',
+            type: 'date',
+            filterType: 'lte'
+          }
 
-      ]
-    }
+        ]
+      }
 
-  ];
+    ];
 
-}
+  }
   constructor(
     private routingService: RoutingService,
     private toastService: ToastService,
@@ -227,26 +232,29 @@ setFilterConfig() {
     ];
 
   }
-ngOnInit(): void {
-  this.selectedStatus = 'Active';
-  this.setFilterConfig();
-  this.loadRequirements();
-}
-
-loadRequirements(event?: any): void {
-
-  this.currentTableEvent = event;
-
-  let filter = this.leadsService.setFiltersFromPrimeTable(event);
-  filter['sort'] = 'id,desc';
-    filter = Object.assign(
-          {},
-          filter,
-          this.appliedFilter
-      );
-  if (this.accountIdToSearch?.trim()) {
-    filter['accountID-like'] = this.accountIdToSearch.trim();
+  ngOnInit(): void {
+    const adminDetails = JSON.parse(localStorage.getItem('adminDetails') || '{}');
+    this.loggedInUserRole = Number(adminDetails?.user?.role || 0);
+    this.selectedStatus = 'Active';
+    this.setFilterConfig();
+    this.loadAssignedUsers();
+    this.loadRequirements();
   }
+
+  loadRequirements(event?: any): void {
+
+    this.currentTableEvent = event;
+
+    let filter = this.leadsService.setFiltersFromPrimeTable(event);
+    filter['sort'] = 'id,desc';
+    filter = Object.assign(
+      {},
+      filter,
+      this.appliedFilter
+    );
+    if (this.accountIdToSearch?.trim()) {
+      filter['accountID-like'] = this.accountIdToSearch.trim();
+    }
 
     if (this.selectedStatus && this.selectedStatus !== 'All') {
       filter['status-eq'] = this.selectedStatus;
@@ -259,82 +267,111 @@ loadRequirements(event?: any): void {
       filter['requirementStatus-eq'] =
         this.selectedRequirementStatus;
     }
-
-  this.leadsService.getClientRequirements(filter).subscribe((data: any) => {
-    this.requirements = data;
-  });
-
-  this.leadsService.getClientRequirementsCount(filter).subscribe((count: any) => {
-    this.requirementsCount = Number(count);
-  });
-
-}
-viewRequirement(event: any) {
-
-  const requirement = event.data;
-
-  this.routingService.handleRoute(
-    'client-requirements/view/' + requirement.id,
-    null
-  );
-
-}
-actionItems(item: any): MenuItem[] {
-
-  return [
-    {
-      label: item.status === 'Active'
-        ? 'Mark as Inactive'
-        : 'Mark as Active',
-
-      icon: item.status === 'Active'
-        ? 'pi pi-times-circle'
-        : 'pi pi-check-circle',
-
-      command: () => this.changeRequirementStatus(
-        item.id,
-        item.status === 'Active'
-          ? 'Inactive'
-          : 'Active'
-      )
+    if (this.selectedAssignedTo?.length) {
+      filter['assign_to-in'] = this.selectedAssignedTo.join(',');
     }
-  ];
 
-}
+    this.leadsService.getClientRequirements(filter).subscribe((data: any) => {
+      this.requirements = data;
+    });
+
+    this.leadsService.getClientRequirementsCount(filter).subscribe((count: any) => {
+      this.requirementsCount = Number(count);
+    });
+
+  }
+  viewRequirement(event: any) {
+
+    const requirement = event.data;
+
+    this.routingService.handleRoute(
+      'client-requirements/view/' + requirement.id,
+      null
+    );
+
+  }
+  actionItems(item: any): MenuItem[] {
+
+    return [
+      {
+        label: item.status === 'Active'
+          ? 'Mark as Inactive'
+          : 'Mark as Active',
+
+        icon: item.status === 'Active'
+          ? 'pi pi-times-circle'
+          : 'pi pi-check-circle',
+
+        command: () => this.changeRequirementStatus(
+          item.id,
+          item.status === 'Active'
+            ? 'Inactive'
+            : 'Active'
+        )
+      }
+    ];
+
+  }
   changeRequirementStatus(id: number, status: string) {
 
-  this.leadsService.changeClientRequirementStatus(id, status).subscribe(
-    (data: any) => {
+    this.leadsService.changeClientRequirementStatus(id, status).subscribe(
+      (data: any) => {
 
-      this.toastService.showSuccess(
-        'Status Updated Successfully'
-      );
+        this.toastService.showSuccess(
+          'Status Updated Successfully'
+        );
 
-      this.loadRequirements();
+        this.loadRequirements();
 
-    },
-    (error: any) => {
+      },
+      (error: any) => {
 
-      this.toastService.showError(error);
+        this.toastService.showError(error);
 
-    }
-  );
+      }
+    );
 
-}
-
-
-updateRequirement(id: number) {
-
-  this.routingService.handleRoute(
-    'client-requirements/update/' + id,
-    null
-  );
-
-}
-  filterWithAccountID(): void {
-     this.loadRequirements(this.currentTableEvent);
   }
-  
+  assignedToChange(event: any) {
+
+    this.selectedAssignedTo = event.value || [];
+
+    this.loadRequirements(this.currentTableEvent);
+
+  }
+  loadAssignedUsers() {
+
+    this.leadsService.getUsers({ 'status-eq': 1 }).subscribe(
+      (data: any) => {
+
+        this.assignedToOptions = [
+          // { label: 'All Users', value: '' },
+          ...data.map((user: any) => ({
+            label: user.name,
+            value: user.id
+          }))
+        ];
+
+      },
+      (error: any) => {
+        this.toastService.showError('Failed to load users');
+      }
+    );
+
+  }
+
+  updateRequirement(id: number) {
+
+    this.routingService.handleRoute(
+      'client-requirements/update/' + id,
+      null
+    );
+
+  }
+  filterWithAccountID(): void {
+    this.loadRequirements(this.currentTableEvent);
+  }
+
 
   statusChange(event: any): void {
     this.selectedStatus = event.value;
@@ -351,22 +388,22 @@ updateRequirement(id: number) {
   goBack(): void {
     this.location.back();
   }
-applyConfigFilters(event: any): void {
+  applyConfigFilters(event: any): void {
 
-  if (event.reset) {
+    if (event.reset) {
 
-    delete event.reset;
+      delete event.reset;
 
-    this.appliedFilter = {};
+      this.appliedFilter = {};
 
-  } else {
+    } else {
 
-    this.appliedFilter = event;
+      this.appliedFilter = event;
+
+    }
+
+    this.loadRequirements(this.currentTableEvent);
 
   }
-
-  this.loadRequirements(this.currentTableEvent);
-
-}
 
 }

@@ -119,16 +119,20 @@
           <!-- Assign To Filter -->
           <div class="col-md-3 mt-2 no-padding-small" *ngIf="loggedInUserRole === 1">
             <label class="fw-label">Assigned To</label>
-            <p-dropdown
+            <p-multiSelect
               [options]="assignFilterOptions"
               [(ngModel)]="selectedAssignFilter"
               optionLabel="name"
               optionValue="id"
+              [filter]="true"
+              [showToggleAll]="true"
               placeholder="Filter by Assigned User"
-              (onChange)="onAssignFilterChange()"
+              (onChange)="onAssignFilterChange($event)"
               [showClear]="true"
+              display="chip"
+              
               styleClass="w-100"
-            ></p-dropdown>
+            ></p-multiSelect>
           </div>
 
           <!-- <div class="col-md-2">

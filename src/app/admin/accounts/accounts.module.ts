@@ -15,6 +15,7 @@ import { CapitalizeFirstPipe } from 'src/app/pipes/capitalize.pipe';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { AnalyticsModule } from './analytics/analytics.module'
+import { MultiSelectModule } from 'primeng/multiselect';
 
 const routes: Routes = [
   { path: '', component: AccountsComponent },
@@ -47,6 +48,7 @@ const routes: Routes = [
     MatMenuModule,
     MatButtonModule,
     AnalyticsModule,
+    MultiSelectModule,
     [RouterModule.forChild(routes)],
   ],
       exports: [

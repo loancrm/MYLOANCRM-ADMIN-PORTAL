@@ -13,6 +13,7 @@ import { DateTimeProcessorService } from 'src/app/services/date-time-processor.s
   styleUrls: ['./create.component.scss']
 })
 export class CreateComponent implements OnInit {
+  loggedInUserRole: number = 0;
 
   requirementForm!: UntypedFormGroup;
 
@@ -85,7 +86,7 @@ export class CreateComponent implements OnInit {
 
           requirementStatus: data.requirementStatus,
 
-        deadlineDate: new Date(data.deadlineDate)
+          deadlineDate: new Date(data.deadlineDate)
 
         });
 
@@ -102,6 +103,8 @@ export class CreateComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const adminDetails = JSON.parse(localStorage.getItem('adminDetails') || '{}');
+    this.loggedInUserRole = Number(adminDetails?.user?.role || 0);
     this.createForm();
   }
 
@@ -118,7 +121,7 @@ export class CreateComponent implements OnInit {
 
       requirementStatus: ['Pending', Validators.required],
 
-      deadlineDate: ['', Validators.required]
+      deadlineDate: ['']
 
     });
 

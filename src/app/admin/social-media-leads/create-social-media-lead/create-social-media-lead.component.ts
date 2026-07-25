@@ -59,6 +59,7 @@ export class CreateSocialMediaLeadComponent implements OnInit {
   loadLead(id: any): void {
     this.leadsService.getSocialMediaLeadById(id).subscribe(
       (data: any) => {
+        
         this.form = {
           Name:        data.Name        || '',
           Email:       data.Email       || '',
@@ -72,7 +73,7 @@ export class CreateSocialMediaLeadComponent implements OnInit {
           CallbackDate: data.CallbackDate
             ? moment.utc(data.CallbackDate).tz('Asia/Kolkata').toDate()
             : null,
-          remarks: data.remarks || ''
+          remarks: ''
         };
       },
       () => this.toastService.showError({ error:'Failed to load lead'})
@@ -152,9 +153,9 @@ export class CreateSocialMediaLeadComponent implements OnInit {
           this.saving = false;
           // ✅ Handle duplicate (409) error on update
           if (error?.status === 409) {
-            this.toastService.showError(error?.error?.error || 'Enquiry already exists');
+            this.toastService.showError({ error: error?.error?.error || 'Enquiry already exists' });
           } else {
-            this.toastService.showError(error);
+            this.toastService.showError({ error: error });
           }
         }
       );
@@ -171,7 +172,7 @@ export class CreateSocialMediaLeadComponent implements OnInit {
           if (error?.status === 409) {
             this.toastService.showError({ error:error?.error?.error || 'Enquiry already exists'});
           } else {
-            this.toastService.showError('Failed to create lead');
+            this.toastService.showError({ error: 'Failed to create lead' });
           }
         }
       );

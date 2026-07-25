@@ -49,17 +49,17 @@ export class SocialMediaLeadsComponent {
   // selectedPlatforms: string[] = [];
   selectedPlatforms: string[] = ['Facebook', 'Website']; // ✅ default to these three
   platformOptions: { label: string; value: string }[] = [
-  // { label: 'All Platforms', value: 'all' },
-  { label: 'Facebook',      value: 'Facebook' },
-  { label: 'Instagram',     value: 'Instagram' },
-  { label: 'Manual', value: 'Manual'},
-  { label: 'Excel Import', value: 'ExcelImport'},
-  { label: 'Website', value: 'Website'},
-  { label: 'Others', value: 'Others'}
-  // { label: 'LinkedIn',      value: 'LinkedIn' },
-  // { label: 'Twitter',       value: 'Twitter' },
-  // { label: 'YouTube',       value: 'YouTube' },
-  // ← Add / remove platforms to match your actual data
+    // { label: 'All Platforms', value: 'all' },
+    { label: 'Facebook', value: 'Facebook' },
+    { label: 'Instagram', value: 'Instagram' },
+    { label: 'Manual', value: 'Manual' },
+    { label: 'Excel Import', value: 'ExcelImport' },
+    { label: 'Website', value: 'Website' },
+    { label: 'Others', value: 'Others' }
+    // { label: 'LinkedIn',      value: 'LinkedIn' },
+    // { label: 'Twitter',       value: 'Twitter' },
+    // { label: 'YouTube',       value: 'YouTube' },
+    // ← Add / remove platforms to match your actual data
   ];
   selectedStatus: number = 1;
   statusOptions = [
@@ -76,7 +76,7 @@ export class SocialMediaLeadsComponent {
   registrationStatusOptions = [
     { label: 'All', value: '' },
     { label: 'Not Registered', value: 'notRegistered' },
-    { label: 'Registered',     value: 'registered' },
+    { label: 'Registered', value: 'registered' },
   ];
   // ── Book a Demo ────────────────────────────────────────
   bookDemoDialogVisible: boolean = false;
@@ -92,7 +92,7 @@ export class SocialMediaLeadsComponent {
   selectedDemoStatus: string = '';
   demoStatusOptions = [
     { label: 'All', value: '' },
-    { label: 'Not Demo Booked', value: 'notBooked' }, 
+    { label: 'Not Demo Booked', value: 'notBooked' },
     { label: 'Confirmed', value: 'confirmed' },
     { label: 'Completed', value: 'completed' },
     { label: 'Cancelled', value: 'cancelled' },
@@ -100,26 +100,26 @@ export class SocialMediaLeadsComponent {
   ];
 
   enquiryTypeOptions = [
-  { label: 'All',           value: '' },
-  { label: 'Loan Enquiry',  value: 'loanEnquiry' },
-  { label: 'CRM Enquiry',   value: 'crmEnquiry' },
-];
-selectedEnquiryType: string = '';
-selectedRemark: string = '';
-// Add alongside other properties
-socialMediaFilterConfig: any[] = [];
-socialMediaAppliedFilter: any = {};
-assignFilterOptions: { label: string; value: any }[] = [];
-selectedAssignFilter: any = null;
-loggedInUserRole: number = 0;
-salesUsers: any[];
-duplicateOptions = [
-  { label: 'All', value: '' },
-  { label: 'Duplicate Numbers', value: 'duplicate' },
-  { label: 'Unique Numbers', value: 'unique' }
-];
+    { label: 'All', value: '' },
+    { label: 'Loan Enquiry', value: 'loanEnquiry' },
+    { label: 'CRM Enquiry', value: 'crmEnquiry' },
+  ];
+  selectedEnquiryType: string = '';
+  selectedRemark: string = '';
+  // Add alongside other properties
+  socialMediaFilterConfig: any[] = [];
+  socialMediaAppliedFilter: any = {};
+  assignFilterOptions: { label: string; value: any }[] = [];
+  selectedAssignFilter: any[] = [];
+  loggedInUserRole: number = 0;
+  salesUsers: any[];
+  duplicateOptions = [
+    { label: 'All', value: '' },
+    { label: 'Duplicate Numbers', value: 'duplicate' },
+    { label: 'Unique Numbers', value: 'unique' }
+  ];
 
-selectedDuplicateStatus = '';
+  selectedDuplicateStatus = '';
 
 
   constructor(
@@ -141,51 +141,51 @@ selectedDuplicateStatus = '';
     ];
   }
   ngOnInit(): void {
-  this.loadFiltersFromStorage();
-  this.setSocialMediaFilterConfig();
+    this.loadFiltersFromStorage();
+    this.setSocialMediaFilterConfig();
 
-  // ✅ Sync appliedFilter from restored values
-  if (this.selectedStatus && this.selectedStatus !== ('all' as any)) {
-    this.appliedFilter['status-eq'] = this.selectedStatus;
-  }
-  if (this.selectedPlatforms && this.selectedPlatforms.length > 0) {
-    this.appliedFilter['Platform-eq'] = this.selectedPlatforms.join(',');
-  }
-  if (this.selectedRegistrationStatus) {
-    this.appliedFilter['registrationStatus'] = this.selectedRegistrationStatus;
-  }
-  if (this.selectedDemoStatus) {
-    this.appliedFilter['demoStatus-eq'] = this.selectedDemoStatus;
-  }
-  if (this.selectedEnquiryType) {
-    this.appliedFilter['enquiryType-eq'] = this.selectedEnquiryType;
-  }
+    // ✅ Sync appliedFilter from restored values
+    if (this.selectedStatus && this.selectedStatus !== ('all' as any)) {
+      this.appliedFilter['status-eq'] = this.selectedStatus;
+    }
+    if (this.selectedPlatforms && this.selectedPlatforms.length > 0) {
+      this.appliedFilter['Platform-eq'] = this.selectedPlatforms.join(',');
+    }
+    if (this.selectedRegistrationStatus) {
+      this.appliedFilter['registrationStatus'] = this.selectedRegistrationStatus;
+    }
+    if (this.selectedDemoStatus) {
+      this.appliedFilter['demoStatus-eq'] = this.selectedDemoStatus;
+    }
+    if (this.selectedEnquiryType) {
+      this.appliedFilter['enquiryType-eq'] = this.selectedEnquiryType;
+    }
 
-  const adminDetails = JSON.parse(localStorage.getItem('adminDetails') || '{}');
-  this.loggedInUserRole = Number(adminDetails?.user?.role || 0);
-  const loggedInUserId = adminDetails?.user?.id;
+    const adminDetails = JSON.parse(localStorage.getItem('adminDetails') || '{}');
+    this.loggedInUserRole = Number(adminDetails?.user?.role || 0);
+    const loggedInUserId = adminDetails?.user?.id;
 
-  // ✅ Role 2: only show leads assigned to this user (exclude null assign_to)
-  if (this.loggedInUserRole === 2 && loggedInUserId) {
-    this.appliedFilter['assign_to-eq'] = loggedInUserId;
+    // ✅ Role 2: only show leads assigned to this user (exclude null assign_to)
+    if (this.loggedInUserRole === 2 && loggedInUserId) {
+      this.appliedFilter['assign_to-eq'] = loggedInUserId;
+    }
+
+    if (this.loggedInUserRole === 1) {
+      this.loadAssignFilterOptions();
+      this.loadSalesUsers();
+    }
+
+    this.loadAdminRemarks();
+    this.loadBookDemoUsers();
+    this.getSocialMediaLeads(this.appliedFilter);
+    this.getSocilaMediaCount(this.appliedFilter);
   }
-
-  if (this.loggedInUserRole === 1) {
-    this.loadAssignFilterOptions();
-     this.loadSalesUsers();
-  }
-
-  this.loadAdminRemarks();
-  this.loadBookDemoUsers();
-this.getSocialMediaLeads(this.appliedFilter);
-this.socialMediaLeadsCount(this.appliedFilter);
-}
-openBulkAssign() {
+  openBulkAssign() {
     this.showBulkAssignDialog = true;
-}
-closeBulkAssign() {
+  }
+  closeBulkAssign() {
     this.showBulkAssignDialog = false;
-}
+  }
 
   loadBookDemoUsers(): void {
     this.leadsService.getUsers({ 'status-eq': 1 }).subscribe(
@@ -207,199 +207,212 @@ closeBulkAssign() {
   //   this.loadAdminRemarks();
   // }
   // ── Table Methods ──────────────────────────────────────
-loadSalesUsers(): void {
-  this.leadsService.getUsers({
-    'status-eq': 1,
-    'role-eq': 2
-  }).subscribe((data: any) => {
+  loadSalesUsers(): void {
+    this.leadsService.getUsers({
+      'status-eq': 1
+      // 'role-eq': 2
+    }).subscribe((data: any) => {
 
-    this.salesUsers = data
-      .filter((u: any) => u.status === 1 && Number(u.role) === 2)
-      .map((u: any) => ({
-        id: u.id,
-        name: u.name
-      }));
+      this.salesUsers = data
+        .filter((u: any) => u.status === 1 && Number(u.role) === 2)
+        .map((u: any) => ({
+          id: u.id,
+          name: u.name
+        }));
 
-  });
-}
-onDuplicateFilterChange() {
-
-  if (this.selectedDuplicateStatus) {
-    this.appliedFilter['duplicateStatus'] = this.selectedDuplicateStatus;
-  } else {
-    delete this.appliedFilter['duplicateStatus'];
-  }
-
-  this.loadsocialmediaLeads(this.currentTableEvent);
-
-}
- loadAdminRemarks() {
-  const filter = { 'status-eq': 3, 'remarkInternalStatus-eq': 1 };
-  this.leadsService.getAdminRemarks(filter).subscribe(
-    (data: any) => {
-      this.adminRemarkOptions = data.map((r: any) => ({
-        label: r.displayName,
-        value: String(r.remarkId),
-      }));
-      this.adminRemarksLoaded = true;
-
-      // ✅ Update remarks options in filter config after they load
-      const remarkOptions = [
-        { label: 'All', value: '' },
-        ...this.adminRemarkOptions
-      ];
-      const remarkField = this.socialMediaFilterConfig
-        .find(c => c.header === 'Remarks')?.data?.[0];
-      if (remarkField) {
-        remarkField.options = remarkOptions;
-      }
-    },
-    (error: any) => {
-      this.toastService.showError('Failed to load remarks');
-      this.adminRemarksLoaded = true;
-    }
-  );
-}
- 
-loadsocialmediaLeads(event: any) {
-  this.currentTableEvent = event;
-
-  const start  = event.first ?? 0;
-  const length = event.rows  ?? 10;
-  let sortField = 'CreatedOn';
-  let sortOrder = 'desc';
-
-  if (event.sortField) {
-    sortField = event.sortField;
-    sortOrder = event.sortOrder === 1 ? 'asc' : 'desc';
-  }
-
-  const baseParams: any = { start, length, sort: sortField, order: sortOrder };
-
-  let columnFilters: any = {};
-  if (event.filters) {
-    Object.keys(event.filters).forEach(key => {
-      const filterMeta = event.filters[key];
-      const filterArr = Array.isArray(filterMeta) ? filterMeta : [filterMeta];
-      filterArr.forEach((f: any) => {
-        if (f.value !== null && f.value !== undefined && f.value !== '') {
-          columnFilters[key] = f.value;
-        }
-      });
     });
   }
+  onDuplicateFilterChange() {
 
-  const api_filter = Object.assign({}, baseParams, columnFilters, this.searchFilter, this.appliedFilter);
+    if (this.selectedDuplicateStatus) {
+      this.appliedFilter['duplicateStatus'] = this.selectedDuplicateStatus;
+    } else {
+      delete this.appliedFilter['duplicateStatus'];
+    }
 
-  // ✅ Role 2: always force assign_to filter
-  if (this.loggedInUserRole === 2) {
-    const adminDetails = JSON.parse(localStorage.getItem('adminDetails') || '{}');
-    const loggedInUserId = adminDetails?.user?.id;
-    api_filter['assign_to-eq'] = loggedInUserId;
-    api_filter['excludeNullAssign'] = true;
+    this.loadsocialmediaLeads(this.currentTableEvent);
+
+  }
+  loadAdminRemarks() {
+    const filter = { 'status-eq': 3, 'remarkInternalStatus-eq': 1 };
+    this.leadsService.getAdminRemarks(filter).subscribe(
+      (data: any) => {
+        this.adminRemarkOptions = data.map((r: any) => ({
+          label: r.displayName,
+          value: String(r.remarkId),
+        }));
+        this.adminRemarksLoaded = true;
+
+        // ✅ Update remarks options in filter config after they load
+        const remarkOptions = [
+          { label: 'All', value: '' },
+          ...this.adminRemarkOptions
+        ];
+        const remarkField = this.socialMediaFilterConfig
+          .find(c => c.header === 'Remarks')?.data?.[0];
+        if (remarkField) {
+          remarkField.options = remarkOptions;
+        }
+      },
+      (error: any) => {
+        this.toastService.showError('Failed to load remarks');
+        this.adminRemarksLoaded = true;
+      }
+    );
   }
 
-  // ✅ For role 2, skip separate count call - set count from data length
-  if (this.loggedInUserRole === 2) {
-    this.getSocialMediaLeadsWithCount(api_filter);  
-  } else {
-    this.getSocilaMediaCount(api_filter);
-    this.getSocialMediaLeads(api_filter);
-  }
-}
+  loadsocialmediaLeads(event: any) {
+    this.currentTableEvent = event;
 
-getSocialMediaLeadsWithCount(filter = {}) {
-  this.apiLoading = true;
-  
-  // ✅ First get total count with a high limit to know actual total
-  const countFilter = { ...filter, start: 0, length: 99999 };
-  
-  this.leadsService.getSocialMediaLeads(countFilter).subscribe(
-    (allData: any) => {
+    const start = event.first ?? 0;
+    const length = event.rows ?? 10;
+    let sortField = 'CreatedOn';
+    let sortOrder = 'desc';
+
+    if (event.sortField) {
+      sortField = event.sortField;
+      sortOrder = event.sortOrder === 1 ? 'asc' : 'desc';
+    }
+
+    const baseParams: any = { start, length, sort: sortField, order: sortOrder };
+
+    let columnFilters: any = {};
+    if (event.filters) {
+      Object.keys(event.filters).forEach(key => {
+        const filterMeta = event.filters[key];
+        const filterArr = Array.isArray(filterMeta) ? filterMeta : [filterMeta];
+        filterArr.forEach((f: any) => {
+          if (f.value !== null && f.value !== undefined && f.value !== '') {
+            columnFilters[key] = f.value;
+          }
+        });
+      });
+    }
+
+    const api_filter = Object.assign({}, baseParams, columnFilters, this.searchFilter, this.appliedFilter);
+
+    // ✅ Role 2: always force assign_to filter
+    if (this.loggedInUserRole === 2) {
       const adminDetails = JSON.parse(localStorage.getItem('adminDetails') || '{}');
-      const loggedInUserId = Number(adminDetails?.user?.id);
+      const loggedInUserId = adminDetails?.user?.id;
+      api_filter['assign_to-eq'] = loggedInUserId;
+      api_filter['excludeNullAssign'] = true;
+    }
 
-      // Filter strictly
-      const allFiltered = allData
-        .map((lead: any) => ({
+    // ✅ For role 2, skip separate count call - set count from data length
+    if (this.loggedInUserRole === 2) {
+      this.getSocialMediaLeadsWithCount(api_filter);
+    } else {
+      this.getSocilaMediaCount(api_filter);
+      this.getSocialMediaLeads(api_filter);
+    }
+  }
+
+  getSocialMediaLeadsWithCount(filter = {}) {
+    this.apiLoading = true;
+
+    // ✅ First get total count with a high limit to know actual total
+    const countFilter = { ...filter, start: 0, length: 99999 };
+
+    this.leadsService.getSocialMediaLeads(countFilter).subscribe(
+      (allData: any) => {
+        const adminDetails = JSON.parse(localStorage.getItem('adminDetails') || '{}');
+        const loggedInUserId = Number(adminDetails?.user?.id);
+
+        // Filter strictly
+        const allFiltered = allData
+          .map((lead: any) => ({
+            ...lead,
+            remarkId: lead.remarkId != null ? String(lead.remarkId) : null,
+            isRegistered: lead.isRegistered || false,
+            assignedUserName: lead.assignedUserName || null,
+          }))
+          .filter((lead: any) =>
+            lead.assign_to !== null &&
+            lead.assign_to !== undefined &&
+            Number(lead.assign_to) === loggedInUserId
+          );
+
+        // ✅ Set the TRUE count
+        this.socialMediaLeadsCount = allFiltered.length;
+
+        // ✅ Now paginate on frontend
+        const start = filter['start'] || 0;
+        const length = filter['length'] || 10;
+        this.socialMediaLeads = allFiltered.slice(start, start + length);
+
+        this.apiLoading = false;
+      },
+      (error) => {
+        this.toastService.showError('Error fetching social media leads');
+        this.apiLoading = false;
+      }
+    );
+  }
+
+  getSocialMediaLeads(filter = {}) {
+    this.apiLoading = true;
+    this.leadsService.getSocialMediaLeads(filter).subscribe(
+      (data: any) => {
+        const adminDetails = JSON.parse(localStorage.getItem('adminDetails') || '{}');
+        const loggedInUserId = Number(adminDetails?.user?.id);
+
+        let leads = data.map((lead: any) => ({
           ...lead,
           remarkId: lead.remarkId != null ? String(lead.remarkId) : null,
           isRegistered: lead.isRegistered || false,
           assignedUserName: lead.assignedUserName || null,
-        }))
-        .filter((lead: any) =>
-          lead.assign_to !== null &&
-          lead.assign_to !== undefined &&
-          Number(lead.assign_to) === loggedInUserId
-        );
+        }));
 
-      // ✅ Set the TRUE count
-      this.socialMediaLeadsCount = allFiltered.length;
+        if (this.loggedInUserRole === 2) {
+          leads = leads.filter((lead: any) =>
+            lead.assign_to !== null &&
+            lead.assign_to !== undefined &&
+            Number(lead.assign_to) === loggedInUserId
+          );
+          // ✅ Fix count to match actual filtered data
+          this.socialMediaLeadsCount = leads.length;
+        }
 
-      // ✅ Now paginate on frontend
-      const start = filter['start'] || 0;
-      const length = filter['length'] || 10;
-      this.socialMediaLeads = allFiltered.slice(start, start + length);
-
-      this.apiLoading = false;
-    },
-    (error) => {
-      this.toastService.showError('Error fetching social media leads');
-      this.apiLoading = false;
-    }
-  );
-}
-
-getSocialMediaLeads(filter = {}) {
-  this.apiLoading = true;
-  this.leadsService.getSocialMediaLeads(filter).subscribe(
-    (data: any) => {
-      const adminDetails = JSON.parse(localStorage.getItem('adminDetails') || '{}');
-      const loggedInUserId = Number(adminDetails?.user?.id);
-
-      let leads = data.map((lead: any) => ({
-        ...lead,
-        remarkId: lead.remarkId != null ? String(lead.remarkId) : null,
-        isRegistered: lead.isRegistered || false,
-        assignedUserName: lead.assignedUserName || null,
-      }));
-
-      if (this.loggedInUserRole === 2) {
-        leads = leads.filter((lead: any) => 
-          lead.assign_to !== null && 
-          lead.assign_to !== undefined && 
-          Number(lead.assign_to) === loggedInUserId
-        );
-        // ✅ Fix count to match actual filtered data
-        this.socialMediaLeadsCount = leads.length;
+        this.socialMediaLeads = leads;
+        this.apiLoading = false;
+      },
+      (error) => {
+        this.toastService.showError('Error fetching social media leads');
+        this.apiLoading = false;
       }
-
-      this.socialMediaLeads = leads;
-      this.apiLoading = false;
-    },
-    (error) => {
-      this.toastService.showError('Error fetching social media leads');
-      this.apiLoading = false;
-    }
-  );
-}
-refreshAfterBulkAssign() {
-  this.showBulkAssignDialog = false;
-
-  this.loadsocialmediaLeads(this.currentTableEvent);
-}
-onRegistrationStatusChange(event: any): void {
-  const value = event.value;
-
-  if (!value) {
-    delete this.appliedFilter['registrationStatus'];
-  } else {
-    this.appliedFilter['registrationStatus'] = value;
+    );
   }
-  this.saveFiltersToStorage();
-  this.reloadTable();
-}
+  refreshAfterBulkAssign() {
+    this.showBulkAssignDialog = false;
 
+    this.loadsocialmediaLeads(this.currentTableEvent);
+  }
+  onRegistrationStatusChange(event: any): void {
+    const value = event.value;
+
+    if (!value) {
+      delete this.appliedFilter['registrationStatus'];
+    } else {
+      this.appliedFilter['registrationStatus'] = value;
+    }
+    this.saveFiltersToStorage();
+    this.reloadTable();
+  }
+  isMissedCallback(callbackDate: any): boolean {
+
+    if (!callbackDate) {
+      return false;
+    }
+
+    const callback = new Date(callbackDate);
+    const today = new Date();
+
+    callback.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    return callback < today;
+  }
   // getSocilaMediaCount(filter = {}) {
   //   this.leadsService.getSocilaMediaCount().subscribe(
   //     (socialmediaCount) => {
@@ -410,40 +423,41 @@ onRegistrationStatusChange(event: any): void {
   //     }
   //   );
   // }
- getSocilaMediaCount(filter = {}) {
-  if (this.loggedInUserRole === 2) {
-    const adminDetails = JSON.parse(localStorage.getItem('adminDetails') || '{}');
-    const loggedInUserId = adminDetails?.user?.id;
-    filter = { 
-      ...filter, 
-      'assign_to-eq': loggedInUserId, 
-      'excludeNullAssign': true,
-      'assign_to-notnull': true  // ✅ add this explicit not-null filter
-    };
-  }
-
-  // this.leadsService.getSocilaMediaCount(filter).subscribe(
-  //   (socialmediaCount) => {
-  //     this.socialMediaLeadsCount = socialmediaCount;
-  //   },
-  //   (error: any) => {
-  //     this.toastService.showError(error);
-  //   }
-  // );
-    this.leadsService.getSocilaMediaCount(filter).subscribe(
-    (response: any) => {
-      this.socialMediaLeadsCount = response.socialmedialeadsCount;
-    },
-    (error: any) => {
-      this.toastService.showError(error);
+  getSocilaMediaCount(filter = {}) {
+    if (this.loggedInUserRole === 2) {
+      const adminDetails = JSON.parse(localStorage.getItem('adminDetails') || '{}');
+      const loggedInUserId = adminDetails?.user?.id;
+      filter = {
+        ...filter,
+        'assign_to-eq': loggedInUserId,
+        'excludeNullAssign': true,
+        'assign_to-notnull': true  // ✅ add this explicit not-null filter
+      };
     }
-  );
-}
+
+    // this.leadsService.getSocilaMediaCount(filter).subscribe(
+    //   (socialmediaCount) => {
+    //     this.socialMediaLeadsCount = socialmediaCount;
+    //   },
+    //   (error: any) => {
+    //     this.toastService.showError(error);
+    //   }
+    // );
+    this.leadsService.getSocilaMediaCount(filter).subscribe(
+      (response: any) => {
+        this.socialMediaLeadsCount = response.socialmedialeadsCount;
+      },
+      (error: any) => {
+        this.toastService.showError(error);
+      }
+    );
+  }
 
   exportSocialLeadsToCSV() {
     const headers = [
-      'Lead ID', 'Name', 'Website','Email', 'Phone',
-      'Company', 'City', 'State', 'PinCode', 'Platform', 'Lead Management', 'EnquiryRange','Created Time'
+      'Lead ID', 'Name', 'Website', 'Email', 'Phone',
+      'Company', 'City', 'State', 'PinCode', 'RemarksID', 'Platform', 'Callback Date', 'Lead Management', 'Remarks', 'EnquiryRange', 'Created Time',
+      'Assigned To'
     ];
     const rows = this.socialMediaLeads.map((lead: any) => [
       lead.id || '',
@@ -455,10 +469,14 @@ onRegistrationStatusChange(event: any): void {
       lead.City || '',
       lead.State || '',
       lead.pinCode || '',
+      lead.remarkId || '',
       lead.Platform || '',
+      lead.CallbackDate ? new Date(lead.CallbackDate).toLocaleString() : '',
       lead.leadManagement || '',
+      lead.remarks || '',
       lead.enquiryRange || '',
-      lead.CreatedOn ? new Date(lead.CreatedOn).toLocaleDateString() : ''
+      lead.CreatedOn ? new Date(lead.CreatedOn).toLocaleDateString() : '',
+      lead.assignedUserName || ''
     ]);
     const csvContent =
       headers.join(',') + '\n' +
@@ -494,16 +512,16 @@ onRegistrationStatusChange(event: any): void {
   }
 
   resetBulkUploadForm() {
-  this.selectedBulkFile = null;
-  this.bulkValidationData = null;
-  this.bulkUploadResults = null;
-  this.bulkUploadProgress = 0;
-  this.isBulkValidating = false;
-  this.handleDuplicates = 'skip';
-  this.handleExcelDuplicates = 'skip'; // ✅ add this
-  const fileInput = document.getElementById('socialLeadsExcelFile') as HTMLInputElement;
-  if (fileInput) fileInput.value = '';
-}
+    this.selectedBulkFile = null;
+    this.bulkValidationData = null;
+    this.bulkUploadResults = null;
+    this.bulkUploadProgress = 0;
+    this.isBulkValidating = false;
+    this.handleDuplicates = 'skip';
+    this.handleExcelDuplicates = 'skip'; // ✅ add this
+    const fileInput = document.getElementById('socialLeadsExcelFile') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+  }
 
   // resetBulkUploadForm() {
   //   this.selectedBulkFile = null;
@@ -677,520 +695,527 @@ onRegistrationStatusChange(event: any): void {
   }
 
   addLead(): void {
-  this.router.navigate(['/admin/social-media-leads/create']);
-}
+    this.router.navigate(['/admin/social-media-leads/create']);
+  }
 
-editLead(lead: any): void {
-  this.router.navigate(
-    ['/admin/social-media-leads/create'],
-    { queryParams: { id: lead.id } }
-  );
-}
-viewLead(event: any): void {
-  this.selectedLead = event.data; // ✅ onRowSelect wraps in {data: lead}
-  this.viewDialogVisible = true;
-}
-goToCampaign(lead: any): void {
-  this.viewDialogVisible = false;
-  this.router.navigate(['/admin/social-media-leads/single-campaign'], {
-    queryParams: {
-      phone:    lead.PhoneNumber,
-      name:     lead.Name,
-      email:    lead.Email    || '',
-      city:     lead.City     || '',
-      company:  lead.Company  || '',
-      state:    lead.State    || '',
-      platform: lead.Platform || ''
+  editLead(lead: any): void {
+    this.router.navigate(
+      ['/admin/social-media-leads/create'],
+      { queryParams: { id: lead.id } }
+    );
+  }
+  viewLead(event: any): void {
+    const lead = event.data;
+    this.routingService.handleRoute(
+      'social-media-leads/profile/' + lead.id,
+      null
+    );
+  }
+  goToCampaign(lead: any): void {
+    this.viewDialogVisible = false;
+    this.router.navigate(['/admin/social-media-leads/single-campaign'], {
+      queryParams: {
+        phone: lead.PhoneNumber,
+        name: lead.Name,
+        email: lead.Email || '',
+        city: lead.City || '',
+        company: lead.Company || '',
+        state: lead.State || '',
+        platform: lead.Platform || ''
+      }
+    });
+  }
+
+  sendEmail(lead: any): void {
+    if (lead.Email) {
+      window.location.href = `mailto:${lead.Email}`;
+    } else {
+      this.toastService.showError('No email address found for this lead');
     }
-  });
-}
-
-sendEmail(lead: any): void {
-  if (lead.Email) {
-    window.location.href = `mailto:${lead.Email}`;
-  } else {
-    this.toastService.showError('No email address found for this lead');
   }
-}
 
-openWebsite(url: string): void {
-  if (url) {
-    window.open(url, '_blank');
+  openWebsite(url: string): void {
+    if (url) {
+      window.open(url, '_blank');
+    }
   }
-}
-// ── Search ─────────────────────────────────────────────
+  // ── Search ─────────────────────────────────────────────
 
-onGlobalSearchChange(value: string): void {
-  if (!value || !value.trim()) {
-    this.searchFilter = {};
+  onGlobalSearchChange(value: string): void {
+    if (!value || !value.trim()) {
+      this.searchFilter = {};
+      this.reloadTable();
+    }
+  }
+
+  onGlobalSearchSubmit(): void {
+    const trimmed = (this.globalSearchValue || '').trim();
+
+    if (!trimmed) {
+      this.searchFilter = {};
+    } else {
+      // ✅ Backend expects a single 'search' param
+      this.searchFilter = { search: trimmed };
+    }
+
     this.reloadTable();
   }
-}
 
-onGlobalSearchSubmit(): void {
-  const trimmed = (this.globalSearchValue || '').trim();
+  // ── Platform Dropdown ──────────────────────────────────
+  onPlatformFilterChange(event: any): void {
+    const values: string[] = event.value; // array from multiSelect
 
-  if (!trimmed) {
-    this.searchFilter = {};
-  } else {
-    // ✅ Backend expects a single 'search' param
-    this.searchFilter = { search: trimmed };
-  }
-
-  this.reloadTable();
-}
-
-// ── Platform Dropdown ──────────────────────────────────
-onPlatformFilterChange(event: any): void {
-  const values: string[] = event.value; // array from multiSelect
-
-  if (!values || values.length === 0) {
-    delete this.appliedFilter['Platform-eq'];
-  } else {
-    // Send as comma-separated string → backend splits it
-    this.appliedFilter['Platform-eq'] = values.join(',');
-  }
-  this.saveFiltersToStorage();
-  this.reloadTable();
-}
-// onPlatformFilterChange(event: any): void {
-//   const value = event.value;
-
-//   if (!value || value === 'all') {
-//     // ✅ Remove platform filter — backend uses handleGlobalFilters for 'Platform-eq'
-//     delete this.appliedFilter['Platform-eq'];
-//   } else {
-//     this.appliedFilter['Platform-eq'] = value;
-//   }
-
-//   this.reloadTable();
-// }
-
-// ── Reload ─────────────────────────────────────────────
-
-private reloadTable(): void {
-  if (this.socialMediaLeadsTable) {
-    this.socialMediaLeadsTable.first = 0;
-  }
-
-  const event = this.currentTableEvent
-    ? { ...this.currentTableEvent, first: 0 }
-    : { first: 0, rows: 10 };
-
-  this.loadsocialmediaLeads(event);
-}
-changeStatus(lead: any, status: number) {
-  this.leadsService.updateLeadStatus(lead.id, { status }).subscribe(
-    () => {
-      lead.status = status;
-
-      this.toastService.showSuccess(
-        status === 1 ? 'Activated successfully' : 'Deactivated successfully'
-      );
-    },
-    () => {
-      this.toastService.showError('Failed to update status');
+    if (!values || values.length === 0) {
+      delete this.appliedFilter['Platform-eq'];
+    } else {
+      // Send as comma-separated string → backend splits it
+      this.appliedFilter['Platform-eq'] = values.join(',');
     }
-  );
-}
-
-onStatusFilterChange(event: any): void {
-  const value = event.value;
-
-  if (!value || value === 'all') {
-    // ✅ Remove filter
-    delete this.appliedFilter['status-eq'];
-  } else {
-    // ✅ Apply filter
-    this.appliedFilter['status-eq'] = value;
+    this.saveFiltersToStorage();
+    this.reloadTable();
   }
-  this.saveFiltersToStorage();
-  this.reloadTable();
-}
-saveRemark(lead: any, event: Event) {
-  const textarea = event.target as HTMLTextAreaElement;
-  const remark = textarea.value?.trim();
+  // onPlatformFilterChange(event: any): void {
+  //   const value = event.value;
 
-  if (!remark) return;
+  //   if (!value || value === 'all') {
+  //     // ✅ Remove platform filter — backend uses handleGlobalFilters for 'Platform-eq'
+  //     delete this.appliedFilter['Platform-eq'];
+  //   } else {
+  //     this.appliedFilter['Platform-eq'] = value;
+  //   }
 
-  this.leadsService.updateLeadRemark(lead.id, remark).subscribe(
-    () => {
-      lead.remarks = remark; // update UI instantly
-      this.toastService.showSuccess('Remark saved');
-    },
-    (error) => {
-      this.toastService.showError('Failed to save remark');
+  //   this.reloadTable();
+  // }
+
+  // ── Reload ─────────────────────────────────────────────
+
+  private reloadTable(): void {
+    if (this.socialMediaLeadsTable) {
+      this.socialMediaLeadsTable.first = 0;
     }
-  );
-}
 
-onRemarkChange(team: any, remarkId: any) {
+    const event = this.currentTableEvent
+      ? { ...this.currentTableEvent, first: 0 }
+      : { first: 0, rows: 10 };
 
-  const finalRemarkId = remarkId ? String(remarkId) : null;
+    this.loadsocialmediaLeads(event);
+  }
+  changeStatus(lead: any, status: number) {
+    this.leadsService.updateLeadStatus(lead.id, { status }).subscribe(
+      () => {
+        lead.status = status;
 
-  this.leadsService.updateLeadRemark(team.id, finalRemarkId).subscribe(
-    (res: any) => {
-      team.remarkId = finalRemarkId;
+        this.toastService.showSuccess(
+          status === 1 ? 'Activated successfully' : 'Deactivated successfully'
+        );
+      },
+      () => {
+        this.toastService.showError('Failed to update status');
+      }
+    );
+  }
 
-      team.updatedBy = res.updatedBy;
+  onStatusFilterChange(event: any): void {
+    const value = event.value;
 
-      if (finalRemarkId) {
+    if (!value || value === 'all') {
+      // ✅ Remove filter
+      delete this.appliedFilter['status-eq'];
+    } else {
+      // ✅ Apply filter
+      this.appliedFilter['status-eq'] = value;
+    }
+    this.saveFiltersToStorage();
+    this.reloadTable();
+  }
+  saveRemark(lead: any, event: Event) {
+    const textarea = event.target as HTMLTextAreaElement;
+    const remark = textarea.value?.trim();
+
+    if (!remark) return;
+
+    this.leadsService.updateLeadRemark(lead.id, remark).subscribe(
+      () => {
+        lead.remarks = remark; // update UI instantly
         this.toastService.showSuccess('Remark saved');
-      } else {
-        this.toastService.showSuccess('Remark removed');
+      },
+      (error) => {
+        this.toastService.showError('Failed to save remark');
       }
-    },
-    () => {
-      this.toastService.showError('Failed to update remark');
-    }
-  );
-}
-
-private saveFiltersToStorage(): void {
-  const filters = {
-    selectedPlatforms:           this.selectedPlatforms,
-    selectedStatus:              this.selectedStatus,
-    selectedRegistrationStatus:  this.selectedRegistrationStatus,
-    selectedEnquiryType:         this.selectedEnquiryType,
-    selectedDemoStatus:          this.selectedDemoStatus,
-  };
-  this.localStorageService.setItemOnLocalStorage(this.FILTER_STORAGE_KEY, filters);
-}
-
-private loadFiltersFromStorage(): void {
-  const stored = this.localStorageService.getItemFromLocalStorage(this.FILTER_STORAGE_KEY);
-  if (!stored) return;
-  this.selectedPlatforms          = stored.selectedPlatforms          ?? ['Facebook', 'Website'];
-  this.selectedStatus             = stored.selectedStatus             ?? 1;
-  this.selectedRegistrationStatus = stored.selectedRegistrationStatus ?? '';
-  // this.selectedEnquiryType = '';
-  this.selectedEnquiryType        = stored.selectedEnquiryType        ?? '';  // ✅ also fix this
-  this.selectedDemoStatus         = stored.selectedDemoStatus         ?? '';  // ✅ ADD THIS
-
-   this.selectedDuplicateStatus    = stored.selectedDuplicateStatus ?? '';
-}
-
-openBookDemoDialog(lead: any): void {
-  this.bookDemoLead = lead;
-  this.bookDemoDate = null;
-  this.bookDemoTime = '';
-  this.bookDemoSlots = [];
-  this.bookDemoAssignTo=null;
-  this.bookDemoDialogVisible = true;
-}
-
-closeBookDemoDialog(): void {
-  this.bookDemoDialogVisible = false;
-  this.bookDemoLead = null;
-  this.bookDemoDate = null;
-  this.bookDemoTime = '';
-  this.bookDemoAssignTo=null;
-  this.bookDemoSlots = [];
-}
-
-onBookDemoDateSelect(): void {
-  if (!this.bookDemoDate) return;
-  this.bookDemoTime = '';
-  this.bookDemoSlots = [];
-  this.bookDemoSlotsLoading = true;
-
-  // Format date as YYYY-MM-DD in local time
-  const date = this.bookDemoDate.toLocaleDateString('en-CA');
-
-  this.leadsService.getSlots(date).subscribe(
-    (res: any) => {
-      this.bookDemoSlots = (res.availableSlots || []).map((s: string) => ({
-        label: s,
-        value: s,
-      }));
-      this.bookDemoSlotsLoading = false;
-    },
-    () => {
-      this.toastService.showError('Failed to load slots');
-      this.bookDemoSlotsLoading = false;
-    }
-  );
-}
-
-confirmBookDemo(): void {
-  if (!this.bookDemoLead || !this.bookDemoDate || !this.bookDemoTime) return;
-
-  this.bookDemoSubmitting = true;
-
-  const date = this.bookDemoDate.toLocaleDateString('en-CA');
-  const phone = this.bookDemoLead.PhoneNumber;
-
-  this.leadsService.createBooking({
-    phone,
-    date,
-    time: this.bookDemoTime,
-    notes: '',
-    assign_to: this.bookDemoAssignTo || null,
-  }).subscribe(
-    (res: any) => {
-      this.toastService.showSuccess('Demo booked successfully!');
-      this.bookDemoSubmitting = false;
-      this.closeBookDemoDialog();
-    },
-    (error: any) => {
-      this.bookDemoSubmitting = false;
-      const msg =
-        error?.error?.error ||
-        error?.error?.message ||
-        'Failed to book demo';
-
-      // ✅ Already booked — show specific message
-      if (error?.status === 409) {
-        this.toastService.showError('A demo is already booked for this number.');
-      } else if (error?.status === 409 && error?.error?.slotUnavailable) {
-        this.toastService.showError('This time slot is fully booked. Please choose another.');
-      } else {
-        this.toastService.showError(msg);
-      }
-    }
-  );
-}
-
-onDemoStatusFilterChange(event: any): void {
-  const value = event.value;
-
-  if (!value) {
-    delete this.appliedFilter['demoStatus-eq'];
-  } else {
-    this.appliedFilter['demoStatus-eq'] = value;
+    );
   }
 
-  this.saveFiltersToStorage();
-  this.reloadTable();
-}
+  onRemarkChange(team: any, remarkId: any) {
 
-get remarkFilterOptions(): { label: string; value: any }[] {
-  return [{ label: 'All', value: '' }, ...this.adminRemarkOptions];
-}
+    const finalRemarkId = remarkId ? String(remarkId) : null;
 
-onRemarkFilterChange(event: any): void {
-  const value = event.value;
-  if (!value) {
-    delete this.appliedFilter['remarkId-eq'];
-  } else {
-    this.appliedFilter['remarkId-eq'] = value;
-  }
-  this.saveFiltersToStorage();
-  this.reloadTable();
-}
+    this.leadsService.updateLeadRemark(team.id, finalRemarkId).subscribe(
+      (res: any) => {
+        team.remarkId = finalRemarkId;
 
+        team.updatedBy = res.updatedBy;
 
-onEnquiryTypeFilterChange(event: any): void {
-  const value = event.value;
-  if (!value) {
-    delete this.appliedFilter['enquiryType-eq'];
-  } else {
-    this.appliedFilter['enquiryType-eq'] = value;
-  }
-  this.saveFiltersToStorage();
-  this.reloadTable();
-}
- 
-// markAsLoanEnquiry(lead: any): void {
-//   this.leadsService.markAsLoanEnquiry(lead.id).subscribe(
-//     () => {
-//       lead.enquiryType = 'loanEnquiry';
-//       this.toastService.showSuccess('Marked as Loan Enquiry');
-//     },
-//     (error: any) => {
-//       this.toastService.showError('Failed to mark as loan enquiry');
-//     }
-//   );
-// }
-// unmarkLoanEnquiry(lead: any): void {
-//   this.leadsService.unmarkLoanEnquiry(lead.id).subscribe(
-//     () => {
-//       lead.enquiryType = 'crmEnquiry';
-//       this.toastService.showSuccess('Loan Enquiry removed');
-//     },
-//     () => { this.toastService.showError('Failed to unmark'); }
-//   );
-// }
-toggleLoanEnquiry(lead: any): void {
-  this.leadsService.toggleLoanEnquiry(lead.id).subscribe(
-    (res: any) => {
-      lead.enquiryType = res.enquiryType; // backend returns new value
-      const msg = res.enquiryType === 'loanEnquiry'
-        ? 'Marked as Loan Enquiry'
-        : 'Loan Enquiry removed';
-      this.toastService.showSuccess(msg);
-    },
-    () => { this.toastService.showError('Failed to update enquiry type'); }
-  );
-}
-
-setSocialMediaFilterConfig(): void {
-  this.socialMediaFilterConfig = [
-    {
-      header: 'Demo Status',
-      data: [{ field: 'demoStatus', title: 'Demo Status', type: 'dropdown', filterType: 'eq',
-        options: [
-          { label: 'All', value: '' },
-          { label: 'Not Demo Booked', value: 'notBooked' },
-          { label: 'Confirmed', value: 'confirmed' },
-          { label: 'Completed', value: 'completed' },
-          { label: 'Cancelled', value: 'cancelled' },
-          { label: 'Rescheduled', value: 'rescheduled' },
-        ]
-       }]
-    },
-    // {
-    //   header: 'Registration Status',
-    //   data: [{ field: 'registrationStatus', title: 'Registration Status', type: 'text', filterType: 'eq' }]
-    // },
-    {
-      header: 'Enquiry Type',
-      data: [{ field: 'enquiryType', title: 'Enquiry Type', type: 'dropdown', filterType: 'eq',
-                options: [
-          { label: 'All', value: '' },
-          { label: 'Loan Enquiry', value: 'loanEnquiry' },
-          { label: 'CRM Enquiry', value: 'crmEnquiry' },
-        ]
-       }]
-    },
-    {
-      header: 'Remarks',
-      data: [{ field: 'remarkId', title: 'Remarks', type: 'dropdown', filterType: 'eq',
-        options: []
-       }]
-    },
-    {
-      header: 'Created Date Range',
-      data: [
-        {
-          field: 'fromDate',
-          title: 'From Date',
-          type: 'date',
-          filterType: 'eq'
-        },
-        {
-          field: 'toDate',
-          title: 'To Date',
-          type: 'date',
-          filterType: 'eq'
+        if (finalRemarkId) {
+          this.toastService.showSuccess('Remark saved');
+        } else {
+          this.toastService.showSuccess('Remark removed');
         }
-      ]
-    },
-  ];
-}
+      },
+      () => {
+        this.toastService.showError('Failed to update remark');
+      }
+    );
+  }
 
+  private saveFiltersToStorage(): void {
+    const filters = {
+      selectedPlatforms: this.selectedPlatforms,
+      selectedStatus: this.selectedStatus,
+      selectedRegistrationStatus: this.selectedRegistrationStatus,
+      selectedEnquiryType: this.selectedEnquiryType,
+      selectedDemoStatus: this.selectedDemoStatus,
+    };
+    this.localStorageService.setItemOnLocalStorage(this.FILTER_STORAGE_KEY, filters);
+  }
 
-applySocialMediaConfigFilters(event: any): void {
-  // console.log('Filter event received:', event); 
-  if (event['reset']) {
-    delete event['reset'];
-    this.socialMediaAppliedFilter = {};
-    this.selectedDemoStatus = '';           // ✅ sync UI dropdown
-    this.selectedRegistrationStatus = '';
-    this.selectedEnquiryType = '';
-    this.selectedRemark = '';
-    delete this.appliedFilter['demoStatus-eq'];
-    delete this.appliedFilter['registrationStatus'];
-    delete this.appliedFilter['enquiryType-eq'];
-    delete this.appliedFilter['remarkId-eq'];
-    delete this.appliedFilter['fromDate'];
-    delete this.appliedFilter['toDate'];
-    this.saveFiltersToStorage();            // ✅ ADD THIS
-  } else {
-    this.socialMediaAppliedFilter = { ...event };
-    
+  private loadFiltersFromStorage(): void {
+    const stored = this.localStorageService.getItemFromLocalStorage(this.FILTER_STORAGE_KEY);
+    if (!stored) return;
+    this.selectedPlatforms = stored.selectedPlatforms ?? ['Facebook', 'Website'];
+    this.selectedStatus = stored.selectedStatus ?? 1;
+    this.selectedRegistrationStatus = stored.selectedRegistrationStatus ?? '';
+    // this.selectedEnquiryType = '';
+    this.selectedEnquiryType = stored.selectedEnquiryType ?? '';  // ✅ also fix this
+    this.selectedDemoStatus = stored.selectedDemoStatus ?? '';  // ✅ ADD THIS
 
-    if (event['demoStatus-eq']) {
-      this.appliedFilter['demoStatus-eq'] = event['demoStatus-eq'];
-      this.selectedDemoStatus = event['demoStatus-eq'];   // ✅ sync UI dropdown
-    } else {
+    this.selectedDuplicateStatus = stored.selectedDuplicateStatus ?? '';
+  }
+
+  openBookDemoDialog(lead: any): void {
+    this.bookDemoLead = lead;
+    this.bookDemoDate = null;
+    this.bookDemoTime = '';
+    this.bookDemoSlots = [];
+    this.bookDemoAssignTo = null;
+    this.bookDemoDialogVisible = true;
+  }
+
+  closeBookDemoDialog(): void {
+    this.bookDemoDialogVisible = false;
+    this.bookDemoLead = null;
+    this.bookDemoDate = null;
+    this.bookDemoTime = '';
+    this.bookDemoAssignTo = null;
+    this.bookDemoSlots = [];
+  }
+
+  onBookDemoDateSelect(): void {
+    if (!this.bookDemoDate) return;
+    this.bookDemoTime = '';
+    this.bookDemoSlots = [];
+    this.bookDemoSlotsLoading = true;
+
+    // Format date as YYYY-MM-DD in local time
+    const date = this.bookDemoDate.toLocaleDateString('en-CA');
+
+    this.leadsService.getSlots(date).subscribe(
+      (res: any) => {
+        this.bookDemoSlots = (res.availableSlots || []).map((s: string) => ({
+          label: s,
+          value: s,
+        }));
+        this.bookDemoSlotsLoading = false;
+      },
+      () => {
+        this.toastService.showError('Failed to load slots');
+        this.bookDemoSlotsLoading = false;
+      }
+    );
+  }
+
+  confirmBookDemo(): void {
+    if (!this.bookDemoLead || !this.bookDemoDate || !this.bookDemoTime) return;
+
+    this.bookDemoSubmitting = true;
+
+    const date = this.bookDemoDate.toLocaleDateString('en-CA');
+    const phone = this.bookDemoLead.PhoneNumber;
+
+    this.leadsService.createBooking({
+      phone,
+      date,
+      time: this.bookDemoTime,
+      notes: '',
+      assign_to: this.bookDemoAssignTo || null,
+    }).subscribe(
+      (res: any) => {
+        this.toastService.showSuccess('Demo booked successfully!');
+        this.bookDemoSubmitting = false;
+        this.closeBookDemoDialog();
+      },
+      (error: any) => {
+        this.bookDemoSubmitting = false;
+        const msg =
+          error?.error?.error ||
+          error?.error?.message ||
+          'Failed to book demo';
+
+        // ✅ Already booked — show specific message
+        if (error?.status === 409) {
+          this.toastService.showError('A demo is already booked for this number.');
+        } else if (error?.status === 409 && error?.error?.slotUnavailable) {
+          this.toastService.showError('This time slot is fully booked. Please choose another.');
+        } else {
+          this.toastService.showError(msg);
+        }
+      }
+    );
+  }
+
+  onDemoStatusFilterChange(event: any): void {
+    const value = event.value;
+
+    if (!value) {
       delete this.appliedFilter['demoStatus-eq'];
-      this.selectedDemoStatus = '';
+    } else {
+      this.appliedFilter['demoStatus-eq'] = value;
     }
 
-    if (event['registrationStatus']) {
-      this.appliedFilter['registrationStatus'] = event['registrationStatus'];
-    } else {
-      delete this.appliedFilter['registrationStatus'];
-    }
+    this.saveFiltersToStorage();
+    this.reloadTable();
+  }
 
-    if (event['enquiryType-eq']) {
-      this.appliedFilter['enquiryType-eq'] = event['enquiryType-eq'];
-      this.selectedEnquiryType = event['enquiryType-eq'];  // ✅ sync UI dropdown
-    } else {
-      delete this.appliedFilter['enquiryType-eq'];
-      this.selectedEnquiryType = '';
-    }
+  get remarkFilterOptions(): { label: string; value: any }[] {
+    return [{ label: 'All', value: '' }, ...this.adminRemarkOptions];
+  }
 
-    if (event['remarkId-eq']) {
-      this.appliedFilter['remarkId-eq'] = event['remarkId-eq'];
-    } else {
+  onRemarkFilterChange(event: any): void {
+    const value = event.value;
+    if (!value) {
       delete this.appliedFilter['remarkId-eq'];
+    } else {
+      this.appliedFilter['remarkId-eq'] = value;
     }
-     if (event['fromDate-eq']) {
-  this.appliedFilter['fromDate'] = event['fromDate-eq'];
-} else {
-  delete this.appliedFilter['fromDate'];
-}
-
-if (event['toDate-eq']) {
-  this.appliedFilter['toDate'] = event['toDate-eq'];
-} else {
-  delete this.appliedFilter['toDate'];
-}
-
-    this.saveFiltersToStorage();   // ✅ ADD THIS
+    this.saveFiltersToStorage();
+    this.reloadTable();
   }
-  this.reloadTable();
-}
-// REPLACE existing loadAssignFilterOptions()
-loadAssignFilterOptions(): void {
-  this.leadsService.getUsers({ 'status-eq': 1, 'role-eq': 2 }).subscribe((data: any) => {
-     this.salesUsers = data;
-    this.assignFilterOptions = [
-      { label: 'All Users', value: null },
-      ...data
-        .filter((u: any) => u.status === 1 && Number(u.role) === 2)
-        .map((u: any) => ({ label: u.name, value: u.id }))
+
+
+  onEnquiryTypeFilterChange(event: any): void {
+    const value = event.value;
+    if (!value) {
+      delete this.appliedFilter['enquiryType-eq'];
+    } else {
+      this.appliedFilter['enquiryType-eq'] = value;
+    }
+    this.saveFiltersToStorage();
+    this.reloadTable();
+  }
+
+  // markAsLoanEnquiry(lead: any): void {
+  //   this.leadsService.markAsLoanEnquiry(lead.id).subscribe(
+  //     () => {
+  //       lead.enquiryType = 'loanEnquiry';
+  //       this.toastService.showSuccess('Marked as Loan Enquiry');
+  //     },
+  //     (error: any) => {
+  //       this.toastService.showError('Failed to mark as loan enquiry');
+  //     }
+  //   );
+  // }
+  // unmarkLoanEnquiry(lead: any): void {
+  //   this.leadsService.unmarkLoanEnquiry(lead.id).subscribe(
+  //     () => {
+  //       lead.enquiryType = 'crmEnquiry';
+  //       this.toastService.showSuccess('Loan Enquiry removed');
+  //     },
+  //     () => { this.toastService.showError('Failed to unmark'); }
+  //   );
+  // }
+  toggleLoanEnquiry(lead: any): void {
+    this.leadsService.toggleLoanEnquiry(lead.id).subscribe(
+      (res: any) => {
+        lead.enquiryType = res.enquiryType; // backend returns new value
+        const msg = res.enquiryType === 'loanEnquiry'
+          ? 'Marked as Loan Enquiry'
+          : 'Loan Enquiry removed';
+        this.toastService.showSuccess(msg);
+      },
+      () => { this.toastService.showError('Failed to update enquiry type'); }
+    );
+  }
+
+  setSocialMediaFilterConfig(): void {
+    this.socialMediaFilterConfig = [
+      {
+        header: 'Demo Status',
+        data: [{
+          field: 'demoStatus', title: 'Demo Status', type: 'dropdown', filterType: 'eq',
+          options: [
+            { label: 'All', value: '' },
+            { label: 'Not Demo Booked', value: 'notBooked' },
+            { label: 'Confirmed', value: 'confirmed' },
+            { label: 'Completed', value: 'completed' },
+            { label: 'Cancelled', value: 'cancelled' },
+            { label: 'Rescheduled', value: 'rescheduled' },
+          ]
+        }]
+      },
+      // {
+      //   header: 'Registration Status',
+      //   data: [{ field: 'registrationStatus', title: 'Registration Status', type: 'text', filterType: 'eq' }]
+      // },
+      {
+        header: 'Enquiry Type',
+        data: [{
+          field: 'enquiryType', title: 'Enquiry Type', type: 'dropdown', filterType: 'eq',
+          options: [
+            { label: 'All', value: '' },
+            { label: 'Loan Enquiry', value: 'loanEnquiry' },
+            { label: 'CRM Enquiry', value: 'crmEnquiry' },
+          ]
+        }]
+      },
+      {
+        header: 'Remarks',
+        data: [{
+          field: 'remarkId', title: 'Remarks', type: 'dropdown', filterType: 'eq',
+          options: []
+        }]
+      },
+      {
+        header: 'Created Date Range',
+        data: [
+          {
+            field: 'fromDate',
+            title: 'From Date',
+            type: 'date',
+            filterType: 'eq'
+          },
+          {
+            field: 'toDate',
+            title: 'To Date',
+            type: 'date',
+            filterType: 'eq'
+          }
+        ]
+      },
     ];
-  });
-}
-
-onAssignFilterChange(): void {
-  if (this.selectedAssignFilter === null || this.selectedAssignFilter === undefined) {
-    delete this.appliedFilter['assign_to-eq'];
-  } else {
-    this.appliedFilter['assign_to-eq'] = this.selectedAssignFilter;
   }
-  this.reloadTable();
-}
 
-// REPLACE existing onLeadAssignChange()
-onLeadAssignChange(lead: any, userId: any): void {
-  this.leadsService.updateLeadAssign(lead.id, userId).subscribe(
-    () => {
-      lead.assign_to = userId;
-      // ✅ Update displayed name instantly — same pattern as accounts table
-      const found = this.assignFilterOptions.find(u => u.value === userId);
-      lead.assignedUserName = found ? found.label : null;
-      this.toastService.showSuccess('Lead reassigned successfully');
-    },
-    () => this.toastService.showError('Failed to reassign lead')
-  );
-}
 
-// onLeadAssignChange(lead: any, userId: any): void {
-//   this.leadsService.updateLeadAssign(lead.id, userId).subscribe(
-//     () => {
-//       lead.assign_to = userId;
-//       this.toastService.showSuccess('Lead reassigned successfully');
-//     },
-//     () => this.toastService.showError('Failed to reassign lead')
-//   );
-// }
-isDemoCompleted(remarkId: any): boolean {
-  if (!remarkId || !this.adminRemarkOptions.length) return false;
-  const found = this.adminRemarkOptions.find(r => r.value === String(remarkId));
-  return found?.label?.toLowerCase().includes('demo completed') ?? false;
-}
+  applySocialMediaConfigFilters(event: any): void {
+    // console.log('Filter event received:', event); 
+    if (event['reset']) {
+      delete event['reset'];
+      this.socialMediaAppliedFilter = {};
+      this.selectedDemoStatus = '';           // ✅ sync UI dropdown
+      this.selectedRegistrationStatus = '';
+      this.selectedEnquiryType = '';
+      this.selectedRemark = '';
+      delete this.appliedFilter['demoStatus-eq'];
+      delete this.appliedFilter['registrationStatus'];
+      delete this.appliedFilter['enquiryType-eq'];
+      delete this.appliedFilter['remarkId-eq'];
+      delete this.appliedFilter['fromDate'];
+      delete this.appliedFilter['toDate'];
+      this.saveFiltersToStorage();            // ✅ ADD THIS
+    } else {
+      this.socialMediaAppliedFilter = { ...event };
+
+
+      if (event['demoStatus-eq']) {
+        this.appliedFilter['demoStatus-eq'] = event['demoStatus-eq'];
+        this.selectedDemoStatus = event['demoStatus-eq'];   // ✅ sync UI dropdown
+      } else {
+        delete this.appliedFilter['demoStatus-eq'];
+        this.selectedDemoStatus = '';
+      }
+
+      if (event['registrationStatus']) {
+        this.appliedFilter['registrationStatus'] = event['registrationStatus'];
+      } else {
+        delete this.appliedFilter['registrationStatus'];
+      }
+
+      if (event['enquiryType-eq']) {
+        this.appliedFilter['enquiryType-eq'] = event['enquiryType-eq'];
+        this.selectedEnquiryType = event['enquiryType-eq'];  // ✅ sync UI dropdown
+      } else {
+        delete this.appliedFilter['enquiryType-eq'];
+        this.selectedEnquiryType = '';
+      }
+
+      if (event['remarkId-eq']) {
+        this.appliedFilter['remarkId-eq'] = event['remarkId-eq'];
+      } else {
+        delete this.appliedFilter['remarkId-eq'];
+      }
+      if (event['fromDate-eq']) {
+        this.appliedFilter['fromDate'] = event['fromDate-eq'];
+      } else {
+        delete this.appliedFilter['fromDate'];
+      }
+
+      if (event['toDate-eq']) {
+        this.appliedFilter['toDate'] = event['toDate-eq'];
+      } else {
+        delete this.appliedFilter['toDate'];
+      }
+
+      this.saveFiltersToStorage();   // ✅ ADD THIS
+    }
+    this.reloadTable();
+  }
+  // REPLACE existing loadAssignFilterOptions()
+  loadAssignFilterOptions(): void {
+    this.leadsService.getUsers({ 'status-eq': 1 }).subscribe((data: any) => {
+      //  this.salesUsers = data;
+      this.assignFilterOptions = [
+        // { label: 'All Users', value: null },
+        ...data
+          .filter((u: any) => u.status === 1)
+          .map((u: any) => ({ label: u.name, value: u.id }))
+      ];
+    });
+  }
+
+  onAssignFilterChange(): void {
+
+    if (this.selectedAssignFilter.length === 0) {
+      delete this.appliedFilter['assign_to-in'];
+    } else {
+      this.appliedFilter['assign_to-in'] = this.selectedAssignFilter.join(',');
+    }
+    this.reloadTable();
+  }
+
+  // REPLACE existing onLeadAssignChange()
+  onLeadAssignChange(lead: any, userId: any): void {
+    this.leadsService.updateLeadAssign(lead.id, userId).subscribe(
+      () => {
+        lead.assign_to = userId;
+        // ✅ Update displayed name instantly — same pattern as accounts table
+        const found = this.assignFilterOptions.find(u => u.value === userId);
+        lead.assignedUserName = found ? found.label : null;
+        this.toastService.showSuccess('Lead reassigned successfully');
+      },
+      () => this.toastService.showError('Failed to reassign lead')
+    );
+  }
+
+  // onLeadAssignChange(lead: any, userId: any): void {
+  //   this.leadsService.updateLeadAssign(lead.id, userId).subscribe(
+  //     () => {
+  //       lead.assign_to = userId;
+  //       this.toastService.showSuccess('Lead reassigned successfully');
+  //     },
+  //     () => this.toastService.showError('Failed to reassign lead')
+  //   );
+  // }
+  isDemoCompleted(remarkId: any): boolean {
+    if (!remarkId || !this.adminRemarkOptions.length) return false;
+    const found = this.adminRemarkOptions.find(r => r.value === String(remarkId));
+    return found?.label?.toLowerCase().includes('demo completed') ?? false;
+  }
 }

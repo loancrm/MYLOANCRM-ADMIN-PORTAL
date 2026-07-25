@@ -39,25 +39,25 @@ export class AccountsComponent implements AfterViewInit {
   selectedPlanType: string = 'ALL';
   selectedStatusType: string = 'ALL';
 
-    planTypeOptions = [
-      { label: 'All', value: 'ALL' },
-      { label: 'Free Trial', value: 'Free Trial' },
-      { label: 'Basic', value: 'Basic' },
-      { label: 'Premium', value: 'Premium' },
-      { label: 'Professional', value: 'Professional' }
-    ];
-    statusOptions = [
-      { label: 'All', value: 'ALL' },
-      { label: 'Active', value: 'Active' },
-      { label: 'Expired', value: 'Expired' },
-    ];
-    selectedBillingCycle: string = 'ALL';
+  planTypeOptions = [
+    { label: 'All', value: 'ALL' },
+    { label: 'Free Trial', value: 'Free Trial' },
+    { label: 'Basic', value: 'Basic' },
+    { label: 'Premium', value: 'Premium' },
+    { label: 'Professional', value: 'Professional' }
+  ];
+  statusOptions = [
+    { label: 'All', value: 'ALL' },
+    { label: 'Active', value: 'Active' },
+    { label: 'Expired', value: 'Expired' },
+  ];
+  selectedBillingCycle: string = 'ALL';
 
-billingCycleOptions = [
-  { label: 'All',     value: 'ALL'     },
-  { label: 'Monthly', value: 'Monthly' },
-  { label: 'Yearly',  value: 'Yearly'  },
-];
+  billingCycleOptions = [
+    { label: 'All', value: 'ALL' },
+    { label: 'Monthly', value: 'Monthly' },
+    { label: 'Yearly', value: 'Yearly' },
+  ];
   // planTypeOptions = [
   //     { label: 'All', value: 'ALL' },
   //     { label: 'Free Trial', value: 'Free Trial' },
@@ -68,9 +68,9 @@ billingCycleOptions = [
   adminRemarkOptions: { label: string; value: any }[] = [];
   adminRemarksLoaded: boolean = false;
   adminRemarkFilterOptions: any[] = [];
-  selectedRemarkFilter: any = 'ALL';
+  selectedRemarkFilter: any = [];
   assignFilterOptions: { label: string; value: any }[] = [];
-  selectedAssignFilter: any = null;
+  selectedAssignFilter: any = [];
   constructor(
     private routingService: RoutingService,
     private location: Location,
@@ -119,31 +119,31 @@ billingCycleOptions = [
   }
 
   loadAdminRemarks() {
-  const filter = { 'status-eq': 1, 'remarkInternalStatus-eq': 1 };
+    const filter = { 'status-eq': 1, 'remarkInternalStatus-eq': 1 };
 
-  this.leadsService.getAdminRemarks(filter).subscribe(
-    (data: any) => {
+    this.leadsService.getAdminRemarks(filter).subscribe(
+      (data: any) => {
 
-      // ✅ ROW DROPDOWN (NO "ALL")
-      this.adminRemarkOptions = data.map((r: any) => ({
-        label: r.displayName,
-        value: String(r.remarkId),
-      }));
+        // ✅ ROW DROPDOWN (NO "ALL")
+        this.adminRemarkOptions = data.map((r: any) => ({
+          label: r.displayName,
+          value: String(r.remarkId),
+        }));
 
-      // ✅ FILTER DROPDOWN (WITH "ALL")
-      this.adminRemarkFilterOptions = [
-        { label: 'All', value: 'ALL' },
-        ...this.adminRemarkOptions
-      ];
+        // ✅ FILTER DROPDOWN (WITH "ALL")
+        this.adminRemarkFilterOptions = [
+          // { label: 'All', value: 'ALL' },
+          ...this.adminRemarkOptions
+        ];
 
-      this.adminRemarksLoaded = true;
-    },
-    () => {
-      this.toastService.showError('Failed to load remarks');
-      this.adminRemarksLoaded = true;
-    }
-  );
-}
+        this.adminRemarksLoaded = true;
+      },
+      () => {
+        this.toastService.showError('Failed to load remarks');
+        this.adminRemarksLoaded = true;
+      }
+    );
+  }
 
   //  loadAdminRemarks() {
   //   const filter = { 'status-eq': 1,'remarkInternalStatus-eq': 1  };
@@ -222,6 +222,9 @@ billingCycleOptions = [
       'Status',
       'Wallet Balance',
       'Created Date',
+      'Assigned To',
+      'FollowUp Date',
+
     ];
 
     const rows = this.accounts.map((team: any) => [
@@ -237,6 +240,8 @@ billingCycleOptions = [
 
       team.walletBalance || '',
       team.createdOn ? new Date(team.createdOn).toLocaleDateString() : '',
+      team.assign_to || '',
+      team.followupDate ? new Date(team.followupDate).toLocaleDateString() : '',
     ]);
 
     let csvContent =
@@ -290,7 +295,6 @@ billingCycleOptions = [
     );
     this.loadAccounts(null);
   }
-
   updateAccount(accountId) {
     this.routingService.handleRoute('team/update/' + accountId, null);
   }
@@ -298,62 +302,66 @@ billingCycleOptions = [
     this.location.back();
   }
 
-loadAccounts(event) {
-  if (!event) {
-    event = {
-      first: this.initialFirst,
-      rows: this.initialRows,
-      sortField: 'createdOn',
-      sortOrder: -1,
-    };
-  }
+  loadAccounts(event) {
+    if (!event) {
+      event = {
+        first: this.initialFirst,
+        rows: this.initialRows,
+        sortField: 'createdOn',
+        sortOrder: -1,
+      };
+    }
 
-  this.currentTableEvent = event;
-  if (event && (event.first !== undefined || event.first === 0)) {
-    const rows = event.rows || 10;
-    const currentPage =
-      event.first === 0 ? 1 : Math.floor(event.first / rows) + 1;
+    this.currentTableEvent = event;
+    if (event && (event.first !== undefined || event.first === 0)) {
+      const rows = event.rows || 10;
+      const currentPage =
+        event.first === 0 ? 1 : Math.floor(event.first / rows) + 1;
 
-    this.localStorageService.setItemOnLocalStorage('disbursalsCurrentPage', currentPage.toString());
-    this.localStorageService.setItemOnLocalStorage('disbursalsRowsPerPage', rows.toString());
+      this.localStorageService.setItemOnLocalStorage('disbursalsCurrentPage', currentPage.toString());
+      this.localStorageService.setItemOnLocalStorage('disbursalsRowsPerPage', rows.toString());
 
-    this.initialFirst = event.first;
-    this.initialRows = rows;
-  }
+      this.initialFirst = event.first;
+      this.initialRows = rows;
+    }
 
-  let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
+    let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
 
-  if (!this.selectedAccountStatus || this.selectedAccountStatus.id === 1) {
-    api_filter['status-eq'] = 1;
-  }
+    if (!this.selectedAccountStatus || this.selectedAccountStatus.id === 1) {
+      api_filter['status-eq'] = 1;
+    }
 
-  api_filter = Object.assign({}, api_filter, this.searchFilter, this.appliedFilter);
+    api_filter = Object.assign({}, api_filter, this.searchFilter, this.appliedFilter);
 
-  if (this.selectedPlanType && this.selectedPlanType !== 'ALL') {
-    api_filter['latest_plan_name-eq'] = this.selectedPlanType;
-  }
-  if (this.selectedStatusType && this.selectedStatusType !== 'ALL') {
-    api_filter['latest_status-eq'] = this.selectedStatusType;
-  }
-  if (this.selectedBillingCycle && this.selectedBillingCycle !== 'ALL') {
-    api_filter['latest_billing_cycle-eq'] = this.selectedBillingCycle;
-  }
-  if (this.selectedRemarkFilter && this.selectedRemarkFilter !== 'ALL') {
-    api_filter['remarkId-eq'] = this.selectedRemarkFilter;
-  }
-  if (this.selectedAssignFilter && this.selectedAssignFilter !== 'ALL') {
-    api_filter['assign_to-eq'] = this.selectedAssignFilter;
-  }
+    if (this.selectedPlanType && this.selectedPlanType !== 'ALL') {
+      api_filter['latest_plan_name-eq'] = this.selectedPlanType;
+    }
+    if (this.selectedStatusType && this.selectedStatusType !== 'ALL') {
+      api_filter['latest_status-eq'] = this.selectedStatusType;
+    }
+    if (this.selectedBillingCycle && this.selectedBillingCycle !== 'ALL') {
+      api_filter['latest_billing_cycle-eq'] = this.selectedBillingCycle;
+    }
+    // if (this.selectedRemarkFilter && this.selectedRemarkFilter !== 'ALL') {
+    //   api_filter['remarkId-eq'] = this.selectedRemarkFilter;
+    // }
+    if (this.selectedRemarkFilter?.length) {
+      api_filter['remarkId-in'] = this.selectedRemarkFilter.join(',');
+    }
 
-  // ✅ Role 2: always force their own assign_to — cannot be overridden
-  if (this.loggedInUserRole === 2) {
-    const adminDetails = this.localStorageService.getItemFromLocalStorage('adminDetails');
-    api_filter['assign_to-eq'] = adminDetails?.user?.id;
-  }
+    if (this.selectedAssignFilter?.length) {
+      api_filter['assign_to-in'] = this.selectedAssignFilter.join(',');
+    }
 
-  this.getTeamCount(api_filter);
-  this.getTeam(api_filter);
-}
+    // ✅ Role 2: always force their own assign_to — cannot be overridden
+    if (this.loggedInUserRole === 2) {
+      const adminDetails = this.localStorageService.getItemFromLocalStorage('adminDetails');
+      api_filter['assign_to-eq'] = adminDetails?.user?.id;
+    }
+
+    this.getTeamCount(api_filter);
+    this.getTeam(api_filter);
+  }
 
   onSearchInput(event: Event) {
     const target = event.target as HTMLInputElement;
@@ -366,124 +374,124 @@ loadAccounts(event) {
     this.routingService.handleRoute('accounts/profile/' + lead.accountId, null);
   }
   setFilterConfig() {
-  const followupDateRangeFilter = () => [
-    { field: 'followupDate', title: 'From', type: 'date', filterType: 'gte' },
-    { field: 'followupDate', title: 'To',   type: 'date', filterType: 'lte' },
-  ];
+    const followupDateRangeFilter = () => [
+      { field: 'followupDate', title: 'From', type: 'date', filterType: 'gte' },
+      { field: 'followupDate', title: 'To', type: 'date', filterType: 'lte' },
+    ];
 
-  this.filterConfig = [
-    // ── existing filters ──────────────────────────────────
-    {
-      header: 'Account Id',
-      data: [{ field: 'accountId', title: 'Account Id', type: 'text', filterType: 'like' }],
-    },
-    {
-      header: 'Name',
-      data: [{ field: 'name', title: 'Name', type: 'text', filterType: 'like' }],
-    },
-    {
-      header: 'Mobile',
-      data: [{ field: 'mobile', title: 'Mobile', type: 'text', filterType: 'like' }],
-    },
-    {
-      header: 'Email ID',
-      data: [{ field: 'emailId', title: 'Email ID', type: 'text', filterType: 'like' }],
-    },
-    {
-      header: 'City',
-      data: [{ field: 'city', title: 'City', type: 'text', filterType: 'like' }],
-    },
-    {
-      header: 'Latest Plan',
-      data: [{ field: 'latest_plan_name', title: 'Plan', type: 'text', filterType: 'like' }],
-    },
-    {
-      header: 'Latest Status',
-      data: [{ field: 'latest_status', title: 'Status', type: 'text', filterType: 'like' }],
-    },
-    {
-      header: 'Latest Remark',
-      data: [{ field: 'latest_remark', title: 'Latest Remark', type: 'text', filterType: 'like' }],
-    },
-    { header: 'FollowUp Date Range', data: followupDateRangeFilter() },
-    {
-      header: 'Date Range',
-      data: [
-        { field: 'createdOn', title: 'From', type: 'date', filterType: 'gte' },
-        { field: 'createdOn', title: 'To',   type: 'date', filterType: 'lte' },
-      ],
-    },
-    {
-      header: 'Last Updated Date Range',
-      data: [
-        { field: 'updatedOn', title: 'From', type: 'date', filterType: 'gte' },
-        { field: 'updatedOn', title: 'To',   type: 'date', filterType: 'lte' },
-      ],
-    },
-    {
-      header: 'Expired Date Range',
-      data: [
-        { field: 'end_date', title: 'From', type: 'date', filterType: 'gte' },
-        { field: 'end_date', title: 'To',   type: 'date', filterType: 'lte' },
-      ],
-    },
-
-    // ── NEW: Pack completed period (days until end_date expires) ──
-    {
-      header: 'Pack Expiry (days left)',
-      data: [{
-        field: 'daysUntilExpiry',
-        title: 'Days Until Expiry',
-        type: 'dropdown',
-        filterType: 'eq',
-        options: [
-          { label: 'All',        value: '' },
-          { label: '5 days',     value: '5' },
-          { label: '10 days',    value: '10' },
-          { label: '15 days',    value: '15' },
-          { label: '20 days',    value: '20' },
-          { label: '28 days',    value: '28' },
-          { label: 'Expired',    value: 'expired' },
+    this.filterConfig = [
+      // ── existing filters ──────────────────────────────────
+      {
+        header: 'Account Id',
+        data: [{ field: 'accountId', title: 'Account Id', type: 'text', filterType: 'like' }],
+      },
+      {
+        header: 'Name',
+        data: [{ field: 'name', title: 'Name', type: 'text', filterType: 'like' }],
+      },
+      {
+        header: 'Mobile',
+        data: [{ field: 'mobile', title: 'Mobile', type: 'text', filterType: 'like' }],
+      },
+      {
+        header: 'Email ID',
+        data: [{ field: 'emailId', title: 'Email ID', type: 'text', filterType: 'like' }],
+      },
+      {
+        header: 'City',
+        data: [{ field: 'city', title: 'City', type: 'text', filterType: 'like' }],
+      },
+      {
+        header: 'Latest Plan',
+        data: [{ field: 'latest_plan_name', title: 'Plan', type: 'text', filterType: 'like' }],
+      },
+      {
+        header: 'Latest Status',
+        data: [{ field: 'latest_status', title: 'Status', type: 'text', filterType: 'like' }],
+      },
+      {
+        header: 'Latest Remark',
+        data: [{ field: 'latest_remark', title: 'Latest Remark', type: 'text', filterType: 'like' }],
+      },
+      { header: 'FollowUp Date Range', data: followupDateRangeFilter() },
+      {
+        header: 'Date Range',
+        data: [
+          { field: 'createdOn', title: 'From', type: 'date', filterType: 'gte' },
+          { field: 'createdOn', title: 'To', type: 'date', filterType: 'lte' },
         ],
-      }],
-    },
-
-    // ── NEW: Inactive period (days since last activity log) ──
-    {
-      header: 'Inactive Since (days)',
-      data: [{
-        field: 'inactiveDays',
-        title: 'Inactive Since',
-        type: 'dropdown',
-        filterType: 'eq',
-        options: [
-          { label: 'All',     value: '' },
-          { label: '5 days',  value: '5' },
-          { label: '10 days', value: '10' },
-          { label: '15 days', value: '15' },
-          { label: '20 days', value: '20' },
-          { label: '28 days', value: '28' },
+      },
+      {
+        header: 'Last Updated Date Range',
+        data: [
+          { field: 'updatedOn', title: 'From', type: 'date', filterType: 'gte' },
+          { field: 'updatedOn', title: 'To', type: 'date', filterType: 'lte' },
         ],
-      }],
-    },
-
-    // ── NEW: Feature activity (active/inactive in last 7 days) ──
-    {
-      header: 'Feature Activity',
-      data: [{
-        field: 'featureActivity',
-        title: 'Feature Activity',
-        type: 'dropdown',
-        filterType: 'eq',
-        options: [
-          { label: 'All',      value: '' },
-          { label: 'Active',   value: 'active' },
-          { label: 'Inactive', value: 'inactive' },
+      },
+      {
+        header: 'Expired Date Range',
+        data: [
+          { field: 'end_date', title: 'From', type: 'date', filterType: 'gte' },
+          { field: 'end_date', title: 'To', type: 'date', filterType: 'lte' },
         ],
-      }],
-    },
-  ];
-}
+      },
+
+      // ── NEW: Pack completed period (days until end_date expires) ──
+      {
+        header: 'Pack Expiry (days left)',
+        data: [{
+          field: 'daysUntilExpiry',
+          title: 'Days Until Expiry',
+          type: 'dropdown',
+          filterType: 'eq',
+          options: [
+            { label: 'All', value: '' },
+            { label: '5 days', value: '5' },
+            { label: '10 days', value: '10' },
+            { label: '15 days', value: '15' },
+            { label: '20 days', value: '20' },
+            { label: '28 days', value: '28' },
+            { label: 'Expired', value: 'expired' },
+          ],
+        }],
+      },
+
+      // ── NEW: Inactive period (days since last activity log) ──
+      {
+        header: 'Inactive Since (days)',
+        data: [{
+          field: 'inactiveDays',
+          title: 'Inactive Since',
+          type: 'dropdown',
+          filterType: 'eq',
+          options: [
+            { label: 'All', value: '' },
+            { label: '5 days', value: '5' },
+            { label: '10 days', value: '10' },
+            { label: '15 days', value: '15' },
+            { label: '20 days', value: '20' },
+            { label: '28 days', value: '28' },
+          ],
+        }],
+      },
+
+      // ── NEW: Feature activity (active/inactive in last 7 days) ──
+      {
+        header: 'Feature Activity',
+        data: [{
+          field: 'featureActivity',
+          title: 'Feature Activity',
+          type: 'dropdown',
+          filterType: 'eq',
+          options: [
+            { label: 'All', value: '' },
+            { label: 'Active', value: 'active' },
+            { label: 'Inactive', value: 'inactive' },
+          ],
+        }],
+      },
+    ];
+  }
   // setFilterConfig() {
   //   const followupDateRangeFilter = () => [
   //     { field: 'followupDate', title: 'From', type: 'date', filterType: 'gte' },
@@ -677,25 +685,40 @@ loadAccounts(event) {
       }
     );
   }
-getTeam(filter = {}) {
-  this.apiLoading = true;
-  this.leadsService.getAccounts(filter).subscribe(
-    (team: any) => {
-
-      // ✅ FIX HERE
-      this.accounts = team.map((t: any) => ({
-        ...t,
-        remarkId: t.remarkId ? String(t.remarkId) : null
-      }));
-
-      this.apiLoading = false;
-    },
-    (error: any) => {
-      this.toastService.showError(error);
-      this.apiLoading = false;
+  isMissedFollowup(followupDate: any): boolean {
+    if (!followupDate) {
+      return false;
     }
-  );
-}
+
+    const followup = new Date(followupDate);
+    const today = new Date();
+
+    // Remove time part
+    followup.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    // Yesterday or older
+    return followup < today;
+  }
+  getTeam(filter = {}) {
+    this.apiLoading = true;
+    this.leadsService.getAccounts(filter).subscribe(
+      (team: any) => {
+
+        // ✅ FIX HERE
+        this.accounts = team.map((t: any) => ({
+          ...t,
+          remarkId: t.remarkId ? String(t.remarkId) : null
+        }));
+
+        this.apiLoading = false;
+      },
+      (error: any) => {
+        this.toastService.showError(error);
+        this.apiLoading = false;
+      }
+    );
+  }
   // getTeam(filter = {}) {
   //   this.apiLoading = true;
   //   this.leadsService.getAccounts(filter).subscribe(
@@ -716,38 +739,38 @@ getTeam(filter = {}) {
   }
 
   filterWithName() {
-  let searchFilter = {};
-  const trimmedInput = this.userNameToSearch?.trim() || '';
+    let searchFilter = {};
+    const trimmedInput = this.userNameToSearch?.trim() || '';
 
-  if (!trimmedInput) {
-    this.applyFilters({});
-    return;
+    if (!trimmedInput) {
+      this.applyFilters({});
+      return;
+    }
+
+    // ✅ Account ID (numeric but NOT 10-digit mobile)
+    if (this.isNumeric(trimmedInput) && trimmedInput.length !== 10) {
+      searchFilter = { 'accountId-like': trimmedInput };
+    }
+
+    // ✅ Mobile Number (10-digit)
+    else if (this.isPhoneNumber(trimmedInput)) {
+      searchFilter = { 'mobile-like': trimmedInput };
+    }
+
+    // ✅ Business Name
+    else {
+      searchFilter = {
+        'businessName-like': trimmedInput,
+      };
+    }
+
+    this.applyFilters(searchFilter);
   }
-
-  // ✅ Account ID (numeric but NOT 10-digit mobile)
-  if (this.isNumeric(trimmedInput) && trimmedInput.length !== 10) {
-    searchFilter = { 'accountId-like': trimmedInput };
-  }
-
-  // ✅ Mobile Number (10-digit)
-  else if (this.isPhoneNumber(trimmedInput)) {
-    searchFilter = { 'mobile-like': trimmedInput };
-  }
-
-  // ✅ Business Name
-  else {
-    searchFilter = {
-      'businessName-like': trimmedInput,
-    };
-  }
-
-  this.applyFilters(searchFilter);
-}
 
 
   isNumeric(value: string): boolean {
-  return /^\d+$/.test(value);
-}
+    return /^\d+$/.test(value);
+  }
 
   isPhoneNumber(value: string): boolean {
     const phoneNumberPattern = /^[6-9]\d{9}$/;
@@ -810,7 +833,7 @@ getTeam(filter = {}) {
       }
     );
   }
-  
+
   revertAccountToNew(team) {
     this.changeAccountInternalStatus(team.accountId, 1);
   }
@@ -818,7 +841,7 @@ getTeam(filter = {}) {
   loadRemarks(event) {
     this.currentTableEvent = event;
     let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
-    
+
     // if (this.selectedRemarksStatus) {
     //   if (this.selectedRemarksStatus && this.selectedRemarksStatus.name) {
     //     if (this.selectedRemarksStatus.name != 'all') {
@@ -853,70 +876,70 @@ getTeam(filter = {}) {
   }
 
   statusChange(event) {
-  const selectedStatus = event.value.id; // 0, 1, 2
-  this.saveFiltersToStorage();
+    const selectedStatus = event.value.id; // 0, 1, 2
+    this.saveFiltersToStorage();
 
-  // Clear old filters
-  delete this.searchFilter['status-eq'];
-  delete this.searchFilter['status-or'];
+    // Clear old filters
+    delete this.searchFilter['status-eq'];
+    delete this.searchFilter['status-or'];
 
-  if (selectedStatus === 0) {
-    // ALL → show 1 and 2
-    this.searchFilter['status-or'] = '1,2';
-  } else {
-    // Active or Inactive
-    this.searchFilter['status-eq'] = selectedStatus;
+    if (selectedStatus === 0) {
+      // ALL → show 1 and 2
+      this.searchFilter['status-or'] = '1,2';
+    } else {
+      // Active or Inactive
+      this.searchFilter['status-eq'] = selectedStatus;
+    }
+
+    this.loadAccounts(this.currentTableEvent);
   }
 
-  this.loadAccounts(this.currentTableEvent);
-}
+  onPlanTypeChange(event: any) {
+    this.selectedPlanType = event.value;
+    this.saveFiltersToStorage();
+    this.accountTable.reset(); // reload table + API
+  }
+  onStatusTypeChange(event: any) {
+    this.selectedStatusType = event.value;
+    this.saveFiltersToStorage();
+    this.accountTable.reset(); // reload table + API
+  }
+  onBillingCycleChange(event: any) {
+    this.selectedBillingCycle = event.value;
+    this.saveFiltersToStorage();
+    this.accountTable.reset();
+  }
+  onRemarkChange(lead: any, remarkId: any) {
 
-onPlanTypeChange(event: any) {
-  this.selectedPlanType = event.value;
-  this.saveFiltersToStorage();
-  this.accountTable.reset(); // reload table + API
-}
-onStatusTypeChange(event: any) {
-  this.selectedStatusType = event.value;
-  this.saveFiltersToStorage();
-  this.accountTable.reset(); // reload table + API
-}
-onBillingCycleChange(event: any) {
-  this.selectedBillingCycle = event.value;
-  this.saveFiltersToStorage();
-  this.accountTable.reset();
-}
-onRemarkChange(lead: any, remarkId: any) {
+    // If cleared → send null to backend
+    const finalRemarkId = remarkId ? String(remarkId) : null;
 
-  // If cleared → send null to backend
-  const finalRemarkId = remarkId ? String(remarkId) : null;
+    this.leadsService.updateLeadaccountRemark(lead.id, finalRemarkId).subscribe(
+      () => {
+        // Update UI
+        lead.remarkId = finalRemarkId;
 
-  this.leadsService.updateLeadaccountRemark(lead.id, finalRemarkId).subscribe(
-    () => {
-      // Update UI
-      lead.remarkId = finalRemarkId;
-
-      if (finalRemarkId) {
-        this.toastService.showSuccess('Remark saved');
-      } else {
-        this.toastService.showSuccess('Remark removed'); // ✅ NEW
+        if (finalRemarkId) {
+          this.toastService.showSuccess('Remark saved');
+        } else {
+          this.toastService.showSuccess('Remark removed'); // ✅ NEW
+        }
+      },
+      () => {
+        this.toastService.showError('Failed to update remark');
       }
-    },
-    () => {
-      this.toastService.showError('Failed to update remark');
-    }
-  );
-}
-  onRemarkFilterChange(event: any) {
-  this.selectedRemarkFilter = event.value;
-  this.saveFiltersToStorage();
-  this.accountTable.reset(); // reload API
-}
+    );
+  }
+  onRemarkFilterChange(event: any): void {
+    this.selectedRemarkFilter = event.value || [];
+    this.saveFiltersToStorage();
+    this.accountTable.reset(); // reload API
+  }
 
   private saveFiltersToStorage(): void {
     const filters = {
-      selectedPlanType:     this.selectedPlanType,
-      selectedStatusType:   this.selectedStatusType,
+      selectedPlanType: this.selectedPlanType,
+      selectedStatusType: this.selectedStatusType,
       selectedBillingCycle: this.selectedBillingCycle,
       selectedRemarkFilter: this.selectedRemarkFilter,
       selectedAccountStatus: this.selectedAccountStatus,
@@ -927,8 +950,8 @@ onRemarkChange(lead: any, remarkId: any) {
   private loadFiltersFromStorage(): void {
     const stored = this.localStorageService.getItemFromLocalStorage(this.FILTER_STORAGE_KEY);
     if (!stored) return;
-    this.selectedPlanType     = stored.selectedPlanType     ?? 'ALL';
-    this.selectedStatusType   = stored.selectedStatusType   ?? 'ALL';
+    this.selectedPlanType = stored.selectedPlanType ?? 'ALL';
+    this.selectedStatusType = stored.selectedStatusType ?? 'ALL';
     this.selectedBillingCycle = stored.selectedBillingCycle ?? 'ALL';
     this.selectedRemarkFilter = stored.selectedRemarkFilter ?? 'ALL';
     this.selectedAssignFilter = stored.selectedAssignFilter ?? 'ALL';
@@ -946,7 +969,7 @@ onRemarkChange(lead: any, remarkId: any) {
   loadAssignFilterOptions(): void {
     this.leadsService.getUsers({ 'status-eq': 1, 'role-eq': 2 }).subscribe((data: any) => {
       this.assignFilterOptions = [
-        { label: 'All Users', value: 'ALL' },  // ✅ use 'ALL' not null
+        // { label: 'All User', value: 'ALL' },  // ✅ use 'ALL' not null
         ...data
           .filter((u: any) => u.status === 1 && Number(u.role) === 2)  // ✅ Number() for type safety
           .map((u: any) => ({ label: u.name, value: u.id }))
@@ -968,8 +991,8 @@ onRemarkChange(lead: any, remarkId: any) {
   }
 
   onAssignFilterChange(event: any): void {
-  this.selectedAssignFilter = event.value;
-  this.saveFiltersToStorage();
-  this.accountTable.reset();
-}
+    this.selectedAssignFilter = event.value || [];
+    this.saveFiltersToStorage();
+    this.accountTable.reset();
+  }
 }

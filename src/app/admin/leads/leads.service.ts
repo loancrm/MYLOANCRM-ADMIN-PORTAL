@@ -5,10 +5,10 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import axios from 'axios';
 import { io, Socket } from 'socket.io-client';
 import { projectConstantsLocal } from 'src/app/constants/project-constants';
-import { BehaviorSubject, Observable,from } from 'rxjs';
-import { HttpClient, HttpParams,HttpResponse } from '@angular/common/http';
+import { BehaviorSubject, Observable, from } from 'rxjs';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { map } from 'rxjs/operators'; 
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -16,12 +16,12 @@ import { map } from 'rxjs/operators';
 export class LeadsService {
   changeClientRequirementStatus(id: number, status: string) {
 
-  return this.serviceMeta.httpPut(
-    'clientRequirements/' + id + '/status/' + status,
-    {}
-  );
+    return this.serviceMeta.httpPut(
+      'clientRequirements/' + id + '/status/' + status,
+      {}
+    );
 
-}
+  }
   moment: any;
   status: any;
   private sidebarVisible = new BehaviorSubject<boolean>(true);
@@ -191,21 +191,21 @@ export class LeadsService {
   //   console.log('Fetching wallet transactions with filters:', filter);
   //   return this.serviceMeta.httpGet(url, null, filter);
   // }
-//   getWalletTransactionsByAccountId(accountId: string) {
-//   return this.http.get(
-//     `wallet/transactions/${accountId}`
-//   );
-// }
-getWalletTransactions(filters) {
-  console.log("calling")
-  const url = 'accounts/wallettransactions';
-  return this.serviceMeta.httpGet(url, null, filters);
-}
+  //   getWalletTransactionsByAccountId(accountId: string) {
+  //   return this.http.get(
+  //     `wallet/transactions/${accountId}`
+  //   );
+  // }
+  getWalletTransactions(filters) {
+    console.log("calling")
+    const url = 'accounts/wallettransactions';
+    return this.serviceMeta.httpGet(url, null, filters);
+  }
 
-getWalletTransactionsCount(filters) {
-  const url = 'accounts/wallettransactions/total';
-  return this.serviceMeta.httpGet(url, null, filters);
-}
+  getWalletTransactionsCount(filters) {
+    const url = 'accounts/wallettransactions/total';
+    return this.serviceMeta.httpGet(url, null, filters);
+  }
 
 
   addRemarks(accountId, note: any) {
@@ -220,6 +220,19 @@ getWalletTransactionsCount(filters) {
   getTransactionsCount(filters) {
     const url = 'accounts/transactions/total';
     return this.serviceMeta.httpGet(url, null, filters);
+  }
+
+  getSocialMediaLeadNotes(leadId: any) {
+    return this.serviceMeta.httpGet(
+      `social-media-leads/remarks/${leadId}/notes`
+    );
+  }
+
+  addSocialMediaLeadRemark(leadId: any, note: any) {
+    return this.serviceMeta.httpPost(
+      `social-media-leads/remarks/${leadId}/notes`,
+      note
+    );
   }
   getAccountsCount(filter = {}) {
     const url = 'accounts/total';
@@ -267,57 +280,57 @@ getWalletTransactionsCount(filters) {
     return this.serviceMeta.httpGet(url, null, filter);
   }
   bulkUploadSocialMediaLeads(leads: any[]) {
-  const url = 'social-media-leads/bulk-upload';
-  return this.serviceMeta.httpPost(url, { leads });
-}
-validateSocialMediaLeadsBulk(formData: FormData) {
-  const url = 'social-media-leads/validate-bulk';
-  return this.serviceMeta.httpPost(url, formData);
-}
+    const url = 'social-media-leads/bulk-upload';
+    return this.serviceMeta.httpPost(url, { leads });
+  }
+  validateSocialMediaLeadsBulk(formData: FormData) {
+    const url = 'social-media-leads/validate-bulk';
+    return this.serviceMeta.httpPost(url, formData);
+  }
 
-bulkUploadSocialMediaLeadsFile(formData: FormData) {
-  const url = 'social-media-leads/bulk-upload';
-  return this.serviceMeta.httpPost(url, formData);
-}
+  bulkUploadSocialMediaLeadsFile(formData: FormData) {
+    const url = 'social-media-leads/bulk-upload';
+    return this.serviceMeta.httpPost(url, formData);
+  }
 
- downloadSocialLeadsTemplate(): Observable<HttpResponse<Blob>> {
-  const fullUrl = projectConstantsLocal.BASE_URL + 'social-media-leads/download-template';
+  downloadSocialLeadsTemplate(): Observable<HttpResponse<Blob>> {
+    const fullUrl = projectConstantsLocal.BASE_URL + 'social-media-leads/download-template';
 
-  const authToken = this.localStorageService.getItemFromLocalStorage('accessToken');
-  const clientIp = this.localStorageService.getItemFromLocalStorage('clientIp') || '';
+    const authToken = this.localStorageService.getItemFromLocalStorage('accessToken');
+    const clientIp = this.localStorageService.getItemFromLocalStorage('clientIp') || '';
 
-  const fetchPromise = fetch(fullUrl, {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${authToken}`,
-      'mysystem-IP': clientIp,
-    },
-  }).then(async (response) => {
-    if (!response.ok) {
-      const errorText = await response.text();
-      let errorData: any;
-      try {
-        errorData = JSON.parse(errorText);
-      } catch {
-        errorData = { error: errorText || 'Failed to download template' };
+    const fetchPromise = fetch(fullUrl, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+        'mysystem-IP': clientIp,
+      },
+    }).then(async (response) => {
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorData: any;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch {
+          errorData = { error: errorText || 'Failed to download template' };
+        }
+        throw new Error(JSON.stringify(errorData));
       }
-      throw new Error(JSON.stringify(errorData));
-    }
 
-    const blob = await response.blob();
-    return new HttpResponse<Blob>({
-      body: blob,
-      status: response.status,
-      statusText: response.statusText,
+      const blob = await response.blob();
+      return new HttpResponse<Blob>({
+        body: blob,
+        status: response.status,
+        statusText: response.statusText,
+      });
     });
-  });
 
-  return from(fetchPromise);
-}
-// downloadSocialLeadsTemplate() {
-//   const url = 'social-media-leads/download-template';
-//   return this.serviceMeta.httpGet(url, { responseType: 'blob' });
-// }
+    return from(fetchPromise);
+  }
+  // downloadSocialLeadsTemplate() {
+  //   const url = 'social-media-leads/download-template';
+  //   return this.serviceMeta.httpGet(url, { responseType: 'blob' });
+  // }
 
   getAccounts(filter = {}) {
     const url = 'accounts';
@@ -327,25 +340,25 @@ bulkUploadSocialMediaLeadsFile(formData: FormData) {
     const url = 'contactus';
     return this.serviceMeta.httpGet(url, null, filter);
   }
-//   updateContactRemark(contactId: number, remarks: string) {
-//   const url = `contactus/${contactId}/remark`;
-//   return this.serviceMeta.httpPut(url, { remarks });
-// }
-//  updateContactRemarkText(contactId: number, remarks: string) {
-//   const url = `contactus/${contactId}/remark-text`;
-//   return this.serviceMeta.httpPut(url, { remarks });
-// }
-// ✅ Dropdown → remarkId
-updateContactRemark(contactId: number, remarkId: string) {
-  const url = `contactus/${contactId}/remark`;
-  return this.serviceMeta.httpPut(url, { remarkId });
-}
+  //   updateContactRemark(contactId: number, remarks: string) {
+  //   const url = `contactus/${contactId}/remark`;
+  //   return this.serviceMeta.httpPut(url, { remarks });
+  // }
+  //  updateContactRemarkText(contactId: number, remarks: string) {
+  //   const url = `contactus/${contactId}/remark-text`;
+  //   return this.serviceMeta.httpPut(url, { remarks });
+  // }
+  // ✅ Dropdown → remarkId
+  updateContactRemark(contactId: number, remarkId: string) {
+    const url = `contactus/${contactId}/remark`;
+    return this.serviceMeta.httpPut(url, { remarkId });
+  }
 
-// ✅ Textarea → remarks text
-updateContactRemarkText(contactId: number, remarks: string) {
-  const url = `contactus/${contactId}/remark-text`;
-  return this.serviceMeta.httpPut(url, { remarks });
-}
+  // ✅ Textarea → remarks text
+  updateContactRemarkText(contactId: number, remarks: string) {
+    const url = `contactus/${contactId}/remark-text`;
+    return this.serviceMeta.httpPut(url, { remarks });
+  }
 
 
   getFetchedCibilReports(filter = {}) {
@@ -379,34 +392,34 @@ updateContactRemarkText(contactId: number, remarks: string) {
     const url = 'subscriptionPlans';
     return this.serviceMeta.httpPost(url, data);
   }
-    createClientRequirement(data: any) {
-  const url = 'clientRequirements';
-  return this.serviceMeta.httpPost(url, data);
-}
+  createClientRequirement(data: any) {
+    const url = 'clientRequirements';
+    return this.serviceMeta.httpPost(url, data);
+  }
 
-updateClientRequirement(id: number, data: any) {
-  const url = 'clientRequirements/' + id;
-  return this.serviceMeta.httpPut(url, data);
-}
+  updateClientRequirement(id: number, data: any) {
+    const url = 'clientRequirements/' + id;
+    return this.serviceMeta.httpPut(url, data);
+  }
 
-getClientRequirements(filter = {}) {
-  const url = 'clientRequirements';
-  return this.serviceMeta.httpGet(url, null, filter);
-}
+  getClientRequirements(filter = {}) {
+    const url = 'clientRequirements';
+    return this.serviceMeta.httpGet(url, null, filter);
+  }
 
-getClientRequirementsCount(filter = {}) {
-  const url = 'clientRequirements/total';
-  return this.serviceMeta.httpGet(url, null, filter);
-}
+  getClientRequirementsCount(filter = {}) {
+    const url = 'clientRequirements/total';
+    return this.serviceMeta.httpGet(url, null, filter);
+  }
 
 
-getClientRequirementById(id: number) {
+  getClientRequirementById(id: number) {
 
-  return this.serviceMeta.httpGet(
-    'clientRequirements/' + id
-  );
+    return this.serviceMeta.httpGet(
+      'clientRequirements/' + id
+    );
 
-}
+  }
 
   updatePlan(bankersId, data) {
     const url = 'subscriptionPlans/' + bankersId;
@@ -833,18 +846,18 @@ getClientRequirementById(id: number) {
     });
   }
 
-     getWhatsAppTemplates() {
+  getWhatsAppTemplates() {
     const url = 'emovur/templates';
     return this.serviceMeta.httpGet(url);
   }
   postSingleWhatsAppMsg(data) {
     const url = 'emovur/send-message';
-    return this.serviceMeta.httpPost(url,data);
+    return this.serviceMeta.httpPost(url, data);
   }
 
   postWhatsAppMsgBulk(data) {
     const url = 'emovur/send-message/bulk';
-    return this.serviceMeta.httpPost(url,data);
+    return this.serviceMeta.httpPost(url, data);
   }
 
   getWhatsAppMessages() {
@@ -857,7 +870,7 @@ getClientRequirementById(id: number) {
     return this.serviceMeta.httpPut(url, null);
   }
 
-   getUsers(filter = {}) {
+  getUsers(filter = {}) {
     const url = 'adminusers';
     return this.serviceMeta.httpGet(url, null, filter);
   }
@@ -879,566 +892,570 @@ getClientRequirementById(id: number) {
     return this.serviceMeta.httpPut(url, data);
   }
   changeUserStatus(id: number, status: number): Observable<any> {
-  const url = 'adminusers/' + id + '/status';
-  return this.serviceMeta.httpPut(url, { status });
-}
+    const url = 'adminusers/' + id + '/status';
+    return this.serviceMeta.httpPut(url, { status });
+  }
 
   // ── WhatsApp Templates (DB) ────────────────────────────
 
-// getWhatsappTemplatesFromDB() {
-//   const url = 'whatsapp-templates';
-//   return this.serviceMeta.httpGet(url);
-// }
+  // getWhatsappTemplatesFromDB() {
+  //   const url = 'whatsapp-templates';
+  //   return this.serviceMeta.httpGet(url);
+  // }
 
-createWhatsappTemplate(data: any) {
-  const url = 'whatsapp-templates';
-  return this.serviceMeta.httpPost(url, data);
-}
+  createWhatsappTemplate(data: any) {
+    const url = 'whatsapp-templates';
+    return this.serviceMeta.httpPost(url, data);
+  }
 
-updateWhatsappTemplate(id: number, data: any) {
-  const url = 'whatsapp-templates/' + id;
-  return this.serviceMeta.httpPut(url, data);
-}
+  updateWhatsappTemplate(id: number, data: any) {
+    const url = 'whatsapp-templates/' + id;
+    return this.serviceMeta.httpPut(url, data);
+  }
 
-deleteWhatsappTemplate(id: number) {
-  const url = 'whatsapp-templates/' + id;
-  return this.serviceMeta.httpDelete(url);
-}
-syncWhatsappTemplateStatus() {
-  const url = 'whatsapp-templates/sync-status';
-  return this.serviceMeta.httpGet(url);
-}
+  deleteWhatsappTemplate(id: number) {
+    const url = 'whatsapp-templates/' + id;
+    return this.serviceMeta.httpDelete(url);
+  }
+  syncWhatsappTemplateStatus() {
+    const url = 'whatsapp-templates/sync-status';
+    return this.serviceMeta.httpGet(url);
+  }
 
-checkWhatsappTemplateStatus(id: number) {
-  const url = 'whatsapp-templates/check-status/' + id;
-  return this.serviceMeta.httpGet(url);
-}
-// ── Social Media Lead CRUD ─────────────────────────────
+  checkWhatsappTemplateStatus(id: number) {
+    const url = 'whatsapp-templates/check-status/' + id;
+    return this.serviceMeta.httpGet(url);
+  }
+  // ── Social Media Lead CRUD ─────────────────────────────
 
-getSocialMediaLeadById(id: any) {
-  const url = 'social-media-leads/' + id;
-  return this.serviceMeta.httpGet(url);
-}
+  getSocialMediaLeadById(id: any) {
+    const url = 'social-media-leads/' + id;
+    return this.serviceMeta.httpGet(url);
+  }
 
-createSocialMediaLead(data: any) {
-  const url = 'social-media-leads/create';
-  return this.serviceMeta.httpPost(url, data);
-}
+  createSocialMediaLead(data: any) {
+    const url = 'social-media-leads/create';
+    return this.serviceMeta.httpPost(url, data);
+  }
+  getTodaySocialMediaCallbacks() {
+    return this.serviceMeta.httpGet(
+      'social-media-leads/today-callbacks'
+    );
+  }
+  updateSocialMediaLead(id: any, data: any) {
+    const url = 'social-media-leads/' + id;
+    return this.serviceMeta.httpPut(url, data);
+  }
+  getWhatsappTemplatesFromDB(filter = {}) {
+    const url = 'whatsapp-templates';
+    return this.serviceMeta.httpGet(url, null, filter);   // ✅ pass filter
+  }
 
-updateSocialMediaLead(id: any, data: any) {
-  const url = 'social-media-leads/' + id;
-  return this.serviceMeta.httpPut(url, data);
-}
-getWhatsappTemplatesFromDB(filter = {}) {
-  const url = 'whatsapp-templates';
-  return this.serviceMeta.httpGet(url, null, filter);   // ✅ pass filter
-}
- 
-getWhatsappTemplatesCount(filter = {}) {
-  const url = 'whatsapp-templates/total';
-  return this.serviceMeta.httpGet(url, null, filter);
-}
+  getWhatsappTemplatesCount(filter = {}) {
+    const url = 'whatsapp-templates/total';
+    return this.serviceMeta.httpGet(url, null, filter);
+  }
 
-toggleApiAccess(accountId: string, isApiEnabled: boolean): any {
-  const url = 'credit-reports-api/credentials/toggle';
-  return this.serviceMeta.httpPut(url, { accountId, isApiEnabled });
-}
- updateLeadStatus(id: number, data: any) {
-  const url = 'social-media-leads/status/' + id;
-  return this.serviceMeta.httpPut(url, data);
-}
+  toggleApiAccess(accountId: string, isApiEnabled: boolean): any {
+    const url = 'credit-reports-api/credentials/toggle';
+    return this.serviceMeta.httpPut(url, { accountId, isApiEnabled });
+  }
+  updateLeadStatus(id: number, data: any) {
+    const url = 'social-media-leads/status/' + id;
+    return this.serviceMeta.httpPut(url, data);
+  }
 
-getAccountDashboardMetrics(accountId: any, filter: any = {}): Observable<any> {
-  const params: any = {
-    ...filter,
-    'accountId-eq': accountId
-  };
-  // Remove undefined keys
-  Object.keys(params).forEach(k => {
-    if (params[k] === undefined || params[k] === null) {
-      delete params[k];
+  getAccountDashboardMetrics(accountId: any, filter: any = {}): Observable<any> {
+    const params: any = {
+      ...filter,
+      'accountId-eq': accountId
+    };
+    // Remove undefined keys
+    Object.keys(params).forEach(k => {
+      if (params[k] === undefined || params[k] === null) {
+        delete params[k];
+      }
+    });
+    const url = 'accounts/completeall-dashboard-metrics';
+    return this.serviceMeta.httpGet(url, null, params);
+  }
+
+  getGlobalDashboardMetrics(filter: any = {}): Observable<any> {
+    // ✅ No accountId — returns metrics for ALL accounts
+    const url = 'accounts/completeall-dashboard-metrics';
+    return this.serviceMeta.httpGet(url, null, filter);
+  }
+  getBankWiseAnalytics(
+    accountId: any,
+    loanType: string = 'all',
+    first: number = 0,       // ✅ add
+    rows: number = 10       // ✅ add
+  ): Observable<any> {
+    const params: any = {
+      loanType,
+      from: first,   // ✅ offset
+      count: rows     // ✅ limit
+    };
+    if (accountId) {
+      params['accountId-eq'] = accountId;
     }
-  });
-  const url = 'accounts/completeall-dashboard-metrics';
-  return this.serviceMeta.httpGet(url, null, params);
-}
- 
-getGlobalDashboardMetrics(filter: any = {}): Observable<any> {
-  // ✅ No accountId — returns metrics for ALL accounts
-  const url = 'accounts/completeall-dashboard-metrics';
-  return this.serviceMeta.httpGet(url, null, filter);
-}
-getBankWiseAnalytics(
-  accountId: any,
-  loanType: string = 'all',
-  first: number = 0,       // ✅ add
-  rows: number  = 10       // ✅ add
-): Observable<any> {
-  const params: any = {
-    loanType,
-    from:  first,   // ✅ offset
-    count: rows     // ✅ limit
-  };
-  if (accountId) {
-    params['accountId-eq'] = accountId;
+    const url = 'accounts/bank-wise-analytics';
+    return this.serviceMeta.httpGet(url, null, params);
   }
-  const url = 'accounts/bank-wise-analytics';
-  return this.serviceMeta.httpGet(url, null, params);
-}
-// getAccountWiseBreakdown(
-//   metric: string,
-//   loanType: string,
-//   from: number = 0,
-//   count: number = 20,
-//   search: string = '',
-//   filters: any = {}  
-// ): Observable<any> {
-//   const params: any = { metric, loanType, from, count };
-//   if (search) params['search'] = search;
-//   const url = 'accounts/global-breakdown';
-//   return this.serviceMeta.httpGet(url, null, params);
-// }
+  // getAccountWiseBreakdown(
+  //   metric: string,
+  //   loanType: string,
+  //   from: number = 0,
+  //   count: number = 20,
+  //   search: string = '',
+  //   filters: any = {}  
+  // ): Observable<any> {
+  //   const params: any = { metric, loanType, from, count };
+  //   if (search) params['search'] = search;
+  //   const url = 'accounts/global-breakdown';
+  //   return this.serviceMeta.httpGet(url, null, params);
+  // }
 
-getAccountWiseBreakdown(
-  metric: string,
-  loanType: string,
-  from: number = 0,
-  count: number = 20,
-  search: string = '',
-  filters: any = {}
-): Observable<any> {
+  getAccountWiseBreakdown(
+    metric: string,
+    loanType: string,
+    from: number = 0,
+    count: number = 20,
+    search: string = '',
+    filters: any = {}
+  ): Observable<any> {
 
-  const params: any = { metric, loanType, from, count };
+    const params: any = { metric, loanType, from, count };
 
-  if (search) {
-    params['search'] = search;
+    if (search) {
+      params['search'] = search;
+    }
+
+    // ✅ ADD THIS BLOCK (IMPORTANT)
+    if (filters) {
+      Object.keys(filters).forEach(key => {
+        if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+          params[key] = filters[key];
+        }
+      });
+    }
+
+    const url = 'accounts/global-breakdown';
+    return this.serviceMeta.httpGet(url, null, params);
   }
 
-  // ✅ ADD THIS BLOCK (IMPORTANT)
-  if (filters) {
+  // getCibilBreakdown(
+  //   from: number = 0,
+  //   count: number = 20,
+  //   search: string = '',
+  //   cibilType: string = ''
+  // ): Observable<any> {
+  //   const params: any = { from, count };
+  //   if (search)    params['search']    = search;
+  //   if (cibilType) params['cibilType'] = cibilType;
+  //   const url = 'admin/cibil-breakdown';
+  //   return this.serviceMeta.httpGet(url, null, params);
+  // }
+  getCibilBreakdown(
+    from: number = 0,
+    count: number = 20,
+    search: string = '',
+    cibilType: string = '',
+    filters: any = {}   // ✅ ADD THIS
+  ): Observable<any> {
+
+    const params: any = { from, count };
+
+    if (search) params['search'] = search;
+    if (cibilType) params['cibilType'] = cibilType;
+
+    // ✅ Add filters same as lenders
     Object.keys(filters).forEach(key => {
-      if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
-        params[key] = filters[key];
-      }
+      params[key] = filters[key];
     });
+
+    return this.serviceMeta.httpGet('admin/cibil-breakdown', null, params);
+  }
+  getSanctionedDisbursedBreakdown(
+    type: 'sanctioned' | 'disbursed',
+    loanType: string,
+    from: number = 0,
+    count: number = 20,
+    search: string = '',
+    filters: any = {}
+  ): Observable<any> {
+    const params: any = { type, loanType, from, count };
+    if (search) params['search'] = search;
+    if (filters) {
+      Object.keys(filters).forEach(key => {
+        if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+          params[key] = filters[key];
+        }
+      });
+    }
+    const url = 'accounts/sanctioned-disbursed-breakdown';
+    return this.serviceMeta.httpGet(url, null, params);
+  }
+  getCityWiseAccountCount(): Observable<any> {
+    const url = 'accounts/city-count';
+    return this.serviceMeta.httpGet(url);
   }
 
-  const url = 'accounts/global-breakdown';
-  return this.serviceMeta.httpGet(url, null, params);
-}
-
-// getCibilBreakdown(
-//   from: number = 0,
-//   count: number = 20,
-//   search: string = '',
-//   cibilType: string = ''
-// ): Observable<any> {
-//   const params: any = { from, count };
-//   if (search)    params['search']    = search;
-//   if (cibilType) params['cibilType'] = cibilType;
-//   const url = 'admin/cibil-breakdown';
-//   return this.serviceMeta.httpGet(url, null, params);
-// }
-getCibilBreakdown(
-  from: number = 0,
-  count: number = 20,
-  search: string = '',
-  cibilType: string = '',
-  filters: any = {}   // ✅ ADD THIS
-): Observable<any> {
-
-  const params: any = { from, count };
-
-  if (search)    params['search']    = search;
-  if (cibilType) params['cibilType'] = cibilType;
-
-  // ✅ Add filters same as lenders
-  Object.keys(filters).forEach(key => {
-    params[key] = filters[key];
-  });
-
-  return this.serviceMeta.httpGet('admin/cibil-breakdown', null, params);
-}
-getSanctionedDisbursedBreakdown(
-  type: 'sanctioned' | 'disbursed',
-  loanType: string,
-  from: number = 0,
-  count: number = 20,
-  search: string = '',
-  filters: any = {}  
-): Observable<any> {
-  const params: any = { type, loanType, from, count };
-  if (search) params['search'] = search;
-   if (filters) {
-    Object.keys(filters).forEach(key => {
-      if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
-        params[key] = filters[key];
-      }
-    });
+  getCityWiseBreakdown(
+    from: number = 0,
+    count: number = 10,
+    search: string = ''
+  ): Observable<any> {
+    const params: any = { from, count };
+    if (search) params['search'] = search;
+    const url = 'accounts/city-breakdown';
+    return this.serviceMeta.httpGet(url, null, params);
   }
-  const url = 'accounts/sanctioned-disbursed-breakdown';
-  return this.serviceMeta.httpGet(url, null, params);
-}
-getCityWiseAccountCount(): Observable<any> {
-  const url = 'accounts/city-count';
-  return this.serviceMeta.httpGet(url);
-}
+  getCityAccountsBreakdown(
+    city: string,
+    from: number = 0,
+    count: number = 10,
+    search: string = ''
+  ): Observable<any> {
+    const params: any = { city, from, count };
+    if (search) params['search'] = search;
+    const url = 'accounts/city-accounts';
+    return this.serviceMeta.httpGet(url, null, params);
+  }
 
-getCityWiseBreakdown(
-  from: number = 0,
-  count: number = 10,
-  search: string = ''
-): Observable<any> {
-  const params: any = { from, count };
-  if (search) params['search'] = search;
-  const url = 'accounts/city-breakdown';
-  return this.serviceMeta.httpGet(url, null, params);
-}
-getCityAccountsBreakdown(
-  city: string,
-  from: number = 0,
-  count: number = 10,
-  search: string = ''
-): Observable<any> {
-  const params: any = { city, from, count };
-  if (search) params['search'] = search;
-  const url = 'accounts/city-accounts';
-  return this.serviceMeta.httpGet(url, null, params);
-}
+  globalSearch(query: string): Observable<any> {
+    const url = 'global-search';
+    return this.serviceMeta.httpGet(url, null, { query });
+  }
 
-globalSearch(query: string): Observable<any> {
-  const url = 'global-search';
-  return this.serviceMeta.httpGet(url, null, { query });
-}
+  // updateLeadRemark(leadId: number, remarks: string) {
+  //   const url = `social-media-leads/${leadId}/remark`;
+  //   return this.serviceMeta.httpPut(url, { remarks });
+  // }
 
-// updateLeadRemark(leadId: number, remarks: string) {
-//   const url = `social-media-leads/${leadId}/remark`;
-//   return this.serviceMeta.httpPut(url, { remarks });
-// }
-
-updateLeadaccountRemark(leadId: number, remarkId: any) {
-  const url = `accounts/${leadId}/remark`;
-  return this.serviceMeta.httpPut(url, { remarkId });
-}
-updateLeadRemark(leadId: number, remarkId: any) {
-  const url = `social-media-leads/${leadId}/remark`;
-  return this.serviceMeta.httpPut(url, { remarkId });
-}
+  updateLeadaccountRemark(leadId: number, remarkId: any) {
+    const url = `accounts/${leadId}/remark`;
+    return this.serviceMeta.httpPut(url, { remarkId });
+  }
+  updateLeadRemark(leadId: number, remarkId: any) {
+    const url = `social-media-leads/${leadId}/remark`;
+    return this.serviceMeta.httpPut(url, { remarkId });
+  }
 
   getAdminRemarks(filter = {}) {
     const url = 'admin-remarks';
     return this.serviceMeta.httpGet(url, null, filter);
   }
- 
+
   getAdminRemarksCount(filter = {}) {
     const url = 'admin-remarks/total';
     return this.serviceMeta.httpGet(url, null, filter);
   }
- 
+
   addAdminRemark(data: any) {
     const url = 'admin-remarks';
     return this.serviceMeta.httpPost(url, data);
   }
- 
+
   updateAdminRemark(id: number, data: any) {
     const url = 'admin-remarks/' + id;
     return this.serviceMeta.httpPut(url, data);
   }
- 
+
   deleteAdminRemark(id: number) {
     const url = 'admin-remarks/' + id;
     return this.serviceMeta.httpDelete(url);
   }
- 
+
   getAdminRemarkById(id: number) {
     const url = 'admin-remarks/' + id;
     return this.serviceMeta.httpGet(url);
   }
- 
+
   changeAdminRemarkInternalStatus(remarkId: number, statusId: number) {
     const url = `admin-remarks/${remarkId}/changestatus/${statusId}`;
     return this.serviceMeta.httpPut(url, null);
   }
 
 
-getAccountLeadsBreakdown(
-  accountId: string,
-  metric: string,
-  loanType: string,
-  from: number = 0,
-  count: number = 10,
-  search: string = '',
-  filters: any = {},
-  employmentStatus: string = 'employed'
-): Observable<any> {
-  const params: any = { accountId, metric, loanType, from, count };
-  if (search) params['search'] = search;
+  getAccountLeadsBreakdown(
+    accountId: string,
+    metric: string,
+    loanType: string,
+    from: number = 0,
+    count: number = 10,
+    search: string = '',
+    filters: any = {},
+    employmentStatus: string = 'employed'
+  ): Observable<any> {
+    const params: any = { accountId, metric, loanType, from, count };
+    if (search) params['search'] = search;
 
-  // ✅ Always send employmentStatus — don't skip 'employed'
-  if (employmentStatus) {
-    params['employmentStatus'] = employmentStatus;
+    // ✅ Always send employmentStatus — don't skip 'employed'
+    if (employmentStatus) {
+      params['employmentStatus'] = employmentStatus;
+    }
+
+    if (filters) {
+      Object.keys(filters).forEach(key => {
+        if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+          params[key] = filters[key];
+        }
+      });
+    }
+    const url = 'accounts/leads-breakdown';
+    return this.serviceMeta.httpGet(url, null, params);
   }
+  // getAccountLeadsBreakdown(
+  //   accountId: string,
+  //   metric: string,
+  //   loanType: string,
+  //   from: number = 0,
+  //   count: number = 10,
+  //   search: string = '',
+  //   filters: any = {},
+  //   employmentStatus: string = 'employed'   // ← ADD THIS
+  // ): Observable<any> {
+  //   const params: any = { accountId, metric, loanType, from, count };
+  //   if (search) params['search'] = search;
+  //   if (employmentStatus && employmentStatus !== 'employed') {
+  //     params['employmentStatus'] = employmentStatus;
+  //   }
+  //   if (filters) {
+  //     Object.keys(filters).forEach(key => {
+  //       if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+  //         params[key] = filters[key];
+  //       }
+  //     });
+  //   }
+  //   const url = 'accounts/leads-breakdown';
+  //   return this.serviceMeta.httpGet(url, null, params);
+  // }
+  // getAccountLeadsBreakdown(
+  //   accountId: string,
+  //   metric: string,
+  //   loanType: string,
+  //   from: number = 0,
+  //   count: number = 10,
+  //   search: string = '',
+  //   filters: any = {},
+  //   employmentStatus: string = 'all'  
+  // ): Observable<any> {
 
-  if (filters) {
+  //   const params: any = { accountId, metric, loanType, from, count };
+
+  //   if (search) {
+  //     params['search'] = search;
+  //   }
+
+  //   // ✅ Spread active filters (status-eq, latest_plan_name-eq, fromDate, toDate etc.)
+  //   if (filters) {
+  //     Object.keys(filters).forEach(key => {
+  //       if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+  //         params[key] = filters[key];
+  //       }
+  //     });
+  //   }
+
+  //   const url = 'accounts/leads-breakdown';
+  //   return this.serviceMeta.httpGet(url, null, params);
+  // }
+  // getLendersBreakdown(
+  //   from: number = 0,
+  //   count: number = 10,
+  //   search: string = '',
+
+  // ): Observable<any> {
+  //   const params: any = { from, count };
+  //   if (search) params['search'] = search;
+  //   const url = 'accounts/lenders-breakdown';
+  //   return this.serviceMeta.httpGet(url, null, params);
+  // }
+
+  getLendersBreakdown(
+    from: number = 0,
+    count: number = 10,
+    search: string = '',
+    filters: any = {}
+  ): Observable<any> {
+
+    const params: any = { from, count };
+
+    if (search) params['search'] = search;
+
+    // ✅ Add filters
     Object.keys(filters).forEach(key => {
-      if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
-        params[key] = filters[key];
-      }
+      params[key] = filters[key];
     });
+
+    return this.serviceMeta.httpGet('accounts/lenders-breakdown', null, params);
   }
-  const url = 'accounts/leads-breakdown';
-  return this.serviceMeta.httpGet(url, null, params);
-}
-// getAccountLeadsBreakdown(
-//   accountId: string,
-//   metric: string,
-//   loanType: string,
-//   from: number = 0,
-//   count: number = 10,
-//   search: string = '',
-//   filters: any = {},
-//   employmentStatus: string = 'employed'   // ← ADD THIS
-// ): Observable<any> {
-//   const params: any = { accountId, metric, loanType, from, count };
-//   if (search) params['search'] = search;
-//   if (employmentStatus && employmentStatus !== 'employed') {
-//     params['employmentStatus'] = employmentStatus;
-//   }
-//   if (filters) {
-//     Object.keys(filters).forEach(key => {
-//       if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
-//         params[key] = filters[key];
-//       }
-//     });
-//   }
-//   const url = 'accounts/leads-breakdown';
-//   return this.serviceMeta.httpGet(url, null, params);
-// }
-// getAccountLeadsBreakdown(
-//   accountId: string,
-//   metric: string,
-//   loanType: string,
-//   from: number = 0,
-//   count: number = 10,
-//   search: string = '',
-//   filters: any = {},
-//   employmentStatus: string = 'all'  
-// ): Observable<any> {
- 
-//   const params: any = { accountId, metric, loanType, from, count };
- 
-//   if (search) {
-//     params['search'] = search;
-//   }
- 
-//   // ✅ Spread active filters (status-eq, latest_plan_name-eq, fromDate, toDate etc.)
-//   if (filters) {
-//     Object.keys(filters).forEach(key => {
-//       if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
-//         params[key] = filters[key];
-//       }
-//     });
-//   }
- 
-//   const url = 'accounts/leads-breakdown';
-//   return this.serviceMeta.httpGet(url, null, params);
-// }
-// getLendersBreakdown(
-//   from: number = 0,
-//   count: number = 10,
-//   search: string = '',
-  
-// ): Observable<any> {
-//   const params: any = { from, count };
-//   if (search) params['search'] = search;
-//   const url = 'accounts/lenders-breakdown';
-//   return this.serviceMeta.httpGet(url, null, params);
-// }
 
-getLendersBreakdown(
-  from: number = 0,
-  count: number = 10,
-  search: string = '',
-  filters: any = {}
-): Observable<any> {
+  getUsersBreakdown(
+    from: number = 0,
+    count: number = 10,
+    search: string = '',
+    filters: any = {}
+  ): Observable<any> {
+    const params: any = { from, count };
+    if (search) params['search'] = search;
+    Object.keys(filters).forEach(key => {
+      params[key] = filters[key];
+    });
+    return this.serviceMeta.httpGet('accounts/users-breakdown', null, params);
+  }
 
-  const params: any = { from, count };
+  // ── Bookings ──────────────────────────────────────────────────────────────────
+  getDemoBookings(filter = {}) {
+    return this.serviceMeta.httpGet('bookings', null, filter);
+  }
+  getDemoBookingsCount(filter = {}) {
+    return this.serviceMeta.httpGet('bookings/total', null, filter);
+  }
+  updateBookingStatus(id: number, body: any) {
+    return this.serviceMeta.httpPut(`bookings/${id}/status`, body);
+  }
+  getSlots(date: string) {
+    return this.serviceMeta.httpGet('slots/available', null, { date }); // ← updated
+  }
 
-  if (search) params['search'] = search;
+  // ── Slot Settings ─────────────────────────────────────────────────────────────
+  getSlotSettings(filter = {}) {
+    return this.serviceMeta.httpGet('slots/settings', null, filter);    // ← updated
+  }
+  getSlotSettingsCount(filter = {}) {
+    return this.serviceMeta.httpGet('slots/settings/total', null, filter); // ← updated
+  }
+  createSlotSetting(data: any) {
+    return this.serviceMeta.httpPost('slots/settings', data);           // ← updated
+  }
+  updateSlotSetting(slotId: number, data: any) {
+    return this.serviceMeta.httpPut('slots/settings/' + slotId, data); // ← updated
+  }
+  changeSlotSettingStatus(slotId: number, statusId: number) {
+    return this.serviceMeta.httpPut(`slots/settings/${slotId}/changestatus/${statusId}`, null); // ← updated
+  }
 
-  // ✅ Add filters
-  Object.keys(filters).forEach(key => {
-    params[key] = filters[key];
-  });
+  uploadWhatsappMedia(file: File): Observable<{ success: boolean; url: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.serviceMeta.httpPost('campaign/upload-media', formData) as any;
+  }
 
-  return this.serviceMeta.httpGet('accounts/lenders-breakdown', null, params);
-}
+  // ── Slot Config ───────────────────────────────────────────────────────────────
+  getSlotConfig() {
+    return this.serviceMeta.httpGet('slots/config');                    // ← updated
+  }
 
-getUsersBreakdown(
-  from: number = 0,
-  count: number = 10,
-  search: string = '',
-  filters: any = {}
-): Observable<any> {
-  const params: any = { from, count };
-  if (search) params['search'] = search;
-  Object.keys(filters).forEach(key => {
-    params[key] = filters[key];
-  });
-  return this.serviceMeta.httpGet('accounts/users-breakdown', null, params);
-}
+  updateSlotConfig(data: { max_users_per_slot: number }) {
+    return this.serviceMeta.httpPut('slots/config', data);             // ← updated
+  }
 
-// ── Bookings ──────────────────────────────────────────────────────────────────
-getDemoBookings(filter = {}) {
-  return this.serviceMeta.httpGet('bookings', null, filter);
-}
-getDemoBookingsCount(filter = {}) {
-  return this.serviceMeta.httpGet('bookings/total', null, filter);
-}
-updateBookingStatus(id: number, body: any) {
-  return this.serviceMeta.httpPut(`bookings/${id}/status`, body);
-}
-getSlots(date: string) {
-  return this.serviceMeta.httpGet('slots/available', null, { date }); // ← updated
-}
+  getCampaignHistory(filter: any = {}): Observable<any> {
+    const url = 'campaign/history';
+    return this.serviceMeta.httpGet(url, null, filter);
+  }
 
-// ── Slot Settings ─────────────────────────────────────────────────────────────
-getSlotSettings(filter = {}) {
-  return this.serviceMeta.httpGet('slots/settings', null, filter);    // ← updated
-}
-getSlotSettingsCount(filter = {}) {
-  return this.serviceMeta.httpGet('slots/settings/total', null, filter); // ← updated
-}
-createSlotSetting(data: any) {
-  return this.serviceMeta.httpPost('slots/settings', data);           // ← updated
-}
-updateSlotSetting(slotId: number, data: any) {
-  return this.serviceMeta.httpPut('slots/settings/' + slotId, data); // ← updated
-}
-changeSlotSettingStatus(slotId: number, statusId: number) {
-  return this.serviceMeta.httpPut(`slots/settings/${slotId}/changestatus/${statusId}`, null); // ← updated
-}
+  getCampaignHistoryCount(filter: any = {}): Observable<any> {
+    const url = 'campaign/history/total';
+    return this.serviceMeta.httpGet(url, null, filter);
+  }
 
-uploadWhatsappMedia(file: File): Observable<{ success: boolean; url: string }> {
-  const formData = new FormData();
-  formData.append('file', file);
-  return this.serviceMeta.httpPost('campaign/upload-media', formData) as any;
-}
+  getCampaignHistoryById(id: number): Observable<any> {
+    const url = `campaign/history/${id}`;
+    return this.serviceMeta.httpGet(url);
+  }
 
-// ── Slot Config ───────────────────────────────────────────────────────────────
-getSlotConfig() {
-  return this.serviceMeta.httpGet('slots/config');                    // ← updated
-}
+  getSubscriptionsBreakdown(
+    from: number = 0,
+    count: number = 10,
+    search: string = '',
+    filters: any = {}
+  ): Observable<any> {
+    const params: any = { from, count };
+    if (search) params['search'] = search;
+    Object.keys(filters).forEach(key => {
+      params[key] = filters[key];
+    });
+    return this.serviceMeta.httpGet('accounts/subscriptions-breakdown', null, params);
+  }
 
-updateSlotConfig(data: { max_users_per_slot: number }) {
-  return this.serviceMeta.httpPut('slots/config', data);             // ← updated
-}
+  // getWalletTransactionsBreakdown(
+  //   from: number = 0,
+  //   count: number = 10,
+  //   search: string = '',
+  //   filters: any = {}
+  // ): Observable<any> {
+  //   const params: any = { from, count };
+  //   if (search) params['search'] = search;
+  //   Object.keys(filters).forEach(key => {
+  //     params[key] = filters[key];
+  //   });
+  //   return this.serviceMeta.httpGet('accounts/wallet-transactions-breakdown', null, params);
+  // }
+  getWalletTransactionsBreakdown(params: any): Observable<any> {
+    return this.serviceMeta.httpGet('accounts/wallet-transactions-breakdown', null, params);
+  }
 
-getCampaignHistory(filter: any = {}): Observable<any> {
-  const url = 'campaign/history';
-  return this.serviceMeta.httpGet(url, null, filter);
-}
+  addWalletBalance(accountId: string, amount: number): Observable<any> {
+    const url = 'credit-reports-api/wallet/add-balance';
+    return this.serviceMeta.httpPost(url, { accountId, amount });
+  }
 
-getCampaignHistoryCount(filter: any = {}): Observable<any> {
-  const url = 'campaign/history/total';
-  return this.serviceMeta.httpGet(url, null, filter);
-}
+  createBooking(data: { phone: string; date: string; time: string; notes?: string; assign_to?: any }) {
+    return this.serviceMeta.httpPost('bookings/book-demo', data);
+  }
 
-getCampaignHistoryById(id: number): Observable<any> {
-  const url = `campaign/history/${id}`;
-  return this.serviceMeta.httpGet(url);
-}
+  getBsaReportsBreakdown(params: any): Observable<any> {
+    return this.serviceMeta.httpGet('accounts/bsa-reports-breakdown', null, params);
+  }
+  markAsLoanEnquiry(id: number): Observable<any> {
+    const url = `social-media-leads/${id}/loan-enquiry`;
+    return this.serviceMeta.httpPut(url, {});
+  }
+  toggleLoanEnquiry(id: number): Observable<any> {
+    const url = `social-media-leads/${id}/loan-enquiry`;
+    return this.serviceMeta.httpPut(url, {});
+  }
 
-getSubscriptionsBreakdown(
-  from: number = 0,
-  count: number = 10,
-  search: string = '',
-  filters: any = {}
-): Observable<any> {
-  const params: any = { from, count };
-  if (search) params['search'] = search;
-  Object.keys(filters).forEach(key => {
-    params[key] = filters[key];
-  });
-  return this.serviceMeta.httpGet('accounts/subscriptions-breakdown', null, params);
-}
+  updateLeadAssign(id: number, assignTo: any): Observable<any> {
+    const url = `social-media-leads/${id}/assign`;
+    return this.serviceMeta.httpPut(url, { assign_to: assignTo });
+  }
 
-// getWalletTransactionsBreakdown(
-//   from: number = 0,
-//   count: number = 10,
-//   search: string = '',
-//   filters: any = {}
-// ): Observable<any> {
-//   const params: any = { from, count };
-//   if (search) params['search'] = search;
-//   Object.keys(filters).forEach(key => {
-//     params[key] = filters[key];
-//   });
-//   return this.serviceMeta.httpGet('accounts/wallet-transactions-breakdown', null, params);
-// }
-getWalletTransactionsBreakdown(params: any): Observable<any> {
-  return this.serviceMeta.httpGet('accounts/wallet-transactions-breakdown', null, params);
-}
+  updateAccountAssign(accountId: string, assignTo: any): Observable<any> {
+    const url = `accounts/${accountId}/assign`;
+    return this.serviceMeta.httpPut(url, { assign_to: assignTo });
+  }
+  bulkAssignSocialMediaLeads(data: any): Observable<any> {
+    const url = 'social-media-leads/bulk-assign';
+    return this.serviceMeta.httpPut(url, data);
+  } //for bulk assigning social media leads
+  submitWhatsappTemplate(id: number) {
+    const url = 'whatsapp-templates/submit/' + id;
+    return this.serviceMeta.httpPost(url, {});
+  }
 
-addWalletBalance(accountId: string, amount: number): Observable<any> {
-  const url = 'credit-reports-api/wallet/add-balance';
-  return this.serviceMeta.httpPost(url, { accountId, amount });
-}
+  // ── Payment Links ─────────────────────────────────────────────────────
 
-createBooking(data: { phone: string; date: string; time: string; notes?: string; assign_to?: any }) {
-  return this.serviceMeta.httpPost('bookings/book-demo', data);
-}
+  getPaymentLinks(filter: any = {}) {
+    return this.serviceMeta.httpGet('payment-links', null, filter).pipe(
+      map((res: any) => res?.data || res || [])
+    );
+  }
 
-getBsaReportsBreakdown(params: any): Observable<any> {
-  return this.serviceMeta.httpGet('accounts/bsa-reports-breakdown', null, params);
-}
-markAsLoanEnquiry(id: number): Observable<any> {
-  const url = `social-media-leads/${id}/loan-enquiry`;
-  return this.serviceMeta.httpPut(url, {});
-}
-toggleLoanEnquiry(id: number): Observable<any> {
-  const url = `social-media-leads/${id}/loan-enquiry`;
-  return this.serviceMeta.httpPut(url, {});
-}
+  getPaymentLinksCount(filter: any = {}) {
+    return this.serviceMeta.httpGet('payment-links/total', null, filter).pipe(
+      map((res: any) => (typeof res === 'object' ? res?.data ?? res?.count ?? 0 : res))
+    );
+  }
 
-updateLeadAssign(id: number, assignTo: any): Observable<any> {
-  const url = `social-media-leads/${id}/assign`;
-  return this.serviceMeta.httpPut(url, { assign_to: assignTo });
-}
+  getPaymentLinkById(linkId: string) {
+    return this.serviceMeta.httpGet('payment-links/' + linkId).pipe(
+      map((res: any) => res?.data || res)
+    );
+  }
 
-updateAccountAssign(accountId: string, assignTo: any): Observable<any> {
-  const url = `accounts/${accountId}/assign`;
-  return this.serviceMeta.httpPut(url, { assign_to: assignTo });
-}
-bulkAssignSocialMediaLeads(data: any): Observable<any> {
-  const url = 'social-media-leads/bulk-assign';
-  return this.serviceMeta.httpPut(url, data);
-} //for bulk assigning social media leads
-submitWhatsappTemplate(id: number) {
-  const url = 'whatsapp-templates/submit/' + id;
-  return this.serviceMeta.httpPost(url, {});
-}
-
-// ── Payment Links ─────────────────────────────────────────────────────
-
-getPaymentLinks(filter: any = {}) {
-  return this.serviceMeta.httpGet('payment-links', null, filter).pipe(
-    map((res: any) => res?.data || res || [])
-  );
-}
-
-getPaymentLinksCount(filter: any = {}) {
-  return this.serviceMeta.httpGet('payment-links/total', null, filter).pipe(
-    map((res: any) => (typeof res === 'object' ? res?.data ?? res?.count ?? 0 : res))
-  );
-}
-
-getPaymentLinkById(linkId: string) {
-  return this.serviceMeta.httpGet('payment-links/' + linkId).pipe(
-    map((res: any) => res?.data || res)
-  );
-}
- 
   /**
    * Create a new Razorpay Payment Link.
    * Payload shape matches Razorpay's /v1/payment_links API.
@@ -1462,12 +1479,12 @@ getPaymentLinkById(linkId: string) {
   }) {
     return this.serviceMeta.httpPost('payment-links', data);
   }
- 
+
   /** Cancel a payment link (sets status → cancelled) */
   cancelPaymentLink(linkId: string) {
     return this.serviceMeta.httpPost(`payment-links/${linkId}/cancel`, {});
   }
- 
+
   /** Resend SMS / Email notification to customer */
   resendPaymentLinkNotification(linkId: string) {
     return this.serviceMeta.httpPost(`payment-links/${linkId}/notify`, {});

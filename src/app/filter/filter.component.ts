@@ -91,26 +91,33 @@ export class FilterComponent {
           delete this.filter['phoneNo-like'];
         }
       }
-      if (
-        Object.keys(this.showFilterIndication).length > 2 ||
-        (Object.keys(this.showFilterIndication).length == 1 &&
-          !(
-            this.showFilterIndication['apptStatus-eq'] ||
-            this.showFilterIndication['waitlistStatus-eq']
-          ))
-      ) {
-        this.showIndicationIcon = true;
-      } else {
-        if (
-          Object.keys(this.showFilterIndication).length == 2 &&
-          !this.showFilterIndication['from'] &&
-          !this.showFilterIndication['count']
-        ) {
-          this.showIndicationIcon = true;
-        } else {
-          this.showIndicationIcon = false;
-        }
-      }
+      // if (
+      //   Object.keys(this.showFilterIndication).length > 2 ||
+      //   (Object.keys(this.showFilterIndication).length == 1 &&
+      //     !(
+      //       this.showFilterIndication['apptStatus-eq'] ||
+      //       this.showFilterIndication['waitlistStatus-eq']
+      //     ))
+      // ) {
+      //   this.showIndicationIcon = true;
+      // } else {
+      //   if (
+      //     Object.keys(this.showFilterIndication).length == 2 &&
+      //     !this.showFilterIndication['from'] &&
+      //     !this.showFilterIndication['count']
+      //   ) {
+      //     this.showIndicationIcon = true;
+      //   } else {
+      //     this.showIndicationIcon = false;
+      //   }
+      // }
+      const filters = { ...this.showFilterIndication };
+
+      delete filters['from'];
+      delete filters['count'];
+      delete filters['assign_to-eq'];
+
+      this.showIndicationIcon = Object.keys(filters).length > 0;
     }
   }
 
@@ -146,7 +153,7 @@ export class FilterComponent {
                 this.filter[data.field + '-' + data.filterType]
               ).format('YYYY-MM-DD');
             } else {
-              if ((data.field == 'createdOn' || data.field == 'updatedOn' ) && data.filterType == 'lte') {
+              if ((data.field == 'createdOn' || data.field == 'updatedOn') && data.filterType == 'lte') {
                 api_filter[data.field + '-' + data.filterType] = this.moment(
                   this.filter[data.field + '-' + data.filterType]
                 )

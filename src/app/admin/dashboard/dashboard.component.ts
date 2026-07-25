@@ -93,20 +93,22 @@ export class DashboardComponent implements OnInit {
   accountsCount: any = 0;
   selectedFollowupDate: any = new Date(); // default today
   selectedCreatedDate: any = new Date();
-  todayAccounts: any= [];
+  todayAccounts: any = [];
   createdAccounts: any = [];
-  todayContacts: any= [];
+  todayContacts: any = [];
   todayContactsCount: number = 0;
   selectedSubmittedDate: any = new Date();
   todaySubscribers: any = [];
   todaySubscribersCount: number = 0;
   selectedSubscribedDate: any = new Date(); // today
-  todayExpired: any[]       = [];
+  todayExpired: any[] = [];
   todayExpiredCount: number = 0;
-  todaySubscription: any[]       = [];
+  todaySubscription: any[] = [];
+  todayCallbacks: any[] = [];
+  todayCallbacksCount: number = 0;
   todaySubscriptionCount: number = 0;
-expiredLoading: boolean   = false;
-subscriptionLoading: boolean = false;
+  expiredLoading: boolean = false;
+  subscriptionLoading: boolean = false;
   dateOptions = [
     { label: 'Total', value: 'total' },
     { label: 'Today', value: 'today' },
@@ -114,7 +116,7 @@ subscriptionLoading: boolean = false;
     { label: 'Previous Month', value: 'previousMonth' },
     { label: 'Last 7 Days', value: 'last7' },
     { label: 'Custom Range', value: 'custom' },
-    { label: 'Today Expired',     value: 'expired'     },
+    { label: 'Today Expired', value: 'expired' },
   ];
 
   selectedDateOption: string = 'thisMonth';
@@ -124,10 +126,10 @@ subscriptionLoading: boolean = false;
     { label: 'Today Contacts', value: 'contacts' },
     { label: 'Today Subscribers', value: 'subscribers' },
     { label: 'Today Subscriptions', value: 'subscription' },
-    { label: 'Today Expired',     value: 'expired'     },
-    { label: 'Today Renewals',  value: 'renewals'  },
-    { label: 'Today Upgraded',  value: 'upgraded'  },
-    { label: 'Today Degraded',  value: 'degraded'  },
+    { label: 'Today Expired', value: 'expired' },
+    { label: 'Today Renewals', value: 'renewals' },
+    { label: 'Today Upgraded', value: 'upgraded' },
+    { label: 'Today Degraded', value: 'degraded' },
   ]
   todayRenewals: any[] = [];
   todayRenewalsCount: number = 0;
@@ -155,6 +157,7 @@ subscriptionLoading: boolean = false;
     this.moment = this.dateTimeProcessor.getMoment();
   }
   ngOnInit(): void {
+
     this.currentMonth = this.getMonthName(0);
     this.previousMonth = this.getMonthName(1);
     this.twoMonthsAgo = this.getMonthName(2);
@@ -183,8 +186,19 @@ subscriptionLoading: boolean = false;
     this.loadCounts();
     this.onLazyLoadCreated({ first: 0, rows: 10 });
     this.loadTodayPlanChanges();
-  }
+    this.loadTodayCallbacks();
 
+  }
+  viewSocialMediaLead(event: any) {
+
+    const lead = event.data;
+
+    this.routingService.handleRoute(
+      'social-media-leads/view/' + lead.id,
+      null
+    );
+
+  }
   getMonthName(offset: number): string {
     return this.moment().subtract(offset, 'months').format('MMMYYYY');
   }
@@ -193,11 +207,11 @@ subscriptionLoading: boolean = false;
     this.routingService.handleRoute('leads/profile/' + event.data.id, null);
     // You can also open a dialog or navigate based on `event.data`
   }
-onTableChange(event: any): void {
-  if (event.value === 'expired' && this.todayExpired.length === 0) {
-    this.onLazyLoadTodayExpired({ first: 0, rows: 10 });
+  onTableChange(event: any): void {
+    if (event.value === 'expired' && this.todayExpired.length === 0) {
+      this.onLazyLoadTodayExpired({ first: 0, rows: 10 });
+    }
   }
-}
   // onLazyLoadData(event) {
   //   this.currentTableEvent = event;
   //   let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
@@ -213,238 +227,243 @@ onTableChange(event: any): void {
   // }
 
   onLazyLoadData(event) {
-  this.currentTableEvent = event;
-  let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
+    this.currentTableEvent = event;
+    let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
 
-  if (this.selectedFollowupDate) {
-    const start = this.moment(this.selectedFollowupDate);
-    const end = this.moment(this.selectedFollowupDate).add(1, 'day');
+    if (this.selectedFollowupDate) {
+      const start = this.moment(this.selectedFollowupDate);
+      const end = this.moment(this.selectedFollowupDate).add(1, 'day');
 
-    api_filter['followupDate-gte'] = start.format('YYYY-MM-DD');
-    api_filter['followupDate-lte'] = end.format('YYYY-MM-DD');
+      api_filter['followupDate-gte'] = start.format('YYYY-MM-DD');
+      api_filter['followupDate-lte'] = end.format('YYYY-MM-DD');
+    }
+
+    console.log('FOLLOWUP API FILTER:', api_filter); // ✅ console check
+    this.loadFollowupAccounts(api_filter);
+  }
+  loadTodayCallbacks() {
+    this.leadsService.getTodaySocialMediaCallbacks().subscribe((data: any) => {
+      this.todayCallbacks = data;
+      this.todayCallbacksCount = data.length;
+    });
+  }
+  // onLazyLoadCreated(event) {
+  //   this.currentTableEvent = event;
+  //   let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
+
+  //   // TEST DATE (10 Feb 2026 IST)
+  //   const testDate = this.moment('2026-02-10', 'YYYY-MM-DD');
+
+  //   // IST full day
+  //   const startIST = testDate.clone().startOf('day');
+  //   const endIST = testDate.clone().endOf('day');
+
+  //   // Convert IST → UTC
+  //   const startUTC = startIST.clone().utc();
+  //   const endUTC = endIST.clone().utc();
+
+  //   console.log('UTC Start:', startUTC.format());
+  //   console.log('UTC End:', endUTC.format());
+
+  //   api_filter['createdOn-gte'] = startUTC.format();
+  //   api_filter['createdOn-lte'] = endUTC.format();
+
+  //   this.loadCreatedAccounts(api_filter);
+  // }
+
+  onLazyLoadCreated(event) {
+    this.currentTableEvent = event;
+    let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
+
+    // Today in IST
+    const startIST = this.moment().startOf('day');
+    const endIST = this.moment().endOf('day');
+
+    // Convert IST → UTC (because DB is UTC)
+    const startUTC = startIST.clone().utc();
+    const endUTC = endIST.clone().utc();
+
+    api_filter['createdOn-gte'] = startUTC.format();
+    api_filter['createdOn-lte'] = endUTC.format();
+
+    this.loadCreatedAccounts(api_filter);
+  }
+  loadFollowupAccounts(api_filter) {
+    this.fallowupLoading = true;
+
+    this.leadsService.getAccountsCount(api_filter).subscribe(
+      (countRes: any) => {
+        this.accountsCount = Number(countRes) || 0;
+      }
+    );
+
+    this.leadsService.getAccounts(api_filter).subscribe(
+      (res) => {
+        this.accounts = res;
+        this.fallowupLoading = false;
+      },
+      (err) => {
+        this.toastService.showError(err);
+        this.fallowupLoading = false;
+      }
+    );
   }
 
-  console.log('FOLLOWUP API FILTER:', api_filter); // ✅ console check
-  this.loadFollowupAccounts(api_filter);
-}
+  // loadFollowupAccounts(api_filter) {
+  //   this.apiLoading = true;
 
-// onLazyLoadCreated(event) {
-//   this.currentTableEvent = event;
-//   let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
+  //   this.leadsService.getAccounts(api_filter).subscribe(
+  //     (res) => {
+  //       console.log('FOLLOWUP DATA:', res); // ✅ confirm data
+  //       this.accounts = res;
+  //       this.apiLoading = false;
+  //     },
+  //     (err) => {
+  //       this.toastService.showError(err);
+  //       this.apiLoading = false;
+  //     }
+  //   );
+  // }
+  loadCreatedAccounts(api_filter) {
+    this.apiLoading = true;
 
-//   // TEST DATE (10 Feb 2026 IST)
-//   const testDate = this.moment('2026-02-10', 'YYYY-MM-DD');
+    this.leadsService.getAccountsCount(api_filter).subscribe(
+      (countRes: any) => {
+        this.createdAccountsCount = Number(countRes) || 0;
+      }
+    );
 
-//   // IST full day
-//   const startIST = testDate.clone().startOf('day');
-//   const endIST = testDate.clone().endOf('day');
-
-//   // Convert IST → UTC
-//   const startUTC = startIST.clone().utc();
-//   const endUTC = endIST.clone().utc();
-
-//   console.log('UTC Start:', startUTC.format());
-//   console.log('UTC End:', endUTC.format());
-
-//   api_filter['createdOn-gte'] = startUTC.format();
-//   api_filter['createdOn-lte'] = endUTC.format();
-
-//   this.loadCreatedAccounts(api_filter);
-// }
-
-onLazyLoadCreated(event) {
-  this.currentTableEvent = event;
-  let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
-
-  // Today in IST
-  const startIST = this.moment().startOf('day');
-  const endIST = this.moment().endOf('day');
-
-  // Convert IST → UTC (because DB is UTC)
-  const startUTC = startIST.clone().utc();
-  const endUTC = endIST.clone().utc();
-
-  api_filter['createdOn-gte'] = startUTC.format();
-  api_filter['createdOn-lte'] = endUTC.format();
-
-  this.loadCreatedAccounts(api_filter);
-}
-loadFollowupAccounts(api_filter) {
-  this.fallowupLoading = true;
-
-  this.leadsService.getAccountsCount(api_filter).subscribe(
-    (countRes: any) => {
-      this.accountsCount = Number(countRes) || 0;
-    }
-  );
-
-  this.leadsService.getAccounts(api_filter).subscribe(
-    (res) => {
-      this.accounts = res;
-      this.fallowupLoading = false;
-    },
-    (err) => {
-      this.toastService.showError(err);
-      this.fallowupLoading = false;
-    }
-  );
-}
-
-// loadFollowupAccounts(api_filter) {
-//   this.apiLoading = true;
-
-//   this.leadsService.getAccounts(api_filter).subscribe(
-//     (res) => {
-//       console.log('FOLLOWUP DATA:', res); // ✅ confirm data
-//       this.accounts = res;
-//       this.apiLoading = false;
-//     },
-//     (err) => {
-//       this.toastService.showError(err);
-//       this.apiLoading = false;
-//     }
-//   );
-// }
-loadCreatedAccounts(api_filter) {
-  this.apiLoading = true;
-
-  this.leadsService.getAccountsCount(api_filter).subscribe(
-    (countRes: any) => {
-      this.createdAccountsCount = Number(countRes) || 0;
-    }
-  );
-
-  this.leadsService.getAccounts(api_filter).subscribe(
-    (res) => {
-      this.createdAccounts = res;
-      this.apiLoading = false;
-    },
-    (err) => {
-      this.toastService.showError(err);
-      this.apiLoading = false;
-    }
-  );
-}
-
-// loadCreatedAccounts(api_filter) {
-//   this.apiLoading = true;
-
-//   this.leadsService.getAccounts(api_filter).subscribe(
-//     (res) => {
-//       console.log('CREATED DATA:', res); // ✅ FIRST data check
-//       this.createdAccounts = res;       // ✅ FIX
-//       this.apiLoading = false;
-//     },
-//     (err) => {
-//       this.toastService.showError(err);
-//       this.apiLoading = false;
-//     }
-//   );
-// }
-onLazyLoadTodayContacts(event) {
-  let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
-
-  if (this.selectedSubmittedDate) {
-    const start = this.moment(this.selectedSubmittedDate);
-    const end = this.moment(this.selectedSubmittedDate).add(1, 'day');
-
-    api_filter['submitted_on-gte'] = start.format('YYYY-MM-DD');
-    api_filter['submitted_on-lte'] = end.format('YYYY-MM-DD');
+    this.leadsService.getAccounts(api_filter).subscribe(
+      (res) => {
+        this.createdAccounts = res;
+        this.apiLoading = false;
+      },
+      (err) => {
+        this.toastService.showError(err);
+        this.apiLoading = false;
+      }
+    );
   }
 
-  console.log('TODAY CONTACTS FILTER:', api_filter); // ✅ console check
-  this.loadTodayContacts(api_filter);
-}
-loadTodayContacts(api_filter) {
-  this.apiLoading = true;
+  // loadCreatedAccounts(api_filter) {
+  //   this.apiLoading = true;
 
-  // ✅ COUNT API
-  this.leadsService.getContactsCount(api_filter).subscribe(
-    (countRes: any) => {
-      this.todayContactsCount = Number(countRes) || 0;
+  //   this.leadsService.getAccounts(api_filter).subscribe(
+  //     (res) => {
+  //       console.log('CREATED DATA:', res); // ✅ FIRST data check
+  //       this.createdAccounts = res;       // ✅ FIX
+  //       this.apiLoading = false;
+  //     },
+  //     (err) => {
+  //       this.toastService.showError(err);
+  //       this.apiLoading = false;
+  //     }
+  //   );
+  // }
+  onLazyLoadTodayContacts(event) {
+    let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
+
+    if (this.selectedSubmittedDate) {
+      const start = this.moment(this.selectedSubmittedDate);
+      const end = this.moment(this.selectedSubmittedDate).add(1, 'day');
+
+      api_filter['submitted_on-gte'] = start.format('YYYY-MM-DD');
+      api_filter['submitted_on-lte'] = end.format('YYYY-MM-DD');
     }
-  );
 
-  // ✅ DATA API
-  this.leadsService.getContacts(api_filter).subscribe(
-    (res) => {
-      this.todayContacts = res;
-      this.apiLoading = false;
-    },
-    (err) => {
-      this.toastService.showError(err);
-      this.apiLoading = false;
-    }
-  );
-}
+    console.log('TODAY CONTACTS FILTER:', api_filter); // ✅ console check
+    this.loadTodayContacts(api_filter);
+  }
+  loadTodayContacts(api_filter) {
+    this.apiLoading = true;
 
-// loadTodayContacts(api_filter) {
-//   this.apiLoading = true;
+    // ✅ COUNT API
+    this.leadsService.getContactsCount(api_filter).subscribe(
+      (countRes: any) => {
+        this.todayContactsCount = Number(countRes) || 0;
+      }
+    );
 
-//   this.leadsService.getContacts(api_filter).subscribe(
-//     (res) => {
-//       console.log('TODAY CONTACTS DATA:', res); // ✅ data check
-//       this.todayContacts = res;
-//       this.apiLoading = false;
-//     },
-//     (err) => {
-//       this.toastService.showError(err);
-//       this.apiLoading = false;
-//     }
-//   );
-// }
-onLazyLoadTodaySubscribers(event) {
-  let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
-
-  if (this.selectedSubscribedDate) {
-    const start = this.moment(this.selectedSubscribedDate);
-    const end = this.moment(this.selectedSubscribedDate).add(1, 'day');
-
-    api_filter['subscribed_on-gte'] = start.format('YYYY-MM-DD');
-    api_filter['subscribed_on-lte'] = end.format('YYYY-MM-DD');
+    // ✅ DATA API
+    this.leadsService.getContacts(api_filter).subscribe(
+      (res) => {
+        this.todayContacts = res;
+        this.apiLoading = false;
+      },
+      (err) => {
+        this.toastService.showError(err);
+        this.apiLoading = false;
+      }
+    );
   }
 
-  console.log('TODAY SUBSCRIBERS FILTER:', api_filter); // ✅ debug
-  this.loadTodaySubscribers(api_filter);
-}
-loadTodaySubscribers(api_filter) {
-  this.apiLoading = true;
+  // loadTodayContacts(api_filter) {
+  //   this.apiLoading = true;
 
-  // ✅ COUNT API
-  this.leadsService.getSubscibersCount(api_filter).subscribe(
-    (countRes: any) => {
-      this.todaySubscribersCount = Number(countRes) || 0;
+  //   this.leadsService.getContacts(api_filter).subscribe(
+  //     (res) => {
+  //       console.log('TODAY CONTACTS DATA:', res); // ✅ data check
+  //       this.todayContacts = res;
+  //       this.apiLoading = false;
+  //     },
+  //     (err) => {
+  //       this.toastService.showError(err);
+  //       this.apiLoading = false;
+  //     }
+  //   );
+  // }
+  onLazyLoadTodaySubscribers(event) {
+    let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
+
+    if (this.selectedSubscribedDate) {
+      const start = this.moment(this.selectedSubscribedDate);
+      const end = this.moment(this.selectedSubscribedDate).add(1, 'day');
+
+      api_filter['subscribed_on-gte'] = start.format('YYYY-MM-DD');
+      api_filter['subscribed_on-lte'] = end.format('YYYY-MM-DD');
     }
-  );
 
-  // ✅ DATA API
-  this.leadsService.getsubscribers(api_filter).subscribe(
-    (res) => {
-      this.todaySubscribers = res;
-      this.apiLoading = false;
-    },
-    (err) => {
-      this.toastService.showError(err);
-      this.apiLoading = false;
-    }
-  );
-}
+    console.log('TODAY SUBSCRIBERS FILTER:', api_filter); // ✅ debug
+    this.loadTodaySubscribers(api_filter);
+  }
+  loadTodaySubscribers(api_filter) {
+    this.apiLoading = true;
 
-// loadTodaySubscribers(api_filter) {
-//   this.apiLoading = true;
+    // ✅ COUNT API
+    this.leadsService.getSubscibersCount(api_filter).subscribe(
+      (countRes: any) => {
+        this.todaySubscribersCount = Number(countRes) || 0;
+      }
+    );
 
-//   this.leadsService.getsubscribers(api_filter).subscribe(
-//     (res) => {
-//       console.log('TODAY SUBSCRIBERS DATA:', res); // ✅ confirm data
-//       this.todaySubscribers = res;
-//       this.apiLoading = false;
-//     },
-//     (err) => {
-//       this.toastService.showError(err);
-//       this.apiLoading = false;
-//     }
-//   );
-// }
+    // ✅ DATA API
+    this.leadsService.getsubscribers(api_filter).subscribe(
+      (res) => {
+        this.todaySubscribers = res;
+        this.apiLoading = false;
+      },
+      (err) => {
+        this.toastService.showError(err);
+        this.apiLoading = false;
+      }
+    );
+  }
+
+  // loadTodaySubscribers(api_filter) {
+  //   this.apiLoading = true;
+
+  //   this.leadsService.getsubscribers(api_filter).subscribe(
+  //     (res) => {
+  //       console.log('TODAY SUBSCRIBERS DATA:', res); // ✅ confirm data
+  //       this.todaySubscribers = res;
+  //       this.apiLoading = false;
+  //     },
+  //     (err) => {
+  //       this.toastService.showError(err);
+  //       this.apiLoading = false;
+  //     }
+  //   );
+  // }
 
 
   getTeamCount(filter) {
@@ -476,7 +495,7 @@ loadTodaySubscribers(api_filter) {
     );
   }
   loadAccounts(api_filter) {
-    
+
     // console.log(event);
 
     api_filter = Object.assign(
@@ -504,14 +523,14 @@ loadTodaySubscribers(api_filter) {
         backgroundColor: '#EBF3FE',
         color: '#EE7846',
         icon: '../../../assets/images/icons/leads.svg',
-        apiCall: () => this.leadsService.getAccountsCount({"status-eq": 1}), // Only Active Accounts
+        apiCall: () => this.leadsService.getAccountsCount({ "status-eq": 1 }), // Only Active Accounts
       },
       {
         name: 'subscription-plans',
         displayName: 'Plans',
         count: 0,
         routerLink: 'subscription-plans',
-        condition: true,
+        condition: this.userDetails.id == 1, // Only show for Super Admin
         backgroundColor: '#FBF2EF',
         color: '#FFC001',
         icon: '../../../assets/images/icons/files.svg',
@@ -522,7 +541,7 @@ loadTodaySubscribers(api_filter) {
         displayName: 'Contacts',
         count: 0,
         routerLink: 'contact-submissions',
-        condition: true,
+        condition: this.userDetails.id == 1,
         backgroundColor: '#EBF3FE',
         color: '#EE7846',
         icon: '../../../assets/images/icons/leads.svg',
@@ -577,284 +596,284 @@ loadTodaySubscribers(api_filter) {
   }
 
   onLazyLoadTodayExpired(event: any): void {
-  let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
- 
-  // Filter subscriptions whose end_date falls on TODAY
-  const startIST = this.moment().startOf('day');
-  const endIST   = this.moment().endOf('day');
- 
-  api_filter['end_date-gte'] = startIST.format('YYYY-MM-DD');
-  api_filter['end_date-lte'] = endIST.format('YYYY-MM-DD');
-  api_filter['status-eq']    = 'Active'; 
- 
-  this.loadTodayExpired(api_filter);
-}
+    let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
 
- onLazyLoadTodaySubscription(event: any): void {
-  let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
- 
-  // Filter subscriptions whose end_date falls on TODAY
-  const startIST = this.moment().startOf('day');
-  const endIST   = this.moment().endOf('day');
- 
-  api_filter['start_date-gte'] = startIST.format('YYYY-MM-DD');
-  api_filter['start_date-lte'] = endIST.format('YYYY-MM-DD');
- 
-  this.loadTodaySubscription(api_filter);
-}
- 
-loadTodayExpired(api_filter: any): void {
-  this.expiredLoading = true;
- 
-  // Step 1: get count
-  this.leadsService.getSubscriptionsCount(api_filter).subscribe(
-    (countRes: any) => {
-      this.todayExpiredCount = Number(countRes) || 0;
-    },
-    (err) => console.error('Expired count error:', err)
-  );
- 
-  // Step 2: get subscriptions list
-  this.leadsService.getSubscriptions(api_filter).subscribe(
-    (subscriptions: any) => {
- 
-      if (!subscriptions || subscriptions.length === 0) {
-        this.todayExpired   = [];
+    // Filter subscriptions whose end_date falls on TODAY
+    const startIST = this.moment().startOf('day');
+    const endIST = this.moment().endOf('day');
+
+    api_filter['end_date-gte'] = startIST.format('YYYY-MM-DD');
+    api_filter['end_date-lte'] = endIST.format('YYYY-MM-DD');
+    api_filter['status-eq'] = 'Active';
+
+    this.loadTodayExpired(api_filter);
+  }
+
+  onLazyLoadTodaySubscription(event: any): void {
+    let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
+
+    // Filter subscriptions whose end_date falls on TODAY
+    const startIST = this.moment().startOf('day');
+    const endIST = this.moment().endOf('day');
+
+    api_filter['start_date-gte'] = startIST.format('YYYY-MM-DD');
+    api_filter['start_date-lte'] = endIST.format('YYYY-MM-DD');
+
+    this.loadTodaySubscription(api_filter);
+  }
+
+  loadTodayExpired(api_filter: any): void {
+    this.expiredLoading = true;
+
+    // Step 1: get count
+    this.leadsService.getSubscriptionsCount(api_filter).subscribe(
+      (countRes: any) => {
+        this.todayExpiredCount = Number(countRes) || 0;
+      },
+      (err) => console.error('Expired count error:', err)
+    );
+
+    // Step 2: get subscriptions list
+    this.leadsService.getSubscriptions(api_filter).subscribe(
+      (subscriptions: any) => {
+
+        if (!subscriptions || subscriptions.length === 0) {
+          this.todayExpired = [];
+          this.expiredLoading = false;
+          return;
+        }
+
+        // Step 3: for each subscription, call getAccountById()
+        // to fetch businessName and mobile, then merge into row
+        const accountRequests = subscriptions.map((sub: any) =>
+          this.leadsService.getAccountById(sub.accountId)
+        );
+
+        forkJoin(accountRequests).subscribe(
+          (accounts: any) => {
+            // Merge account data into each subscription row
+            this.todayExpired = subscriptions.map((sub: any, index: number) => {
+              const account = accounts[index] || {};
+              return {
+                ...sub,
+                businessName: account.businessName || '-',
+                mobile: account.mobile || '-',
+              };
+            });
+            this.expiredLoading = false;
+          },
+          (err) => {
+            this.toastService.showError(err);
+            // Even if account enrichment fails, still show subscription data
+            this.todayExpired = subscriptions;
+            this.expiredLoading = false;
+          }
+        );
+      },
+      (err) => {
+        this.toastService.showError(err);
         this.expiredLoading = false;
-        return;
       }
- 
-      // Step 3: for each subscription, call getAccountById()
-      // to fetch businessName and mobile, then merge into row
-      const accountRequests = subscriptions.map((sub: any) =>
-        this.leadsService.getAccountById(sub.accountId)
-      );
- 
-      forkJoin(accountRequests).subscribe(
-        (accounts: any) => {
-          // Merge account data into each subscription row
-          this.todayExpired = subscriptions.map((sub: any, index: number) => {
-            const account = accounts[index] || {};
-            return {
-              ...sub,
-              businessName: account.businessName || '-',
-              mobile:       account.mobile       || '-',
-            };
-          });
-          this.expiredLoading = false;
-        },
-        (err) => {
-          this.toastService.showError(err);
-          // Even if account enrichment fails, still show subscription data
-          this.todayExpired   = subscriptions;
-          this.expiredLoading = false;
-        }
-      );
-    },
-    (err) => {
-      this.toastService.showError(err);
-      this.expiredLoading = false;
-    }
-  );
-}
+    );
+  }
 
-loadTodaySubscription(api_filter: any): void {
-  this.expiredLoading = true;
- 
-  // Step 1: get count
-  this.leadsService.getSubscriptionsCount(api_filter).subscribe(
-    (countRes: any) => {
-      this.todaySubscriptionCount = Number(countRes) || 0;
-    },
-    (err) => console.error('Subscription count error:', err)
-  );
- 
-  // Step 2: get subscriptions list
-  this.leadsService.getSubscriptions(api_filter).subscribe(
-    (subscriptions: any) => {
- 
-      if (!subscriptions || subscriptions.length === 0) {
-        this.todaySubscription   = [];
+  loadTodaySubscription(api_filter: any): void {
+    this.expiredLoading = true;
+
+    // Step 1: get count
+    this.leadsService.getSubscriptionsCount(api_filter).subscribe(
+      (countRes: any) => {
+        this.todaySubscriptionCount = Number(countRes) || 0;
+      },
+      (err) => console.error('Subscription count error:', err)
+    );
+
+    // Step 2: get subscriptions list
+    this.leadsService.getSubscriptions(api_filter).subscribe(
+      (subscriptions: any) => {
+
+        if (!subscriptions || subscriptions.length === 0) {
+          this.todaySubscription = [];
+          this.subscriptionLoading = false;
+          return;
+        }
+
+        // Step 3: for each subscription, call getAccountById()
+        // to fetch businessName and mobile, then merge into row
+        const accountRequests = subscriptions.map((sub: any) =>
+          this.leadsService.getAccountById(sub.accountId)
+        );
+
+        forkJoin(accountRequests).subscribe(
+          (accounts: any) => {
+            // Merge account data into each subscription row
+            this.todaySubscription = subscriptions.map((sub: any, index: number) => {
+              const account = accounts[index] || {};
+              return {
+                ...sub,
+                businessName: account.businessName || '-',
+                mobile: account.mobile || '-',
+              };
+            });
+            this.subscriptionLoading = false;
+          },
+          (err) => {
+            this.toastService.showError(err);
+            // Even if account enrichment fails, still show subscription data
+            this.todaySubscription = subscriptions;
+            this.subscriptionLoading = false;
+          }
+        );
+      },
+      (err) => {
+        this.toastService.showError(err);
         this.subscriptionLoading = false;
-        return;
       }
- 
-      // Step 3: for each subscription, call getAccountById()
-      // to fetch businessName and mobile, then merge into row
-      const accountRequests = subscriptions.map((sub: any) =>
-        this.leadsService.getAccountById(sub.accountId)
-      );
- 
-      forkJoin(accountRequests).subscribe(
-        (accounts: any) => {
-          // Merge account data into each subscription row
-          this.todaySubscription  = subscriptions.map((sub: any, index: number) => {
-            const account = accounts[index] || {};
-            return {
-              ...sub,
-              businessName: account.businessName || '-',
-              mobile:       account.mobile       || '-',
-            };
-          });
-          this.subscriptionLoading = false;
-        },
-        (err) => {
-          this.toastService.showError(err);
-          // Even if account enrichment fails, still show subscription data
-          this.todaySubscription   = subscriptions;
-          this.subscriptionLoading = false;
+    );
+  }
+  loadTodayPlanChanges(): void {
+    this.renewalLoading = true;
+
+    const startIST = this.moment().startOf('day');
+    const endIST = this.moment().endOf('day');
+
+    const api_filter: any = {
+      'start_date-gte': startIST.format('YYYY-MM-DD'),
+      'start_date-lte': endIST.format('YYYY-MM-DD'),
+    };
+
+    // Step 1: get today's subscriptions
+    this.leadsService.getSubscriptions(api_filter).subscribe(
+      (subscriptions: any) => {
+        if (!subscriptions || subscriptions.length === 0) {
+          this.todayRenewals = [];
+          this.todayUpgraded = [];
+          this.todayDegraded = [];
+          this.todayRenewalsCount = 0;
+          this.todayUpgradedCount = 0;
+          this.todayDegradedCount = 0;
+          this.renewalLoading = false;
+          return;
         }
-      );
-    },
-    (err) => {
-      this.toastService.showError(err);
-      this.subscriptionLoading = false;
-    }
-  );
-}
-loadTodayPlanChanges(): void {
-  this.renewalLoading = true;
 
-  const startIST = this.moment().startOf('day');
-  const endIST   = this.moment().endOf('day');
+        // Step 2: enrich with account info
+        const accountRequests = subscriptions.map((sub: any) =>
+          this.leadsService.getAccountById(sub.accountId)
+        );
 
-  const api_filter: any = {
-    'start_date-gte': startIST.format('YYYY-MM-DD'),
-    'start_date-lte': endIST.format('YYYY-MM-DD'),
-  };
+        forkJoin(accountRequests).subscribe(
+          (accounts: any) => {
+            const enriched = subscriptions.map((sub: any, i: number) => ({
+              ...sub,
+              businessName: accounts[i]?.businessName || '-',
+              mobile: accounts[i]?.mobile || '-',
+            }));
 
-  // Step 1: get today's subscriptions
-  this.leadsService.getSubscriptions(api_filter).subscribe(
-    (subscriptions: any) => {
-      if (!subscriptions || subscriptions.length === 0) {
-        this.todayRenewals = [];
-        this.todayUpgraded = [];
-        this.todayDegraded = [];
-        this.todayRenewalsCount = 0;
-        this.todayUpgradedCount = 0;
-        this.todayDegradedCount = 0;
-        this.renewalLoading = false;
-        return;
-      }
+            // Step 3: for each, get previous subscription of same account
+            const prevRequests = enriched.map((sub: any) => {
+              // const prevFilter: any = {
+              //   'accountId-eq':   sub.accountId,
+              //   'id-lt':          sub.id,       // earlier record
+              //   'limit':          1,
+              //   'sortField':      'id',
+              //   'sortOrder':      -1,
+              // };
+              const prevFilter: any = {
+                'accountId-eq': sub.accountId,
+                'id-lt': sub.id,
+                'limit': 10,   // ← changed from 1 to 10
+                'sortField': 'id',
+                'sortOrder': -1,
+              };
+              return this.leadsService.getSubscriptions(prevFilter);
+            });
 
-      // Step 2: enrich with account info
-      const accountRequests = subscriptions.map((sub: any) =>
-        this.leadsService.getAccountById(sub.accountId)
-      );
+            forkJoin(prevRequests).subscribe(
+              (prevResults: any) => {
+                const renewals: any[] = [];
+                const upgraded: any[] = [];
+                const degraded: any[] = [];
 
-      forkJoin(accountRequests).subscribe(
-        (accounts: any) => {
-          const enriched = subscriptions.map((sub: any, i: number) => ({
-            ...sub,
-            businessName: accounts[i]?.businessName || '-',
-            mobile:       accounts[i]?.mobile       || '-',
-          }));
+                enriched.forEach((sub: any, i: number) => {
+                  // const prevList = prevResults[i];
 
-          // Step 3: for each, get previous subscription of same account
-          const prevRequests = enriched.map((sub: any) => {
-            // const prevFilter: any = {
-            //   'accountId-eq':   sub.accountId,
-            //   'id-lt':          sub.id,       // earlier record
-            //   'limit':          1,
-            //   'sortField':      'id',
-            //   'sortOrder':      -1,
-            // };
-            const prevFilter: any = {
-  'accountId-eq':   sub.accountId,
-  'id-lt':          sub.id,
-  'limit':          10,   // ← changed from 1 to 10
-  'sortField':      'id',
-  'sortOrder':      -1,
-};
-            return this.leadsService.getSubscriptions(prevFilter);
-          });
+                  // // No previous subscription → first time, skip
+                  // if (!prevList || prevList.length === 0) return;
 
-          forkJoin(prevRequests).subscribe(
-            (prevResults: any) => {
-              const renewals: any[] = [];
-              const upgraded: any[] = [];
-              const degraded: any[] = [];
+                  // const prevPlan    = prevList[0].plan_name;
+                  // const currentPlan = sub.plan_name;
 
-              enriched.forEach((sub: any, i: number) => {
-                // const prevList = prevResults[i];
+                  // const prevTier    = this.PLAN_TIER[prevPlan]    ?? -1;
+                  // const currentTier = this.PLAN_TIER[currentPlan] ?? -1;
 
-                // // No previous subscription → first time, skip
-                // if (!prevList || prevList.length === 0) return;
+                  // if (currentPlan === prevPlan) {
+                  //   renewals.push({ ...sub, previousPlan: prevPlan });
+                  // } else if (currentTier > prevTier) {
+                  //   upgraded.push({ ...sub, previousPlan: prevPlan });
+                  // } else if (currentTier < prevTier) {
+                  //   degraded.push({ ...sub, previousPlan: prevPlan });
+                  // }
+                  const prevList: any[] = prevResults[i];
+                  if (!prevList || prevList.length === 0) return;
+                  if (sub.plan_name === 'Free Trial') return; // skip if current is free trial
 
-                // const prevPlan    = prevList[0].plan_name;
-                // const currentPlan = sub.plan_name;
+                  // find latest previous plan that is NOT Free Trial
+                  const prevSub = prevList
+                    .sort((a: any, b: any) => b.id - a.id)
+                    .find((p: any) => p.plan_name !== 'Free Trial');
 
-                // const prevTier    = this.PLAN_TIER[prevPlan]    ?? -1;
-                // const currentTier = this.PLAN_TIER[currentPlan] ?? -1;
+                  if (!prevSub) return; // no paid plan history → skip
 
-                // if (currentPlan === prevPlan) {
-                //   renewals.push({ ...sub, previousPlan: prevPlan });
-                // } else if (currentTier > prevTier) {
-                //   upgraded.push({ ...sub, previousPlan: prevPlan });
-                // } else if (currentTier < prevTier) {
-                //   degraded.push({ ...sub, previousPlan: prevPlan });
-                // }
-                const prevList: any[] = prevResults[i];
-if (!prevList || prevList.length === 0) return;
-if (sub.plan_name === 'Free Trial') return; // skip if current is free trial
+                  const prevPlan = prevSub.plan_name;
+                  const currentPlan = sub.plan_name;
 
-// find latest previous plan that is NOT Free Trial
-const prevSub = prevList
-  .sort((a: any, b: any) => b.id - a.id)
-  .find((p: any) => p.plan_name !== 'Free Trial');
+                  const prevTier = this.PLAN_TIER[prevPlan] ?? -1;
+                  const currentTier = this.PLAN_TIER[currentPlan] ?? -1;
 
-if (!prevSub) return; // no paid plan history → skip
+                  if (currentPlan === prevPlan) {
+                    renewals.push({ ...sub, previousPlan: prevPlan });
+                  } else if (currentTier > prevTier) {
+                    upgraded.push({ ...sub, previousPlan: prevPlan });
+                  } else if (currentTier < prevTier) {
+                    degraded.push({ ...sub, previousPlan: prevPlan });
+                  }
+                }
+                );
 
-const prevPlan    = prevSub.plan_name;
-const currentPlan = sub.plan_name;
-
-const prevTier    = this.PLAN_TIER[prevPlan]    ?? -1;
-const currentTier = this.PLAN_TIER[currentPlan] ?? -1;
-
-if (currentPlan === prevPlan) {
-  renewals.push({ ...sub, previousPlan: prevPlan });
-} else if (currentTier > prevTier) {
-  upgraded.push({ ...sub, previousPlan: prevPlan });
-} else if (currentTier < prevTier) {
-  degraded.push({ ...sub, previousPlan: prevPlan });
-}
+                this.todayRenewals = renewals;
+                this.todayUpgraded = upgraded;
+                this.todayDegraded = degraded;
+                this.todayRenewalsCount = renewals.length;
+                this.todayUpgradedCount = upgraded.length;
+                this.todayDegradedCount = degraded.length;
+                this.renewalLoading = false;
+              },
+              (err) => {
+                this.toastService.showError(err);
+                this.renewalLoading = false;
               }
             );
+          },
+          (err) => {
+            this.toastService.showError(err);
+            this.renewalLoading = false;
+          }
+        );
+      },
+      (err) => {
+        this.toastService.showError(err);
+        this.renewalLoading = false;
+      }
+    );
+  }
 
-              this.todayRenewals      = renewals;
-              this.todayUpgraded      = upgraded;
-              this.todayDegraded      = degraded;
-              this.todayRenewalsCount = renewals.length;
-              this.todayUpgradedCount = upgraded.length;
-              this.todayDegradedCount = degraded.length;
-              this.renewalLoading     = false;
-            },
-            (err) => {
-              this.toastService.showError(err);
-              this.renewalLoading = false;
-            }
-          );
-        },
-        (err) => {
-          this.toastService.showError(err);
-          this.renewalLoading = false;
-        }
-      );
-    },
-    (err) => {
-      this.toastService.showError(err);
-      this.renewalLoading = false;
-    }
-  );
-}
-
-onLazyLoadTodayRenewals(event: any): void {
-  this.loadTodayPlanChanges();
-}
-onLazyLoadTodayUpgraded(event: any): void {
-  if (this.todayUpgraded.length === 0) this.loadTodayPlanChanges();
-}
-onLazyLoadTodayDegraded(event: any): void {
-  if (this.todayDegraded.length === 0) this.loadTodayPlanChanges();
-}
+  onLazyLoadTodayRenewals(event: any): void {
+    this.loadTodayPlanChanges();
+  }
+  onLazyLoadTodayUpgraded(event: any): void {
+    if (this.todayUpgraded.length === 0) this.loadTodayPlanChanges();
+  }
+  onLazyLoadTodayDegraded(event: any): void {
+    if (this.todayDegraded.length === 0) this.loadTodayPlanChanges();
+  }
 }

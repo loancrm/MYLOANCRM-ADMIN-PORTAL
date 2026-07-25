@@ -16,17 +16,17 @@ export class DemoBookingsComponent {
   demoBookings: any[] = [];
   demoBookingsCount = 0;
   loading = false;
-  
-  globalSearch = '';
-  selectedStatus: any = 'confirmed';
 
-  showCompletedDialog  = false;
+  globalSearch = '';
+  selectedStatus: any = 'All';
+
+  showCompletedDialog = false;
   selectedCompletedRow: any = null;
   // selectedDate: Date = new Date();
   selectedDate: Date | null = new Date();
 
   statusOptions = [
-    { label: 'All', value: '' },
+    { label: 'All', value: 'All' },
     { label: 'Confirmed', value: 'confirmed' },
     { label: 'Completed', value: 'completed' },
     { label: 'Cancelled', value: 'cancelled' },
@@ -44,19 +44,19 @@ export class DemoBookingsComponent {
   users: any[] = [];
   loggedInUserRole!: number;
 
-  selectedAssignFilter: any = null;
+  selectedAssignFilter: any = [];
   assignFilterOptions: any[] = [];
 
   constructor(
     private leadsService: LeadsService,
     private toast: ToastService,
     private location: Location,
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.loadUsers();
     const adminDetails =
-    JSON.parse(localStorage.getItem('adminDetails') || '{}');
+      JSON.parse(localStorage.getItem('adminDetails') || '{}');
 
     this.loggedInUserRole = Number(adminDetails?.user?.role || 0);
 
@@ -76,12 +76,15 @@ export class DemoBookingsComponent {
 
       // ✅ Build assign filter options with "All" as default
       this.assignFilterOptions = [
-        { id: null, name: 'All' },
+        // { id: null, name: 'All' },
         ...this.users
       ];
     });
   }
-  onAssignFilterChange() {
+  onAssignFilterChange(event: any): void {
+    this.selectedAssignFilter = event.value || [];
+
+
     this.reload();
   }
   // loadUsers() {
@@ -91,61 +94,61 @@ export class DemoBookingsComponent {
   // }
 
   // Update loadDemoBookings to include date filter
-loadDemoBookings(event: any) {
-  this.currentEvent = event;
+  loadDemoBookings(event: any) {
+    this.currentEvent = event;
 
-  const filter: any = {
-    from: event.first,
-    count: event.rows
-  };
+    const filter: any = {
+      from: event.first,
+      count: event.rows
+    };
 
-  if (this.globalSearch && this.globalSearch.trim() !== '') {
-    filter.search = this.globalSearch.trim();
-  }
-
-  if (this.selectedStatus) {
-    filter.status = this.selectedStatus;
-  }
-
-  if (this.selectedAssignFilter !== null && this.selectedAssignFilter !== undefined) {
-    filter['assign_to-eq'] = this.selectedAssignFilter;
-  }
-
-  // ✅ Add date filter
-  if (this.selectedDate) {
-    filter.demo_date = this.selectedDate.toLocaleDateString('en-CA'); // YYYY-MM-DD
-  }
-
-  this.loading = true;
-
-  this.leadsService.getDemoBookings(filter).subscribe(
-    (res: any) => {
-      this.demoBookings = res;
-      this.loading = false;
-    },
-    () => {
-      this.toast.showError('Failed to load bookings');
-      this.loading = false;
+    if (this.globalSearch && this.globalSearch.trim() !== '') {
+      filter.search = this.globalSearch.trim();
     }
-  );
 
-  this.leadsService.getDemoBookingsCount(filter).subscribe(
-    (count: any) => {
-      this.demoBookingsCount = Number(count);
+    if (this.selectedStatus) {
+      filter.status = this.selectedStatus;
     }
-  );
-}
 
-// Add date change handler
-onDateChange(): void {
-  this.reload();
-}
+    if (this.selectedAssignFilter?.length) {
+      filter['assign_to-in'] = this.selectedAssignFilter.join(',');
+    }
 
-// Add clear date handler
-clearDate(): void {
-  this.selectedDate = null;
-  this.reload();
-}
+    // ✅ Add date filter
+    if (this.selectedDate) {
+      filter.demo_date = this.selectedDate.toLocaleDateString('en-CA'); // YYYY-MM-DD
+    }
+
+    this.loading = true;
+
+    this.leadsService.getDemoBookings(filter).subscribe(
+      (res: any) => {
+        this.demoBookings = res;
+        this.loading = false;
+      },
+      () => {
+        this.toast.showError('Failed to load bookings');
+        this.loading = false;
+      }
+    );
+
+    this.leadsService.getDemoBookingsCount(filter).subscribe(
+      (count: any) => {
+        this.demoBookingsCount = Number(count);
+      }
+    );
+  }
+
+  // Add date change handler
+  onDateChange(): void {
+    this.reload();
+  }
+
+  // Add clear date handler
+  clearDate(): void {
+    this.selectedDate = null;
+    this.reload();
+  }
 
 
   // loadDemoBookings(event: any) {
@@ -217,151 +220,151 @@ clearDate(): void {
       }
     );
   }
-   goBack() {
+  goBack() {
     this.location.back();
   }
 
- openReschedule(row: any) {
-  this.selectedBooking = row;
-  this.rescheduleDialog = true;
+  openReschedule(row: any) {
+    this.selectedBooking = row;
+    this.rescheduleDialog = true;
 
-  // PRE-FILL existing values
-  this.rescheduleDate = row.demo_date ? new Date(row.demo_date) : null;
-  this.rescheduleTime = row.demo_time || null;
+    // PRE-FILL existing values
+    this.rescheduleDate = row.demo_date ? new Date(row.demo_date) : null;
+    this.rescheduleTime = row.demo_time || null;
 
-  // load slots immediately if date exists
-  if (this.rescheduleDate) {
-    this.loadSlots();
-  }
-}
-
-loadSlots() {
-  if (!this.rescheduleDate) return;
-
-  // const date = new Date(this.rescheduleDate)
-  //   .toISOString()
-  //   .split('T')[0];
-  const date = this.rescheduleDate
-  ? this.rescheduleDate.toLocaleDateString('en-CA')
-  : null;
-
-  this.leadsService.getSlots(date).subscribe((res: any) => {
-    this.availableSlots = res.availableSlots.map((s: any) => ({
-      label: s,
-      value: s
-    }));
-  });
-}
-
-// confirmReschedule() {
-//   if (!this.selectedBooking || !this.rescheduleDate || !this.rescheduleTime) {
-//     this.toast.showError('Select date and time');
-//     return;
-//   }
-
-//   const date = new Date(this.rescheduleDate)
-//     .toISOString()
-//     .split('T')[0];
-
-//   this.leadsService.updateBookingStatus(
-//     this.selectedBooking.id,
-//     {
-//       status: 'rescheduled',
-//       demo_date: date,
-//       demo_time: this.rescheduleTime
-//     }
-//   ).subscribe(
-//     () => {
-//       this.toast.showSuccess('Rescheduled successfully');
-
-//       this.rescheduleDialog = false;
-
-//       this.loadDemoBookings(this.currentEvent);
-//     },
-//     () => {
-//       this.toast.showError('Reschedule failed');
-//     }
-//   );
-// }
-confirmReschedule() {
-  if (!this.selectedBooking || !this.rescheduleDate || !this.rescheduleTime) {
-    this.toast.showError('Select date and time');
-    return;
+    // load slots immediately if date exists
+    if (this.rescheduleDate) {
+      this.loadSlots();
+    }
   }
 
-  const date = this.rescheduleDate
-    ? this.rescheduleDate.toLocaleDateString('en-CA')
-    : null;
+  loadSlots() {
+    if (!this.rescheduleDate) return;
 
-  this.leadsService.updateBookingStatus(
-    this.selectedBooking.id,  
-    {
-      status: 'rescheduled',
-      demo_date: date,
-      demo_time: this.rescheduleTime
+    // const date = new Date(this.rescheduleDate)
+    //   .toISOString()
+    //   .split('T')[0];
+    const date = this.rescheduleDate
+      ? this.rescheduleDate.toLocaleDateString('en-CA')
+      : null;
+
+    this.leadsService.getSlots(date).subscribe((res: any) => {
+      this.availableSlots = res.availableSlots.map((s: any) => ({
+        label: s,
+        value: s
+      }));
+    });
+  }
+
+  // confirmReschedule() {
+  //   if (!this.selectedBooking || !this.rescheduleDate || !this.rescheduleTime) {
+  //     this.toast.showError('Select date and time');
+  //     return;
+  //   }
+
+  //   const date = new Date(this.rescheduleDate)
+  //     .toISOString()
+  //     .split('T')[0];
+
+  //   this.leadsService.updateBookingStatus(
+  //     this.selectedBooking.id,
+  //     {
+  //       status: 'rescheduled',
+  //       demo_date: date,
+  //       demo_time: this.rescheduleTime
+  //     }
+  //   ).subscribe(
+  //     () => {
+  //       this.toast.showSuccess('Rescheduled successfully');
+
+  //       this.rescheduleDialog = false;
+
+  //       this.loadDemoBookings(this.currentEvent);
+  //     },
+  //     () => {
+  //       this.toast.showError('Reschedule failed');
+  //     }
+  //   );
+  // }
+  confirmReschedule() {
+    if (!this.selectedBooking || !this.rescheduleDate || !this.rescheduleTime) {
+      this.toast.showError('Select date and time');
+      return;
     }
-  ).subscribe(
-    () => {
-      this.toast.showSuccess('Rescheduled successfully');
-      this.rescheduleDialog = false;
-      this.loadDemoBookings(this.currentEvent);
-    },
-    () => {
-      this.toast.showError('Reschedule failed');
-    }
-  );
-}
 
-enableEdit(row: any) {
-  this.editingRowId = row.id;
-}
-saveNotes(row: any) {
-  const payload = {
-    notes: row.notes
-  };
+    const date = this.rescheduleDate
+      ? this.rescheduleDate.toLocaleDateString('en-CA')
+      : null;
 
-  this.leadsService.updateBookingStatus(row.id, payload).subscribe(
-    () => {
-      this.toast.showSuccess('Notes updated');
-      this.editingRowId = null;
-    },
-    () => {
-      this.toast.showError('Failed to update notes');
-    }
-  );
-}
+    this.leadsService.updateBookingStatus(
+      this.selectedBooking.id,
+      {
+        status: 'rescheduled',
+        demo_date: date,
+        demo_time: this.rescheduleTime
+      }
+    ).subscribe(
+      () => {
+        this.toast.showSuccess('Rescheduled successfully');
+        this.rescheduleDialog = false;
+        this.loadDemoBookings(this.currentEvent);
+      },
+      () => {
+        this.toast.showError('Reschedule failed');
+      }
+    );
+  }
 
-assignUser(row: any) {
-  const payload = {
-    assign_to: row.assign_to
-  };
+  enableEdit(row: any) {
+    this.editingRowId = row.id;
+  }
+  saveNotes(row: any) {
+    const payload = {
+      notes: row.notes
+    };
 
-  this.leadsService.updateBookingStatus(row.id, payload).subscribe(
-    () => {
-      this.toast.showSuccess('User assigned successfully');
-    },
-    () => {
-      this.toast.showError('Assignment failed');
-    }
-  );
-}
+    this.leadsService.updateBookingStatus(row.id, payload).subscribe(
+      () => {
+        this.toast.showSuccess('Notes updated');
+        this.editingRowId = null;
+      },
+      () => {
+        this.toast.showError('Failed to update notes');
+      }
+    );
+  }
 
-clearFilters() {
-  this.globalSearch = '';
-  this.selectedStatus = null;
-  this.selectedAssignFilter = null;  
-  this.reload();
-}
+  assignUser(row: any) {
+    const payload = {
+      assign_to: row.assign_to
+    };
 
-confirmCompleted(row: any): void {
-  this.selectedCompletedRow = row;
-  this.showCompletedDialog  = true;
-}
+    this.leadsService.updateBookingStatus(row.id, payload).subscribe(
+      () => {
+        this.toast.showSuccess('User assigned successfully');
+      },
+      () => {
+        this.toast.showError('Assignment failed');
+      }
+    );
+  }
 
-onConfirmCompleted(): void {
-  this.showCompletedDialog = false;
-  this.updateStatus(this.selectedCompletedRow, 'completed');
-  this.selectedCompletedRow = null;
-}
+  clearFilters() {
+    this.globalSearch = '';
+    this.selectedStatus = null;
+    this.selectedAssignFilter = null;
+    this.reload();
+  }
+
+  confirmCompleted(row: any): void {
+    this.selectedCompletedRow = row;
+    this.showCompletedDialog = true;
+  }
+
+  onConfirmCompleted(): void {
+    this.showCompletedDialog = false;
+    this.updateStatus(this.selectedCompletedRow, 'completed');
+    this.selectedCompletedRow = null;
+  }
 
 }

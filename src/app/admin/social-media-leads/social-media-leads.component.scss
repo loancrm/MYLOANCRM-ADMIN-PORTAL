@@ -130,7 +130,15 @@
 //     overflow: hidden;
 //   }
 // }
-
+.missed-callback {
+  display: inline-block;
+  background: #fdeaea;
+  color: #dc2626;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+}
 .search-btn {
   background-color: #fff !important;
   border-color: lightgray !important;

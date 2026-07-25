@@ -16,6 +16,7 @@
       <div>
         <button
           pButton
+          *ngIf="loggedInUserRole === 1"
           label="Export CSV"
           icon="pi pi-download"
           class="p-button-info m-1"
@@ -23,6 +24,7 @@
         ></button>
          <button
           pButton
+          *ngIf="loggedInUserRole === 1"
           label="Bulk Upload"
           icon="pi pi-upload"
           class="p-button-info  m-1"
@@ -760,16 +762,20 @@
     </div>
     <div class="col mt-2 no-padding-small" *ngIf="loggedInUserRole === 1">
       <label class="fw-label">Assigned To</label>
-      <p-dropdown
+      <p-multiSelect
         [options]="assignFilterOptions"
         [(ngModel)]="selectedAssignFilter"
         optionLabel="label"
         optionValue="value"
-        placeholder="All Users"
+        [filter]="true"
+        [showToggleAll]="true"
+        display="chip"
+       defaultLabel="All Users"
+       appendTo="body"
         (onChange)="onAssignFilterChange()"
         [style]="{ width: '100%' }"
         [showClear]="true"
-      ></p-dropdown>
+      ></p-multiSelect>
     </div>
     <div class="col mt-2 no-padding-small">
   <label class="fw-label">Duplicate Number</label>
@@ -823,7 +829,9 @@
 
           <th pSortableColumn="CreatedOn" class="text-nowrap">Created Time <p-sortIcon field="CreatedOn"></p-sortIcon></th>
           <th class="text-nowrap">Status</th>
-          <th class="text-nowrap" *ngIf="loggedInUserRole === 1">Assigned To</th>
+          <th pSortableColumn="assign_to" class="text-nowrap" *ngIf="loggedInUserRole === 1">
+            Assigned To <p-sortIcon field="assign_to"></p-sortIcon>
+          </th>
           <th class="text-nowrap">Quick Actions</th>
         </tr>
       </ng-template>
@@ -922,12 +930,28 @@
           </td>
 
           <ng-template #dash>-</ng-template>
+<td>
+  <ng-container *ngIf="team.CallbackDate; else dash">
 
-          <td>
-            <span *ngIf="team.CallbackDate; else dash">
-              {{ team.CallbackDate | date:'MMM d, y, h:mm a' }}
-            </span>
-          </td>
+    <!-- Missed callback -->
+    <span
+      *ngIf="isMissedCallback(team.CallbackDate); else normalDate"
+      class="missed-callback"
+      pTooltip="Missed"
+      tooltipPosition="top"
+    >
+      {{ team.CallbackDate | date:'MMM d, y, h:mm a' }}
+    </span>
+
+    <!-- Today / Tomorrow / Future -->
+    <ng-template #normalDate>
+      <span>
+        {{ team.CallbackDate | date:'MMM d, y, h:mm a' }}
+      </span>
+    </ng-template>
+
+  </ng-container>
+</td>
 
           <td>
             <span *ngIf="team.CreatedOn; else dash">
@@ -1067,12 +1091,15 @@
               </button>
 
               <!-- 📌 MENU -->
-              <mat-menu #menu="matMenu">
-
+              <mat-menu #menu="matMenu" >
+             
                 <!-- ✅ IF ACTIVE → SHOW INACTIVE OPTION -->
+                 
                 <button
+                *ngIf="loggedInUserRole === 1 && team.status == 1"
                   mat-menu-item
-                  *ngIf="team.status == 1"
+                  
+           
                   (click)="changeStatus(team, 2)"
                 >
                   <span>Mark as Inactive</span>
@@ -1081,7 +1108,7 @@
                 <!-- ✅ IF INACTIVE → SHOW ACTIVE OPTION -->
                 <button
                   mat-menu-item
-                  *ngIf="team.status == 2"
+                  *ngIf="loggedInUserRole === 1 && team.status == 2"
                   (click)="changeStatus(team, 1)"
                 >
                   <span>Mark as Active</span>

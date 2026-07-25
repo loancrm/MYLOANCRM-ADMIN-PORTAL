@@ -139,10 +139,10 @@ export class SidebarMenuComponent implements OnChanges {
   setMenuItems() {
   this.menuItems = [
     { label: 'Home', icon: 'Home', route: 'dashboard', condition: true },
-    { label: 'Analytics', icon: 'chart-no-axes-combined', route: 'allaccounts-analytics', condition: true },
+    { label: 'Analytics', icon: 'chart-no-axes-combined', route: 'allaccounts-analytics', condition: this.loggedInUserRole === 1 },
     { label: 'Accounts', icon: 'book-user', route: 'accounts', condition: true },
-    { label: 'Subscriptions', icon: 'wallet-cards', route: 'subscription-plans', condition: true },
-    { label: 'Contacts', icon: 'phone', route: 'contact-submissions', condition: true },
+    { label: 'Subscriptions', icon: 'wallet-cards', route: 'subscription-plans', condition: this.loggedInUserRole === 1 },
+    { label: 'Contacts', icon: 'phone', route: 'contact-submissions', condition: this.loggedInUserRole === 1},
     { label: 'Subscribers', icon: 'Users', route: 'subscribers', condition: true },
     { label: 'Cibil Reports', icon: 'scroll-text', route: 'cibil-reports', condition: true },
     { label: 'CAM Reports', icon: 'file-text', route: 'cam-reports', condition: true },

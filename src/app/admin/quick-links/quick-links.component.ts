@@ -57,13 +57,13 @@ private location: Location
   },
   {
     title:        'Airtel Business',
-    desc:         'Commercial Communication',
+    desc:         'Commercial Communication', 
     url:          'https://www.airtel.in/business/commercial-communication/',
     domain:       'airtel.in/business',
     icon:         'pi-mobile',
     colorClass:   'card-red',
     username:     'winwaycreators@gmail.com',
-    password:     'Ravi@2026',
+    password:     'winway@2018',
     mobile:       '9949046262',      // ✅ mobile number added
     showUsername: false,
     showPassword: false,

@@ -13,6 +13,7 @@
         </b>
       </div>
       <button
+        *ngIf="loggedInUserRole === 1"
         pButton
         label="Export"
         icon="pi pi-file"
@@ -53,6 +54,7 @@
         'latest_plan_name',
         'latest_status',
         'latest_remark',
+        'assign_to'
       ]"
       styleClass="p-datatable-customers "
       currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Accounts"
@@ -142,30 +144,38 @@
 
           <div class="filter-col mt-2 no-padding-small">
             <label class="fw-label">Remark</label>
-            <p-dropdown
+            <p-multiSelect
               [style]="{ width: '100%' }"
               [options]="adminRemarkFilterOptions"
               [(ngModel)]="selectedRemarkFilter"
               optionLabel="label"
               optionValue="value"
+               [filter]="true"
+              [showToggleAll]="true"
               (onChange)="onRemarkFilterChange($event)"
               appendTo="body"
-            ></p-dropdown>
+              [showClear]="true"
+              defaultLabel="All"
+               display="chip"
+            ></p-multiSelect>
           </div>
 
           <div class="filter-col mt-2 no-padding-small" *ngIf="loggedInUserRole === 1">
             <label class="fw-label">Assigned To</label>
-            <p-dropdown
+            <p-multiSelect
               [style]="{ width: '100%' }"
               [options]="assignFilterOptions"
               [(ngModel)]="selectedAssignFilter"
               optionLabel="label"
               optionValue="value"
+              [filter]="true"
+              [showToggleAll]="true"
               (onChange)="onAssignFilterChange($event)"
               appendTo="body"
               [showClear]="true"
-              placeholder="All Users"
-            ></p-dropdown>
+               display="chip"
+              defaultLabel="All Users"
+            ></p-multiSelect>
           </div>
 
           <div class="filter-col mt-2 no-padding-small text-right">
@@ -239,13 +249,15 @@
             Created Date <p-sortIcon field="createdOn"></p-sortIcon>
           </th>
           <th class="text-nowrap">
-            UpdatedBy
+            FollowUp Date
           </th>
-          <th class="text-nowrap" *ngIf="loggedInUserRole === 1">Assigned To</th>
+          <th pSortableColumn="assign_to" class="text-nowrap" *ngIf="loggedInUserRole === 1">
+            Assigned To <p-sortIcon field="assign_to"></p-sortIcon>
+          </th>
           <!-- <th pSortableColumn="updatedOn" class="text-nowrap">
             Updated Date <p-sortIcon field="updatedOn"></p-sortIcon>
           </th> -->
-          <th class="text-nowrap">Quick Actions</th>
+          <th class="text-nowrap" *ngIf="loggedInUserRole === 1">Quick Actions</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-team  let-rowIndex="rowIndex">
@@ -409,9 +421,23 @@
           </td>
 
           <td>
-            <span class="table-column-data" *ngIf="team.adminUpdatedBy">{{
-              team.adminUpdatedBy
-            }}</span>
+            <ng-container *ngIf="team.followupDate">
+          
+              <!-- Missed Follow Up -->
+              <span *ngIf="isMissedFollowup(team.followupDate); else normalFollowup" class="missed-followup" pTooltip="Missed"
+                tooltipPosition="top">
+                {{ team.followupDate | date:'MMM d, y, h:mm a' }}
+              </span>
+          
+              <!-- Normal Follow Up -->
+              <ng-template #normalFollowup>
+                <span class="table-column-data">
+                  {{ team.followupDate | date:'MMM d, y, h:mm a' }}
+                </span>
+              </ng-template>
+          
+            </ng-container>
+          
           </td>
 
           <!-- <td *ngIf="loggedInUserRole === 1" (click)="$event.stopPropagation()">
@@ -465,6 +491,7 @@
               <div class="d-flex tableimage pointer-cursor">
                 <div *ngIf="team.status == 1">
                   <button
+                  *ngIf="loggedInUserRole === 1"
                     [matMenuTriggerFor]="menu"
                     aria-label="Actions"
                     pTooltip="Actions"
@@ -491,12 +518,13 @@
                         height="24"
                         class="mr-2 image-icon"
                       />
-                      <span>Send To In Active</span>
+                      <span>Send To InActive</span>
                     </button>
                   </mat-menu>
                 </div>
                 <div *ngIf="team.status == 2">
                   <button
+                    *ngIf="loggedInUserRole === 1"
                     [matMenuTriggerFor]="menu"
                     aria-label="Actions"
                     pTooltip="Actions"

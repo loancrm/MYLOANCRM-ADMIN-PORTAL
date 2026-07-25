@@ -12,6 +12,7 @@ import { TableModule } from 'primeng/table';
 import { TabMenuModule } from 'primeng/tabmenu';
 import { FilterModule } from 'src/app/filter/filter.module';
 import { CapitalizeFirstPipe } from 'src/app/pipes/capitalize.pipe';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 const routes: Routes = [
   {
@@ -53,6 +54,7 @@ const routes: Routes = [
     MenuModule,
     FilterModule,
     TabMenuModule,
+    MultiSelectModule,
     RouterModule.forChild(routes)
   ]
 })

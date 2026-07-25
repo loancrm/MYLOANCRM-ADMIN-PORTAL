@@ -15,6 +15,8 @@ import { ToastService } from 'src/app/services/toast.service';
   styleUrl: './contact-submissions.component.scss'
 })
 export class ContactSubmissionsComponent {
+
+  loggedInUserRole: number = 0;
   breadCrumbItems: any = [];
   searchFilter: any = {};
   currentTableEvent: any;
@@ -30,8 +32,8 @@ export class ContactSubmissionsComponent {
   version = projectConstantsLocal.VERSION_DESKTOP;
   @ViewChild('accountTable') accountTable!: Table;
   // ── Admin Remarks Dropdown ─────────────────────────────
-adminRemarkOptions: { label: string; value: any }[] = [];
-adminRemarksLoaded: boolean = false;
+  adminRemarkOptions: { label: string; value: any }[] = [];
+  adminRemarksLoaded: boolean = false;
 
   constructor(
     private routingService: RoutingService,
@@ -52,6 +54,9 @@ adminRemarksLoaded: boolean = false;
   }
 
   ngOnInit(): void {
+
+    const adminDetails = JSON.parse(localStorage.getItem('adminDetails') || '{}');
+    this.loggedInUserRole = Number(adminDetails?.user?.role || 0);
     this.loadAdminRemarks();
   }
 
@@ -69,22 +74,22 @@ adminRemarksLoaded: boolean = false;
   }
 
   loadAdminRemarks() {
-  const filter = { 'status-eq': 2,'remarkInternalStatus-eq': 1  };
+    const filter = { 'status-eq': 2, 'remarkInternalStatus-eq': 1 };
 
-  this.leadsService.getAdminRemarks(filter).subscribe(
-    (data: any) => {
-      this.adminRemarkOptions = data.map((r: any) => ({
-        label: r.displayName,
-        value: String(r.remarkId),
-      }));
-      this.adminRemarksLoaded = true;
-    },
-    () => {
-      this.toastService.showError('Failed to load remarks');
-      this.adminRemarksLoaded = true;
-    }
-  );
-}
+    this.leadsService.getAdminRemarks(filter).subscribe(
+      (data: any) => {
+        this.adminRemarkOptions = data.map((r: any) => ({
+          label: r.displayName,
+          value: String(r.remarkId),
+        }));
+        this.adminRemarksLoaded = true;
+      },
+      () => {
+        this.toastService.showError('Failed to load remarks');
+        this.adminRemarksLoaded = true;
+      }
+    );
+  }
 
   getStatusColor(status: string): {
     textColor: string;
@@ -178,57 +183,57 @@ adminRemarksLoaded: boolean = false;
   // }
 
   getTeam(filter = {}) {
-  this.apiLoading = true;
+    this.apiLoading = true;
 
-  this.leadsService.getContacts(filter).subscribe(
-    (team: any) => {
+    this.leadsService.getContacts(filter).subscribe(
+      (team: any) => {
 
-      // ✅ FIX: convert remarkId → string
-      this.accounts = team.map((t: any) => ({
-        ...t,
-        remarkId: t.remarkId !== null ? String(t.remarkId) : null
-      }));
+        // ✅ FIX: convert remarkId → string
+        this.accounts = team.map((t: any) => ({
+          ...t,
+          remarkId: t.remarkId !== null ? String(t.remarkId) : null
+        }));
 
-      this.apiLoading = false;
-    },
-    (error: any) => {
-      this.toastService.showError(error);
-      this.apiLoading = false;
-    }
-  );
-}
+        this.apiLoading = false;
+      },
+      (error: any) => {
+        this.toastService.showError(error);
+        this.apiLoading = false;
+      }
+    );
+  }
 
-//   saveRemark(team: any) {
-//   const remark = team.remarks?.trim();
+  //   saveRemark(team: any) {
+  //   const remark = team.remarks?.trim();
 
-//   if (!remark) return;
+  //   if (!remark) return;
 
-//   this.leadsService.updateContactRemarkText(team.id, remark).subscribe(
-//     () => {
-//       this.toastService.showSuccess('Remark saved');
-//     },
-//     () => {
-//       this.toastService.showError('Failed to save remark');
-//     }
-//   );
-// }
-//----------
-//   saveRemark(team: any, event: Event) {
-//   const input = event.target as HTMLInputElement;
-//   const remark = input.value?.trim();
+  //   this.leadsService.updateContactRemarkText(team.id, remark).subscribe(
+  //     () => {
+  //       this.toastService.showSuccess('Remark saved');
+  //     },
+  //     () => {
+  //       this.toastService.showError('Failed to save remark');
+  //     }
+  //   );
+  // }
+  //----------
+  //   saveRemark(team: any, event: Event) {
+  //   const input = event.target as HTMLInputElement;
+  //   const remark = input.value?.trim();
 
-//   if (!remark) return;
+  //   if (!remark) return;
 
-//   this.leadsService.updateContactRemark(team.id, remark).subscribe(
-//     () => {
-//       team.remarks = remark; // update UI instantly
-//       this.toastService.showSuccess('Remark saved');
-//     },
-//     (error) => {
-//       this.toastService.showError('Failed to save remark');
-//     }
-//   );
-// }
+  //   this.leadsService.updateContactRemark(team.id, remark).subscribe(
+  //     () => {
+  //       team.remarks = remark; // update UI instantly
+  //       this.toastService.showSuccess('Remark saved');
+  //     },
+  //     (error) => {
+  //       this.toastService.showError('Failed to save remark');
+  //     }
+  //   );
+  // }
 
 
   applyFilters(searchFilter = {}) {
@@ -254,9 +259,11 @@ adminRemarksLoaded: boolean = false;
       'Business Name',
       'Person Name',
       'Mobile',
+      'City',
       'Email',
       'Message',
-      'Created Date'
+      'Created Date',
+      'Remarks'
     ];
 
     const rows = this.accounts.map((team: any) => [
@@ -264,9 +271,11 @@ adminRemarksLoaded: boolean = false;
       team.company_name || '',
       team.full_name || '',
       team.phone || '',
+      team.city || '',
       team.email || '',
       team.message || '',
-      team.submitted_on ? new Date(team.submitted_on).toLocaleDateString() : ''
+      team.submitted_on ? new Date(team.submitted_on).toLocaleDateString() : '',
+      team.remarks || ''
     ]);
 
     let csvContent =
@@ -289,67 +298,67 @@ adminRemarksLoaded: boolean = false;
   }
 
 
-onRemarkChange(team: any, remarkId: any) {
+  onRemarkChange(team: any, remarkId: any) {
 
-  // ✅ Allow remove (null)
-  const finalRemarkId = remarkId ? String(remarkId) : null;
+    // ✅ Allow remove (null)
+    const finalRemarkId = remarkId ? String(remarkId) : null;
 
-  this.leadsService.updateContactRemark(team.id, remarkId).subscribe(
-    () => {
-      team.remarkId = finalRemarkId;
+    this.leadsService.updateContactRemark(team.id, remarkId).subscribe(
+      () => {
+        team.remarkId = finalRemarkId;
 
-      if (finalRemarkId) {
-        this.toastService.showSuccess('Remark saved');
-      } else {
-        this.toastService.showSuccess('Remark removed'); // ✅ NEW
+        if (finalRemarkId) {
+          this.toastService.showSuccess('Remark saved');
+        } else {
+          this.toastService.showSuccess('Remark removed'); // ✅ NEW
+        }
+      },
+      () => {
+        this.toastService.showError('Failed to update remark');
       }
-    },
-    () => {
-      this.toastService.showError('Failed to update remark');
-    }
-  );
-}
+    );
+  }
 
-// ✅ TEXTAREA SAVE
-// saveRemark(team: any) {
-//   const remark = team.remarks?.trim();
-//   if (!remark) return;
+  // ✅ TEXTAREA SAVE
+  // saveRemark(team: any) {
+  //   const remark = team.remarks?.trim();
+  //   if (!remark) return;
 
-//   this.leadsService.updateContactRemarkText(team.id, remark).subscribe(
-//     () => {
-//       this.toastService.showSuccess('Remark saved');
-//     },
-//     () => {
-//       this.toastService.showError('Failed to save remark');
-//     }
-//   );
-// }
-saveRemark(team: any, event: any) {
-  event.preventDefault(); // ✅ stop new line
+  //   this.leadsService.updateContactRemarkText(team.id, remark).subscribe(
+  //     () => {
+  //       this.toastService.showSuccess('Remark saved');
+  //     },
+  //     () => {
+  //       this.toastService.showError('Failed to save remark');
+  //     }
+  //   );
+  // }
+  saveRemark(team: any, event: any) {
+    event.preventDefault(); // ✅ stop new line
 
-  const remark = team.remarks?.trim();
-  if (!remark) return;
+    const remark = team.remarks?.trim();
+    if (!remark) return;
 
-  this.leadsService.updateContactRemarkText(team.id, remark).subscribe(
-    () => {
-      this.toastService.showSuccess('Remark saved');
-    },
-    () => {
-      this.toastService.showError('Failed to save remark');
-    }
-  );
-}
-// onRemarkChange(team: any, remarkId: any) {
-//   if (!remarkId) return;
+    this.leadsService.updateContactRemarkText(team.id, remark).subscribe(
+      () => {
+        this.toastService.showSuccess('Remark saved');
+      },
+      () => {
+        this.toastService.showError('Failed to save remark');
+      }
+    );
+  }
+  // onRemarkChange(team: any, remarkId: any) {
+  //   if (!remarkId) return;
 
-//   this.leadsService.updateContactRemark(team.id, remarkId).subscribe(
-//     () => {
-//       team.remarkId = String(remarkId);
-//       this.toastService.showSuccess('Remark updated');
-//     },
-//     () => {
-//       this.toastService.showError('Failed to update remark');
-//     }
-//   );
-// }
+  //   this.leadsService.updateContactRemark(team.id, remarkId).subscribe(
+  //     () => {
+  //       team.remarkId = String(remarkId);
+  //       this.toastService.showSuccess('Remark updated');
+  //     },
+  //     () => {
+  //       this.toastService.showError('Failed to update remark');
+  //     }
+  //   );
+  // }
 }

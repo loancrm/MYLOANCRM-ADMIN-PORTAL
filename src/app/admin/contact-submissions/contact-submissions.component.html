@@ -1,10 +1,7 @@
 <div>
   <div class="p-1 m-2 fixed-card">
     <div class="d-flex justify-content-between">
-      <div
-        class="d-flex align-items-center justify-content-center pointer-cursor"
-        (click)="goBack()"
-      >
+      <div class="d-flex align-items-center justify-content-center pointer-cursor" (click)="goBack()">
         <span class="me-2 d-flex align-items-center">
           <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
         </span>
@@ -12,72 +9,35 @@
           <span class="back-btn-text">Contacts </span>
         </b>
       </div>
-      <button
-        pButton
-        label="Export Contacts CSV"
-        icon="pi pi-file"
-        class="p-button-info mb-2"
-        (click)="exportContactsToCSV()"
-      ></button>
+      <button pButton *ngIf="loggedInUserRole === 1" label="Export Contacts CSV" icon="pi pi-file"
+        class="p-button-info mb-2" (click)="exportContactsToCSV()"></button>
     </div>
   </div>
 
   <div class="m-2">
-    <p-table
-      #accountTable
-      [value]="accounts"
-      [lazy]="true"
-      [sortField]="'submitted_on'"
-      [sortOrder]="-1"
-      (onLazyLoad)="loadAccounts($event)"
-      (onRowSelect)="viewAccount($event)"
-      dataKey="id"
-      [showCurrentPageReport]="true"
-      [rowsPerPageOptions]="[10, 25, 50]"
-      [paginator]="true"
-      [rows]="10"
-      [totalRecords]="accountsCount"
-      [loading]="apiLoading"
-      class="p-datatable-striped"
-      responsiveLayout="scroll"
-      scrollHeight="flex"
-      [globalFilterFields]="[
+    <p-table #accountTable [value]="accounts" [lazy]="true" [sortField]="'submitted_on'" [sortOrder]="-1"
+      (onLazyLoad)="loadAccounts($event)" (onRowSelect)="viewAccount($event)" dataKey="id"
+      [showCurrentPageReport]="true" [rowsPerPageOptions]="[10, 25, 50]" [paginator]="true" [rows]="10"
+      [totalRecords]="accountsCount" [loading]="apiLoading" class="p-datatable-striped" responsiveLayout="scroll"
+      scrollHeight="flex" [globalFilterFields]="[
         'referenceNo',
         'customer.firstName',
         'partner.partnerName',
         'status'
-      ]"
-      styleClass="p-datatable-customers "
-      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Contacts"
-    >
+      ]" styleClass="p-datatable-customers "
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Contacts">
       <ng-template pTemplate="caption">
         <div class="row">
           <div class="col-md-3 mt-2 no-padding-small">
             <div class="p-inputgroup">
-              <input
-                type="text"
-                pInputText
-                placeholder="Search User with User Name"
-                [(ngModel)]="userNameToSearch"
+              <input type="text" pInputText placeholder="Search User with User Name" [(ngModel)]="userNameToSearch"
                 (ngModelChange)="
                   inputValueChangeEvent('loanId', userNameToSearch)
-                "
-                (keyup.enter)="filterWithName()"
-              />
-              <button
-                type="button"
-                pButton
-                class="p-button-primary search-btn"
-                [disabled]="!userNameToSearch"
-                (click)="filterWithName()"
-              >
-                <img
-                  src="assets/images/icons/search.svg"
-                  alt="Search"
-                  width="16"
-                  height="16"
-                  style="vertical-align: middle"
-                />
+                " (keyup.enter)="filterWithName()" />
+              <button type="button" pButton class="p-button-primary search-btn" [disabled]="!userNameToSearch"
+                (click)="filterWithName()">
+                <img src="assets/images/icons/search.svg" alt="Search" width="16" height="16"
+                  style="vertical-align: middle" />
               </button>
             </div>
           </div>
@@ -99,55 +59,52 @@
       </ng-template> -->
       <ng-template pTemplate="header">
         <tr>
-          <th pSortableColumn="contactId"  class="text-nowrap">
+          <th pSortableColumn="contactId" class="text-nowrap">
             Contact Id <p-sortIcon field="contactId"></p-sortIcon>
           </th>
 
-          <th pSortableColumn="company_name"  class="text-nowrap">
+          <th pSortableColumn="company_name" class="text-nowrap">
             Business Name <p-sortIcon field="company_name"></p-sortIcon>
           </th>
 
-          <th pSortableColumn="full_name"  class="text-nowrap">
+          <th pSortableColumn="full_name" class="text-nowrap">
             Person Name <p-sortIcon field="full_name"></p-sortIcon>
           </th>
 
-          <th pSortableColumn="phone"  class="text-nowrap">
+          <th pSortableColumn="phone" class="text-nowrap">
             Mobile <p-sortIcon field="phone"></p-sortIcon>
           </th>
 
-          <th pSortableColumn="email"  class="text-nowrap">
+          <th pSortableColumn="email" class="text-nowrap">
             Email <p-sortIcon field="email"></p-sortIcon>
           </th>
 
-          <th pSortableColumn="city"  class="text-nowrap">
+          <th pSortableColumn="city" class="text-nowrap">
             City <p-sortIcon field="city"></p-sortIcon>
           </th>
 
-          <th pSortableColumn="message"  class="text-nowrap">
+          <th pSortableColumn="message" class="text-nowrap">
             Message <p-sortIcon field="message"></p-sortIcon>
           </th>
 
-          <th pSortableColumn="remarks"  class="text-nowrap">
+          <th pSortableColumn="remarks" class="text-nowrap">
             Remarks <p-sortIcon field="remarks"></p-sortIcon>
           </th>
           <th class="text-nowrap">
             Select Remarks
           </th>
 
-          <th pSortableColumn="submitted_on"  class="text-nowrap">
+          <th pSortableColumn="submitted_on" class="text-nowrap">
             Created Date <p-sortIcon field="submitted_on"></p-sortIcon>
           </th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-team>
-        <tr
-          class="text-capitalize"
-          [ngClass]="{ 'disabled-row': team.disabled }"
-        >
+        <tr class="text-capitalize" [ngClass]="{ 'disabled-row': team.disabled }">
           <td>
             <span class="table-column-data" *ngIf="team.contactId">{{
               team.contactId
-            }}</span>
+              }}</span>
           </td>
           <td>
             <span *ngIf="team.company_name" class="table-column-data">
@@ -162,12 +119,12 @@
           <td>
             <span class="table-column-data" *ngIf="team.phone">{{
               team.phone
-            }}</span>
+              }}</span>
           </td>
           <td>
             <span class="table-column-data text-lowercase" *ngIf="team.email">{{
               team.email
-            }}</span>
+              }}</span>
           </td>
           <td>
             <span *ngIf="team.city" class="table-column-data">
@@ -176,11 +133,7 @@
           </td>
 
           <td>
-            <span
-              class="table-column-data text-lowercase"
-              *ngIf="team.message"
-              >{{ team.message }}</span
-            >
+            <span class="table-column-data text-lowercase" *ngIf="team.message">{{ team.message }}</span>
           </td>
           <td>
             <!-- <textarea
@@ -190,29 +143,16 @@
                 (keydown.enter)="saveRemark(team, $event)"
               >{{ team.remarks }}
             </textarea> -->
-            <textarea
-              class="form-control form-control-sm"
-              rows="2"
-              placeholder="Add remark"
-              [(ngModel)]="team.remarks"
-              (keydown.enter)="saveRemark(team, $event)"
-            ></textarea>
+            <textarea class="form-control form-control-sm" rows="2" placeholder="Add remark" [(ngModel)]="team.remarks"
+              (keydown.enter)="saveRemark(team, $event)"></textarea>
 
           </td>
           <td (click)="$event.stopPropagation()">
             <!-- ✅ DROPDOWN -->
-            <p-dropdown
-              [options]="adminRemarkOptions"
-              [(ngModel)]="team.remarkId"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Select Remark"
-              [style]="{ width: '100%', marginBottom: '6px' }"
-              (onChange)="onRemarkChange(team, $event.value)" 
-              (click)="$event.stopPropagation()"
-              appendTo="body"
-              [showClear]="true" 
-            ></p-dropdown>
+            <p-dropdown [options]="adminRemarkOptions" [(ngModel)]="team.remarkId" optionLabel="label"
+              optionValue="value" placeholder="Select Remark" [style]="{ width: '100%', marginBottom: '6px' }"
+              (onChange)="onRemarkChange(team, $event.value)" (click)="$event.stopPropagation()" appendTo="body"
+              [showClear]="true"></p-dropdown>
 
             <!-- ✅ TEXTAREA -->
             <!-- <textarea
@@ -227,7 +167,7 @@
           <td>
             <span class="table-column-data" *ngIf="team.submitted_on">{{
               team.submitted_on | date
-            }}</span>
+              }}</span>
           </td>
           <!--
           <td>
@@ -266,12 +206,7 @@
       <ng-template pTemplate="emptymessage">
         <tr class="text-center">
           <td colspan="10" class="text-center fw-bold">
-            <img
-              alt="No Data"
-              src="../../../assets/images/menu/no-data.gif"
-              width="200"
-              height="200"
-            />
+            <img alt="No Data" src="../../../assets/images/menu/no-data.gif" width="200" height="200" />
             <p>No Accounts Found</p>
           </td>
         </tr>

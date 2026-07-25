@@ -106,8 +106,9 @@
                     <!-- <th>FollowUp Date</th> -->
                     <th>Plan</th>
                     <th>Status</th>
+                    <th>Assigned To</th>
                   </tr>
-                </ng-template>
+      </ng-template>
 
                 <ng-template pTemplate="body" let-lead>
                   <tr [pSelectableRow]="lead">
@@ -130,28 +131,29 @@
                     <td>
                       {{ lead.latest_status | capitalizeFirst }}
                     </td>
-                  </tr>
-                </ng-template>
-
-                <ng-template pTemplate="emptymessage">
-                  <tr class="text-center">
-                    <td colspan="10" class="text-center fw-bold">
-                      <p
-                        style="
+                    <td>
+                      {{ lead.assignedUserName || "-" }}
+                    </td>
+                    </tr>
+                    </ng-template>
+                    
+                    <ng-template pTemplate="emptymessage">
+                      <tr class="text-center">
+                        <td colspan="10" class="text-center fw-bold">
+                          <p style="
                           color: #535ab4;
                           font-weight: 400;
                           font-size: 18px;
-                        "
-                      >
-                        No Data Found
-                      </p>
-                    </td>
-                  </tr>
-                </ng-template>
-              </p-table>
-            </div>
-          </div>
-        </div>
+                          ">
+                            No Data Found
+                          </p>
+                        </td>
+                      </tr>
+                    </ng-template>
+                    </p-table>
+                    </div>
+                    </div>
+                    </div>
         <!--Accounts Table-->
         <div class="col-md-6 no-padding-small" *ngIf="selectedTodayTable === 'accounts'">
           <br class="d-lg-none d-md-none" />
@@ -196,6 +198,7 @@
                     <!-- <th>FollowUp Date</th> -->
                     <th>Plan</th>
                     <th>Status</th>
+                    <th>Assigned To</th>
                   </tr>
                 </ng-template>
 
@@ -219,6 +222,9 @@
                     </td>
                     <td>
                       {{ lead.latest_status | capitalizeFirst }}
+                    </td>
+                    <td>
+                      {{ lead.assignedUserName || "-" }}
                     </td>
                   </tr>
                 </ng-template>
@@ -409,6 +415,7 @@
                     <th>Mobile Number</th>
                     <th>Plan</th>
                     <th>Expired On</th>
+                    <th>Assigned To</th>
                   </tr>
                 </ng-template>
  
@@ -426,12 +433,15 @@
                     <td>
                       {{ row.end_date ? (row.end_date | date: 'dd MMM yyyy') : '-' }}
                     </td>
+                    <td>
+                      {{ row.assignedUserName || '-' }}
+                    </td>
                   </tr>
                 </ng-template>
  
                 <ng-template pTemplate="emptymessage">
                   <tr class="text-center">
-                    <td colspan="4" class="text-center fw-bold">
+                    <td colspan="5" class="text-center fw-bold">
                       <p style="color: #535ab4; font-weight: 400; font-size: 18px;">
                         No Expired Subscriptions Today
                       </p>
@@ -471,6 +481,7 @@
                     <th>Mobile Number</th>
                     <th>Plan</th>
                     <th>Expired On</th>
+                    <th>Assigned To</th>
                   </tr>
                 </ng-template>
  
@@ -488,12 +499,13 @@
                     <td>
                       {{ row.end_date ? (row.end_date | date: 'dd MMM yyyy') : '-' }}
                     </td>
+                    <td>{{ row.assignedUserName || '-' }}</td>
                   </tr>
                 </ng-template>
  
                 <ng-template pTemplate="emptymessage">
                   <tr class="text-center">
-                    <td colspan="4" class="text-center fw-bold">
+                    <td colspan="5" class="text-center fw-bold">
                       <p style="color: #535ab4; font-weight: 400; font-size: 18px;">
                         No Expired Subscriptions Today
                       </p>
@@ -529,6 +541,7 @@
                     <th>Plan</th>
                     <th>Start Date</th>
                     <th>End Date</th>
+                    <th>Assigned To</th>
                   </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-row>
@@ -538,6 +551,7 @@
                     <td>{{ row.plan_name || '-' }}</td>
                     <td>{{ row.start_date | date:'dd MMM yyyy' }}</td>
                     <td>{{ row.end_date   | date:'dd MMM yyyy' }}</td>
+                    <td>{{ row.assignedUserName || '-' }}</td>
                   </tr>
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
@@ -574,6 +588,7 @@
                     <th>Previous Plan</th>
                     <th>New Plan</th>
                     <th>Start Date</th>
+                    <th>Assigned To</th>
                   </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-row>
@@ -587,6 +602,7 @@
                       {{ row.plan_name || '-' }}
                     </td>
                     <td>{{ row.start_date | date:'dd MMM yyyy' }}</td>
+                    <td>{{ row.assignedUserName || '-' }}</td>
                   </tr>
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
@@ -623,6 +639,7 @@
                     <th>Previous Plan</th>
                     <th>New Plan</th>
                     <th>Start Date</th>
+                    <th>Assigned To</th>
                   </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-row>
@@ -636,6 +653,7 @@
                         {{ row.plan_name || '-' }}
                     </td>
                     <td>{{ row.start_date | date:'dd MMM yyyy' }}</td>
+                    <td>{{ row.assignedUserName || '-' }}</td>
                   </tr>
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
@@ -649,6 +667,97 @@
         </div>
          
       </div>
+      </div>
+      <div class="row  mt-2">
+      <div class="col-md-6 no-padding-small">
+          <br class="d-lg-none d-md-none" />
+          
+          <div class="card">
+            <div class="text-capitalize" style="height: 420px">
+              <p-table
+                [value]="todayCallbacks"
+                class="custom-scrollbar"
+                [sortOrder]="-1"
+                [lazy]="true"
+                selectionMode="single"
+                [totalRecords]="todayCallbacksCount"
+                (onLazyLoad)="onLazyLoadData($event)"
+                (onRowSelect)="viewSocialMediaLead($event)"
+                dataKey="id"
+                [showCurrentPageReport]="false"
+                [rowsPerPageOptions]="[10, 25, 50]"
+                [paginator]="true"
+                [rows]="10"
+                class="p-datatable-striped"
+                [loading]="fallowupLoading"
+                scrollHeight="240px"
+                styleClass="p-datatable-customers "
+                responsiveLayout="scroll"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Callbacks"
+                [showCurrentPageReport]="true"
+              >
+                <ng-template pTemplate="caption">
+                  <div
+                    class="d-flex align-items-center justify-content-between gap-3 flex-nowrap"
+                    style="overflow: hidden"
+                  >
+                    <div>Today Callbacks</div>
+                  </div>
+                </ng-template>
+
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <!-- <th>FollowUp Date</th> -->
+                    <!-- <th>Callback Date</th> -->
+              
+                    <th>Assigned To</th>
+                  </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-lead>
+                  <tr [pSelectableRow]="lead">
+                    <td>
+                      {{ lead.Name || "-" }}
+                    </td>
+
+                    <td>
+                      {{ lead.PhoneNumber || "-" }}
+                    </td>
+                    <!-- <td>
+                    {{
+                      (lead.filefollowupDate ? lead.filefollowupDate : "-")
+                        | date : "MMM d, y, h:mm a"
+                    }}
+                  </td> -->
+                  
+                  
+                    <td>
+                      {{ lead.assignedUserName || "-" }}
+                    </td>
+                  </tr>
+                </ng-template>
+
+                <ng-template pTemplate="emptymessage">
+                  <tr class="text-center">
+                    <td colspan="10" class="text-center fw-bold">
+                      <p
+                        style="
+                          color: #535ab4;
+                          font-weight: 400;
+                          font-size: 18px;
+                        "
+                      >
+                        No Data Found
+                      </p>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </div>
+        </div>
     </div>
 
     <footer class="footer-card text-center text-lg-start mx-2 my-4">
