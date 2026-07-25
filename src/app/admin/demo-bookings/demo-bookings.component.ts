@@ -18,7 +18,7 @@ export class DemoBookingsComponent {
   loading = false;
 
   globalSearch = '';
-  selectedStatus: any = 'All';
+  selectedStatus: any = '';
 
   showCompletedDialog = false;
   selectedCompletedRow: any = null;
@@ -26,7 +26,7 @@ export class DemoBookingsComponent {
   selectedDate: Date | null = new Date();
 
   statusOptions = [
-    { label: 'All', value: 'All' },
+    { label: 'All', value: '' },
     { label: 'Confirmed', value: 'confirmed' },
     { label: 'Completed', value: 'completed' },
     { label: 'Cancelled', value: 'cancelled' },
