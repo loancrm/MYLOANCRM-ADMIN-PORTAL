@@ -24,7 +24,8 @@ import { LucideAngularModule,
         LogOut,
         ChartNoAxesCombined,
         Settings,
-        NotebookPen
+        NotebookPen,
+        Megaphone
         } from 'lucide-angular';
 @NgModule({
   declarations: [SidebarMenuComponent],
@@ -54,7 +55,8 @@ import { LucideAngularModule,
       LogOut,
       ChartNoAxesCombined,
       Settings,
-      NotebookPen
+      NotebookPen,
+      Megaphone
     })
   ],
   exports: [SidebarMenuComponent],

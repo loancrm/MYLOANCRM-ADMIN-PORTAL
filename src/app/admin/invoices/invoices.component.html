@@ -1,0 +1,240 @@
+<div>
+  <div class="m-2 p-1">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <b>
+          <span class="back-btn-text">Invoices</span>
+        </b>
+      </div>
+      <div>
+        <button
+          pButton
+          pRipple
+          type="button"
+          label="Export to Excel"
+          icon="pi pi-file-excel"
+          class="p-button-info"
+          [loading]="exportingExcel"
+          (click)="exportInvoicesToExcel()"
+        ></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="m-2">
+    <p-table
+      #invoiceTable
+      [value]="invoices"
+      [lazy]="true"
+      (onLazyLoad)="loadInvoices($event)"
+      dataKey="id"
+      [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [paginator]="true"
+      [rows]="10"
+      [totalRecords]="invoicesCount"
+      [loading]="apiLoading"
+      class="p-datatable-striped"
+      responsiveLayout="scroll"
+      scrollHeight="flex"
+      styleClass="p-datatable-customers"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Invoices"
+      [sortField]="'invoice_date'"
+      [sortOrder]="-1"
+      sortMode="single"
+    >
+      <ng-template pTemplate="caption">
+        <div class="row">
+          <div class="col-md-3 mt-2 no-padding-small">
+            <div class="p-inputgroup">
+              <input
+                type="text"
+                pInputText
+                placeholder="Search by Business Name"
+                [(ngModel)]="businessNameToSearch"
+                (ngModelChange)="
+                  inputValueChangeEvent('businessName', businessNameToSearch)
+                "
+                (keyup.enter)="filterWithBusinessName()"
+              />
+              <button
+                type="button"
+                pButton
+                class="p-button-primary search-btn"
+                [disabled]="!businessNameToSearch"
+                (click)="filterWithBusinessName()"
+              >
+                <img
+                  src="assets/images/icons/search.svg"
+                  alt="Search"
+                  width="16"
+                  height="16"
+                  style="vertical-align: middle"
+                />
+              </button>
+            </div>
+          </div>
+          <div class="col-md-5 mt-2 no-padding-small">
+            <button
+              pButton
+              pRipple
+              type="button"
+              label="This Month"
+              [class]="
+                activeQuickRange === 'month'
+                  ? 'p-button-primary me-2'
+                  : 'p-button-outlined me-2'
+              "
+              (click)="filterThisMonth()"
+            ></button>
+            <button
+              pButton
+              pRipple
+              type="button"
+              label="Clear"
+              class="p-button-text"
+              (click)="clearFilters()"
+            ></button>
+          </div>
+          <div class="col-md-4 mt-2 no-padding-small text-right">
+            <div class="d-flex">
+              <div class="flex-grow-1 me-2"></div>
+              <div class="d-flex align-items-center pointer-cursor">
+                <app-filter
+                  [position]="'right'"
+                  [iconColor]="'#33009C'"
+                  [iconSize]="'28px!important'"
+                  (filterEvent)="applyConfigFilters($event)"
+                  [filterConfig]="filterConfig"
+                  [showFilterIndication]="appliedFilter"
+                  pTooltip="Filter"
+                  tooltipPosition="top"
+                >
+                </app-filter>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th class="text-nowrap" pSortableColumn="invoice_number">
+            Invoice Number <p-sortIcon field="invoice_number"></p-sortIcon>
+          </th>
+          <th pSortableColumn="businessName">
+            Account <p-sortIcon field="businessName"></p-sortIcon>
+          </th>
+          <th class="text-nowrap">GST Number</th>
+          <th>Plan</th>
+          <th class="text-nowrap">Amount</th>
+          <th class="text-nowrap" pSortableColumn="invoice_date">
+            Invoice Date <p-sortIcon field="invoice_date"></p-sortIcon>
+          </th>
+          <th pSortableColumn="status">
+            Status <p-sortIcon field="status"></p-sortIcon>
+          </th>
+          <th>Action</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-invoice>
+        <tr class="text-capitalize">
+          <td>
+            <span class="table-column-data text-lowercase">{{
+              invoice.invoice_number
+            }}</span>
+          </td>
+          <td>
+            <div class="table-column-data">
+              <div>{{ invoice.businessName || "—" }}</div>
+              <small class="text-muted">{{ invoice.accountId }}</small>
+            </div>
+          </td>
+          <td>
+            <span class="table-column-data">{{
+              invoice.gstNumber || "—"
+            }}</span>
+          </td>
+          <td>
+            <span class="table-column-data">{{ invoice.planName || "—" }}</span>
+          </td>
+          <td>
+            <span class="table-column-data" *ngIf="invoice.amount != null"
+              >₹ {{ invoice.amount | number: "1.2-2" }}</span
+            >
+          </td>
+          <td>
+            <span class="table-column-data">{{
+              invoice.invoice_date | date
+            }}</span>
+          </td>
+          <td>
+            <span class="table-column-data">{{ invoice.status }}</span>
+          </td>
+          <td>
+            <div class="d-flex">
+              <button
+                pButton
+                pRipple
+                type="button"
+                icon="pi pi-eye"
+                pTooltip="View Invoice"
+                tooltipPosition="top"
+                class="p-button-rounded p-button-text"
+                (click)="viewInvoice(invoice)"
+              ></button>
+              <button
+                pButton
+                pRipple
+                type="button"
+                icon="pi pi-file-pdf"
+                pTooltip="Open PDF in New Tab"
+                tooltipPosition="top"
+                class="p-button-rounded p-button-text"
+                [disabled]="!invoice.pdf_relative_path"
+                (click)="openPdfInNewTab(invoice)"
+              ></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr class="text-center">
+          <td colspan="8" class="text-center fw-bold">
+            <img
+              alt="No Data"
+              src="../../../assets/images/menu/no-data.gif"
+              width="200"
+              height="200"
+            />
+            <p>No Invoices Found</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <p-dialog
+    header="Invoice Preview"
+    [(visible)]="viewInvoiceDialog"
+    [modal]="true"
+    [style]="{ width: 'min(900px, 96vw)' }"
+    [contentStyle]="{ height: '85vh', padding: 0 }"
+    [dismissableMask]="true"
+    (onHide)="closeViewInvoiceDialog()"
+  >
+    <iframe
+      *ngIf="selectedInvoiceHasPdf && selectedInvoicePdfUrl"
+      [src]="selectedInvoicePdfUrl"
+      style="width: 100%; height: 100%; border: none"
+    ></iframe>
+    <div *ngIf="!selectedInvoiceHasPdf" class="text-center p-5">
+      <p>No PDF is stored for this invoice.</p>
+    </div>
+  </p-dialog>
+</div>

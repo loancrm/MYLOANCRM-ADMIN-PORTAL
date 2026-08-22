@@ -32,27 +32,42 @@ const routes: Routes = [
       {
         path: 'subscription-plans',
         loadChildren: () =>
-          import('./subscription-plans/subscription-plans.module').then((m) => m.SubscriptionPlansModule),
+          import('./subscription-plans/subscription-plans.module').then(
+            (m) => m.SubscriptionPlansModule,
+          ),
       },
       {
         path: 'subscriptions/:id',
         loadChildren: () =>
-          import('./subscriptions/subscriptions.module').then((m) => m.SubscriptionsModule),
+          import('./subscriptions/subscriptions.module').then(
+            (m) => m.SubscriptionsModule,
+          ),
       },
       {
         path: 'wallettransactions/:id',
         loadChildren: () =>
-          import('./wallettransactions/wallettransactions.module').then((m) => m.WallettransactionsModule),
+          import('./wallettransactions/wallettransactions.module').then(
+            (m) => m.WallettransactionsModule,
+          ),
       },
       {
         path: 'contact-submissions',
         loadChildren: () =>
-          import('./contact-submissions/contact-submissions.module').then((m) => m.ContactSubmissionsModule),
+          import('./contact-submissions/contact-submissions.module').then(
+            (m) => m.ContactSubmissionsModule,
+          ),
+      },
+      {
+        path: 'invoices',
+        loadChildren: () =>
+          import('./invoices/invoices.module').then((m) => m.InvoicesModule),
       },
       {
         path: 'subscribers',
         loadChildren: () =>
-          import('./subscribers/subscribers.module').then((m) => m.SubscribersModule),
+          import('./subscribers/subscribers.module').then(
+            (m) => m.SubscribersModule,
+          ),
       },
       {
         path: 'reports',
@@ -63,32 +78,41 @@ const routes: Routes = [
         path: 'ipAddress',
         loadChildren: () =>
           import('./ip-address/ip-address.module').then(
-            (m) => m.IpAddressModule
+            (m) => m.IpAddressModule,
           ),
       },
       {
         path: 'cibil-reports',
         loadChildren: () =>
           import('./cibil-reports/cibil-reports.module').then(
-            (m) => m.CibilReportsModule
+            (m) => m.CibilReportsModule,
           ),
       },
+      // {
+      //   path: 'credit-report-banner',
+      //   loadChildren: () =>
+      //     import('./credit-report-banner/credit-report-banner.module').then(
+      //       (m) => m.CreditReportBannerModule,
+      //     ),
+      // },
       {
         path: 'cam-reports',
         loadChildren: () =>
           import('./cam-reports/cam-reports.module').then(
-            (m) => m.CamReportsModule
+            (m) => m.CamReportsModule,
           ),
       },
       {
         path: 'social-media-leads',
         loadChildren: () =>
-          import('./social-media-leads/social-media-leads.module').then((m) => m.SocialMediaLeadsModule),
+          import('./social-media-leads/social-media-leads.module').then(
+            (m) => m.SocialMediaLeadsModule,
+          ),
       },
       {
         path: 'users',
         loadChildren: () =>
-          import('./users/users.module').then(m => m.UsersModule),
+          import('./users/users.module').then((m) => m.UsersModule),
       },
       {
         path: 'campaign',
@@ -103,12 +127,16 @@ const routes: Routes = [
       {
         path: 'templates',
         loadChildren: () =>
-          import('./whatsapp-templates/whatsapp-templates.module').then((m) => m.WhatsappTemplatesModule),
+          import('./whatsapp-templates/whatsapp-templates.module').then(
+            (m) => m.WhatsappTemplatesModule,
+          ),
       },
       {
         path: 'quick-links',
         loadChildren: () =>
-          import('./quick-links/quick-links.module').then((m) => m.QuickLinksModule),
+          import('./quick-links/quick-links.module').then(
+            (m) => m.QuickLinksModule,
+          ),
       },
       {
         path: 'settings',
@@ -118,19 +146,24 @@ const routes: Routes = [
       {
         path: 'allaccounts-analytics',
         loadChildren: () =>
-          import('./global-analytics/global-analytics.module').then((m) => m.GlobalAnalyticsModule),
+          import('./global-analytics/global-analytics.module').then(
+            (m) => m.GlobalAnalyticsModule,
+          ),
       },
       {
         path: 'demo-bookings',
         loadChildren: () =>
-          import('./demo-bookings/demo-bookings.module').then((m) => m.DemoBookingsModule),
+          import('./demo-bookings/demo-bookings.module').then(
+            (m) => m.DemoBookingsModule,
+          ),
       },
       {
         path: 'client-requirements',
         loadChildren: () =>
-          import('./client-requirements/client-requirements.module').then((m) => m.ClientRequirementsModule),
+          import('./client-requirements/client-requirements.module').then(
+            (m) => m.ClientRequirementsModule,
+          ),
       },
-
     ],
   },
 ];
@@ -139,4 +172,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class AdminRoutingModule { }
+export class AdminRoutingModule {}

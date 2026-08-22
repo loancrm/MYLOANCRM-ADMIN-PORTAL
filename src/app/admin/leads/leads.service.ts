@@ -366,6 +366,17 @@ export class LeadsService {
     return this.serviceMeta.httpGet(url, null, filter);
   }
 
+  /** Admin-wide, filterable/paginated subscription tax invoice list. */
+  getSubscriptionInvoicesList(filter = {}) {
+    const url = 'admin/subscription-invoices';
+    return this.serviceMeta.httpGet(url, null, filter);
+  }
+
+  getSubscriptionInvoicesCount(filter = {}) {
+    const url = 'admin/subscription-invoices-count';
+    return this.serviceMeta.httpGet(url, null, filter);
+  }
+
   getFetchedCibilReportsCount(filter = {}) {
     const url = 'admin/fetched-cibil-reports-count';
     return this.serviceMeta.httpGet(url, null, filter);
