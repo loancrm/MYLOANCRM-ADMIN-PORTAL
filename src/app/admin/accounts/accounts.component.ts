@@ -44,7 +44,7 @@ export class AccountsComponent implements AfterViewInit {
     { label: 'Free Trial', value: 'Free Trial' },
     { label: 'Basic', value: 'Basic' },
     { label: 'Premium', value: 'Premium' },
-    { label: 'Professional', value: 'Professional' }
+    { label: 'Professional', value: 'Professional' },
   ];
   statusOptions = [
     { label: 'All', value: 'ALL' },
@@ -77,7 +77,7 @@ export class AccountsComponent implements AfterViewInit {
     private confirmationService: ConfirmationService,
     private leadsService: LeadsService,
     private localStorageService: LocalStorageService,
-    private toastService: ToastService
+    private toastService: ToastService,
   ) {
     this.breadCrumbItems = [
       {
@@ -100,7 +100,8 @@ export class AccountsComponent implements AfterViewInit {
       this.appliedFilter = storedAppliedFilter;
     }
 
-    const adminDetails = this.localStorageService.getItemFromLocalStorage('adminDetails');
+    const adminDetails =
+      this.localStorageService.getItemFromLocalStorage('adminDetails');
     if (adminDetails && adminDetails.user) {
       this.loggedInUserRole = Number(adminDetails.user.role);
     }
@@ -109,7 +110,7 @@ export class AccountsComponent implements AfterViewInit {
     if (this.loggedInUserRole === 2 && adminDetails?.user?.id) {
       this.appliedFilter = {
         ...this.appliedFilter,
-        'assign_to-eq': adminDetails.user.id
+        'assign_to-eq': adminDetails.user.id,
       };
     }
 
@@ -123,7 +124,6 @@ export class AccountsComponent implements AfterViewInit {
 
     this.leadsService.getAdminRemarks(filter).subscribe(
       (data: any) => {
-
         // ✅ ROW DROPDOWN (NO "ALL")
         this.adminRemarkOptions = data.map((r: any) => ({
           label: r.displayName,
@@ -133,7 +133,7 @@ export class AccountsComponent implements AfterViewInit {
         // ✅ FILTER DROPDOWN (WITH "ALL")
         this.adminRemarkFilterOptions = [
           // { label: 'All', value: 'ALL' },
-          ...this.adminRemarkOptions
+          ...this.adminRemarkOptions,
         ];
 
         this.adminRemarksLoaded = true;
@@ -141,7 +141,7 @@ export class AccountsComponent implements AfterViewInit {
       () => {
         this.toastService.showError('Failed to load remarks');
         this.adminRemarksLoaded = true;
-      }
+      },
     );
   }
 
@@ -183,10 +183,10 @@ export class AccountsComponent implements AfterViewInit {
 
   restorePaginationState() {
     const storedPage = this.localStorageService.getItemFromLocalStorage(
-      'disbursalsCurrentPage'
+      'disbursalsCurrentPage',
     );
     const storedRows = this.localStorageService.getItemFromLocalStorage(
-      'disbursalsRowsPerPage'
+      'disbursalsRowsPerPage',
     );
 
     if (storedPage) {
@@ -220,11 +220,11 @@ export class AccountsComponent implements AfterViewInit {
       'City',
       'Plan',
       'Status',
+      'gstNumber',
       'Wallet Balance',
       'Created Date',
       'Assigned To',
       'FollowUp Date',
-
     ];
 
     const rows = this.accounts.map((team: any) => [
@@ -237,7 +237,7 @@ export class AccountsComponent implements AfterViewInit {
       team.city || '',
       team.latest_plan_name || '',
       team.latest_status || '',
-
+      team.gstNumber || '',
       team.walletBalance || '',
       team.createdOn ? new Date(team.createdOn).toLocaleDateString() : '',
       team.assign_to || '',
@@ -291,7 +291,7 @@ export class AccountsComponent implements AfterViewInit {
     }
     this.localStorageService.setItemOnLocalStorage(
       'accountAppliedFilter',
-      this.appliedFilter
+      this.appliedFilter,
     );
     this.loadAccounts(null);
   }
@@ -318,8 +318,14 @@ export class AccountsComponent implements AfterViewInit {
       const currentPage =
         event.first === 0 ? 1 : Math.floor(event.first / rows) + 1;
 
-      this.localStorageService.setItemOnLocalStorage('disbursalsCurrentPage', currentPage.toString());
-      this.localStorageService.setItemOnLocalStorage('disbursalsRowsPerPage', rows.toString());
+      this.localStorageService.setItemOnLocalStorage(
+        'disbursalsCurrentPage',
+        currentPage.toString(),
+      );
+      this.localStorageService.setItemOnLocalStorage(
+        'disbursalsRowsPerPage',
+        rows.toString(),
+      );
 
       this.initialFirst = event.first;
       this.initialRows = rows;
@@ -331,7 +337,12 @@ export class AccountsComponent implements AfterViewInit {
       api_filter['status-eq'] = 1;
     }
 
-    api_filter = Object.assign({}, api_filter, this.searchFilter, this.appliedFilter);
+    api_filter = Object.assign(
+      {},
+      api_filter,
+      this.searchFilter,
+      this.appliedFilter,
+    );
 
     if (this.selectedPlanType && this.selectedPlanType !== 'ALL') {
       api_filter['latest_plan_name-eq'] = this.selectedPlanType;
@@ -355,7 +366,8 @@ export class AccountsComponent implements AfterViewInit {
 
     // ✅ Role 2: always force their own assign_to — cannot be overridden
     if (this.loggedInUserRole === 2) {
-      const adminDetails = this.localStorageService.getItemFromLocalStorage('adminDetails');
+      const adminDetails =
+        this.localStorageService.getItemFromLocalStorage('adminDetails');
       api_filter['assign_to-eq'] = adminDetails?.user?.id;
     }
 
@@ -383,48 +395,104 @@ export class AccountsComponent implements AfterViewInit {
       // ── existing filters ──────────────────────────────────
       {
         header: 'Account Id',
-        data: [{ field: 'accountId', title: 'Account Id', type: 'text', filterType: 'like' }],
+        data: [
+          {
+            field: 'accountId',
+            title: 'Account Id',
+            type: 'text',
+            filterType: 'like',
+          },
+        ],
       },
       {
         header: 'Name',
-        data: [{ field: 'name', title: 'Name', type: 'text', filterType: 'like' }],
+        data: [
+          { field: 'name', title: 'Name', type: 'text', filterType: 'like' },
+        ],
       },
       {
         header: 'Mobile',
-        data: [{ field: 'mobile', title: 'Mobile', type: 'text', filterType: 'like' }],
+        data: [
+          {
+            field: 'mobile',
+            title: 'Mobile',
+            type: 'text',
+            filterType: 'like',
+          },
+        ],
       },
       {
         header: 'Email ID',
-        data: [{ field: 'emailId', title: 'Email ID', type: 'text', filterType: 'like' }],
+        data: [
+          {
+            field: 'emailId',
+            title: 'Email ID',
+            type: 'text',
+            filterType: 'like',
+          },
+        ],
       },
       {
         header: 'City',
-        data: [{ field: 'city', title: 'City', type: 'text', filterType: 'like' }],
+        data: [
+          { field: 'city', title: 'City', type: 'text', filterType: 'like' },
+        ],
       },
       {
         header: 'Latest Plan',
-        data: [{ field: 'latest_plan_name', title: 'Plan', type: 'text', filterType: 'like' }],
+        data: [
+          {
+            field: 'latest_plan_name',
+            title: 'Plan',
+            type: 'text',
+            filterType: 'like',
+          },
+        ],
       },
       {
         header: 'Latest Status',
-        data: [{ field: 'latest_status', title: 'Status', type: 'text', filterType: 'like' }],
+        data: [
+          {
+            field: 'latest_status',
+            title: 'Status',
+            type: 'text',
+            filterType: 'like',
+          },
+        ],
       },
       {
         header: 'Latest Remark',
-        data: [{ field: 'latest_remark', title: 'Latest Remark', type: 'text', filterType: 'like' }],
+        data: [
+          {
+            field: 'latest_remark',
+            title: 'Latest Remark',
+            type: 'text',
+            filterType: 'like',
+          },
+        ],
       },
       { header: 'FollowUp Date Range', data: followupDateRangeFilter() },
       {
         header: 'Date Range',
         data: [
-          { field: 'createdOn', title: 'From', type: 'date', filterType: 'gte' },
+          {
+            field: 'createdOn',
+            title: 'From',
+            type: 'date',
+            filterType: 'gte',
+          },
           { field: 'createdOn', title: 'To', type: 'date', filterType: 'lte' },
         ],
       },
       {
         header: 'Last Updated Date Range',
         data: [
-          { field: 'updatedOn', title: 'From', type: 'date', filterType: 'gte' },
+          {
+            field: 'updatedOn',
+            title: 'From',
+            type: 'date',
+            filterType: 'gte',
+          },
           { field: 'updatedOn', title: 'To', type: 'date', filterType: 'lte' },
         ],
       },
@@ -439,56 +507,62 @@ export class AccountsComponent implements AfterViewInit {
       // ── NEW: Pack completed period (days until end_date expires) ──
       {
         header: 'Pack Expiry (days left)',
-        data: [{
-          field: 'daysUntilExpiry',
-          title: 'Days Until Expiry',
-          type: 'dropdown',
-          filterType: 'eq',
-          options: [
-            { label: 'All', value: '' },
-            { label: '5 days', value: '5' },
-            { label: '10 days', value: '10' },
-            { label: '15 days', value: '15' },
-            { label: '20 days', value: '20' },
-            { label: '28 days', value: '28' },
-            { label: 'Expired', value: 'expired' },
-          ],
-        }],
+        data: [
+          {
+            field: 'daysUntilExpiry',
+            title: 'Days Until Expiry',
+            type: 'dropdown',
+            filterType: 'eq',
+            options: [
+              { label: 'All', value: '' },
+              { label: '5 days', value: '5' },
+              { label: '10 days', value: '10' },
+              { label: '15 days', value: '15' },
+              { label: '20 days', value: '20' },
+              { label: '28 days', value: '28' },
+              { label: 'Expired', value: 'expired' },
+            ],
+          },
+        ],
       },
 
       // ── NEW: Inactive period (days since last activity log) ──
       {
         header: 'Inactive Since (days)',
-        data: [{
-          field: 'inactiveDays',
-          title: 'Inactive Since',
-          type: 'dropdown',
-          filterType: 'eq',
-          options: [
-            { label: 'All', value: '' },
-            { label: '5 days', value: '5' },
-            { label: '10 days', value: '10' },
-            { label: '15 days', value: '15' },
-            { label: '20 days', value: '20' },
-            { label: '28 days', value: '28' },
-          ],
-        }],
+        data: [
+          {
+            field: 'inactiveDays',
+            title: 'Inactive Since',
+            type: 'dropdown',
+            filterType: 'eq',
+            options: [
+              { label: 'All', value: '' },
+              { label: '5 days', value: '5' },
+              { label: '10 days', value: '10' },
+              { label: '15 days', value: '15' },
+              { label: '20 days', value: '20' },
+              { label: '28 days', value: '28' },
+            ],
+          },
+        ],
       },
 
       // ── NEW: Feature activity (active/inactive in last 7 days) ──
       {
         header: 'Feature Activity',
-        data: [{
-          field: 'featureActivity',
-          title: 'Feature Activity',
-          type: 'dropdown',
-          filterType: 'eq',
-          options: [
-            { label: 'All', value: '' },
-            { label: 'Active', value: 'active' },
-            { label: 'Inactive', value: 'inactive' },
-          ],
-        }],
+        data: [
+          {
+            field: 'featureActivity',
+            title: 'Feature Activity',
+            type: 'dropdown',
+            filterType: 'eq',
+            options: [
+              { label: 'All', value: '' },
+              { label: 'Active', value: 'active' },
+              { label: 'Inactive', value: 'inactive' },
+            ],
+          },
+        ],
       },
     ];
   }
@@ -682,7 +756,7 @@ export class AccountsComponent implements AfterViewInit {
       },
       (error: any) => {
         this.toastService.showError(error);
-      }
+      },
     );
   }
   isMissedFollowup(followupDate: any): boolean {
@@ -704,11 +778,10 @@ export class AccountsComponent implements AfterViewInit {
     this.apiLoading = true;
     this.leadsService.getAccounts(filter).subscribe(
       (team: any) => {
-
         // ✅ FIX HERE
         this.accounts = team.map((t: any) => ({
           ...t,
-          remarkId: t.remarkId ? String(t.remarkId) : null
+          remarkId: t.remarkId ? String(t.remarkId) : null,
         }));
 
         this.apiLoading = false;
@@ -716,7 +789,7 @@ export class AccountsComponent implements AfterViewInit {
       (error: any) => {
         this.toastService.showError(error);
         this.apiLoading = false;
-      }
+      },
     );
   }
   // getTeam(filter = {}) {
@@ -767,7 +840,6 @@ export class AccountsComponent implements AfterViewInit {
     this.applyFilters(searchFilter);
   }
 
-
   isNumeric(value: string): boolean {
     return /^\d+$/.test(value);
   }
@@ -788,7 +860,7 @@ export class AccountsComponent implements AfterViewInit {
     // Confirm action
     if (
       !confirm(
-        `Are you sure you want to login as provider for account ${accountId}?`
+        `Are you sure you want to login as provider for account ${accountId}?`,
       )
     ) {
       return;
@@ -821,17 +893,19 @@ export class AccountsComponent implements AfterViewInit {
 
   changeAccountInternalStatus(accountId, statusId) {
     this.loading = true;
-    this.leadsService.changeAccountInternalStatus(accountId, statusId).subscribe(
-      (remarks) => {
-        this.toastService.showSuccess('Account Status Changed Successfully');
-        this.loading = false;
-        this.loadAccounts(this.currentTableEvent);
-      },
-      (error: any) => {
-        this.loading = false;
-        this.toastService.showError(error);
-      }
-    );
+    this.leadsService
+      .changeAccountInternalStatus(accountId, statusId)
+      .subscribe(
+        (remarks) => {
+          this.toastService.showSuccess('Account Status Changed Successfully');
+          this.loading = false;
+          this.loadAccounts(this.currentTableEvent);
+        },
+        (error: any) => {
+          this.loading = false;
+          this.toastService.showError(error);
+        },
+      );
   }
 
   revertAccountToNew(team) {
@@ -861,15 +935,15 @@ export class AccountsComponent implements AfterViewInit {
   }
 
   getStatusName(statusId) {
-    if (this.accountInternalStatusList && this.accountInternalStatusList.length > 0) {
+    if (
+      this.accountInternalStatusList &&
+      this.accountInternalStatusList.length > 0
+    ) {
       let leadStatusName = this.accountInternalStatusList.filter(
-        (leadStatus) => leadStatus.id == statusId
+        (leadStatus) => leadStatus.id == statusId,
       );
       return (
-        (leadStatusName &&
-          leadStatusName[0] &&
-          leadStatusName[0].name) ||
-        ''
+        (leadStatusName && leadStatusName[0] && leadStatusName[0].name) || ''
       );
     }
     return '';
@@ -910,7 +984,6 @@ export class AccountsComponent implements AfterViewInit {
     this.accountTable.reset();
   }
   onRemarkChange(lead: any, remarkId: any) {
-
     // If cleared → send null to backend
     const finalRemarkId = remarkId ? String(remarkId) : null;
 
@@ -927,7 +1000,7 @@ export class AccountsComponent implements AfterViewInit {
       },
       () => {
         this.toastService.showError('Failed to update remark');
-      }
+      },
     );
   }
   onRemarkFilterChange(event: any): void {
@@ -943,12 +1016,17 @@ export class AccountsComponent implements AfterViewInit {
       selectedBillingCycle: this.selectedBillingCycle,
       selectedRemarkFilter: this.selectedRemarkFilter,
       selectedAccountStatus: this.selectedAccountStatus,
-      selectedAssignFilter: this.selectedAssignFilter
+      selectedAssignFilter: this.selectedAssignFilter,
     };
-    this.localStorageService.setItemOnLocalStorage(this.FILTER_STORAGE_KEY, filters);
+    this.localStorageService.setItemOnLocalStorage(
+      this.FILTER_STORAGE_KEY,
+      filters,
+    );
   }
   private loadFiltersFromStorage(): void {
-    const stored = this.localStorageService.getItemFromLocalStorage(this.FILTER_STORAGE_KEY);
+    const stored = this.localStorageService.getItemFromLocalStorage(
+      this.FILTER_STORAGE_KEY,
+    );
     if (!stored) return;
     this.selectedPlanType = stored.selectedPlanType ?? 'ALL';
     this.selectedStatusType = stored.selectedStatusType ?? 'ALL';
@@ -962,19 +1040,23 @@ export class AccountsComponent implements AfterViewInit {
 
   isDemoCompleted(remarkId: any): boolean {
     if (!remarkId || !this.adminRemarkOptions.length) return false;
-    const found = this.adminRemarkOptions.find(r => r.value === String(remarkId));
+    const found = this.adminRemarkOptions.find(
+      (r) => r.value === String(remarkId),
+    );
     return found?.label?.toLowerCase().includes('demo completed') ?? false;
   }
 
   loadAssignFilterOptions(): void {
-    this.leadsService.getUsers({ 'status-eq': 1, 'role-eq': 2 }).subscribe((data: any) => {
-      this.assignFilterOptions = [
-        // { label: 'All User', value: 'ALL' },  // ✅ use 'ALL' not null
-        ...data
-          .filter((u: any) => u.status === 1 && Number(u.role) === 2)  // ✅ Number() for type safety
-          .map((u: any) => ({ label: u.name, value: u.id }))
-      ];
-    });
+    this.leadsService
+      .getUsers({ 'status-eq': 1, 'role-eq': 2 })
+      .subscribe((data: any) => {
+        this.assignFilterOptions = [
+          // { label: 'All User', value: 'ALL' },  // ✅ use 'ALL' not null
+          ...data
+            .filter((u: any) => u.status === 1 && Number(u.role) === 2) // ✅ Number() for type safety
+            .map((u: any) => ({ label: u.name, value: u.id })),
+        ];
+      });
   }
 
   onAccountAssignChange(team: any, userId: any): void {
@@ -982,11 +1064,11 @@ export class AccountsComponent implements AfterViewInit {
       () => {
         team.assign_to = userId;
         // ✅ Update displayed name instantly
-        const found = this.assignFilterOptions.find(u => u.value === userId);
+        const found = this.assignFilterOptions.find((u) => u.value === userId);
         team.assignedUserName = found ? found.label : null;
         this.toastService.showSuccess('Assigned successfully');
       },
-      () => this.toastService.showError('Failed to assign')
+      () => this.toastService.showError('Failed to assign'),
     );
   }
 

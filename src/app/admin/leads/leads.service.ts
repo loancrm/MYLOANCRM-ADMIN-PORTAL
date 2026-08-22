@@ -172,12 +172,12 @@ export class LeadsService {
   }
 
   getSubscriptions(filters) {
-    const url = 'accounts/subscriptions';
+    const url = 'accounts/admin/subscriptions';
     console.log('Fetching activities with filters:', filters);
     return this.serviceMeta.httpGet(url, null, filters);
   }
   getSubscriptionsCount(filters) {
-    const url = 'accounts/subscriptions/total';
+    const url = 'accounts/admin/subscriptions/total';
     return this.serviceMeta.httpGet(url, null, filters);
   }
 
