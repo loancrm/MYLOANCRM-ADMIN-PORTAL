@@ -1,0 +1,195 @@
+<div>
+  <div class="p-1 m-2 fixed-card">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <b>
+          <span class="back-btn-text">{{ editingId ? 'Edit Announcement' : 'Add Announcement' }} </span>
+        </b>
+      </div>
+    </div>
+  </div>
+
+  <div class="m-2">
+    <div class="fixed-card p-3" *ngIf="loading">
+      <div class="text-center py-4">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        <p class="mt-2 text-muted">Loading...</p>
+      </div>
+    </div>
+
+    <div class="fixed-card p-3" *ngIf="!loading">
+      <form [formGroup]="form" (ngSubmit)="save()" class="row g-3">
+        <div class="col-12">
+          <label class="form-label fw-semibold">Announcement Heading</label>
+          <input
+            pInputText
+            formControlName="title"
+            class="w-100"
+            maxlength="150"
+            placeholder="e.g. CIBIL Bureau Maintenance"
+          />
+        </div>
+
+        <div class="col-12">
+          <label class="form-label fw-semibold">
+            Message <span class="required">*</span>
+          </label>
+          <textarea
+            pInputTextarea
+            formControlName="message"
+            rows="3"
+            class="w-100"
+            maxlength="500"
+            placeholder="e.g. CIBIL reports may be delayed today due to bureau maintenance."
+          ></textarea>
+          <small
+            *ngIf="form.get('message')?.invalid && form.get('message')?.touched"
+            class="p-error"
+          >
+            Message is required (max 500 characters).
+          </small>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label fw-semibold d-block">
+            Target <span class="required">*</span>
+          </label>
+          <p-selectButton
+            [options]="targetOptions"
+            formControlName="targetType"
+            optionLabel="label"
+            optionValue="value"
+          ></p-selectButton>
+        </div>
+
+        <ng-container *ngIf="isTargetingAccounts">
+          <!-- Narrowing filter (top) — scopes the account search below,
+               it is not saved as targeting criteria itself. -->
+          <div class="col-12">
+            <label class="form-label fw-semibold d-block mb-2">
+              Narrow by Subscription <span class="text-muted fw-normal">(optional)</span>
+            </label>
+            <div class="row g-2">
+              <div class="col-12 col-sm-6">
+                <p-dropdown
+                  [options]="subscriptionStatusOptions"
+                  formControlName="filterSubscriptionStatus"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Any Status"
+                  styleClass="w-100"
+                  appendTo="body"
+                  (onChange)="onSubscriptionFilterChange()"
+                ></p-dropdown>
+              </div>
+              <div class="col-12 col-sm-6">
+                <p-dropdown
+                  [options]="planTypeOptions"
+                  formControlName="filterPlanType"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Any Plan"
+                  styleClass="w-100"
+                  appendTo="body"
+                  (onChange)="onSubscriptionFilterChange()"
+                ></p-dropdown>
+              </div>
+            </div>
+            <small class="text-muted d-block mt-1">
+              Only affects the account search below — e.g. set Status to Expired to search among expired accounts only.
+            </small>
+          </div>
+
+          <!-- Account picker (bottom) — the actual saved target. -->
+          <div class="col-12">
+            <label class="form-label fw-semibold">
+              Account(s) <span class="required">*</span>
+              <i class="pi pi-spin pi-spinner ms-1" *ngIf="accountSearchLoading"></i>
+            </label>
+            <p-multiSelect
+              [options]="accountOptions"
+              formControlName="accountIds"
+              optionLabel="label"
+              optionValue="value"
+              [filter]="true"
+              filterBy="label"
+              placeholder="Search by business name or account ID"
+              (onFilter)="onAccountFilter($event)"
+              display="chip"
+              [showToggleAll]="false"
+              styleClass="w-100"
+              appendTo="body"
+            ></p-multiSelect>
+            <small class="text-muted d-block mt-1">
+              Start typing a business name or account ID — the list updates as you type (scoped by the filter above, if set). Pick one account or several.
+            </small>
+          </div>
+        </ng-container>
+
+        <div class="col-12 col-sm-6">
+          <label class="form-label fw-semibold">From Date</label>
+          <p-calendar
+            formControlName="startDate"
+            dateFormat="yy-mm-dd"
+            placeholder="Show immediately if left blank"
+            [showIcon]="true"
+            [showButtonBar]="true"
+            styleClass="w-100"
+            appendTo="body"
+          ></p-calendar>
+        </div>
+
+        <div class="col-12 col-sm-6">
+          <label class="form-label fw-semibold">To Date</label>
+          <p-calendar
+            formControlName="endDate"
+            dateFormat="yy-mm-dd"
+            placeholder="Show indefinitely if left blank"
+            [showIcon]="true"
+            [showButtonBar]="true"
+            styleClass="w-100"
+            appendTo="body"
+          ></p-calendar>
+        </div>
+
+        <div class="col-12">
+          <div class="d-flex align-items-center gap-2">
+            <p-checkbox formControlName="isActive" [binary]="true" inputId="isActive"></p-checkbox>
+            <label for="isActive" class="mb-0">
+              Active &mdash; show this announcement to its target accounts
+            </label>
+          </div>
+          <small class="text-muted d-block mt-1">
+            <i class="pi pi-info-circle me-1"></i>
+            Turned off (or outside the date range above), it stays hidden even for its targeted accounts.
+          </small>
+        </div>
+
+        <div class="col-12 d-flex gap-2">
+          <button
+            pButton
+            type="submit"
+            [label]="editingId ? 'Update Announcement' : 'Save Announcement'"
+            icon="pi pi-check"
+            class="p-button-primary"
+            [loading]="saving"
+          ></button>
+          <button
+            pButton
+            type="button"
+            label="Cancel"
+            class="p-button-secondary"
+            [disabled]="saving"
+            (click)="cancel()"
+          ></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

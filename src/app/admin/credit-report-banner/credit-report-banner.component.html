@@ -1,0 +1,178 @@
+<div>
+  <div class="p-1 m-2 fixed-card">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <b>
+          <span class="back-btn-text">Credit Reports Announcement </span>
+        </b>
+      </div>
+      <button
+        pButton
+        label="Add Announcement"
+        icon="pi pi-plus"
+        class="p-button-primary mb-2"
+        (click)="goToCreate()"
+      ></button>
+    </div>
+  </div>
+
+  <div class="m-2">
+    <p-table
+      [value]="banners"
+      [loading]="loading"
+      dataKey="id"
+      [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [paginator]="true"
+      [rows]="10"
+      class="p-datatable-striped"
+      responsiveLayout="scroll"
+      scrollHeight="flex"
+      styleClass="p-datatable-customers "
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Announcements"
+    >
+      <ng-template pTemplate="caption">
+        <div class="row">
+          <div class="col-md-3 mt-2 no-padding-small">
+            <div class="p-inputgroup">
+              <input
+                type="text"
+                pInputText
+                placeholder="Filter by Title"
+                [(ngModel)]="filterTitle"
+                (keyup.enter)="applyFilter()"
+              />
+              <button
+                type="button"
+                pButton
+                class="p-button-primary search-btn"
+                [disabled]="!filterTitle"
+                (click)="applyFilter()"
+              >
+                <img
+                  src="assets/images/icons/search.svg"
+                  alt="Search"
+                  width="16"
+                  height="16"
+                  style="vertical-align: middle"
+                />
+              </button>
+            </div>
+          </div>
+          <div class="col-md-3 mt-2 no-padding-small" *ngIf="filterTitle">
+            <button
+              pButton
+              type="button"
+              label="Clear Filter"
+              icon="pi pi-times"
+              class="p-button-text"
+              (click)="clearFilter()"
+            ></button>
+          </div>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Status</th>
+          <th>Target</th>
+          <th>Heading / Message</th>
+          <th class="text-nowrap">Dates</th>
+          <th class="text-nowrap">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-row>
+        <tr>
+          <td>
+            <span
+              class="badge"
+              [ngClass]="isCurrentlyLive(row) ? 'bg-success' : 'bg-secondary'"
+            >
+              {{
+                isCurrentlyLive(row)
+                  ? "Live now"
+                  : row.isActive
+                    ? "Active (out of range)"
+                    : "Inactive"
+              }}
+            </span>
+          </td>
+          <td>
+            <span class="badge bg-info text-dark">{{ targetLabel(row) }}</span>
+          </td>
+          <td>
+            <span class="table-column-data fw-bold d-block" *ngIf="row.title">{{
+              row.title
+            }}</span>
+            <span class="table-column-data">{{ row.message }}</span>
+          </td>
+          <td class="text-nowrap">
+            <span
+              class="table-column-data"
+              *ngIf="row.startDate || row.endDate"
+            >
+              {{
+                row.startDate ? (row.startDate | date: "MMM d, y") : "No start"
+              }}
+              &ndash;
+              {{ row.endDate ? (row.endDate | date: "MMM d, y") : "No end" }}
+            </span>
+            <span
+              class="table-column-data"
+              *ngIf="!row.startDate && !row.endDate"
+              >Always</span
+            >
+          </td>
+          <td class="text-nowrap">
+            <button
+              pButton
+              type="button"
+              icon="pi pi-pencil"
+              class="p-button-text p-button-sm"
+              pTooltip="Edit"
+              (click)="goToEdit(row)"
+            ></button>
+            <button
+              pButton
+              type="button"
+              [icon]="row.isActive ? 'pi pi-ban' : 'pi pi-check-circle'"
+              class="p-button-text p-button-sm"
+              [pTooltip]="row.isActive ? 'Deactivate' : 'Activate'"
+              (click)="toggleActive(row)"
+            ></button>
+            <!-- Delete hidden for now — confirmDelete()/deleteBanner() stay
+                 in the component so this can be turned back on with just
+                 this button, no logic to rebuild. -->
+            <button
+              *ngIf="false"
+              pButton
+              type="button"
+              icon="pi pi-trash"
+              class="p-button-text p-button-sm p-button-danger"
+              pTooltip="Delete"
+              (click)="confirmDelete(row)"
+            ></button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr class="text-center">
+          <td colspan="5" class="text-center fw-bold">
+            <img
+              alt="No Data"
+              src="../../../assets/images/menu/no-data.gif"
+              width="200"
+              height="200"
+            />
+            <p>No Announcements Found</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

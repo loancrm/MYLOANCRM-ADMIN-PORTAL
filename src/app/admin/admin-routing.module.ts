@@ -88,13 +88,13 @@ const routes: Routes = [
             (m) => m.CibilReportsModule,
           ),
       },
-      // {
-      //   path: 'credit-report-banner',
-      //   loadChildren: () =>
-      //     import('./credit-report-banner/credit-report-banner.module').then(
-      //       (m) => m.CreditReportBannerModule,
-      //     ),
-      // },
+      {
+        path: 'credit-report-banner',
+        loadChildren: () =>
+          import('./credit-report-banner/credit-report-banner.module').then(
+            (m) => m.CreditReportBannerModule,
+          ),
+      },
       {
         path: 'cam-reports',
         loadChildren: () =>
