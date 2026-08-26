@@ -71,6 +71,41 @@ export class InvoicesComponent {
             type: 'text',
             filterType: 'like',
           },
+          {
+            field: 'gstNumber',
+            title: 'GST Number',
+            type: 'text',
+            filterType: 'like',
+          },
+          {
+            field: 'mobile',
+            title: 'Mobile Number',
+            type: 'text',
+            filterType: 'like',
+          },
+          {
+            field: 'emailId',
+            title: 'Email Id',
+            type: 'text',
+            filterType: 'like',
+          },
+        ],
+      },
+      {
+        header: 'Plan',
+        data: [
+          {
+            field: 'plan_name',
+            title: 'Plan',
+            type: 'dropdown',
+            filterType: 'like',
+            options: [
+              { label: 'All', value: '' },
+              { label: 'Basic', value: 'Basic' },
+              { label: 'Premium', value: 'Premium' },
+              { label: 'Professional', value: 'Professional' },
+            ],
+          },
         ],
       },
       {
