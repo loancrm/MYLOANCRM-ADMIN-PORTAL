@@ -1,0 +1,201 @@
+<div class="m-2 p-1">
+  <div class="d-flex align-items-center mb-3 pointer-cursor" (click)="goBack()">
+    <span class="me-2"><img src="../../../../assets/images/icons/left-arrow.svg" alt="Back" /></span>
+    <b>Bulk Upload — Master Company Data</b>
+  </div>
+
+  <p-tabView [(activeIndex)]="activeTab">
+
+    <!-- ── Upload Tab ── -->
+    <p-tabPanel header="Upload Excel">
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <div class="card p-4" style="border-radius:12px;border:1px solid #e2e8f0">
+            <h6 class="fw-bold mb-3">Upload Company List</h6>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold small">Bank <span class="text-danger">*</span></label>
+              <p-dropdown
+                [(ngModel)]="selectedBankId"
+                [options]="banks"
+                optionLabel="bankName"
+                optionValue="id"
+                placeholder="Select Bank"
+                [filter]="true"
+                filterBy="bankName"
+                (onChange)="onBankChange()"
+                class="w-100"
+              ></p-dropdown>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold small">Location <span class="text-danger">*</span></label>
+              <p-dropdown
+                [(ngModel)]="selectedLocationId"
+                [options]="locations"
+                optionLabel="locationName"
+                optionValue="id"
+                placeholder="Select Location"
+                [filter]="true"
+                filterBy="locationName"
+                [disabled]="!selectedBankId"
+                class="w-100"
+              ></p-dropdown>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold small">Excel File <span class="text-danger">*</span></label>
+              <input type="file" class="form-control" accept=".xlsx,.xls" (change)="onFileChange($event)" />
+              <small class="text-muted">Max file size: 100 MB. Only .xlsx / .xls files.</small>
+            </div>
+
+            <div class="d-flex gap-2 mt-3">
+              <button pButton type="button" icon="pi pi-upload" label="Upload" class="p-button-primary" [loading]="uploading" (click)="submitUpload()"></button>
+              <button pButton type="button" icon="pi pi-download" label="Download Template" class="p-button-outlined p-button-secondary" (click)="downloadTemplate()"></button>
+            </div>
+          </div>
+
+          <!-- Instructions -->
+          <div class="card p-3 mt-3" style="border-radius:10px;border:1px solid #e2e8f0;background:#f8fafc">
+            <h6 class="fw-bold small mb-2">📋 Instructions</h6>
+            <ul class="mb-0 small text-muted" style="padding-left:18px">
+              <li>Download the template and fill company names + category codes.</li>
+              <li>Category codes must match what is in <b>Master Data &gt; Categories</b>.</li>
+              <li>Row 1 is always treated as the header and skipped.</li>
+              <li>Bank and Location are selected above — do NOT add them in the file.</li>
+              <li>Duplicate company+bank+location rows will be updated, not duplicated.</li>
+              <li>Large files (100k+ rows) are processed in the background. You can close this tab.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Live progress -->
+        <div class="col-md-6" *ngIf="uploadProgress">
+          <div class="card p-4" style="border-radius:12px;border:1px solid #e2e8f0">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h6 class="fw-bold mb-0">Upload Progress</h6>
+              <span class="badge" [ngClass]="statusBadgeClass(uploadProgress.status)">{{ uploadProgress.status }}</span>
+            </div>
+
+            <div class="mb-2">
+              <div class="d-flex justify-content-between small mb-1">
+                <span>Progress</span>
+                <span>{{ progressPercent }}%</span>
+              </div>
+              <p-progressBar [value]="progressPercent" [showValue]="false" styleClass="mb-1"></p-progressBar>
+            </div>
+
+            <div class="row g-2 mt-2">
+              <div class="col-6">
+                <div class="stat-card text-center p-2 rounded" style="background:#f1f5f9">
+                  <div class="fw-bold fs-5">{{ uploadProgress.totalRows | number }}</div>
+                  <div class="small text-muted">Total Rows</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="stat-card text-center p-2 rounded" style="background:#d1fae5">
+                  <div class="fw-bold fs-5 text-success">{{ uploadProgress.insertedRows | number }}</div>
+                  <div class="small text-muted">Inserted</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="stat-card text-center p-2 rounded" style="background:#dbeafe">
+                  <div class="fw-bold fs-5 text-primary">{{ uploadProgress.updatedRows | number }}</div>
+                  <div class="small text-muted">Updated</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="stat-card text-center p-2 rounded" style="background:#fee2e2">
+                  <div class="fw-bold fs-5 text-danger">{{ uploadProgress.failedRows | number }}</div>
+                  <div class="small text-muted">Failed</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-3" *ngIf="uploadProgress.status === 'COMPLETED_WITH_ERRORS' || uploadProgress.status === 'COMPLETED'">
+              <button pButton type="button" icon="pi pi-download" label="Download Error Report"
+                class="p-button-warning w-100"
+                *ngIf="uploadProgress.failedRows > 0"
+                (click)="downloadErrorReport(uploadProgress)">
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </p-tabPanel>
+
+    <!-- ── History Tab ── -->
+    <p-tabPanel header="Upload History">
+      <div class="d-flex justify-content-end mb-2 mt-2">
+        <button pButton type="button" icon="pi pi-refresh" class="p-button-text" pTooltip="Refresh" (click)="loadHistory()"></button>
+      </div>
+      <p-table
+        [value]="uploads"
+        [lazy]="true"
+        [totalRecords]="totalUploads"
+        [loading]="historyLoading"
+        [paginator]="true"
+        [rows]="historySize"
+        [rowsPerPageOptions]="[10,20,50]"
+        (onPage)="onHistoryPageChange($event)"
+        responsiveLayout="scroll"
+        styleClass="p-datatable-customers"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
+        [showCurrentPageReport]="true"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>File</th>
+            <th>Bank</th>
+            <th>Location</th>
+            <th style="text-align:right">Total</th>
+            <th style="text-align:right">Inserted</th>
+            <th style="text-align:right">Updated</th>
+            <th style="text-align:right">Failed</th>
+            <th>Status</th>
+            <th>Uploaded By</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-upload>
+          <tr>
+            <td class="text-truncate" style="max-width:160px" [pTooltip]="upload.originalFileName">{{ upload.originalFileName }}</td>
+            <td>{{ upload.bankName }}</td>
+            <td>{{ upload.locationName }}</td>
+            <td style="text-align:right;font-variant-numeric:tabular-nums">{{ upload.totalRows | number }}</td>
+            <td style="text-align:right;font-variant-numeric:tabular-nums;color:#10b981">{{ upload.insertedRows | number }}</td>
+            <td style="text-align:right;font-variant-numeric:tabular-nums;color:#3b82f6">{{ upload.updatedRows | number }}</td>
+            <td style="text-align:right;font-variant-numeric:tabular-nums;color:#ef4444">{{ upload.failedRows | number }}</td>
+            <td>
+              <span class="badge" [ngClass]="statusBadgeClass(upload.status)">{{ upload.status }}</span>
+              <button *ngIf="upload.status==='PENDING'||upload.status==='PROCESSING'"
+                pButton type="button" icon="pi pi-refresh" class="p-button-text p-button-sm ms-1"
+                pTooltip="Refresh status" (click)="refreshRow(upload)"></button>
+            </td>
+            <td>{{ upload.uploadedBy }}</td>
+            <td class="text-nowrap">{{ upload.createdAt | date:'dd MMM yyyy HH:mm' }}</td>
+            <td>
+              <div class="d-flex gap-1">
+                <button pButton type="button" icon="pi pi-download" class="p-button-text p-button-sm"
+                  pTooltip="Download original file" tooltipPosition="top"
+                  (click)="downloadOriginalFile(upload)"></button>
+                <button pButton type="button" icon="pi pi-exclamation-triangle" class="p-button-text p-button-warning p-button-sm"
+                  *ngIf="upload.failedRows > 0"
+                  pTooltip="Download error report" tooltipPosition="top"
+                  (click)="downloadErrorReport(upload)"></button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr><td colspan="11" class="text-center py-4">
+            <img src="../../../../assets/images/menu/no-data.gif" width="120" alt="No data" /><br />
+            <span class="text-muted">No uploads found</span>
+          </td></tr>
+        </ng-template>
+      </p-table>
+    </p-tabPanel>
+
+  </p-tabView>
+</div>

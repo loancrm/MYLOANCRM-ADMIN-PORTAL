@@ -1,0 +1,177 @@
+<div class="m-2 p-1">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex align-items-center pointer-cursor" (click)="goBack()">
+      <span class="me-2"
+        ><img src="../../../../assets/images/icons/left-arrow.svg" alt="Back"
+      /></span>
+      <b>Master Banks</b>
+    </div>
+    <button
+      pButton
+      type="button"
+      icon="pi pi-plus"
+      class="p-button-primary"
+      (click)="openCreate()"
+    >
+      &nbsp;Add Bank
+    </button>
+  </div>
+
+  <!-- Search -->
+  <div class="mb-3 d-flex gap-2">
+    <input
+      pInputText
+      [(ngModel)]="searchText"
+      placeholder="Search banks..."
+      class="p-inputtext"
+      style="width: 260px"
+      (keyup.enter)="onSearch()"
+    />
+    <button
+      pButton
+      type="button"
+      icon="pi pi-search"
+      class="p-button-outlined"
+      (click)="onSearch()"
+    ></button>
+  </div>
+
+  <!-- Table -->
+  <p-table
+    [value]="banks"
+    [lazy]="true"
+    [totalRecords]="totalRecords"
+    [loading]="loading"
+    [paginator]="true"
+    [rows]="pageSize"
+    [rowsPerPageOptions]="[10, 20, 50]"
+    (onPage)="onPageChange($event)"
+    responsiveLayout="scroll"
+    styleClass="p-datatable-customers"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} banks"
+    [showCurrentPageReport]="true"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Bank Name</th>
+        <th>Bank Code</th>
+        <th>Status</th>
+        <th>Created At</th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-bank>
+      <tr>
+        <td>
+          <b>{{ bank.bankName }}</b>
+        </td>
+        <td>{{ bank.bankCode || "—" }}</td>
+        <td>
+          <span
+            class="badge"
+            [ngClass]="bank.status === 1 ? 'bg-success' : 'bg-secondary'"
+            >{{ bank.status === 1 ? "Active" : "Inactive" }}</span
+          >
+        </td>
+        <td>{{ bank.createdAt | date: "dd MMM yyyy" }}</td>
+        <td>
+          <div class="d-flex gap-2">
+            <img
+              src="../../../../assets/images/icons/edit.svg"
+              width="22"
+              height="22"
+              pTooltip="Edit"
+              tooltipPosition="top"
+              class="pointer-cursor"
+              (click)="openEdit(bank)"
+            />
+            <button
+              pButton
+              type="button"
+              [icon]="bank.status === 1 ? 'pi pi-eye-slash' : 'pi pi-eye'"
+              class="p-button-text p-button-sm"
+              [pTooltip]="bank.status === 1 ? 'Disable' : 'Enable'"
+              tooltipPosition="top"
+              (click)="toggleStatus(bank)"
+            ></button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="5" class="text-center py-4">
+          <img
+            src="../../../../assets/images/menu/no-data.gif"
+            width="120"
+            height="120"
+            alt="No data"
+          /><br />
+          <span class="text-muted">No banks found</span>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<!-- Add / Edit Dialog -->
+<p-dialog
+  [(visible)]="showDialog"
+  [header]="editMode ? 'Edit Bank' : 'Add Bank'"
+  [modal]="true"
+  [style]="{ width: '420px' }"
+  [draggable]="false"
+>
+  <div class="p-fluid">
+    <div class="field mb-3">
+      <label class="fw-semibold"
+        >Bank Name <span class="text-danger">*</span></label
+      >
+      <input
+        pInputText
+        [(ngModel)]="form.bankName"
+        placeholder="e.g. HDFC Bank"
+        class="mt-1"
+      />
+    </div>
+    <div class="field mb-3">
+      <label class="fw-semibold">Bank Code</label>
+      <input
+        pInputText
+        [(ngModel)]="form.bankCode"
+        placeholder="e.g. HDFC"
+        class="mt-1"
+      />
+    </div>
+    <div class="field mb-3" *ngIf="editMode">
+      <label class="fw-semibold">Status</label>
+      <p-dropdown
+        [(ngModel)]="form.status"
+        [options]="[
+          { label: 'Active', value: 1 },
+          { label: 'Inactive', value: 0 },
+        ]"
+        optionLabel="label"
+        optionValue="value"
+        class="mt-1 w-100"
+      ></p-dropdown>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button
+      pButton
+      type="button"
+      label="Cancel"
+      class="p-button-text"
+      (click)="showDialog = false"
+    ></button>
+    <button
+      pButton
+      type="button"
+      [label]="editMode ? 'Update' : 'Create'"
+      [loading]="saving"
+      (click)="save()"
+    ></button>
+  </ng-template>
+</p-dialog>

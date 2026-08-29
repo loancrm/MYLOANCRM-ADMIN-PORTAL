@@ -1,0 +1,20 @@
+.section-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  transition: box-shadow 0.18s, border-color 0.18s;
+  cursor: pointer;
+  &:hover {
+    box-shadow: 0 4px 16px rgba(117, 113, 248, 0.15);
+    border-color: #7571f8;
+  }
+}
+.section-icon {
+  width: 44px;
+  height: 44px;
+  background: #f3f2ff;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}

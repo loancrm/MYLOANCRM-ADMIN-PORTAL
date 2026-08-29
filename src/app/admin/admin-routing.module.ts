@@ -164,6 +164,13 @@ const routes: Routes = [
             (m) => m.ClientRequirementsModule,
           ),
       },
+      {
+        path: 'master-data',
+        loadChildren: () =>
+          import('./master-data/master-data.module').then(
+            (m) => m.MasterDataModule,
+          ),
+      },
     ],
   },
 ];

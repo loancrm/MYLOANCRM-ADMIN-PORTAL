@@ -1,0 +1,144 @@
+<div class="m-2 p-1">
+  <div class="d-flex align-items-center mb-3 pointer-cursor" (click)="goBack()">
+    <span class="me-2"
+      ><img src="../../../../assets/images/icons/left-arrow.svg" alt="Back"
+    /></span>
+    <b>Companies — Browse by Bank &amp; Location</b>
+  </div>
+
+  <!-- Filters -->
+  <div class="row g-2 mb-3 align-items-end">
+    <div class="col-md-3">
+      <label class="form-label fw-semibold small"
+        >Bank <span class="text-danger">*</span></label
+      >
+      <p-dropdown
+        [(ngModel)]="selectedBankId"
+        [options]="banks"
+        optionLabel="bankName"
+        optionValue="id"
+        placeholder="Select Bank"
+        [filter]="true"
+        filterBy="bankName"
+        (onChange)="onBankChange()"
+        class="w-100"
+      ></p-dropdown>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label fw-semibold small"
+        >Location <span class="text-danger">*</span></label
+      >
+      <p-dropdown
+        [(ngModel)]="selectedLocationId"
+        [options]="locations"
+        optionLabel="locationName"
+        optionValue="id"
+        placeholder="Select Location"
+        [filter]="true"
+        filterBy="locationName"
+        [disabled]="!selectedBankId"
+        (onChange)="loadCompanies(1)"
+        class="w-100"
+      ></p-dropdown>
+      <small
+        *ngIf="selectedBankId && locations.length === 0"
+        class="text-warning"
+      >
+        No locations with data for this bank
+      </small>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label fw-semibold small">Category</label>
+      <p-dropdown
+        [(ngModel)]="selectedCategory"
+        [options]="categoryOptions"
+        optionLabel="label"
+        optionValue="value"
+        (onChange)="loadCompanies(1)"
+        class="w-100"
+      ></p-dropdown>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label fw-semibold small">Search Company</label>
+      <input
+        pInputText
+        [(ngModel)]="searchText"
+        placeholder="Search by name..."
+        class="w-100"
+        (keyup.enter)="loadCompanies(1)"
+      />
+    </div>
+    <div class="col-md-1">
+      <button
+        pButton
+        type="button"
+        icon="pi pi-search"
+        class="p-button-primary w-100"
+        (click)="loadCompanies(1)"
+      ></button>
+    </div>
+  </div>
+
+  <!-- Result summary -->
+  <div *ngIf="totalRecords > 0" class="mb-2 text-muted small">
+    <i class="pi pi-info-circle me-1"></i>
+    {{ totalRecords | number }} companies found
+  </div>
+
+  <!-- Table -->
+  <p-table
+    [value]="companies"
+    [lazy]="true"
+    [totalRecords]="totalRecords"
+    [loading]="loading"
+    [paginator]="true"
+    [rows]="pageSize"
+    [rowsPerPageOptions]="[25, 50, 100]"
+    (onPage)="onPageChange($event)"
+    responsiveLayout="scroll"
+    styleClass="p-datatable-customers"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords}"
+    [showCurrentPageReport]="true"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>#</th>
+        <th>Company Name</th>
+        <th>Category</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-company let-i="rowIndex">
+      <tr>
+        <td class="text-muted small">
+          {{ (currentPage - 1) * pageSize + i + 1 }}
+        </td>
+        <td>{{ company.companyName }}</td>
+        <td>
+          <span class="badge bg-light text-dark border">{{
+            company.category
+          }}</span>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="3" class="text-center py-5">
+          <div *ngIf="!selectedBankId" class="text-muted">
+            <i class="pi pi-arrow-up me-2"></i>Select a Bank above to get
+            started
+          </div>
+          <div *ngIf="selectedBankId && !loading">
+            <img
+              src="../../../../assets/images/menu/no-data.gif"
+              width="120"
+              alt="No data"
+            /><br />
+            <span class="text-muted"
+              >No companies found for the selected filters</span
+            >
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
