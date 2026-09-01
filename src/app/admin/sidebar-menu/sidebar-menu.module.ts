@@ -8,25 +8,28 @@ import { ButtonModule } from 'primeng/button';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { CapitalizeFirstPipe } from 'src/app/pipes/capitalize.pipe';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule,
-        Home,
-        User,
-        Users,
-        Send,
-        Logs,
-        LayoutTemplate,
-        Link,BookUser,
-        WalletCards,
-        Phone,
-        ScrollText,
-        FileText,
-        UserRoundSearch,
-        LogOut,
-        ChartNoAxesCombined,
-        Settings,
-        NotebookPen,
-        Megaphone
-        } from 'lucide-angular';
+import {
+  LucideAngularModule,
+  Home,
+  User,
+  Users,
+  Send,
+  Logs,
+  LayoutTemplate,
+  Link,
+  BookUser,
+  WalletCards,
+  CreditCard,
+  Phone,
+  ScrollText,
+  FileText,
+  UserRoundSearch,
+  LogOut,
+  ChartNoAxesCombined,
+  Settings,
+  NotebookPen,
+  Megaphone,
+} from 'lucide-angular';
 @NgModule({
   declarations: [SidebarMenuComponent],
   imports: [
@@ -48,6 +51,7 @@ import { LucideAngularModule,
       Link,
       BookUser,
       WalletCards,
+      CreditCard,
       Phone,
       ScrollText,
       FileText,
@@ -56,8 +60,8 @@ import { LucideAngularModule,
       ChartNoAxesCombined,
       Settings,
       NotebookPen,
-      Megaphone
-    })
+      Megaphone,
+    }),
   ],
   exports: [SidebarMenuComponent],
 })

@@ -1,0 +1,520 @@
+<!-- Top bar -->
+<div class="p-1 m-2 fixed-card">
+  <div class="analytics-topbar d-flex align-items-center">
+    <div
+      class="d-flex align-items-center flex-shrink-0"
+      (click)="goBack()"
+      style="cursor: pointer"
+    >
+      <span class="me-2 d-flex align-items-center">
+        <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+      </span>
+      <b><span>Payments</span></b>
+    </div>
+  </div>
+</div>
+
+<!-- Global range filter — applies to all three tabs -->
+<div class="p-2 m-2 fixed-card">
+  <div class="pay-range-bar">
+    <button
+      *ngFor="let opt of rangeOptions"
+      pButton
+      pRipple
+      type="button"
+      [label]="opt.label"
+      [class]="
+        rangePreset === opt.value
+          ? 'p-button-primary p-button-sm me-2'
+          : 'p-button-outlined p-button-sm me-2'
+      "
+      (click)="onRangePresetChange(opt.value)"
+    ></button>
+
+    <ng-container *ngIf="rangePreset === 'custom'">
+      <p-calendar
+        [(ngModel)]="fromDate"
+        (ngModelChange)="onCustomDateChange()"
+        dateFormat="dd-mm-yy"
+        [showButtonBar]="true"
+        placeholder="From date"
+        appendTo="body"
+        inputStyleClass="p-inputtext-sm"
+      ></p-calendar>
+      <p-calendar
+        [(ngModel)]="toDate"
+        (ngModelChange)="onCustomDateChange()"
+        dateFormat="dd-mm-yy"
+        [showButtonBar]="true"
+        placeholder="To date"
+        appendTo="body"
+        inputStyleClass="p-inputtext-sm"
+      ></p-calendar>
+    </ng-container>
+
+    <span class="pay-range-caption" *ngIf="fromDate || toDate">
+      {{ fromDate ? (fromDate | date: "dd MMM y") : "…" }}
+      &ndash;
+      {{ toDate ? (toDate | date: "dd MMM y") : "…" }}
+    </span>
+    <span class="pay-range-caption" *ngIf="!fromDate && !toDate">All time</span>
+  </div>
+</div>
+
+<div class="m-2">
+  <p-tabView>
+    <!-- ═══════════════ SUBSCRIPTIONS ═══════════════ -->
+    <p-tabPanel header="Subscriptions">
+      <!-- Subscription KPIs -->
+      <div class="pay-loading" *ngIf="analyticsLoading && !analytics">
+        Loading…
+      </div>
+      <ng-container *ngIf="analytics">
+        <div class="pay-kpi-grid">
+          <div class="pay-kpi">
+            <span class="pay-kpi-label">Total</span>
+            <span class="pay-kpi-value">{{
+              analytics.subscriptions.total | number
+            }}</span>
+          </div>
+          <div class="pay-kpi">
+            <span class="pay-kpi-label">Active</span>
+            <span class="pay-kpi-value text-success">{{
+              analytics.subscriptions.active | number
+            }}</span>
+          </div>
+          <div class="pay-kpi">
+            <span class="pay-kpi-label">Expired</span>
+            <span class="pay-kpi-value text-danger">{{
+              analytics.subscriptions.expired | number
+            }}</span>
+          </div>
+          <div class="pay-kpi">
+            <span class="pay-kpi-label">Paid</span>
+            <span class="pay-kpi-value">{{
+              analytics.subscriptions.paidCount | number
+            }}</span>
+          </div>
+          <div class="pay-kpi">
+            <span class="pay-kpi-label">Credit Applied</span>
+            <span class="pay-kpi-value text-warning"
+              >&minus; ₹{{
+                analytics.subscriptions.creditApplied | number: "1.0-0"
+              }}</span
+            >
+          </div>
+          <div class="pay-kpi pay-kpi-strong">
+            <span class="pay-kpi-label">Net Revenue (exact)</span>
+            <span class="pay-kpi-value text-success"
+              >₹{{ analytics.subscriptions.revenue | number: "1.0-0" }}</span
+            >
+          </div>
+          <div class="pay-kpi">
+            <span class="pay-kpi-label">Active Net Revenue</span>
+            <span class="pay-kpi-value"
+              >₹{{
+                analytics.subscriptions.activeRevenue | number: "1.0-0"
+              }}</span
+            >
+          </div>
+        </div>
+        <div class="pay-note">
+          Revenue resolved from Razorpay transactions —
+          {{ analytics.subscriptions.linkedCount | number }} by
+          transaction&nbsp;ID (amount paid),
+          {{ analytics.subscriptions.dateMatchedCount | number }} by same-day
+          date match,
+          {{ analytics.subscriptions.estimatedCount | number }} estimated (plan
+          amount &minus; credit),
+          {{ analytics.subscriptions.planAmountCount | number }} by plan amount
+          only.
+        </div>
+      </ng-container>
+
+      <div class="pay-filter-bar mt-3">
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input
+            type="text"
+            pInputText
+            placeholder="Search business name or account ID"
+            [(ngModel)]="subSearch"
+            (keyup.enter)="reloadSubscriptions()"
+          />
+        </span>
+        <p-dropdown
+          [options]="subStatusOptions"
+          [(ngModel)]="subStatus"
+          (onChange)="reloadSubscriptions()"
+          appendTo="body"
+        ></p-dropdown>
+        <p-multiSelect
+          [options]="subPlanOptions"
+          [(ngModel)]="subPlans"
+          optionLabel="label"
+          optionValue="value"
+          [filter]="true"
+          [showToggleAll]="true"
+          [showClear]="true"
+          display="chip"
+          defaultLabel="All Plans"
+          appendTo="body"
+          (onChange)="reloadSubscriptions()"
+        ></p-multiSelect>
+        <p-dropdown
+          [options]="subGatewayOptions"
+          [(ngModel)]="subGateway"
+          (onChange)="reloadSubscriptions()"
+          appendTo="body"
+        ></p-dropdown>
+        <button
+          pButton
+          pRipple
+          type="button"
+          label="Apply"
+          class="p-button-primary p-button-sm"
+          (click)="reloadSubscriptions()"
+        ></button>
+      </div>
+
+      <p-table
+        #subTable
+        [value]="subscriptions"
+        [lazy]="true"
+        [sortField]="'created_on'"
+        [sortOrder]="-1"
+        sortMode="single"
+        (onLazyLoad)="loadSubscriptions($event)"
+        dataKey="id"
+        [showCurrentPageReport]="true"
+        [rowsPerPageOptions]="[10, 25, 50, 100]"
+        [paginator]="true"
+        [rows]="10"
+        [totalRecords]="subscriptionsCount"
+        [loading]="subLoading"
+        responsiveLayout="scroll"
+        styleClass="p-datatable-customers"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} subscriptions"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="accountId">
+              Account <p-sortIcon field="accountId"></p-sortIcon>
+            </th>
+            <th>Business Name</th>
+            <th pSortableColumn="plan_name">
+              Plan <p-sortIcon field="plan_name"></p-sortIcon>
+            </th>
+            <th pSortableColumn="plan_type">
+              Type <p-sortIcon field="plan_type"></p-sortIcon>
+            </th>
+            <th pSortableColumn="total_amount">
+              Plan Amount <p-sortIcon field="total_amount"></p-sortIcon>
+            </th>
+            <th>Credit</th>
+            <th>Paid (exact)</th>
+            <th>Source</th>
+            <th>Gateway</th>
+            <th pSortableColumn="start_date">
+              Start <p-sortIcon field="start_date"></p-sortIcon>
+            </th>
+            <th pSortableColumn="end_date">
+              End <p-sortIcon field="end_date"></p-sortIcon>
+            </th>
+            <th pSortableColumn="status">
+              Status <p-sortIcon field="status"></p-sortIcon>
+            </th>
+            <th pSortableColumn="created_on">
+              Created <p-sortIcon field="created_on"></p-sortIcon>
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-sub>
+          <tr>
+            <td>{{ sub.accountId }}</td>
+            <td>{{ sub.businessName || "-" }}</td>
+            <td>{{ sub.plan_name || "-" }}</td>
+            <td>{{ sub.plan_type || "-" }}</td>
+            <td>
+              ₹{{ sub.grossAmount || sub.total_amount || 0 | number: "1.0-2" }}
+            </td>
+            <td>
+              {{
+                sub.creditApplied
+                  ? "− ₹" + (sub.creditApplied | number: "1.0-2")
+                  : "-"
+              }}
+            </td>
+            <td>
+              <b>₹{{ sub.resolvedAmount || 0 | number: "1.0-2" }}</b>
+            </td>
+            <td>
+              <span [ngClass]="matchClass(sub.amountMatch)">{{
+                matchLabel(sub.amountMatch)
+              }}</span>
+            </td>
+            <td>{{ sub.txnGateway || sub.payment_gateway || "-" }}</td>
+            <td>{{ sub.start_date ? (sub.start_date | date) : "-" }}</td>
+            <td>{{ sub.end_date ? (sub.end_date | date) : "-" }}</td>
+            <td>
+              <span [ngClass]="subStatusClass(sub.status)">{{
+                sub.status
+              }}</span>
+            </td>
+            <td>
+              {{ sub.created_on ? (sub.created_on | date: "short") : "-" }}
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="footer">
+          <tr class="pay-total-row">
+            <td colspan="4" class="text-end fw-bold">
+              Totals — {{ subSummary.count | number }} subscriptions (all
+              filtered)
+            </td>
+            <td class="fw-bold">
+              ₹{{ subSummary.planAmount | number: "1.0-2" }}
+            </td>
+            <td class="fw-bold text-warning">
+              {{
+                subSummary.creditApplied
+                  ? "− ₹" + (subSummary.creditApplied | number: "1.0-2")
+                  : "₹0"
+              }}
+            </td>
+            <td class="fw-bold text-success">
+              ₹{{ subSummary.paid | number: "1.0-2" }}
+            </td>
+            <td colspan="6"></td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="13" class="text-center fw-bold py-4">
+              <p style="color: #7571f8; font-weight: 400; font-size: 18px">
+                No subscriptions found
+              </p>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-tabPanel>
+
+    <!-- ═══════════════ WALLET TRANSACTIONS ═══════════════ -->
+    <p-tabPanel header="Wallet Transactions">
+      <!-- Wallet KPIs -->
+      <div class="pay-loading" *ngIf="analyticsLoading && !analytics">
+        Loading…
+      </div>
+      <ng-container *ngIf="analytics">
+        <div class="pay-kpi-grid">
+          <div class="pay-kpi">
+            <span class="pay-kpi-label">Total Transactions</span>
+            <span class="pay-kpi-value">{{
+              analytics.wallet.totalTransactions | number
+            }}</span>
+          </div>
+          <div class="pay-kpi">
+            <span class="pay-kpi-label">Total Credit</span>
+            <span class="pay-kpi-value text-success"
+              >₹{{ analytics.wallet.totalCredit | number: "1.0-0" }}</span
+            >
+          </div>
+          <div class="pay-kpi">
+            <span class="pay-kpi-label">Total Debit</span>
+            <span class="pay-kpi-value text-danger"
+              >₹{{ analytics.wallet.totalDebit | number: "1.0-0" }}</span
+            >
+          </div>
+          <div class="pay-kpi">
+            <span class="pay-kpi-label">Net Credit</span>
+            <span class="pay-kpi-value"
+              >₹{{ analytics.wallet.netCredit | number: "1.0-0" }}</span
+            >
+          </div>
+          <div class="pay-kpi">
+            <span class="pay-kpi-label">GST Collected</span>
+            <span class="pay-kpi-value"
+              >₹{{ analytics.wallet.gstCollected | number: "1.0-0" }}</span
+            >
+          </div>
+          <div class="pay-kpi">
+            <span class="pay-kpi-label">Pending</span>
+            <span class="pay-kpi-value text-warning">{{
+              analytics.wallet.pendingCount | number
+            }}</span>
+          </div>
+          <div class="pay-kpi">
+            <span class="pay-kpi-label">Failed</span>
+            <span class="pay-kpi-value text-danger">{{
+              analytics.wallet.failedCount | number
+            }}</span>
+          </div>
+          <div class="pay-kpi">
+            <span class="pay-kpi-label">Wallet Balance (all)</span>
+            <span class="pay-kpi-value"
+              >₹{{ analytics.wallet.walletBalance | number: "1.0-0" }}</span
+            >
+          </div>
+        </div>
+      </ng-container>
+
+      <div class="pay-filter-bar mt-3">
+        <span class="p-input-icon-left">
+          <i class="pi pi-search"></i>
+          <input
+            type="text"
+            pInputText
+            placeholder="Search business name or account ID"
+            [(ngModel)]="walletSearch"
+            (keyup.enter)="reloadWallet()"
+          />
+        </span>
+        <p-dropdown
+          [options]="walletTypeOptions"
+          [(ngModel)]="walletType"
+          (onChange)="reloadWallet()"
+          appendTo="body"
+        ></p-dropdown>
+        <p-multiSelect
+          [options]="walletStatusOptions"
+          [(ngModel)]="walletStatuses"
+          optionLabel="label"
+          optionValue="value"
+          [filter]="true"
+          [showToggleAll]="true"
+          [showClear]="true"
+          display="chip"
+          defaultLabel="All Status"
+          appendTo="body"
+          (onChange)="reloadWallet()"
+        ></p-multiSelect>
+        <p-dropdown
+          [options]="walletGatewayOptions"
+          [(ngModel)]="walletGateway"
+          (onChange)="reloadWallet()"
+          appendTo="body"
+        ></p-dropdown>
+        <button
+          pButton
+          pRipple
+          type="button"
+          label="Apply"
+          class="p-button-primary p-button-sm"
+          (click)="reloadWallet()"
+        ></button>
+      </div>
+
+      <p-table
+        #walletTable
+        [value]="walletTransactions"
+        [lazy]="true"
+        [sortField]="'created_on'"
+        [sortOrder]="-1"
+        sortMode="single"
+        (onLazyLoad)="loadWalletTransactions($event)"
+        dataKey="id"
+        [showCurrentPageReport]="true"
+        [rowsPerPageOptions]="[10, 25, 50, 100]"
+        [paginator]="true"
+        [rows]="10"
+        [totalRecords]="walletTransactionsCount"
+        [loading]="walletLoading"
+        responsiveLayout="scroll"
+        styleClass="p-datatable-customers"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} wallet transactions"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th pSortableColumn="accountId">
+              Account <p-sortIcon field="accountId"></p-sortIcon>
+            </th>
+            <th>Business Name</th>
+            <th pSortableColumn="transactionType">
+              Type <p-sortIcon field="transactionType"></p-sortIcon>
+            </th>
+            <th pSortableColumn="amount">
+              Amount <p-sortIcon field="amount"></p-sortIcon>
+            </th>
+            <th>GST %</th>
+            <th>GST Amt</th>
+            <th>Net Amt</th>
+            <th>Currency</th>
+            <th>Category</th>
+            <th>Gateway</th>
+            <th pSortableColumn="paymentStatus">
+              Status <p-sortIcon field="paymentStatus"></p-sortIcon>
+            </th>
+            <th>Description</th>
+            <th pSortableColumn="createdOn">
+              Date <p-sortIcon field="createdOn"></p-sortIcon>
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-tx>
+          <tr>
+            <td>{{ tx.accountId }}</td>
+            <td>{{ tx.businessName || "-" }}</td>
+            <td>{{ tx.transactionType }}</td>
+            <td>₹{{ tx.amount }}</td>
+            <td>{{ tx.gst_percentage }}%</td>
+            <td>₹{{ tx.gstAmount }}</td>
+            <td>₹{{ tx.netAmount }}</td>
+            <td>{{ tx.currency }}</td>
+            <td>{{ tx.debitCategory || "-" }}</td>
+            <td>{{ tx.paymentGateway || "-" }}</td>
+            <td>
+              <span [ngClass]="walletStatusClass(tx.paymentStatus)">{{
+                tx.paymentStatus
+              }}</span>
+            </td>
+            <td>{{ tx.description || "-" }}</td>
+            <td>{{ tx.createdOn | date: "short" }}</td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="footer">
+          <tr class="pay-total-row">
+            <td colspan="3" class="text-end fw-bold">
+              Totals — {{ walletSummary.count | number }} transactions (all
+              filtered)
+            </td>
+            <td class="fw-bold">
+              ₹{{ walletSummary.totalAmount | number: "1.0-2" }}
+            </td>
+            <td></td>
+            <td class="fw-bold">
+              ₹{{ walletSummary.totalGst | number: "1.0-2" }}
+            </td>
+            <td class="fw-bold">
+              ₹{{ walletSummary.totalNet | number: "1.0-2" }}
+            </td>
+            <td colspan="6" class="fw-bold">
+              <span class="text-success"
+                >Credit ₹{{ walletSummary.totalCredit | number: "1.0-2" }}</span
+              >
+              &nbsp;•&nbsp;
+              <span class="text-danger"
+                >Debit ₹{{ walletSummary.totalDebit | number: "1.0-2" }}</span
+              >
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="13" class="text-center fw-bold py-4">
+              <p style="color: #7571f8; font-weight: 400; font-size: 18px">
+                No wallet transactions found
+              </p>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-tabPanel>
+  </p-tabView>
+</div>

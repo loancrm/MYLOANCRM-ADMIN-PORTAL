@@ -207,6 +207,36 @@ export class LeadsService {
     return this.serviceMeta.httpGet(url, null, filters);
   }
 
+  // ── Admin "Payments" screen (admin-wide, no accountId scoping) ──
+  getPaymentsAnalytics(filters = {}) {
+    const url = 'admin-payments/analytics';
+    return this.serviceMeta.httpGet(url, null, filters);
+  }
+  getPaymentsSubscriptions(filters) {
+    const url = 'admin-payments/subscriptions';
+    return this.serviceMeta.httpGet(url, null, filters);
+  }
+  getPaymentsSubscriptionsCount(filters) {
+    const url = 'admin-payments/subscriptions/total';
+    return this.serviceMeta.httpGet(url, null, filters);
+  }
+  getPaymentsSubscriptionsSummary(filters) {
+    const url = 'admin-payments/subscriptions/summary';
+    return this.serviceMeta.httpGet(url, null, filters);
+  }
+  getPaymentsWalletTransactions(filters) {
+    const url = 'admin-payments/wallet-transactions';
+    return this.serviceMeta.httpGet(url, null, filters);
+  }
+  getPaymentsWalletTransactionsCount(filters) {
+    const url = 'admin-payments/wallet-transactions/total';
+    return this.serviceMeta.httpGet(url, null, filters);
+  }
+  getPaymentsWalletTransactionsSummary(filters) {
+    const url = 'admin-payments/wallet-transactions/summary';
+    return this.serviceMeta.httpGet(url, null, filters);
+  }
+
 
   addRemarks(accountId, note: any) {
     return this.serviceMeta.httpPost(

@@ -51,6 +51,11 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'payments',
+        loadChildren: () =>
+          import('./payments/payments.module').then((m) => m.PaymentsModule),
+      },
+      {
         path: 'contact-submissions',
         loadChildren: () =>
           import('./contact-submissions/contact-submissions.module').then(

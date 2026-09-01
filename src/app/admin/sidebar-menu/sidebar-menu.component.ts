@@ -164,6 +164,13 @@ export class SidebarMenuComponent implements OnChanges {
         condition: this.loggedInUserRole === 1,
       },
       {
+        label: 'Payments',
+        icon: 'credit-card',
+        route: 'payments',
+        // Super Admin sees all data; role 2 sees only their assigned accounts
+        condition: this.loggedInUserRole === 1 || this.loggedInUserRole === 2,
+      },
+      {
         label: 'Contacts',
         icon: 'phone',
         route: 'contact-submissions',
