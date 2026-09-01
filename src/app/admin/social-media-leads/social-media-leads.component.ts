@@ -1,5 +1,5 @@
 
-import { Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { Location } from '@angular/common';
 import { projectConstantsLocal } from 'src/app/constants/project-constants';
 import { Table } from 'primeng/table';
@@ -14,7 +14,7 @@ import { Router } from '@angular/router';
   templateUrl: './social-media-leads.component.html',
   styleUrls: ['./social-media-leads.component.scss']
 })
-export class SocialMediaLeadsComponent {
+export class SocialMediaLeadsComponent implements AfterViewInit {
 
   // ── Table ──────────────────────────────────────────────
   breadCrumbItems: any = [];
@@ -26,6 +26,12 @@ export class SocialMediaLeadsComponent {
   appliedFilter: any = {};
   filterConfig: any[] = [];
   accountsCount: any = 0;
+
+  // ── Pagination persistence (same pattern as Accounts screen) ──
+  initialFirst: number = 0;
+  initialRows: number = 10;
+  private readonly PAGE_STORAGE_KEY = 'socialMediaLeadsCurrentPage';
+  private readonly ROWS_STORAGE_KEY = 'socialMediaLeadsRowsPerPage';
   viewDialogVisible = false;
   showBulkAssignDialog = false;
   selectedLeads: any[] = [];
@@ -142,6 +148,7 @@ export class SocialMediaLeadsComponent {
   }
   ngOnInit(): void {
     this.loadFiltersFromStorage();
+    this.restorePaginationState();
     this.setSocialMediaFilterConfig();
 
     // ✅ Sync appliedFilter from restored values
@@ -177,9 +184,42 @@ export class SocialMediaLeadsComponent {
 
     this.loadAdminRemarks();
     this.loadBookDemoUsers();
-    this.getSocialMediaLeads(this.appliedFilter);
-    this.getSocilaMediaCount(this.appliedFilter);
+    // NOTE: the first data load is triggered from ngAfterViewInit with the
+    // pagination position restored from localStorage (see restorePaginationState).
   }
+
+  ngAfterViewInit(): void {
+    // Trigger the initial load using the restored pagination state so that
+    // returning from a lead profile lands back on the same page (like Accounts).
+    if (this.socialMediaLeadsTable) {
+      this.socialMediaLeadsTable.first = this.initialFirst;
+      this.socialMediaLeadsTable.rows = this.initialRows;
+      this.loadsocialmediaLeads({
+        first: this.initialFirst,
+        rows: this.initialRows,
+        sortField: 'CreatedOn',
+        sortOrder: -1,
+      });
+    }
+  }
+
+  private restorePaginationState(): void {
+    const storedPage = this.localStorageService.getItemFromLocalStorage(
+      this.PAGE_STORAGE_KEY,
+    );
+    const storedRows = this.localStorageService.getItemFromLocalStorage(
+      this.ROWS_STORAGE_KEY,
+    );
+
+    if (storedPage) {
+      const pageNumber = parseInt(storedPage, 10) || 1;
+      const rowsPerPage = storedRows ? parseInt(storedRows, 10) : 10;
+      // page 1 -> first 0, page 2 -> first = rowsPerPage, etc.
+      this.initialFirst = (pageNumber - 1) * rowsPerPage;
+      this.initialRows = rowsPerPage;
+    }
+  }
+
   openBulkAssign() {
     this.showBulkAssignDialog = true;
   }
@@ -263,6 +303,26 @@ export class SocialMediaLeadsComponent {
 
   loadsocialmediaLeads(event: any) {
     this.currentTableEvent = event;
+
+    // ── Persist the current page + page size so a round-trip to a lead
+    //    profile and back keeps the user on the same page (like Accounts).
+    if (event && (event.first !== undefined || event.first === 0)) {
+      const rowsPerPage = event.rows || 10;
+      const currentPage =
+        event.first === 0 ? 1 : Math.floor(event.first / rowsPerPage) + 1;
+
+      this.localStorageService.setItemOnLocalStorage(
+        this.PAGE_STORAGE_KEY,
+        currentPage.toString(),
+      );
+      this.localStorageService.setItemOnLocalStorage(
+        this.ROWS_STORAGE_KEY,
+        rowsPerPage.toString(),
+      );
+
+      this.initialFirst = event.first;
+      this.initialRows = rowsPerPage;
+    }
 
     const start = event.first ?? 0;
     const length = event.rows ?? 10;
