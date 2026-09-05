@@ -29,6 +29,7 @@ import {
   Settings,
   NotebookPen,
   Megaphone,
+  ShieldCheck,
 } from 'lucide-angular';
 @NgModule({
   declarations: [SidebarMenuComponent],
@@ -61,6 +62,7 @@ import {
       Settings,
       NotebookPen,
       Megaphone,
+      ShieldCheck,
     }),
   ],
   exports: [SidebarMenuComponent],

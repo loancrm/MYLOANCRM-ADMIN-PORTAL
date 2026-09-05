@@ -564,6 +564,79 @@ export class AccountsComponent implements AfterViewInit {
           },
         ],
       },
+
+      // ── NEW: Credit bureau provider (Verifyal vs Surepass) per bureau —
+      // accounts.cibilProvider / crifProvider / experianProvider /
+      // equifaxProvider, the same columns the Bureau Provider Settings
+      // admin page writes. Plain 'eq' dropdowns, same shape as Feature
+      // Activity above, so no backend or app-filter changes were needed —
+      // handleGlobalFilters already turns e.g. cibilProvider-eq=surepass
+      // into `cibilProvider = 'surepass'` against accounts.getAccounts's
+      // unambiguous `a.` columns.
+      {
+        header: 'CIBIL Provider',
+        data: [
+          {
+            field: 'cibilProvider',
+            title: 'CIBIL Provider',
+            type: 'dropdown',
+            filterType: 'eq',
+            options: [
+              { label: 'All', value: '' },
+              { label: 'Verifyal', value: 'verifyal' },
+              { label: 'Surepass', value: 'surepass' },
+            ],
+          },
+        ],
+      },
+      {
+        header: 'CRIF Provider',
+        data: [
+          {
+            field: 'crifProvider',
+            title: 'CRIF Provider',
+            type: 'dropdown',
+            filterType: 'eq',
+            options: [
+              { label: 'All', value: '' },
+              { label: 'Verifyal', value: 'verifyal' },
+              { label: 'Surepass', value: 'surepass' },
+            ],
+          },
+        ],
+      },
+      {
+        header: 'Experian Provider',
+        data: [
+          {
+            field: 'experianProvider',
+            title: 'Experian Provider',
+            type: 'dropdown',
+            filterType: 'eq',
+            options: [
+              { label: 'All', value: '' },
+              { label: 'Verifyal', value: 'verifyal' },
+              { label: 'Surepass', value: 'surepass' },
+            ],
+          },
+        ],
+      },
+      {
+        header: 'Equifax Provider',
+        data: [
+          {
+            field: 'equifaxProvider',
+            title: 'Equifax Provider',
+            type: 'dropdown',
+            filterType: 'eq',
+            options: [
+              { label: 'All', value: '' },
+              { label: 'Verifyal', value: 'verifyal' },
+              { label: 'Surepass', value: 'surepass' },
+            ],
+          },
+        ],
+      },
     ];
   }
   // setFilterConfig() {

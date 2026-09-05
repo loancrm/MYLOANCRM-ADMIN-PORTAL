@@ -101,6 +101,13 @@ const routes: Routes = [
           ),
       },
       {
+        path: 'bureau-settings',
+        loadChildren: () =>
+          import('./bureau-settings/bureau-settings.module').then(
+            (m) => m.BureauSettingsModule,
+          ),
+      },
+      {
         path: 'cam-reports',
         loadChildren: () =>
           import('./cam-reports/cam-reports.module').then(

@@ -124,11 +124,6 @@
         <!-- <p><b>Status:</b> {{ accountDetails.status }}</p> -->
       </div>
       <div class="col-md-4">
-        <p><b>Cibil Provider:</b> {{ accountDetails.cibilProvider }}</p>
-        <p><b>Cibil Report Cost:</b> {{ accountDetails.cibilReportCost }}</p>
-        <p><b>Experian Report Cost:</b> {{ accountDetails.experianReportCost }}</p>
-        <p><b>Crif Report Cost:</b> {{ accountDetails.crifReportCost }}</p>
-        <p><b>Equifax Report Cost:</b> {{ accountDetails.equifaxReportCost }}</p>
         <div class="d-flex align-items-center gap-2 mt-2" *ngIf="loggedInUserRole === 1">
           <b>API Access:</b>
           <p-inputSwitch
@@ -145,6 +140,53 @@
         </div>
       </div>
     </div>
+
+    <!-- ================= CREDIT BUREAU SETTINGS SECTION ================= -->
+    <div class="d-flex align-items-center justify-content-between mt-4">
+      <h4 class="fw-bold mb-0">Credit Bureau Settings</h4>
+      <a
+        *ngIf="loggedInUserRole === 1"
+        [routerLink]="['/admin/bureau-settings']"
+        [queryParams]="{ accountId: accountDetails.accountId }"
+        class="d-inline-flex align-items-center"
+      >
+        <i class="pi pi-pencil me-1"></i>Manage Bureau Providers
+      </a>
+    </div>
+    <div class="table-responsive mt-2" style="max-width: 560px">
+      <table class="table table-sm align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Bureau</th>
+            <th>Provider</th>
+            <th>Report Cost (₹)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>CIBIL (TransUnion)</td>
+            <td><span class="badge bg-light text-dark text-capitalize">{{ accountDetails.cibilProvider }}</span></td>
+            <td>{{ accountDetails.cibilReportCost }}</td>
+          </tr>
+          <tr>
+            <td>CRIF High Mark</td>
+            <td><span class="badge bg-light text-dark text-capitalize">{{ accountDetails.crifProvider }}</span></td>
+            <td>{{ accountDetails.crifReportCost }}</td>
+          </tr>
+          <tr>
+            <td>Experian</td>
+            <td><span class="badge bg-light text-dark text-capitalize">{{ accountDetails.experianProvider }}</span></td>
+            <td>{{ accountDetails.experianReportCost }}</td>
+          </tr>
+          <tr>
+            <td>Equifax</td>
+            <td><span class="badge bg-light text-dark text-capitalize">{{ accountDetails.equifaxProvider }}</span></td>
+            <td>{{ accountDetails.equifaxReportCost }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
     <div *ngIf="loggedInUserRole === 1">
       <div class="row mt-3" *ngIf="!loading && accountDetails">
         <div class="col-md-4">

@@ -195,6 +195,12 @@ export class SidebarMenuComponent implements OnChanges {
         condition: this.loggedInUserRole === 1,
       },
       {
+        label: 'Bureau Provider Settings',
+        icon: 'shield-check',
+        route: 'bureau-settings',
+        condition: this.loggedInUserRole === 1,
+      },
+      {
         label: 'CAM Reports',
         icon: 'file-text',
         route: 'cam-reports',

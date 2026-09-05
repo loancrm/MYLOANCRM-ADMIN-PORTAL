@@ -1,0 +1,147 @@
+<div>
+  <div class="p-1 m-2 fixed-card">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <b>
+          <span class="back-btn-text">Credit Bureau Provider Settings</span>
+        </b>
+      </div>
+    </div>
+  </div>
+
+  <div class="m-2">
+    <div class="fixed-card p-3">
+      <p class="text-muted mb-3">
+        Choose whether CIBIL, CRIF, Experian and Equifax report fetches use
+        Verifyal or Surepass — for one account, or applied to every account at
+        once. Surepass is live today for CIBIL and CRIF only; Experian and
+        Equifax can be set now but stay on Verifyal until Surepass support is
+        added for them. Report costs are managed elsewhere and are not changed
+        from this page.
+      </p>
+
+      <div class="mb-4">
+        <label class="form-label fw-semibold d-block">Apply to</label>
+        <p-selectButton
+          [options]="[
+            { label: 'Single Account', value: 'single' },
+            { label: 'All Accounts', value: 'all' },
+          ]"
+          [ngModel]="mode"
+          (ngModelChange)="setMode($event)"
+          optionLabel="label"
+          optionValue="value"
+        ></p-selectButton>
+      </div>
+
+      <ng-container *ngIf="mode === 'single'">
+        <div class="mb-4">
+          <label class="form-label fw-semibold">
+            Account <span class="required">*</span>
+            <i
+              class="pi pi-spin pi-spinner ms-1"
+              *ngIf="accountSearchLoading"
+            ></i>
+          </label>
+          <p-dropdown
+            [options]="accountOptions"
+            [ngModel]="selectedAccountId"
+            (ngModelChange)="onAccountSelect($event)"
+            optionLabel="label"
+            optionValue="value"
+            [filter]="true"
+            filterBy="label"
+            placeholder="Search by business name or account ID"
+            (onFilter)="onAccountFilter($event)"
+            styleClass="w-100"
+            appendTo="body"
+          ></p-dropdown>
+          <small class="text-muted d-block mt-1">
+            Start typing a business name or account ID. Picking an account loads
+            its current settings below.
+          </small>
+        </div>
+      </ng-container>
+
+      <div class="text-center py-4" *ngIf="loading">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+        <p class="mt-2 text-muted">Loading current settings...</p>
+      </div>
+
+      <form
+        [formGroup]="form"
+        (ngSubmit)="save()"
+        *ngIf="!loading && (mode === 'all' || selectedAccountId)"
+      >
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th *ngIf="mode === 'all'" style="width: 4rem"></th>
+                <th>Bureau</th>
+                <th style="min-width: 220px">Provider</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let bureau of bureaus">
+                <td *ngIf="mode === 'all'">
+                  <p-checkbox
+                    [formControlName]="bureau.applyControl"
+                    [binary]="true"
+                    [inputId]="bureau.applyControl"
+                  ></p-checkbox>
+                </td>
+                <td>
+                  <label [for]="bureau.applyControl" class="mb-0 fw-semibold">
+                    {{ bureau.label }}
+                  </label>
+                  <div class="text-muted small" *ngIf="!bureau.surepassIsLive">
+                    <i class="pi pi-info-circle me-1"></i>Surepass not live yet
+                    for this bureau
+                  </div>
+                </td>
+                <td>
+                  <p-dropdown
+                    [options]="providerOptions"
+                    [formControlName]="bureau.providerControl"
+                    optionLabel="label"
+                    optionValue="value"
+                    styleClass="w-100"
+                    appendTo="body"
+                  ></p-dropdown>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <small class="text-muted d-block mb-3" *ngIf="mode === 'all'">
+          <i class="pi pi-info-circle me-1"></i>
+          Only ticked bureaus are changed — every other account keeps its
+          current setting for the rest.
+        </small>
+
+        <div class="d-flex gap-2">
+          <button
+            pButton
+            type="submit"
+            [label]="
+              mode === 'single'
+                ? 'Save for This Account'
+                : 'Apply to All Accounts'
+            "
+            icon="pi pi-check"
+            class="p-button-primary"
+            [loading]="saving"
+          ></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
