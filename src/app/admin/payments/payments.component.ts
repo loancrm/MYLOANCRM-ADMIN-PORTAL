@@ -15,6 +15,9 @@ export class PaymentsComponent implements OnInit {
   @ViewChild('subTable') subTable!: Table;
   @ViewChild('walletTable') walletTable!: Table;
 
+  // Super Admin (role 1) sees all data + the "Assigned To" filter.
+  loggedInUserRole = 0;
+
   // ── Date range (drives analytics cards/charts + both tables) ──
   //  Default view on first load = current month.
   rangePreset: RangePreset = 'thisMonth';
@@ -42,6 +45,7 @@ export class PaymentsComponent implements OnInit {
   subStatus: string | null = null;
   subPlans: string[] = [];
   subGateway: string | null = null;
+  subKind: string | null = null;
 
   subStatusOptions = [
     { label: 'All Status', value: null },
@@ -56,11 +60,28 @@ export class PaymentsComponent implements OnInit {
     { label: 'Razorpay', value: 'RAZORPAY' },
     { label: 'Cashfree', value: 'CASHFREE' },
   ];
+  // New (first payment) vs Renewal
+  subKindOptions = [
+    { label: 'All', value: null },
+    { label: 'New (First Payment)', value: 'new' },
+    { label: 'Renewal', value: 'renewal' },
+  ];
+
+  // ── Assigned-To filter (role 1 only, shared by both tabs) ──
+  assignOptions: { label: string; value: any }[] = [];
+  selectedAssigns: any[] = [];
 
   // ── Wallet transactions table ──
   walletTransactions: any[] = [];
   walletTransactionsCount = 0;
-  walletSummary: any = { count: 0, totalAmount: 0, totalNet: 0, totalGst: 0, totalCredit: 0, totalDebit: 0 };
+  walletSummary: any = {
+    count: 0,
+    totalAmount: 0,
+    totalNet: 0,
+    totalGst: 0,
+    totalCredit: 0,
+    totalDebit: 0,
+  };
   walletLoading = false;
   private walletEvent: any;
   walletSearch = '';
@@ -90,14 +111,52 @@ export class PaymentsComponent implements OnInit {
   constructor(
     private location: Location,
     private leadsService: LeadsService,
-    private toastService: ToastService
+    private toastService: ToastService,
   ) {}
 
   ngOnInit(): void {
+    const adminDetails = JSON.parse(
+      localStorage.getItem('adminDetails') || '{}',
+    );
+    this.loggedInUserRole = Number(adminDetails?.user?.role || 0);
+
+    // Populate the plan dropdown right away so it is never empty, even if the
+    // analytics call is slow or fails (analytics only enriches this list).
+    this.buildPlanOptions();
+
+    if (this.loggedInUserRole === 1) {
+      this.loadAssignOptions();
+    }
+
     // Seed the "This Month" range before the tables fire their first
     // lazy-load, so the initial table data is already scoped to this month.
     this.setPresetDates('thisMonth');
     this.loadAnalytics();
+  }
+
+  private loadAssignOptions(): void {
+    this.leadsService.getUsers({ 'status-eq': 1 }).subscribe(
+      (data: any) => {
+        this.assignOptions = (data || [])
+          .filter((u: any) => u && u.id != null)
+          .map((u: any) => ({ label: u.name || 'User #' + u.id, value: u.id }));
+      },
+      () => {},
+    );
+  }
+
+  onAssignChange(): void {
+    this.reloadSubscriptions();
+    this.reloadWallet();
+  }
+
+  onSubSearchChange(v: string): void {
+    // when the box is cleared, fall back to the default (unfiltered) data
+    if (!v || !v.trim()) this.reloadSubscriptions();
+  }
+
+  onWalletSearchChange(v: string): void {
+    if (!v || !v.trim()) this.reloadWallet();
   }
 
   goBack(): void {
@@ -176,7 +235,7 @@ export class PaymentsComponent implements OnInit {
       (err) => {
         this.analyticsLoading = false;
         this.toastService.showError(err);
-      }
+      },
     );
   }
 
@@ -196,8 +255,12 @@ export class PaymentsComponent implements OnInit {
     // one box, matches business name OR account id (backend handles the OR)
     if (this.subSearch?.trim()) searchFilter['search'] = this.subSearch.trim();
     if (this.subStatus) searchFilter['status-eq'] = this.subStatus;
-    if (this.subPlans?.length) searchFilter['plan_name-in'] = this.subPlans.join(',');
+    if (this.subPlans?.length)
+      searchFilter['plan_name-in'] = this.subPlans.join(',');
     if (this.subGateway) searchFilter['payment_gateway-eq'] = this.subGateway;
+    if (this.subKind) searchFilter['subscriptionKind'] = this.subKind;
+    if (this.loggedInUserRole === 1 && this.selectedAssigns?.length)
+      searchFilter['assign_to-in'] = this.selectedAssigns.join(',');
     return Object.assign({}, searchFilter, this.dateRangeParams('created_on'));
   }
 
@@ -215,17 +278,17 @@ export class PaymentsComponent implements OnInit {
       (err) => {
         this.subLoading = false;
         this.toastService.showError(err);
-      }
+      },
     );
 
     this.leadsService.getPaymentsSubscriptionsCount(api_filter).subscribe(
       (count: any) => (this.subscriptionsCount = parseInt(count) || 0),
-      (err) => console.error(err)
+      (err) => console.error(err),
     );
 
     this.leadsService.getPaymentsSubscriptionsSummary(api_filter).subscribe(
       (res: any) => (this.subSummary = res || this.subSummary),
-      (err) => console.error(err)
+      (err) => console.error(err),
     );
   }
 
@@ -246,10 +309,15 @@ export class PaymentsComponent implements OnInit {
   private buildWalletFilter(): any {
     const searchFilter: any = {};
     // one box, matches business name OR account id (backend handles the OR)
-    if (this.walletSearch?.trim()) searchFilter['search'] = this.walletSearch.trim();
+    if (this.walletSearch?.trim())
+      searchFilter['search'] = this.walletSearch.trim();
     if (this.walletType) searchFilter['transactionType-eq'] = this.walletType;
-    if (this.walletStatuses?.length) searchFilter['paymentStatus-in'] = this.walletStatuses.join(',');
-    if (this.walletGateway) searchFilter['paymentGateway-eq'] = this.walletGateway;
+    if (this.walletStatuses?.length)
+      searchFilter['paymentStatus-in'] = this.walletStatuses.join(',');
+    if (this.walletGateway)
+      searchFilter['paymentGateway-eq'] = this.walletGateway;
+    if (this.loggedInUserRole === 1 && this.selectedAssigns?.length)
+      searchFilter['assign_to-in'] = this.selectedAssigns.join(',');
     return Object.assign({}, searchFilter, this.dateRangeParams('created_on'));
   }
 
@@ -267,18 +335,20 @@ export class PaymentsComponent implements OnInit {
       (err) => {
         this.walletLoading = false;
         this.toastService.showError(err);
-      }
+      },
     );
 
     this.leadsService.getPaymentsWalletTransactionsCount(api_filter).subscribe(
       (count: any) => (this.walletTransactionsCount = parseInt(count) || 0),
-      (err) => console.error(err)
+      (err) => console.error(err),
     );
 
-    this.leadsService.getPaymentsWalletTransactionsSummary(api_filter).subscribe(
-      (res: any) => (this.walletSummary = res || this.walletSummary),
-      (err) => console.error(err)
-    );
+    this.leadsService
+      .getPaymentsWalletTransactionsSummary(api_filter)
+      .subscribe(
+        (res: any) => (this.walletSummary = res || this.walletSummary),
+        (err) => console.error(err),
+      );
   }
 
   reloadWallet(): void {
@@ -295,17 +365,23 @@ export class PaymentsComponent implements OnInit {
   // ── UI helpers ──
   subStatusClass(status: string): string {
     switch (status) {
-      case 'Active': return 'badge bg-success';
-      case 'Expired': return 'badge bg-danger';
-      case 'Cancelled': return 'badge bg-secondary';
-      case 'Trial': return 'badge bg-warning text-dark';
-      default: return 'badge bg-light text-dark';
+      case 'Active':
+        return 'badge bg-success';
+      case 'Expired':
+        return 'badge bg-danger';
+      case 'Cancelled':
+        return 'badge bg-secondary';
+      case 'Trial':
+        return 'badge bg-warning text-dark';
+      default:
+        return 'badge bg-light text-dark';
     }
   }
 
   walletStatusClass(status: string): string {
     const s = (status || '').toLowerCase();
-    if (['success', 'captured', 'authorized'].includes(s)) return 'badge bg-success';
+    if (['success', 'captured', 'authorized'].includes(s))
+      return 'badge bg-success';
     if (s === 'pending') return 'badge bg-warning text-dark';
     if (s === 'failed') return 'badge bg-danger';
     return 'badge bg-light text-dark';
@@ -313,19 +389,27 @@ export class PaymentsComponent implements OnInit {
 
   matchClass(kind: string): string {
     switch (kind) {
-      case 'linked': return 'badge bg-success';
-      case 'date-matched': return 'badge bg-info text-dark';
-      case 'estimated': return 'badge bg-warning text-dark';
-      default: return 'badge bg-light text-dark';
+      case 'linked':
+        return 'badge bg-success';
+      case 'date-matched':
+        return 'badge bg-info text-dark';
+      case 'estimated':
+        return 'badge bg-warning text-dark';
+      default:
+        return 'badge bg-light text-dark';
     }
   }
 
   matchLabel(kind: string): string {
     switch (kind) {
-      case 'linked': return 'Txn ID';
-      case 'date-matched': return 'Date match';
-      case 'estimated': return 'Est. −credit';
-      default: return 'Plan amt';
+      case 'linked':
+        return 'Txn ID';
+      case 'date-matched':
+        return 'Date match';
+      case 'estimated':
+        return 'Est. −credit';
+      default:
+        return 'Plan amt';
     }
   }
 }

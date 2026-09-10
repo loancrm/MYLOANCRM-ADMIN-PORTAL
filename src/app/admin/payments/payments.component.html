@@ -139,9 +139,17 @@
             pInputText
             placeholder="Search business name or account ID"
             [(ngModel)]="subSearch"
+            (ngModelChange)="onSubSearchChange($event)"
             (keyup.enter)="reloadSubscriptions()"
           />
         </span>
+        <p-dropdown
+          [options]="subKindOptions"
+          [(ngModel)]="subKind"
+          (onChange)="reloadSubscriptions()"
+          placeholder="New / Renewal"
+          appendTo="body"
+        ></p-dropdown>
         <p-dropdown
           [options]="subStatusOptions"
           [(ngModel)]="subStatus"
@@ -167,6 +175,20 @@
           (onChange)="reloadSubscriptions()"
           appendTo="body"
         ></p-dropdown>
+        <p-multiSelect
+          *ngIf="loggedInUserRole === 1"
+          [options]="assignOptions"
+          [(ngModel)]="selectedAssigns"
+          optionLabel="label"
+          optionValue="value"
+          [filter]="true"
+          [showToggleAll]="true"
+          [showClear]="true"
+          display="chip"
+          defaultLabel="Assigned To"
+          appendTo="body"
+          (onChange)="onAssignChange()"
+        ></p-multiSelect>
         <button
           pButton
           pRipple
@@ -227,6 +249,7 @@
             <th pSortableColumn="created_on">
               Created <p-sortIcon field="created_on"></p-sortIcon>
             </th>
+            <th>Kind</th>
           </tr>
         </ng-template>
 
@@ -265,6 +288,15 @@
             <td>
               {{ sub.created_on ? (sub.created_on | date: "short") : "-" }}
             </td>
+            <td>
+              <span
+                class="badge"
+                [ngClass]="
+                  sub.subscriptionKind === 'New' ? 'bg-primary' : 'bg-secondary'
+                "
+                >{{ sub.subscriptionKind || "-" }}</span
+              >
+            </td>
           </tr>
         </ng-template>
 
@@ -287,13 +319,13 @@
             <td class="fw-bold text-success">
               ₹{{ subSummary.paid | number: "1.0-2" }}
             </td>
-            <td colspan="6"></td>
+            <td colspan="7"></td>
           </tr>
         </ng-template>
 
         <ng-template pTemplate="emptymessage">
           <tr>
-            <td colspan="13" class="text-center fw-bold py-4">
+            <td colspan="14" class="text-center fw-bold py-4">
               <p style="color: #7571f8; font-weight: 400; font-size: 18px">
                 No subscriptions found
               </p>
@@ -370,6 +402,7 @@
             pInputText
             placeholder="Search business name or account ID"
             [(ngModel)]="walletSearch"
+            (ngModelChange)="onWalletSearchChange($event)"
             (keyup.enter)="reloadWallet()"
           />
         </span>
@@ -398,6 +431,20 @@
           (onChange)="reloadWallet()"
           appendTo="body"
         ></p-dropdown>
+        <p-multiSelect
+          *ngIf="loggedInUserRole === 1"
+          [options]="assignOptions"
+          [(ngModel)]="selectedAssigns"
+          optionLabel="label"
+          optionValue="value"
+          [filter]="true"
+          [showToggleAll]="true"
+          [showClear]="true"
+          display="chip"
+          defaultLabel="Assigned To"
+          appendTo="body"
+          (onChange)="onAssignChange()"
+        ></p-multiSelect>
         <button
           pButton
           pRipple
