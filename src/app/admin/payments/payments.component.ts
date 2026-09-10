@@ -60,11 +60,12 @@ export class PaymentsComponent implements OnInit {
     { label: 'Razorpay', value: 'RAZORPAY' },
     { label: 'Cashfree', value: 'CASHFREE' },
   ];
-  // New (first payment) vs Renewal
+  // Free trial is not a payment: first paid subscription = New, later paid = Renewal
   subKindOptions = [
     { label: 'All', value: null },
     { label: 'New (First Payment)', value: 'new' },
     { label: 'Renewal', value: 'renewal' },
+    { label: 'Free Trial', value: 'trial' },
   ];
 
   // ── Assigned-To filter (role 1 only, shared by both tabs) ──

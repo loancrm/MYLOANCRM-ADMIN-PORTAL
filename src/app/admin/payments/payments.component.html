@@ -291,9 +291,11 @@
             <td>
               <span
                 class="badge"
-                [ngClass]="
-                  sub.subscriptionKind === 'New' ? 'bg-primary' : 'bg-secondary'
-                "
+                [ngClass]="{
+                  'bg-primary': sub.subscriptionKind === 'New',
+                  'bg-secondary': sub.subscriptionKind === 'Renewal',
+                  'bg-warning text-dark': sub.subscriptionKind === 'Trial',
+                }"
                 >{{ sub.subscriptionKind || "-" }}</span
               >
             </td>
