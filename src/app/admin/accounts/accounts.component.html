@@ -236,6 +236,22 @@
           <th pSortableColumn="walletBalance" class="text-nowrap">
             Wallet Balance <p-sortIcon field="walletBalance"></p-sortIcon>
           </th>
+          <th
+            class="text-nowrap"
+            *ngIf="loggedInUserRole === 1"
+            pTooltip="Total paid to us, excluding GST (subscriptions + Razorpay/Cashfree transactions)"
+            tooltipPosition="top"
+          >
+            Amount Paid (excl. GST)
+          </th>
+          <th
+            class="text-nowrap"
+            *ngIf="loggedInUserRole === 1"
+            pTooltip="Total GST collected from this account's payments"
+            tooltipPosition="top"
+          >
+            GST Collected
+          </th>
           <th pSortableColumn="latest_plan_name" class="text-nowrap">
             Plan <p-sortIcon field="latest_plan_name"></p-sortIcon>
           </th>
@@ -311,6 +327,17 @@
             <span class="table-column-data" *ngIf="team.walletBalance">{{
               team.walletBalance
             }}</span>
+          </td>
+
+          <td *ngIf="loggedInUserRole === 1">
+            <span class="table-column-data">
+              ₹{{ team.netPaid || 0 | number: '1.0-2' }}
+            </span>
+          </td>
+          <td *ngIf="loggedInUserRole === 1">
+            <span class="table-column-data">
+              ₹{{ team.gstCollected || 0 | number: '1.0-2' }}
+            </span>
           </td>
 
           <td>

@@ -28,6 +28,9 @@ export class AccountsComponent implements AfterViewInit {
   filterConfig: any[] = [];
   capabilities: any;
   initialFirst: number = 0; // For storing initial pagination position
+  // Guards loadAccountPaymentTotals() against a stale response landing after
+  // the user has already paged/filtered away — see loadAccountPaymentTotals.
+  private paymentTotalsRequestId = 0;
   initialRows: number = 10;
   version = projectConstantsLocal.VERSION_DESKTOP;
   @ViewChild('accountTable') accountTable!: Table;
@@ -210,6 +213,10 @@ export class AccountsComponent implements AfterViewInit {
     return menuItems;
   }
   exportAccountsToCSV() {
+    // Amount Paid (excl. GST) / GST Collected are admin-only (role 1) columns —
+    // keep the export in sync with what's shown in the table.
+    const isAdmin = this.loggedInUserRole === 1;
+
     const headers = [
       'Account Id',
       'Name',
@@ -222,6 +229,7 @@ export class AccountsComponent implements AfterViewInit {
       'Status',
       'gstNumber',
       'Wallet Balance',
+      ...(isAdmin ? ['Amount Paid (excl. GST)', 'GST Collected'] : []),
       'Created Date',
       'Assigned To',
       'FollowUp Date',
@@ -239,6 +247,7 @@ export class AccountsComponent implements AfterViewInit {
       team.latest_status || '',
       team.gstNumber || '',
       team.walletBalance || '',
+      ...(isAdmin ? [team.netPaid || 0, team.gstCollected || 0] : []),
       team.createdOn ? new Date(team.createdOn).toLocaleDateString() : '',
       team.assign_to || '',
       team.followupDate ? new Date(team.followupDate).toLocaleDateString() : '',
@@ -858,10 +867,47 @@ export class AccountsComponent implements AfterViewInit {
         }));
 
         this.apiLoading = false;
+        this.loadAccountPaymentTotals();
       },
       (error: any) => {
         this.toastService.showError(error);
         this.apiLoading = false;
+      },
+    );
+  }
+
+  // Admin (role 1) only: amount paid (excl. GST) + GST collected per account,
+  // resolved from subscriptions + razorpay_transactions (same logic as the
+  // Payments screen). Fetched for just the accountIds on the current page.
+  loadAccountPaymentTotals(): void {
+    if (this.loggedInUserRole !== 1) return;
+    const accountIds = (this.accounts || [])
+      .map((a: any) => a.accountId)
+      .filter((id: any) => id != null);
+    if (!accountIds.length) return;
+
+    // Rapid pagination/filtering can fire several of these before the first
+    // resolves; a response for a page the user has already left must not
+    // overwrite the (different) rows now on screen.
+    const requestId = ++this.paymentTotalsRequestId;
+
+    this.leadsService.getAccountPaymentTotals(accountIds).subscribe(
+      (totals: any) => {
+        if (requestId !== this.paymentTotalsRequestId) return; // stale — drop it
+        const byId = new Map<string, any>(
+          (totals || []).map((t: any) => [String(t.accountId), t]),
+        );
+        this.accounts = this.accounts.map((a: any) => {
+          const t = byId.get(String(a.accountId));
+          return {
+            ...a,
+            netPaid: t ? t.netPaid : 0,
+            gstCollected: t ? t.gstCollected : 0,
+          };
+        });
+      },
+      () => {
+        // silent — these are supplementary columns, not core account data
       },
     );
   }

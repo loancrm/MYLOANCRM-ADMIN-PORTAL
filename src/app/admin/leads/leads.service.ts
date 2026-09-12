@@ -15,12 +15,10 @@ import { map } from 'rxjs/operators';
 })
 export class LeadsService {
   changeClientRequirementStatus(id: number, status: string) {
-
     return this.serviceMeta.httpPut(
       'clientRequirements/' + id + '/status/' + status,
-      {}
+      {},
     );
-
   }
   moment: any;
   status: any;
@@ -34,7 +32,7 @@ export class LeadsService {
     private serviceMeta: ServiceMeta,
     private localStorageService: LocalStorageService,
     private http: HttpClient,
-    private router: Router
+    private router: Router,
   ) {
     this.moment = this.dateTimeProcessor.getMoment();
   }
@@ -72,7 +70,7 @@ export class LeadsService {
   async fetchAndStoreClientIp(): Promise<void> {
     const lastFetchedTime = parseInt(
       this.localStorageService.getItemFromLocalStorage('clientIpTime') || '0',
-      10
+      10,
     );
     const currentTime = Date.now();
 
@@ -88,7 +86,7 @@ export class LeadsService {
           this.localStorageService.setItemOnLocalStorage('clientIp', newIp);
           this.localStorageService.setItemOnLocalStorage(
             'clientIpTime',
-            currentTime.toString()
+            currentTime.toString(),
           );
           // console.log('Client IP updated:', newIp);
         }
@@ -135,7 +133,7 @@ export class LeadsService {
   }
   checkPhoneNumberExists(phone: string) {
     return this.http.get<{ exists: boolean }>(
-      `/api/leads/check-phone?phone=${phone}`
+      `/api/leads/check-phone?phone=${phone}`,
     );
   }
   createLead(data) {
@@ -197,7 +195,7 @@ export class LeadsService {
   //   );
   // }
   getWalletTransactions(filters) {
-    console.log("calling")
+    console.log('calling');
     const url = 'accounts/wallettransactions';
     return this.serviceMeta.httpGet(url, null, filters);
   }
@@ -236,12 +234,18 @@ export class LeadsService {
     const url = 'admin-payments/wallet-transactions/summary';
     return this.serviceMeta.httpGet(url, null, filters);
   }
-
+  // Accounts table (role 1 only): amount paid excl. GST + GST collected per account
+  getAccountPaymentTotals(accountIds: (string | number)[]) {
+    const url = 'admin-payments/account-payment-totals';
+    return this.serviceMeta.httpGet(url, null, {
+      accountIds: accountIds.join(','),
+    });
+  }
 
   addRemarks(accountId, note: any) {
     return this.serviceMeta.httpPost(
       `accounts/remarks/${accountId}/notes`,
-      note
+      note,
     );
   }
   getNotes(accountId) {
@@ -254,14 +258,14 @@ export class LeadsService {
 
   getSocialMediaLeadNotes(leadId: any) {
     return this.serviceMeta.httpGet(
-      `social-media-leads/remarks/${leadId}/notes`
+      `social-media-leads/remarks/${leadId}/notes`,
     );
   }
 
   addSocialMediaLeadRemark(leadId: any, note: any) {
     return this.serviceMeta.httpPost(
       `social-media-leads/remarks/${leadId}/notes`,
-      note
+      note,
     );
   }
   getAccountsCount(filter = {}) {
@@ -324,10 +328,13 @@ export class LeadsService {
   }
 
   downloadSocialLeadsTemplate(): Observable<HttpResponse<Blob>> {
-    const fullUrl = projectConstantsLocal.BASE_URL + 'social-media-leads/download-template';
+    const fullUrl =
+      projectConstantsLocal.BASE_URL + 'social-media-leads/download-template';
 
-    const authToken = this.localStorageService.getItemFromLocalStorage('accessToken');
-    const clientIp = this.localStorageService.getItemFromLocalStorage('clientIp') || '';
+    const authToken =
+      this.localStorageService.getItemFromLocalStorage('accessToken');
+    const clientIp =
+      this.localStorageService.getItemFromLocalStorage('clientIp') || '';
 
     const fetchPromise = fetch(fullUrl, {
       method: 'GET',
@@ -389,7 +396,6 @@ export class LeadsService {
     const url = `contactus/${contactId}/remark-text`;
     return this.serviceMeta.httpPut(url, { remarks });
   }
-
 
   getFetchedCibilReports(filter = {}) {
     const url = 'admin/fetched-cibil-reports';
@@ -453,13 +459,8 @@ export class LeadsService {
     return this.serviceMeta.httpGet(url, null, filter);
   }
 
-
   getClientRequirementById(id: number) {
-
-    return this.serviceMeta.httpGet(
-      'clientRequirements/' + id
-    );
-
+    return this.serviceMeta.httpGet('clientRequirements/' + id);
   }
 
   updatePlan(bankersId, data) {
@@ -503,7 +504,7 @@ export class LeadsService {
     //   filePath
     // )}`;
     const url = `https://files.loancrm.org/files?file_path=${encodeURIComponent(
-      filePath
+      filePath,
     )}`;
     // console.log(url);
     return this.serviceMeta.httpDelete(url);
@@ -773,7 +774,7 @@ export class LeadsService {
   // }
   extractBankDetails(
     files: File[],
-    params?: { password?: string }
+    params?: { password?: string },
   ): Observable<any> {
     const formData = new FormData();
     files.forEach((file) => {
@@ -788,7 +789,7 @@ export class LeadsService {
     return this.http.post<any>(
       `${this.baseUrl}api/extract-bank-details`,
       formData,
-      { params: httpParams }
+      { params: httpParams },
     );
   }
 
@@ -847,11 +848,14 @@ export class LeadsService {
     return this.serviceMeta.httpPost(url, body);
   }
   updateAccountFollowupDate(accountId, data) {
-    return this.serviceMeta.httpPut('accounts/followup-date/' + accountId, data);
+    return this.serviceMeta.httpPut(
+      'accounts/followup-date/' + accountId,
+      data,
+    );
   }
   loginAsProviderAndRedirect(
     accountId: string,
-    targetDomain: string = 'app.myloancrm.com'
+    targetDomain: string = 'app.myloancrm.com',
   ): Promise<boolean> {
     return new Promise((resolve, reject) => {
       this.loginAsProvider(accountId).subscribe(
@@ -882,7 +886,7 @@ export class LeadsService {
         (error) => {
           console.error('Provider login error:', error);
           reject(error);
-        }
+        },
       );
     });
   }
@@ -920,8 +924,6 @@ export class LeadsService {
     const url = 'adminusers/' + id;
     return this.serviceMeta.httpGet(url);
   }
-
-
 
   createUser(data: any) {
     const url = 'adminusers';
@@ -979,9 +981,7 @@ export class LeadsService {
     return this.serviceMeta.httpPost(url, data);
   }
   getTodaySocialMediaCallbacks() {
-    return this.serviceMeta.httpGet(
-      'social-media-leads/today-callbacks'
-    );
+    return this.serviceMeta.httpGet('social-media-leads/today-callbacks');
   }
   updateSocialMediaLead(id: any, data: any) {
     const url = 'social-media-leads/' + id;
@@ -989,7 +989,7 @@ export class LeadsService {
   }
   getWhatsappTemplatesFromDB(filter = {}) {
     const url = 'whatsapp-templates';
-    return this.serviceMeta.httpGet(url, null, filter);   // ✅ pass filter
+    return this.serviceMeta.httpGet(url, null, filter); // ✅ pass filter
   }
 
   getWhatsappTemplatesCount(filter = {}) {
@@ -1006,13 +1006,16 @@ export class LeadsService {
     return this.serviceMeta.httpPut(url, data);
   }
 
-  getAccountDashboardMetrics(accountId: any, filter: any = {}): Observable<any> {
+  getAccountDashboardMetrics(
+    accountId: any,
+    filter: any = {},
+  ): Observable<any> {
     const params: any = {
       ...filter,
-      'accountId-eq': accountId
+      'accountId-eq': accountId,
     };
     // Remove undefined keys
-    Object.keys(params).forEach(k => {
+    Object.keys(params).forEach((k) => {
       if (params[k] === undefined || params[k] === null) {
         delete params[k];
       }
@@ -1029,13 +1032,13 @@ export class LeadsService {
   getBankWiseAnalytics(
     accountId: any,
     loanType: string = 'all',
-    first: number = 0,       // ✅ add
-    rows: number = 10       // ✅ add
+    first: number = 0, // ✅ add
+    rows: number = 10, // ✅ add
   ): Observable<any> {
     const params: any = {
       loanType,
-      from: first,   // ✅ offset
-      count: rows     // ✅ limit
+      from: first, // ✅ offset
+      count: rows, // ✅ limit
     };
     if (accountId) {
       params['accountId-eq'] = accountId;
@@ -1049,7 +1052,7 @@ export class LeadsService {
   //   from: number = 0,
   //   count: number = 20,
   //   search: string = '',
-  //   filters: any = {}  
+  //   filters: any = {}
   // ): Observable<any> {
   //   const params: any = { metric, loanType, from, count };
   //   if (search) params['search'] = search;
@@ -1063,9 +1066,8 @@ export class LeadsService {
     from: number = 0,
     count: number = 20,
     search: string = '',
-    filters: any = {}
+    filters: any = {},
   ): Observable<any> {
-
     const params: any = { metric, loanType, from, count };
 
     if (search) {
@@ -1074,8 +1076,12 @@ export class LeadsService {
 
     // ✅ ADD THIS BLOCK (IMPORTANT)
     if (filters) {
-      Object.keys(filters).forEach(key => {
-        if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+      Object.keys(filters).forEach((key) => {
+        if (
+          filters[key] !== undefined &&
+          filters[key] !== null &&
+          filters[key] !== ''
+        ) {
           params[key] = filters[key];
         }
       });
@@ -1102,16 +1108,15 @@ export class LeadsService {
     count: number = 20,
     search: string = '',
     cibilType: string = '',
-    filters: any = {}   // ✅ ADD THIS
+    filters: any = {}, // ✅ ADD THIS
   ): Observable<any> {
-
     const params: any = { from, count };
 
     if (search) params['search'] = search;
     if (cibilType) params['cibilType'] = cibilType;
 
     // ✅ Add filters same as lenders
-    Object.keys(filters).forEach(key => {
+    Object.keys(filters).forEach((key) => {
       params[key] = filters[key];
     });
 
@@ -1123,13 +1128,17 @@ export class LeadsService {
     from: number = 0,
     count: number = 20,
     search: string = '',
-    filters: any = {}
+    filters: any = {},
   ): Observable<any> {
     const params: any = { type, loanType, from, count };
     if (search) params['search'] = search;
     if (filters) {
-      Object.keys(filters).forEach(key => {
-        if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+      Object.keys(filters).forEach((key) => {
+        if (
+          filters[key] !== undefined &&
+          filters[key] !== null &&
+          filters[key] !== ''
+        ) {
           params[key] = filters[key];
         }
       });
@@ -1145,7 +1154,7 @@ export class LeadsService {
   getCityWiseBreakdown(
     from: number = 0,
     count: number = 10,
-    search: string = ''
+    search: string = '',
   ): Observable<any> {
     const params: any = { from, count };
     if (search) params['search'] = search;
@@ -1156,7 +1165,7 @@ export class LeadsService {
     city: string,
     from: number = 0,
     count: number = 10,
-    search: string = ''
+    search: string = '',
   ): Observable<any> {
     const params: any = { city, from, count };
     if (search) params['search'] = search;
@@ -1218,7 +1227,6 @@ export class LeadsService {
     return this.serviceMeta.httpPut(url, null);
   }
 
-
   getAccountLeadsBreakdown(
     accountId: string,
     metric: string,
@@ -1227,7 +1235,7 @@ export class LeadsService {
     count: number = 10,
     search: string = '',
     filters: any = {},
-    employmentStatus: string = 'employed'
+    employmentStatus: string = 'employed',
   ): Observable<any> {
     const params: any = { accountId, metric, loanType, from, count };
     if (search) params['search'] = search;
@@ -1238,8 +1246,12 @@ export class LeadsService {
     }
 
     if (filters) {
-      Object.keys(filters).forEach(key => {
-        if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+      Object.keys(filters).forEach((key) => {
+        if (
+          filters[key] !== undefined &&
+          filters[key] !== null &&
+          filters[key] !== ''
+        ) {
           params[key] = filters[key];
         }
       });
@@ -1280,7 +1292,7 @@ export class LeadsService {
   //   count: number = 10,
   //   search: string = '',
   //   filters: any = {},
-  //   employmentStatus: string = 'all'  
+  //   employmentStatus: string = 'all'
   // ): Observable<any> {
 
   //   const params: any = { accountId, metric, loanType, from, count };
@@ -1317,15 +1329,14 @@ export class LeadsService {
     from: number = 0,
     count: number = 10,
     search: string = '',
-    filters: any = {}
+    filters: any = {},
   ): Observable<any> {
-
     const params: any = { from, count };
 
     if (search) params['search'] = search;
 
     // ✅ Add filters
-    Object.keys(filters).forEach(key => {
+    Object.keys(filters).forEach((key) => {
       params[key] = filters[key];
     });
 
@@ -1336,11 +1347,11 @@ export class LeadsService {
     from: number = 0,
     count: number = 10,
     search: string = '',
-    filters: any = {}
+    filters: any = {},
   ): Observable<any> {
     const params: any = { from, count };
     if (search) params['search'] = search;
-    Object.keys(filters).forEach(key => {
+    Object.keys(filters).forEach((key) => {
       params[key] = filters[key];
     });
     return this.serviceMeta.httpGet('accounts/users-breakdown', null, params);
@@ -1362,22 +1373,27 @@ export class LeadsService {
 
   // ── Slot Settings ─────────────────────────────────────────────────────────────
   getSlotSettings(filter = {}) {
-    return this.serviceMeta.httpGet('slots/settings', null, filter);    // ← updated
+    return this.serviceMeta.httpGet('slots/settings', null, filter); // ← updated
   }
   getSlotSettingsCount(filter = {}) {
     return this.serviceMeta.httpGet('slots/settings/total', null, filter); // ← updated
   }
   createSlotSetting(data: any) {
-    return this.serviceMeta.httpPost('slots/settings', data);           // ← updated
+    return this.serviceMeta.httpPost('slots/settings', data); // ← updated
   }
   updateSlotSetting(slotId: number, data: any) {
     return this.serviceMeta.httpPut('slots/settings/' + slotId, data); // ← updated
   }
   changeSlotSettingStatus(slotId: number, statusId: number) {
-    return this.serviceMeta.httpPut(`slots/settings/${slotId}/changestatus/${statusId}`, null); // ← updated
+    return this.serviceMeta.httpPut(
+      `slots/settings/${slotId}/changestatus/${statusId}`,
+      null,
+    ); // ← updated
   }
 
-  uploadWhatsappMedia(file: File): Observable<{ success: boolean; url: string }> {
+  uploadWhatsappMedia(
+    file: File,
+  ): Observable<{ success: boolean; url: string }> {
     const formData = new FormData();
     formData.append('file', file);
     return this.serviceMeta.httpPost('campaign/upload-media', formData) as any;
@@ -1385,11 +1401,11 @@ export class LeadsService {
 
   // ── Slot Config ───────────────────────────────────────────────────────────────
   getSlotConfig() {
-    return this.serviceMeta.httpGet('slots/config');                    // ← updated
+    return this.serviceMeta.httpGet('slots/config'); // ← updated
   }
 
   updateSlotConfig(data: { max_users_per_slot: number }) {
-    return this.serviceMeta.httpPut('slots/config', data);             // ← updated
+    return this.serviceMeta.httpPut('slots/config', data); // ← updated
   }
 
   getCampaignHistory(filter: any = {}): Observable<any> {
@@ -1411,14 +1427,18 @@ export class LeadsService {
     from: number = 0,
     count: number = 10,
     search: string = '',
-    filters: any = {}
+    filters: any = {},
   ): Observable<any> {
     const params: any = { from, count };
     if (search) params['search'] = search;
-    Object.keys(filters).forEach(key => {
+    Object.keys(filters).forEach((key) => {
       params[key] = filters[key];
     });
-    return this.serviceMeta.httpGet('accounts/subscriptions-breakdown', null, params);
+    return this.serviceMeta.httpGet(
+      'accounts/subscriptions-breakdown',
+      null,
+      params,
+    );
   }
 
   // getWalletTransactionsBreakdown(
@@ -1435,7 +1455,11 @@ export class LeadsService {
   //   return this.serviceMeta.httpGet('accounts/wallet-transactions-breakdown', null, params);
   // }
   getWalletTransactionsBreakdown(params: any): Observable<any> {
-    return this.serviceMeta.httpGet('accounts/wallet-transactions-breakdown', null, params);
+    return this.serviceMeta.httpGet(
+      'accounts/wallet-transactions-breakdown',
+      null,
+      params,
+    );
   }
 
   addWalletBalance(accountId: string, amount: number): Observable<any> {
@@ -1443,12 +1467,22 @@ export class LeadsService {
     return this.serviceMeta.httpPost(url, { accountId, amount });
   }
 
-  createBooking(data: { phone: string; date: string; time: string; notes?: string; assign_to?: any }) {
+  createBooking(data: {
+    phone: string;
+    date: string;
+    time: string;
+    notes?: string;
+    assign_to?: any;
+  }) {
     return this.serviceMeta.httpPost('bookings/book-demo', data);
   }
 
   getBsaReportsBreakdown(params: any): Observable<any> {
-    return this.serviceMeta.httpGet('accounts/bsa-reports-breakdown', null, params);
+    return this.serviceMeta.httpGet(
+      'accounts/bsa-reports-breakdown',
+      null,
+      params,
+    );
   }
   markAsLoanEnquiry(id: number): Observable<any> {
     const url = `social-media-leads/${id}/loan-enquiry`;
@@ -1480,21 +1514,25 @@ export class LeadsService {
   // ── Payment Links ─────────────────────────────────────────────────────
 
   getPaymentLinks(filter: any = {}) {
-    return this.serviceMeta.httpGet('payment-links', null, filter).pipe(
-      map((res: any) => res?.data || res || [])
-    );
+    return this.serviceMeta
+      .httpGet('payment-links', null, filter)
+      .pipe(map((res: any) => res?.data || res || []));
   }
 
   getPaymentLinksCount(filter: any = {}) {
-    return this.serviceMeta.httpGet('payment-links/total', null, filter).pipe(
-      map((res: any) => (typeof res === 'object' ? res?.data ?? res?.count ?? 0 : res))
-    );
+    return this.serviceMeta
+      .httpGet('payment-links/total', null, filter)
+      .pipe(
+        map((res: any) =>
+          typeof res === 'object' ? (res?.data ?? res?.count ?? 0) : res,
+        ),
+      );
   }
 
   getPaymentLinkById(linkId: string) {
-    return this.serviceMeta.httpGet('payment-links/' + linkId).pipe(
-      map((res: any) => res?.data || res)
-    );
+    return this.serviceMeta
+      .httpGet('payment-links/' + linkId)
+      .pipe(map((res: any) => res?.data || res));
   }
 
   /**
@@ -1502,8 +1540,8 @@ export class LeadsService {
    * Payload shape matches Razorpay's /v1/payment_links API.
    */
   createPaymentLink(data: {
-    amount: number;           // in paise
-    currency: string;         // 'INR'
+    amount: number; // in paise
+    currency: string; // 'INR'
     accept_partial?: boolean;
     description: string;
     customer: {
@@ -1511,7 +1549,7 @@ export class LeadsService {
       contact: string;
       email?: string;
     };
-    expire_by: number;        // Unix timestamp (seconds)
+    expire_by: number; // Unix timestamp (seconds)
     notify: {
       sms: boolean;
       email: boolean;
@@ -1532,17 +1570,16 @@ export class LeadsService {
   }
 
   // campaign.service.ts — admin panel version
-getRecentNumbers(): Observable<string[]> {
-  // calls GET /campaign/logs and extracts numbers from last 24h
-  // OR if you have a dedicated endpoint, use it directly
-  return this.http.get<any>(`${this.baseUrl}campaign/recent-numbers`).pipe(
-    map((res: any) => res?.numbers || [])
-  );
-}
+  getRecentNumbers(): Observable<string[]> {
+    // calls GET /campaign/logs and extracts numbers from last 24h
+    // OR if you have a dedicated endpoint, use it directly
+    return this.http
+      .get<any>(`${this.baseUrl}campaign/recent-numbers`)
+      .pipe(map((res: any) => res?.numbers || []));
+  }
 
-// campaign.service.ts
-getCampaignJobStatus(jobId: string): Observable<any> {
-  return this.http.get(`${this.baseUrl}campaign/job-status/${jobId}`);
-}
-
+  // campaign.service.ts
+  getCampaignJobStatus(jobId: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}campaign/job-status/${jobId}`);
+  }
 }
