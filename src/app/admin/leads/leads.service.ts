@@ -415,6 +415,19 @@ export class LeadsService {
     return this.serviceMeta.httpGet(`admin/pan-verifications/${id}`);
   }
 
+  /** Super admin only: every account's Mobile Prefill (mobile → PAN) calls,
+   * with the provider that served each. Returns { data, total }. Filters:
+   * from, count, accountId, search, status-eq, provider-eq,
+   * sort=<field>,<asc|desc>. */
+  getAdminMobilePrefills(filter = {}) {
+    return this.serviceMeta.httpGet('admin/mobile-prefills', null, filter);
+  }
+
+  /** Super admin only: one Mobile Prefill row incl. full rawResponse. */
+  getAdminMobilePrefillById(id: number) {
+    return this.serviceMeta.httpGet(`admin/mobile-prefills/${id}`);
+  }
+
   /** Admin-wide, filterable/paginated subscription tax invoice list. */
   getSubscriptionInvoicesList(filter = {}) {
     const url = 'admin/subscription-invoices';

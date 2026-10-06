@@ -8,6 +8,10 @@ export type BureauProvider = 'verifyal' | 'surepass' | 'satmat';
  * hides it. */
 export type PanVerificationProvider = 'satmat' | 'disabled';
 
+/** accounts.mobilePrefillProvider — which provider serves the CRM's Mobile
+ * to PAN (prefill) integration; 'disabled' (stored as NULL) hides it. */
+export type MobilePrefillProvider = 'satmat' | 'avmanagement' | 'disabled';
+
 // Provider only — report costs (accounts.*ReportCost) are managed
 // elsewhere and intentionally not sent from this admin portal page.
 export interface BureauProviderSettings {
@@ -16,6 +20,7 @@ export interface BureauProviderSettings {
   experianProvider?: BureauProvider;
   equifaxProvider?: BureauProvider;
   panVerificationProvider?: PanVerificationProvider;
+  mobilePrefillProvider?: MobilePrefillProvider;
 }
 
 export interface BulkBureauProviderSettings extends BureauProviderSettings {

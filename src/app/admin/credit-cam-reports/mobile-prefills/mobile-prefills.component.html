@@ -1,0 +1,216 @@
+<div class="m-2">
+  <p-table
+    #prefillTable
+    [value]="prefills"
+    [lazy]="true"
+    [sortField]="'createdOn'"
+    [sortOrder]="-1"
+    (onLazyLoad)="loadPrefills($event)"
+    dataKey="id"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [paginator]="true"
+    [rows]="10"
+    [totalRecords]="totalRecords"
+    [loading]="apiLoading"
+    class="p-datatable-striped"
+    responsiveLayout="scroll"
+    scrollHeight="flex"
+    styleClass="p-datatable-customers"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Prefill Records"
+  >
+    <ng-template pTemplate="caption">
+      <div class="row">
+        <div class="col-md-4 mt-2 no-padding-small">
+          <div class="p-inputgroup">
+            <input
+              type="text"
+              pInputText
+              placeholder="Search by Account ID, Business Name, Mobile or PAN"
+              [(ngModel)]="searchText"
+              (ngModelChange)="onSearchChange($event)"
+              (keyup.enter)="applyFilters()"
+            />
+            <button
+              type="button"
+              pButton
+              class="p-button-primary search-btn"
+              [disabled]="!searchText"
+              (click)="applyFilters()"
+            >
+              <img
+                src="assets/images/icons/search.svg"
+                alt="Search"
+                width="16"
+                height="16"
+                style="vertical-align: middle"
+              />
+            </button>
+          </div>
+        </div>
+        <div class="col-md-2 mt-2 no-padding-small">
+          <p-dropdown
+            [options]="statusOptions"
+            [(ngModel)]="selectedStatus"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Status"
+            (onChange)="applyFilters()"
+            styleClass="w-100"
+          ></p-dropdown>
+        </div>
+        <div class="col-md-3 mt-2 no-padding-small">
+          <p-dropdown
+            [options]="providerOptions"
+            [(ngModel)]="selectedProvider"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Provider"
+            (onChange)="applyFilters()"
+            styleClass="w-100"
+          ></p-dropdown>
+        </div>
+        <div class="col-md-3 mt-2 text-end no-padding-small">
+          <button
+            pButton
+            type="button"
+            label="Export"
+            icon="pi pi-file"
+            class="p-button-info"
+            (click)="exportToCSV()"
+          ></button>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th class="text-nowrap">Account Id</th>
+        <th class="text-nowrap">Business Name</th>
+        <th>Provider</th>
+        <th class="text-nowrap">Reference No</th>
+        <th>Mobile</th>
+        <th>Name</th>
+        <th>PAN</th>
+        <th *ngIf="showScore">Score</th>
+        <th>Status</th>
+        <th>Message</th>
+        <th class="text-nowrap">Amount Charged</th>
+        <th class="text-nowrap">Fetched By</th>
+        <th>Response</th>
+        <th pSortableColumn="createdOn" class="text-nowrap">
+          Created On <p-sortIcon field="createdOn"></p-sortIcon>
+        </th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-p>
+      <tr>
+        <td>{{ p.accountId }}</td>
+        <td>{{ p.businessName || "-" }}</td>
+        <td>
+          <span class="provider-badge" [ngClass]="'provider-' + p.provider">{{
+            providerLabel(p.provider)
+          }}</span>
+        </td>
+        <td>{{ p.referenceNumber || "-" }}</td>
+        <td>{{ p.mobile }}</td>
+        <td class="text-capitalize">{{ p.name || "-" }}</td>
+        <td>
+          <span *ngIf="p.pan; else noPan" class="pan-badge">{{ p.pan }}</span>
+          <ng-template #noPan>-</ng-template>
+        </td>
+        <td *ngIf="showScore">{{ p.score || "-" }}</td>
+        <td>
+          <span class="status-badge" [class]="'status-' + p.status">
+            {{ p.status }}
+          </span>
+        </td>
+        <td class="message-cell">{{ p.message || "-" }}</td>
+        <td>₹{{ p.amountCharged ?? 0 }}</td>
+        <td>{{ p.createdByName || "-" }}</td>
+        <td class="text-center">
+          <button
+            pButton
+            type="button"
+            icon="pi pi-code"
+            class="p-button-rounded p-button-text p-button-sm"
+            pTooltip="View Response"
+            tooltipPosition="top"
+            (click)="viewResponse(p)"
+          ></button>
+        </td>
+        <td class="text-nowrap">{{ p.createdOn | date: dateTimeFormat }}</td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr class="text-center">
+        <td [attr.colspan]="showScore ? 14 : 13" class="text-center fw-bold">
+          <img
+            alt="No Data"
+            src="../../../assets/images/menu/no-data.gif"
+            width="200"
+            height="200"
+          />
+          <p>No Prefill Records Found</p>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog
+  [(visible)]="responseDialogVisible"
+  [modal]="true"
+  [dismissableMask]="true"
+  [draggable]="false"
+  [style]="{ width: '760px', maxWidth: '95vw' }"
+  header="Prefill (Mobile to PAN) Response"
+  appendTo="body"
+>
+  <ng-container *ngIf="selectedPrefill as p">
+    <div class="response-meta">
+      <div>
+        <span>Account</span>{{ p.accountId
+        }}{{ p.businessName ? " – " + p.businessName : "" }}
+      </div>
+      <div><span>Provider</span>{{ providerLabel(p.provider) }}</div>
+      <div><span>Mobile</span>{{ p.mobile }}</div>
+      <div><span>PAN</span>{{ p.pan || "-" }}</div>
+      <div *ngIf="p.provider === 'satmat'">
+        <span>Score</span>{{ p.score || "-" }}
+      </div>
+      <div><span>Reference No</span>{{ p.referenceNumber || "-" }}</div>
+      <div><span>Request Id</span>{{ p.requestId || "-" }}</div>
+      <div>
+        <span>Status</span>
+        <span class="status-badge" [class]="'status-' + p.status">{{
+          p.status
+        }}</span>
+      </div>
+      <div><span>HTTP Status</span>{{ p.httpStatus ?? "-" }}</div>
+      <div><span>Amount Charged</span>₹{{ p.amountCharged ?? 0 }}</div>
+      <div><span>Message</span>{{ p.message || "-" }}</div>
+      <div><span>Created On</span>{{ p.createdOn | date: dateTimeFormat }}</div>
+    </div>
+  </ng-container>
+
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <b>Full Response</b>
+    <button
+      pButton
+      type="button"
+      icon="pi pi-copy"
+      label="Copy"
+      class="p-button-outlined p-button-sm"
+      [disabled]="responseLoading || !responseJson"
+      (click)="copyResponse()"
+    ></button>
+  </div>
+
+  <div *ngIf="responseLoading" class="text-center p-4">
+    <i class="pi pi-spin pi-spinner" style="font-size: 1.5rem"></i>
+  </div>
+  <pre *ngIf="!responseLoading" class="response-json">{{ responseJson }}</pre>
+</p-dialog>

@@ -13,36 +13,36 @@
         </b>
       </div>
       <div class="d-flex align-items-center gap-2 ms-auto">
-      <div>Follow Up Date & Time</div>
-      <div
-        class="custom-calendar-wrapper position-relative"
-        style="width: 300px"
-        *ngIf="accountDetails"
-      >
-        <p-calendar
-          #calendar
-          [(ngModel)]="accountDetails.followupDate"
-          (onClose)="updateAccountfollowupDate(accountDetails)"
-          placeholder="Select File followup Date & Time"
-          [showIcon]="false"
-          appendTo="body"
-          dateFormat="yy-mm-dd"
-          [showTime]="true"
-          hourFormat="12"
-          [showButtonBar]="true"
-          [timeOnly]="false"
-          [stepMinute]="1"
-          styleClass="w-100"
-        ></p-calendar>
-        <img
-          src="../../../../assets/images/icons/calendar.svg"
-          alt="Calendar Icon"
-          class="calendar-custom-img"
-          (click)="calendar.toggle()"
-        />
+        <div>Follow Up Date & Time</div>
+        <div
+          class="custom-calendar-wrapper position-relative"
+          style="width: 300px"
+          *ngIf="accountDetails"
+        >
+          <p-calendar
+            #calendar
+            [(ngModel)]="accountDetails.followupDate"
+            (onClose)="updateAccountfollowupDate(accountDetails)"
+            placeholder="Select File followup Date & Time"
+            [showIcon]="false"
+            appendTo="body"
+            dateFormat="yy-mm-dd"
+            [showTime]="true"
+            hourFormat="12"
+            [showButtonBar]="true"
+            [timeOnly]="false"
+            [stepMinute]="1"
+            styleClass="w-100"
+          ></p-calendar>
+          <img
+            src="../../../../assets/images/icons/calendar.svg"
+            alt="Calendar Icon"
+            class="calendar-custom-img"
+            (click)="calendar.toggle()"
+          />
+        </div>
       </div>
-    </div>
-    <!-- <div class="d-flex align-items-center gap-2 mt-2">
+      <!-- <div class="d-flex align-items-center gap-2 mt-2">
       <b>Remark:</b>
       <p-dropdown
         [options]="adminRemarkOptions"
@@ -56,22 +56,25 @@
         (onChange)="onProfileRemarkChange($event)"
       ></p-dropdown>
     </div> -->
-    <div class="d-flex align-items-center gap-2 mt-2">
-      <b>Remark:</b>
-      <p-dropdown
-        [options]="adminRemarkOptions"
-        [(ngModel)]="accountDetails.remarkId"
-        optionLabel="label"
-        optionValue="value"
-        placeholder="Select Remark"
-        [style]="{ minWidth: '200px' }"
-        appendTo="body"
-        [showClear]="true"
-        (onChange)="onProfileRemarkChange($event)"
-      ></p-dropdown>
-    </div>
-    <!-- ✅ Assign To — Super Admin only -->
-      <div class="d-flex align-items-center gap-2 mt-2" *ngIf="loggedInUserRole === 1">
+      <div class="d-flex align-items-center gap-2 mt-2">
+        <b>Remark:</b>
+        <p-dropdown
+          [options]="adminRemarkOptions"
+          [(ngModel)]="accountDetails.remarkId"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select Remark"
+          [style]="{ minWidth: '200px' }"
+          appendTo="body"
+          [showClear]="true"
+          (onChange)="onProfileRemarkChange($event)"
+        ></p-dropdown>
+      </div>
+      <!-- ✅ Assign To — Super Admin only -->
+      <div
+        class="d-flex align-items-center gap-2 mt-2"
+        *ngIf="loggedInUserRole === 1"
+      >
         <b>Assigned To:</b>
         <p-dropdown
           [options]="assignFilterOptions"
@@ -124,15 +127,21 @@
         <!-- <p><b>Status:</b> {{ accountDetails.status }}</p> -->
       </div>
       <div class="col-md-4">
-        <div class="d-flex align-items-center gap-2 mt-2" *ngIf="loggedInUserRole === 1">
+        <div
+          class="d-flex align-items-center gap-2 mt-2"
+          *ngIf="loggedInUserRole === 1"
+        >
           <b>API Access:</b>
           <p-inputSwitch
             [(ngModel)]="apiEnabled"
             (onChange)="toggleApiAccess($event)"
             [disabled]="togglingApi"
           ></p-inputSwitch>
-          <span class="badge" [ngClass]="apiEnabled ? 'bg-success' : 'bg-secondary'">
-            {{ apiEnabled ? 'Enabled' : 'Disabled' }}
+          <span
+            class="badge"
+            [ngClass]="apiEnabled ? 'bg-success' : 'bg-secondary'"
+          >
+            {{ apiEnabled ? "Enabled" : "Disabled" }}
           </span>
           <small *ngIf="togglingApi" class="text-muted">
             <i class="pi pi-spin pi-spinner me-1"></i>Saving...
@@ -165,32 +174,71 @@
         <tbody>
           <tr>
             <td>CIBIL (TransUnion)</td>
-            <td><span class="badge bg-light text-dark text-capitalize">{{ accountDetails.cibilProvider }}</span></td>
+            <td>
+              <span class="badge bg-light text-dark text-capitalize">{{
+                accountDetails.cibilProvider
+              }}</span>
+            </td>
             <td>{{ accountDetails.cibilReportCost }}</td>
           </tr>
           <tr>
             <td>CRIF High Mark</td>
-            <td><span class="badge bg-light text-dark text-capitalize">{{ accountDetails.crifProvider }}</span></td>
+            <td>
+              <span class="badge bg-light text-dark text-capitalize">{{
+                accountDetails.crifProvider
+              }}</span>
+            </td>
             <td>{{ accountDetails.crifReportCost }}</td>
           </tr>
           <tr>
             <td>Experian</td>
-            <td><span class="badge bg-light text-dark text-capitalize">{{ accountDetails.experianProvider }}</span></td>
+            <td>
+              <span class="badge bg-light text-dark text-capitalize">{{
+                accountDetails.experianProvider
+              }}</span>
+            </td>
             <td>{{ accountDetails.experianReportCost }}</td>
           </tr>
           <tr>
             <td>Equifax</td>
-            <td><span class="badge bg-light text-dark text-capitalize">{{ accountDetails.equifaxProvider }}</span></td>
+            <td>
+              <span class="badge bg-light text-dark text-capitalize">{{
+                accountDetails.equifaxProvider
+              }}</span>
+            </td>
             <td>{{ accountDetails.equifaxReportCost }}</td>
           </tr>
           <tr>
             <td>
               PAN Verification
-              <span class="badge bg-light text-dark ms-1">{{ accountDetails.panVerificationProvider ? 'Enabled' : 'Disabled' }}</span>
+              <span class="badge bg-light text-dark ms-1">{{
+                accountDetails.panVerificationProvider ? "Enabled" : "Disabled"
+              }}</span>
             </td>
-            <td><span class="badge bg-light text-dark text-capitalize">{{ accountDetails.panVerificationProvider }}</span></td>
+            <td>
+              <span class="badge bg-light text-dark text-capitalize">{{
+                accountDetails.panVerificationProvider
+              }}</span>
+            </td>
 
-            <td>{{ accountDetails.panVerificationCost ?? 'Default' }}</td>
+            <td>{{ accountDetails.panVerificationCost ?? "Default" }}</td>
+          </tr>
+          <tr>
+            <td>
+              Prefill (Mobile to PAN)
+              <span class="badge bg-light text-dark ms-1">{{
+                accountDetails.mobilePrefillProvider ? "Enabled" : "Disabled"
+              }}</span>
+            </td>
+            <td>
+              <span class="badge bg-light text-dark">{{
+                accountDetails.mobilePrefillProvider === "avmanagement"
+                  ? "AV Management"
+                  : (accountDetails.mobilePrefillProvider | titlecase)
+              }}</span>
+            </td>
+
+            <td>{{ accountDetails.mobilePrefillCost ?? "Default" }}</td>
           </tr>
         </tbody>
       </table>
@@ -216,7 +264,9 @@
               icon="pi pi-wallet"
               class="p-button-success"
               (click)="confirmAddWalletBalance()"
-              [disabled]="!walletAmountToAdd || walletAmountToAdd <= 0 || addingWallet"
+              [disabled]="
+                !walletAmountToAdd || walletAmountToAdd <= 0 || addingWallet
+              "
             ></button>
             <small *ngIf="addingWallet" class="text-muted">
               <i class="pi pi-spin pi-spinner me-1"></i>Saving...
@@ -236,22 +286,32 @@
         header="Confirm Wallet Top-up"
       >
         <div class="p-3 text-center">
-          <i class="pi pi-wallet mb-3" style="font-size: 2.5rem; color: #22c55e;"></i>
+          <i
+            class="pi pi-wallet mb-3"
+            style="font-size: 2.5rem; color: #22c55e"
+          ></i>
           <p class="mb-1">You are about to add wallet balance to:</p>
           <h5 class="fw-bold mb-1">{{ accountDetails?.businessName }}</h5>
-          <p class="text-muted mb-3" style="font-size: 0.9rem;">Account ID: {{ accountDetails?.accountId }}</p>
+          <p class="text-muted mb-3" style="font-size: 0.9rem">
+            Account ID: {{ accountDetails?.accountId }}
+          </p>
           <div class="alert alert-success py-2 mb-0">
-            <span class="fw-bold" style="font-size: 1.2rem;">
-              ₹{{ walletAmountToAdd | number: '1.2-2' }}
+            <span class="fw-bold" style="font-size: 1.2rem">
+              ₹{{ walletAmountToAdd | number: "1.2-2" }}
             </span>
             <span class="ms-2 text-muted">will be added to wallet</span>
           </div>
           <p class="mt-3 text-muted small">
             Current Balance:
-            <strong>₹{{ accountDetails?.walletBalance | number: '1.2-2' }}</strong>
+            <strong
+              >₹{{ accountDetails?.walletBalance | number: "1.2-2" }}</strong
+            >
             &nbsp;→&nbsp;
             <strong class="text-success">
-              ₹{{ (accountDetails?.walletBalance + walletAmountToAdd) | number: '1.2-2' }}
+              ₹{{
+                accountDetails?.walletBalance + walletAmountToAdd
+                  | number: "1.2-2"
+              }}
             </strong>
           </p>
         </div>
@@ -278,7 +338,6 @@
         </ng-template>
       </p-dialog>
     </div>
-
   </ng-container>
 
   <!-- Activity Detail Dialog -->
@@ -296,7 +355,7 @@
       <div class="row mb-3">
         <div class="col-md-6">
           <strong>Date & Time:</strong>
-          <p>{{ selectedActivity.createdOn | date : "medium" }}</p>
+          <p>{{ selectedActivity.createdOn | date: "medium" }}</p>
         </div>
         <div class="col-md-6">
           <strong>User:</strong>
@@ -485,7 +544,7 @@
           note.updatedBy | capitalizeFirst
         }}</strong>
         <small class="text-muted flex-shrink-0" style="white-space: nowrap">
-          {{ note.date | date : "dd-MMM-yyyy hh:mm a" }}
+          {{ note.date | date: "dd-MMM-yyyy hh:mm a" }}
         </small>
       </div>
 
@@ -520,12 +579,11 @@
   </div>
 </div>
 
-<p-tabView >
+<p-tabView>
   <!-- TAB 0 — SUBSCRIPTIONS -->
   <p-tabPanel header="Analytics">
     <div class="m-2">
-      <app-analytics>
-      </app-analytics>
+      <app-analytics> </app-analytics>
     </div>
   </p-tabPanel>
   <!-- TAB 1 — SUBSCRIPTIONS -->
@@ -675,7 +733,7 @@
                 pay.status
               }}</span>
             </td>
-            <td>{{ pay.created_on | date : "short" }}</td>
+            <td>{{ pay.created_on | date: "short" }}</td>
           </tr>
         </ng-template>
 
@@ -768,7 +826,7 @@
           <tr>
             <td>
               <span class="table-column-data" *ngIf="activity.createdOn">
-                {{ activity.createdOn | date : "short" }}
+                {{ activity.createdOn | date: "short" }}
               </span>
             </td>
             <td>
@@ -861,135 +919,135 @@
   </p-tabPanel>
 
   <!-- TAB 4 - WALLET TRANSACTIONS -->
-   <p-tabPanel header="Wallet Transactions">
-      <div class="m-2">
-        <p-table
-          [value]="walletTransactions"
-          [lazy]="true"
-          [sortField]="'created_on'"
-          [sortOrder]="-1"
-          (onLazyLoad)="loadWalletTransactions($event)"
-          dataKey="id"
-          [showCurrentPageReport]="true"
-          [rowsPerPageOptions]="[10, 25, 50, 100]"
-          [paginator]="true"
-          [rows]="10"
-          [totalRecords]="wallettransactionsCount"
-          [loading]="loading"
-          responsiveLayout="scroll"
-          scrollHeight="flex"
-          styleClass="p-datatable-customers"
-          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} wallet transactions"
+  <p-tabPanel header="Wallet Transactions">
+    <div class="m-2">
+      <p-table
+        [value]="walletTransactions"
+        [lazy]="true"
+        [sortField]="'created_on'"
+        [sortOrder]="-1"
+        (onLazyLoad)="loadWalletTransactions($event)"
+        dataKey="id"
+        [showCurrentPageReport]="true"
+        [rowsPerPageOptions]="[10, 25, 50, 100]"
+        [paginator]="true"
+        [rows]="10"
+        [totalRecords]="wallettransactionsCount"
+        [loading]="loading"
+        responsiveLayout="scroll"
+        scrollHeight="flex"
+        styleClass="p-datatable-customers"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} wallet transactions"
+      >
+        <!-- HEADER -->
+        <ng-template pTemplate="header">
+          <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>GST %</th>
+            <th>GST Amt</th>
+            <th>Net Amt</th>
+            <th>Currency</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Description</th>
+            <th>Date</th>
+          </tr>
+        </ng-template>
+
+        <!-- BODY -->
+        <ng-template pTemplate="body" let-tx let-rowIndex="rowIndex">
+          <tr>
+            <td>{{ rowIndex + 1 }}</td>
+            <td>{{ tx.transactionType }}</td>
+            <td>₹{{ tx.amount }}</td>
+            <td>{{ tx.gst_percentage }}%</td>
+            <td>₹{{ tx.gstAmount }}</td>
+            <td>₹{{ tx.netAmount }}</td>
+            <td>{{ tx.currency }}</td>
+            <td>{{ tx.debitCategory || "-" }}</td>
+            <td>{{ tx.paymentStatus }}</td>
+            <td>{{ tx.description || "-" }}</td>
+            <td>{{ tx.createdOn | date: "short" }}</td>
+          </tr>
+        </ng-template>
+
+        <!-- EMPTY -->
+        <ng-template pTemplate="emptymessage">
+          <tr class="text-center">
+            <td colspan="9" class="text-center fw-bold">
+              <p style="color: #535ab4; font-weight: 400; font-size: 18px">
+                No Wallet transactions found
+              </p>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </p-tabPanel>
+
+  <!-- TAB 5 - BANK WISE PERFORMANCE -->
+  <p-tabPanel header="Bank Wise Performance">
+    <div class="m-2">
+      <!-- Loan Type Filter -->
+      <div
+        class="d-flex align-items-center gap-3 mb-3 mt-2 flex-wrap justify-content-end"
+      >
+        <span style="font-size: 13px; color: #666; font-weight: 500"
+          >Loan Type :</span
         >
-
-          <!-- HEADER -->
-          <ng-template pTemplate="header">
-            <tr>
-              <th>ID</th>
-              <th>Type</th>
-              <th>Amount</th>
-              <th>GST %</th>
-              <th>GST Amt</th>
-              <th>Net Amt</th>
-              <th>Currency</th>
-              <th>Category</th>
-              <th>Status</th>
-              <th>Description</th>
-              <th>Date</th>
-            </tr>
-          </ng-template>
-
-          <!-- BODY -->
-          <ng-template pTemplate="body" let-tx let-rowIndex="rowIndex">
-            <tr>
-              <td>{{ rowIndex + 1 }}</td>
-              <td>{{ tx.transactionType }}</td>
-              <td>₹{{ tx.amount }}</td>
-              <td>{{ tx.gst_percentage }}%</td>
-              <td>₹{{ tx.gstAmount }}</td>
-              <td>₹{{ tx.netAmount }}</td>
-              <td>{{ tx.currency }}</td>
-              <td>{{ tx.debitCategory || '-' }}</td>
-              <td>{{ tx.paymentStatus }}</td>
-              <td>{{ tx.description || '-' }}</td>
-              <td>{{ tx.createdOn | date:'short' }}</td>
-            </tr>
-          </ng-template>
-
-          <!-- EMPTY -->
-          <ng-template pTemplate="emptymessage">
-            <tr class="text-center">
-              <td colspan="9" class="text-center fw-bold">
-                <p style="color: #535ab4; font-weight: 400; font-size: 18px">
-                    No Wallet transactions found
-                </p>
-              </td>
-            </tr>
-          </ng-template>
-
-        </p-table>
+        <p-dropdown
+          [options]="bankLoanTypeOptions"
+          [(ngModel)]="selectedBankLoanType"
+          optionLabel="label"
+          optionValue="value"
+          [style]="{ minWidth: '200px' }"
+          appendTo="body"
+          (onChange)="onBankLoanTypeChange()"
+          [dropdownIcon]="'pi pi-chevron-down'"
+        ></p-dropdown>
       </div>
-    </p-tabPanel>
 
-    <!-- TAB 5 - BANK WISE PERFORMANCE -->
-    <p-tabPanel header="Bank Wise Performance">
-      <div class="m-2">
+      <!-- PrimeNG Table — same pattern as Wallet Transactions -->
+      <p-table
+        [value]="banks"
+        [loading]="bankLoading"
+        [lazy]="true"
+        (onLazyLoad)="loadBankAnalytics($event)"
+        [showCurrentPageReport]="true"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        [paginator]="true"
+        [rows]="10"
+        [totalRecords]="banksCount"
+        responsiveLayout="scroll"
+        scrollHeight="flex"
+        styleClass="p-datatable-customers"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} banks"
+      >
+        <!-- HEADER -->
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="text-nowrap">Bank Name</th>
+            <th class="text-nowrap">Loan Type</th>
+            <th class="text-nowrap">Files</th>
+            <th class="text-nowrap">Total Sanctioned</th>
+            <th class="text-nowrap">Total Disbursed</th>
+            <th class="text-nowrap">Highest Sanctioned</th>
+            <th class="text-nowrap">Highest Disbursed</th>
+            <th class="text-nowrap">Lowest Sanctioned</th>
+            <th class="text-nowrap">Lowest Disbursed</th>
+            <th class="text-nowrap">Avg Sanctioned</th>
+            <th class="text-nowrap">Avg Disbursed</th>
+          </tr>
+        </ng-template>
 
-        <!-- Loan Type Filter -->
-        <div class="d-flex align-items-center gap-3 mb-3 mt-2 flex-wrap justify-content-end">
-          <span style="font-size: 13px; color: #666; font-weight: 500;">Loan Type :</span>
-          <p-dropdown
-            [options]="bankLoanTypeOptions"
-            [(ngModel)]="selectedBankLoanType"
-            optionLabel="label"
-            optionValue="value"
-            [style]="{ minWidth: '200px' }"
-            appendTo="body"
-            (onChange)="onBankLoanTypeChange()"
-            [dropdownIcon]="'pi pi-chevron-down'"
-          ></p-dropdown>
-        </div>
-
-        <!-- PrimeNG Table — same pattern as Wallet Transactions -->
-        <p-table
-      [value]="banks"
-      [loading]="bankLoading"
-      [lazy]="true"
-      (onLazyLoad)="loadBankAnalytics($event)"
-      [showCurrentPageReport]="true"
-      [rowsPerPageOptions]="[10, 25, 50]"
-      [paginator]="true"
-      [rows]="10"
-      [totalRecords]="banksCount"
-      responsiveLayout="scroll"
-      scrollHeight="flex"
-      styleClass="p-datatable-customers"
-      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} banks"
-    >
-
-          <!-- HEADER -->
-          <ng-template pTemplate="header">
-            <tr>
-              <th class="text-nowrap">Bank Name</th>
-              <th class="text-nowrap">Loan Type</th>
-              <th class="text-nowrap">Files</th>
-              <th class="text-nowrap">Total Sanctioned</th>
-              <th class="text-nowrap">Total Disbursed</th>
-              <th class="text-nowrap">Highest Sanctioned</th>
-              <th class="text-nowrap">Highest Disbursed</th>
-              <th class="text-nowrap">Lowest Sanctioned</th>
-              <th class="text-nowrap">Lowest Disbursed</th>
-              <th class="text-nowrap">Avg Sanctioned</th>
-              <th class="text-nowrap">Avg Disbursed</th>
-            </tr>
-          </ng-template>
-
-          <!-- BODY -->
-          <ng-template pTemplate="body" let-row>
-            <tr>
-              <td>
-                <div class="d-flex align-items-center gap-2">
-                  <!-- <div
+        <!-- BODY -->
+        <ng-template pTemplate="body" let-row>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <!-- <div
                     style="
                       width: 32px; height: 32px; border-radius: 50%;
                       background: #EDE9FF; color: #534AB7;
@@ -1000,69 +1058,74 @@
                   >
                     {{ row.bankName?.charAt(0)?.toUpperCase() || 'B' }}
                   </div> -->
-                  <span style="font-weight: 500; font-size: 13px;">
-                    {{ row.bankName }}
-                  </span>
-                </div>
-              </td>
-              <td>
-                <span
-                  style="
-                    background: #EDE9FF; color: #534AB7;
-                    font-size: 11px; padding: 2px 10px;
-                    border-radius: 10px; font-weight: 500;
-                  "
-                >
-                  {{ row.loanType || 'Business Loan' }}
+                <span style="font-weight: 500; font-size: 13px">
+                  {{ row.bankName }}
                 </span>
-              </td>
-              <td>{{ row.filesProcessed }}</td>
-              <td style="color: #3B6D11; font-weight: 500;">
-                {{ formatAmount(row.totalSanctioned) }}
-              </td>
-              <td style="color: #185FA5; font-weight: 500;">
-                {{ formatAmount(row.totalDisbursed) }}
-              </td>
-              <td style="color: #3B6D11;">
-                {{ formatAmount(row.highestSanctioned) }}
-              </td>
-              <td style="color: #185FA5;">
-                {{ formatAmount(row.highestDisbursed) }}
-              </td>
-              <td style="color: #BA7517;">
-                {{ formatAmount(row.lowestSanctioned) }}
-              </td>
-              <td style="color: #993556;">
-                {{ formatAmount(row.lowestDisbursed) }}
-              </td>
-              <!-- BODY — add these 2 after Lowest Disbursed td -->
-              <td style="color: #0F6E56;">
-                {{ formatAmount(row.avgSanctioned) }}
-              </td>
-              <td style="color: #534AB7;">
-                {{ formatAmount(row.avgDisbursed) }}
-              </td>
-              
-            </tr>
-          </ng-template>
+              </div>
+            </td>
+            <td>
+              <span
+                style="
+                  background: #ede9ff;
+                  color: #534ab7;
+                  font-size: 11px;
+                  padding: 2px 10px;
+                  border-radius: 10px;
+                  font-weight: 500;
+                "
+              >
+                {{ row.loanType || "Business Loan" }}
+              </span>
+            </td>
+            <td>{{ row.filesProcessed }}</td>
+            <td style="color: #3b6d11; font-weight: 500">
+              {{ formatAmount(row.totalSanctioned) }}
+            </td>
+            <td style="color: #185fa5; font-weight: 500">
+              {{ formatAmount(row.totalDisbursed) }}
+            </td>
+            <td style="color: #3b6d11">
+              {{ formatAmount(row.highestSanctioned) }}
+            </td>
+            <td style="color: #185fa5">
+              {{ formatAmount(row.highestDisbursed) }}
+            </td>
+            <td style="color: #ba7517">
+              {{ formatAmount(row.lowestSanctioned) }}
+            </td>
+            <td style="color: #993556">
+              {{ formatAmount(row.lowestDisbursed) }}
+            </td>
+            <!-- BODY — add these 2 after Lowest Disbursed td -->
+            <td style="color: #0f6e56">
+              {{ formatAmount(row.avgSanctioned) }}
+            </td>
+            <td style="color: #534ab7">
+              {{ formatAmount(row.avgDisbursed) }}
+            </td>
+          </tr>
+        </ng-template>
 
-          <!-- EMPTY -->
-          <ng-template pTemplate="emptymessage">
-            <tr>
-              <td colspan="7" class="text-center fw-bold py-4">
-                <i
-                  class="pi pi-inbox"
-                  style="font-size: 2rem; color: #ccc; display: block; margin-bottom: 8px;"
-                ></i>
-                <p style="color: #535ab4; font-weight: 400; font-size: 16px;">
-                  No bank data found
-                </p>
-              </td>
-            </tr>
-          </ng-template>
-
-        </p-table>
-
-      </div>
-    </p-tabPanel>
+        <!-- EMPTY -->
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7" class="text-center fw-bold py-4">
+              <i
+                class="pi pi-inbox"
+                style="
+                  font-size: 2rem;
+                  color: #ccc;
+                  display: block;
+                  margin-bottom: 8px;
+                "
+              ></i>
+              <p style="color: #535ab4; font-weight: 400; font-size: 16px">
+                No bank data found
+              </p>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </p-tabPanel>
 </p-tabView>

@@ -594,6 +594,7 @@ export class AccountsComponent implements AfterViewInit {
               { label: 'All', value: '' },
               { label: 'Verifyal', value: 'verifyal' },
               { label: 'Surepass', value: 'surepass' },
+              { label: 'Satmat', value: 'satmat' },
             ],
           },
         ],
@@ -610,6 +611,7 @@ export class AccountsComponent implements AfterViewInit {
               { label: 'All', value: '' },
               { label: 'Verifyal', value: 'verifyal' },
               { label: 'Surepass', value: 'surepass' },
+              { label: 'Satmat', value: 'satmat' },
             ],
           },
         ],
@@ -626,6 +628,7 @@ export class AccountsComponent implements AfterViewInit {
               { label: 'All', value: '' },
               { label: 'Verifyal', value: 'verifyal' },
               { label: 'Surepass', value: 'surepass' },
+              { label: 'Satmat', value: 'satmat' },
             ],
           },
         ],
@@ -642,6 +645,42 @@ export class AccountsComponent implements AfterViewInit {
               { label: 'All', value: '' },
               { label: 'Verifyal', value: 'verifyal' },
               { label: 'Surepass', value: 'surepass' },
+              { label: 'Satmat', value: 'satmat' },
+            ],
+          },
+        ],
+      },
+      // PAN Verification / Mobile Prefill providers. 'disabled' = column is
+      // NULL — accountController.getAccounts handles these two keys itself.
+      {
+        header: 'PAN Verification Provider',
+        data: [
+          {
+            field: 'panVerificationProvider',
+            title: 'PAN Verification Provider',
+            type: 'dropdown',
+            filterType: 'eq',
+            options: [
+              { label: 'All', value: '' },
+              { label: 'Disabled', value: 'disabled' },
+              { label: 'Satmat', value: 'satmat' },
+            ],
+          },
+        ],
+      },
+      {
+        header: 'Prefill (Mobile to PAN) Provider',
+        data: [
+          {
+            field: 'mobilePrefillProvider',
+            title: 'Prefill (Mobile to PAN) Provider',
+            type: 'dropdown',
+            filterType: 'eq',
+            options: [
+              { label: 'All', value: '' },
+              { label: 'Disabled', value: 'disabled' },
+              { label: 'Satmat', value: 'satmat' },
+              { label: 'AV Management', value: 'avmanagement' },
             ],
           },
         ],

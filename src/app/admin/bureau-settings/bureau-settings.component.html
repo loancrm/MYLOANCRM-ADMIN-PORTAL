@@ -163,6 +163,41 @@
                   ></p-dropdown>
                 </td>
               </tr>
+              <!-- Mobile Prefill (Mobile to PAN): provider switches the CRM integration on/off -->
+              <tr>
+                <td *ngIf="mode === 'all'">
+                  <p-checkbox
+                    formControlName="applyPrefill"
+                    [binary]="true"
+                    inputId="applyPrefill"
+                  ></p-checkbox>
+                </td>
+                <td>
+                  <label for="applyPrefill" class="mb-0 fw-semibold">
+                    Prefill (Mobile to PAN)
+                  </label>
+                  <div class="text-muted small">
+                    <i class="pi pi-info-circle me-1"></i>
+                    {{
+                      form.get('mobilePrefillProvider')?.value === 'satmat'
+                        ? 'Satmat — charged only on HTTP 200 responses'
+                        : form.get('mobilePrefillProvider')?.value === 'avmanagement'
+                          ? 'AV Management — charged for every hit; needs first & last name'
+                          : 'Prefill (Mobile to PAN) is hidden for this account'
+                    }}
+                  </div>
+                </td>
+                <td>
+                  <p-dropdown
+                    [options]="prefillProviderOptions"
+                    formControlName="mobilePrefillProvider"
+                    optionLabel="label"
+                    optionValue="value"
+                    styleClass="w-100"
+                    appendTo="body"
+                  ></p-dropdown>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>

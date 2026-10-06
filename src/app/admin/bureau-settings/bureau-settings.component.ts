@@ -10,6 +10,7 @@ import { LeadsService } from '../leads/leads.service';
 import {
   BureauProvider,
   BureauSettingsService,
+  MobilePrefillProvider,
   PanVerificationProvider,
 } from './bureau-settings.service';
 
@@ -71,6 +72,12 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
     { label: 'Satmat', value: 'satmat' },
   ];
 
+  prefillProviderOptions: { label: string; value: MobilePrefillProvider }[] = [
+    { label: 'Disabled', value: 'disabled' },
+    { label: 'Satmat', value: 'satmat' },
+    { label: 'AV Management', value: 'avmanagement' },
+  ];
+
   bureaus: BureauFieldConfig[] = [
     {
       providerControl: 'cibilProvider',
@@ -128,11 +135,13 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
       experianProvider: ['verifyal'],
       equifaxProvider: ['verifyal'],
       panVerificationProvider: ['disabled'],
+      mobilePrefillProvider: ['disabled'],
       applyCibil: [false],
       applyCrif: [false],
       applyExperian: [false],
       applyEquifax: [false],
       applyPan: [false],
+      applyPrefill: [false],
     });
   }
 
@@ -196,11 +205,13 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
         experianProvider: 'verifyal',
         equifaxProvider: 'verifyal',
         panVerificationProvider: 'disabled',
+        mobilePrefillProvider: 'disabled',
         applyCibil: false,
         applyCrif: false,
         applyExperian: false,
         applyEquifax: false,
         applyPan: false,
+        applyPrefill: false,
       });
     } else {
       this.selectedAccountId = null;
@@ -250,6 +261,7 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
           experianProvider: res?.experianProvider || 'verifyal',
           equifaxProvider: res?.equifaxProvider || 'verifyal',
           panVerificationProvider: res?.panVerificationProvider || 'disabled',
+          mobilePrefillProvider: res?.mobilePrefillProvider || 'disabled',
         });
       },
       error: (err) => {
@@ -283,6 +295,7 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
       experianProvider: raw.experianProvider,
       equifaxProvider: raw.equifaxProvider,
       panVerificationProvider: raw.panVerificationProvider,
+      mobilePrefillProvider: raw.mobilePrefillProvider,
     };
     this.saving = true;
     this.bureauSettingsService
@@ -314,6 +327,8 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
     if (raw.applyEquifax) payload['equifaxProvider'] = raw.equifaxProvider;
     if (raw.applyPan)
       payload['panVerificationProvider'] = raw.panVerificationProvider;
+    if (raw.applyPrefill)
+      payload['mobilePrefillProvider'] = raw.mobilePrefillProvider;
     return payload;
   }
 
@@ -324,7 +339,8 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
       raw.applyCrif ||
       raw.applyExperian ||
       raw.applyEquifax ||
-      raw.applyPan
+      raw.applyPan ||
+      raw.applyPrefill
     );
   }
 

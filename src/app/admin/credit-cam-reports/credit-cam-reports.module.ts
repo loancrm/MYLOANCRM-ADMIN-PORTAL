@@ -31,6 +31,13 @@ const routes: Routes = [
             (m) => m.PanVerificationsModule,
           ),
       },
+      {
+        path: 'prefill',
+        loadChildren: () =>
+          import('./mobile-prefills/mobile-prefills.module').then(
+            (m) => m.MobilePrefillsModule,
+          ),
+      },
     ],
   },
 ];
