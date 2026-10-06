@@ -1,5 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
-import { Location } from '@angular/common';
+import { DatePipe, Location } from '@angular/common';
+import { Router } from '@angular/router';
+import { REPORT_DATE_TIME_FORMAT } from '../credit-cam-reports/report-date-format';
 import { projectConstantsLocal } from 'src/app/constants/project-constants';
 import { Table } from 'primeng/table';
 import { RoutingService } from 'src/app/services/routing-service';
@@ -11,7 +13,8 @@ import { ToastService } from 'src/app/services/toast.service';
 @Component({
   selector: 'app-cibil-reports',
   templateUrl: './cibil-reports.component.html',
-  styleUrl: './cibil-reports.component.scss'
+  styleUrl: './cibil-reports.component.scss',
+  providers: [DatePipe],
 })
 export class CibilReportsComponent {
   breadCrumbItems: any = [];
@@ -29,6 +32,7 @@ export class CibilReportsComponent {
   version = projectConstantsLocal.VERSION_DESKTOP;
   @ViewChild('accountTable') accountTable!: Table;
   selectedReportType: string = 'ALL';
+  readonly dateTimeFormat = REPORT_DATE_TIME_FORMAT;
 
     reportTypeOptions = [
       { label: 'All', value: 'ALL' },
@@ -44,7 +48,9 @@ export class CibilReportsComponent {
     private confirmationService: ConfirmationService,
     private leadsService: LeadsService,
     private localStorageService: LocalStorageService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private router: Router,
+    private datePipe: DatePipe,
   ) {
     this.breadCrumbItems = [
       {
@@ -111,6 +117,12 @@ export class CibilReportsComponent {
   }
   goBack() {
     this.location.back();
+  }
+
+  /** True when shown as a tab inside Credit & CAM Reports — the container
+   * already provides the back button and page title. */
+  get embedded(): boolean {
+    return this.router.url.includes('/credit-cam-reports');
   }
 
   
@@ -258,7 +270,7 @@ export class CibilReportsComponent {
     report.status || '',
     report.uploaded_url ? `https://${report.uploaded_url}` : '',
     report.created_at
-      ? new Date(report.created_at).toLocaleDateString()
+      ? this.datePipe.transform(report.created_at, this.dateTimeFormat)
       : ''
   ]);
 

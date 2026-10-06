@@ -402,6 +402,19 @@ export class LeadsService {
     return this.serviceMeta.httpGet(url, null, filter);
   }
 
+  /** Super admin only: PAN verifications across all accounts.
+   * Returns { data, total }. Filters: from, count, accountId, search,
+   * status-eq, sort=<field>,<asc|desc>. */
+  getAdminPanVerifications(filter = {}) {
+    const url = 'admin/pan-verifications';
+    return this.serviceMeta.httpGet(url, null, filter);
+  }
+
+  /** Super admin only: one PAN verification incl. full rawResponse. */
+  getAdminPanVerificationById(id: number) {
+    return this.serviceMeta.httpGet(`admin/pan-verifications/${id}`);
+  }
+
   /** Admin-wide, filterable/paginated subscription tax invoice list. */
   getSubscriptionInvoicesList(filter = {}) {
     const url = 'admin/subscription-invoices';

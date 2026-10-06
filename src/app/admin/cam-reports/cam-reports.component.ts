@@ -1,22 +1,26 @@
 import { Component, ViewChild } from '@angular/core';
 import { Table } from 'primeng/table';
-import { Location } from '@angular/common';
+import { DatePipe, Location } from '@angular/common';
+import { Router } from '@angular/router';
 
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { RoutingService } from 'src/app/services/routing-service';
 import { ToastService } from 'src/app/services/toast.service';
 import { LeadsService } from '../leads/leads.service';
+import { REPORT_DATE_TIME_FORMAT } from '../credit-cam-reports/report-date-format';
 
 @Component({
   selector: 'app-cam-reports',
   templateUrl: './cam-reports.component.html',
   styleUrl: './cam-reports.component.scss',
+  providers: [DatePipe],
 })
 export class CamReportsComponent {
   @ViewChild('dt') dt!: Table;
   reports: any[] = [];
   loading = false;
   accountId: any;
+  readonly dateTimeFormat = REPORT_DATE_TIME_FORMAT;
 
   constructor(
     private leadsService: LeadsService,
@@ -24,7 +28,9 @@ export class CamReportsComponent {
     private toastService: ToastService,
     private localStorageService: LocalStorageService,
     private routingService: RoutingService,
-    private location: Location
+    private location: Location,
+    private router: Router,
+    private datePipe: DatePipe,
   ) {}
 
   ngOnInit() {
@@ -34,13 +40,23 @@ export class CamReportsComponent {
     this.loadReports();
   }
 
+  /** True when shown as a tab inside Credit & CAM Reports — the container
+   * already provides the back button and page title. */
+  get embedded(): boolean {
+    return this.router.url.includes('/credit-cam-reports');
+  }
+
   loadReports() {
     this.loading = true;
-    // console.log(this.accountId)
 
     this.leadsService.getBSAReports().subscribe({
       next: (res: any) => {
-        this.reports = res?.reports || res || [];
+        const list = res?.reports || res || [];
+        this.reports = [...list].sort(
+          (a: any, b: any) =>
+            new Date(b.createdOn || 0).getTime() -
+            new Date(a.createdOn || 0).getTime(),
+        );
         this.loading = false;
       },
       error: (err) => {
@@ -51,21 +67,19 @@ export class CamReportsComponent {
     });
   }
 
-  getStatusClass(status: string): string {
-    const statusUpper = status?.toUpperCase() || '';
+  getStatusKey(status: string): string {
+    const statusUpper = (status || 'PENDING').toUpperCase();
     switch (statusUpper) {
       case 'ANALYSED':
-        return 'p-tag-success';
+        return 'success';
       case 'IN_PROGRESS':
       case 'IN PROGRESS':
-        return 'p-tag-warning';
+        return 'progress';
       case 'FAILED':
       case 'ERROR':
-        return 'p-tag-danger';
-      case 'PENDING':
-        return 'p-tag-info';
+        return 'failed';
       default:
-        return 'p-tag-secondary';
+        return 'pending';
     }
   }
 
@@ -85,12 +99,12 @@ export class CamReportsComponent {
   viewReport(reportId: string) {
     this.routingService.handleRoute(
       `cam-reports/bank-report/${reportId}`,
-      null
+      null,
     );
   }
 
   goBack() {
-    this.routingService.handleRoute('bsanalyzer', null);
+    this.location.back();
   }
 
   onSearchInput(event: Event) {
@@ -101,58 +115,60 @@ export class CamReportsComponent {
   }
 
   exportBSAReportsToCSV() {
-  const headers = [
-    'Account ID',
-    'Report ID',
-    'Report Name',
-    'Account Number',
-    'Account Type',
-    'Bank ID',
-    'Status',
-    'Lead ID',
-    'Created On',
-    'Updated On',
-    'Created By'
-  ];
+    const headers = [
+      'Account ID',
+      'Report ID',
+      'Report Name',
+      'Account Number',
+      'Account Type',
+      'Bank ID',
+      'Status',
+      'Lead ID',
+      'Created On',
+      'Updated On',
+      'Created By',
+    ];
 
-  const rows = this.reports.map((report: any) => [
-    report.accountId || '',
-    report.reportId || '',
-    report.reportName || '',
-    report.accountNumber || '',
-    this.getAccountTypeName(report.accountType),
-    report.bankId || '',
-    report.reportStatus || '',
-    report.leadId || '',
-    report.createdOn
-      ? new Date(report.createdOn).toLocaleString()
-      : '',
-    report.updatedOn
-      ? new Date(report.updatedOn).toLocaleString()
-      : '',
-    report.createdBy || ''
-  ]);
+    const rows = this.reports.map((report: any) => [
+      report.accountId || '',
+      report.reportId || '',
+      report.reportName || '',
+      report.accountNumber || '',
+      this.getAccountTypeName(report.accountType),
+      report.bankId || '',
+      report.reportStatus || '',
+      report.leadId || '',
+      report.createdOn
+        ? this.datePipe.transform(report.createdOn, this.dateTimeFormat)
+        : '',
+      report.updatedOn
+        ? this.datePipe.transform(report.updatedOn, this.dateTimeFormat)
+        : '',
+      report.createdBy || '',
+    ]);
 
-  const csvContent =
-    headers.join(',') +
-    '\n' +
-    rows.map(r => r.map(this.escapeCSVValue).join(',')).join('\n');
+    const csvContent =
+      headers.join(',') +
+      '\n' +
+      rows.map((r) => r.map(this.escapeCSVValue).join(',')).join('\n');
 
-  const blob = new Blob([csvContent], {
-    type: 'text/csv;charset=utf-8;'
-  });
+    const blob = new Blob([csvContent], {
+      type: 'text/csv;charset=utf-8;',
+    });
 
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'BSA_Reports.csv';
-  link.click();
-}
-
-escapeCSVValue(value: any) {
-  if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
-    value = `"${value.replace(/"/g, '""')}"`;
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'CAM_Reports.csv';
+    link.click();
   }
-  return value;
-}
 
+  escapeCSVValue(value: any) {
+    if (
+      typeof value === 'string' &&
+      (value.includes(',') || value.includes('"'))
+    ) {
+      value = `"${value.replace(/"/g, '""')}"`;
+    }
+    return value;
+  }
 }

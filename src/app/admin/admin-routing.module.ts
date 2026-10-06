@@ -87,6 +87,14 @@ const routes: Routes = [
           ),
       },
       {
+        // Tabs: Credit Reports / CAM Reports / PAN Verifications (role 1).
+        path: 'credit-cam-reports',
+        loadChildren: () =>
+          import('./credit-cam-reports/credit-cam-reports.module').then(
+            (m) => m.CreditCamReportsModule,
+          ),
+      },
+      {
         path: 'cibil-reports',
         loadChildren: () =>
           import('./cibil-reports/cibil-reports.module').then(

@@ -1,0 +1,23 @@
+<div *ngIf="isSuperAdmin">
+  <div class="p-1 m-2 fixed-card">
+    <div class="d-flex justify-content-between">
+      <div
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <b>
+          <span class="back-btn-text">Credit &amp; CAM Reports</span>
+        </b>
+      </div>
+    </div>
+  </div>
+
+  <div class="m-2 reports-tabs">
+    <p-tabMenu [model]="tabs"></p-tabMenu>
+  </div>
+
+  <router-outlet></router-outlet>
+</div>

@@ -1,7 +1,8 @@
 <div>
-  <div class="p-1 m-2 fixed-card">
+  <div class="p-1 m-2" [class.fixed-card]="!embedded">
     <div class="d-flex justify-content-between">
       <div
+        *ngIf="!embedded; else embeddedTitle"
         class="d-flex align-items-center justify-content-center pointer-cursor"
         (click)="goBack()"
       >
@@ -12,6 +13,7 @@
           <span class="back-btn-text">Cibil Reports </span>
         </b>
       </div>
+      <ng-template #embeddedTitle><span></span></ng-template>
       <div class="col-md-3 text-end">
         <button
           pButton
@@ -28,7 +30,7 @@
       #accountTable
       [value]="accounts"
       [lazy]="true"
-       [sortField]="'created_at'"
+      [sortField]="'created_at'"
       [sortOrder]="-1"
       (onLazyLoad)="loadCibilReports($event)"
       (onRowSelect)="viewAccount($event)"
@@ -47,7 +49,7 @@
         'referenceNo',
         'customer.firstName',
         'partner.partnerName',
-        'status'
+        'status',
       ]"
       styleClass="p-datatable-customers "
       currentPageReportTemplate="Showing {first} to {last} of {totalRecords} Cibil Reports"
@@ -101,19 +103,19 @@
         <tr>
           <th class="text-nowrap">Account Id</th>
           <th class="text-nowrap">Business Name</th>
-          <th  class="text-nowrap">Name</th>
-          <th  class="text-nowrap">Credit Type</th>
+          <th class="text-nowrap">Name</th>
+          <th class="text-nowrap">Credit Type</th>
           <th>Mobile</th>
           <th class="text-nowrap">Pan</th>
           <th class="text-nowrap">City</th>
           <th>Aadhar</th>
           <th>Gender</th>
           <th>Consent</th>
-          <th  class="text-nowrap">Credit Score</th>
+          <th class="text-nowrap">Credit Score</th>
           <th>status</th>
           <th>Download</th>
 
-          <th  class="text-nowrap">Created on</th>
+          <th class="text-nowrap">Created on</th>
           <!-- <th pSortableColumn="accountId"  class="text-nowrap">Account Id <p-sortIcon field="accountId"></p-sortIcon></th>
 
           <th pSortableColumn="name"  class="text-nowrap">Name <p-sortIcon field="name"></p-sortIcon></th>
@@ -140,18 +142,30 @@
       <ng-template pTemplate="body" let-report let-rowIndex="rowIndex">
         <tr>
           <td>{{ report.accountId }}</td>
-          <td>{{ report.businessName || '-' }}</td>
-          
+          <td>{{ report.businessName || "-" }}</td>
+
           <!-- <td>{{ report.client_id }}</td> -->
           <td class="text-capitalize">{{ report.name }}</td>
-          <td class="text-capitalize"><span class="report-type-badge" [class]="'report-' + report.report_type">{{ report.report_type }}</span></td>
+          <td class="text-capitalize">
+            <span
+              class="report-type-badge"
+              [class]="'report-' + report.report_type"
+              >{{ report.report_type }}</span
+            >
+          </td>
           <td>{{ report.mobile }}</td>
           <td>{{ report.pan }}</td>
           <td class="text-capitalize">{{ report.city }}</td>
           <td>{{ report.aadhar_number }}</td>
           <td class="text-capitalize">{{ report.gender }}</td>
-          <td>{{ report.consent === 'Y' ? 'Yes' : 'No' }}</td>
-          <td><span class="credit-score-badge" [class]="'credit-score-' + report.report_type">{{ report.credit_score }}</span></td>
+          <td>{{ report.consent === "Y" ? "Yes" : "No" }}</td>
+          <td>
+            <span
+              class="credit-score-badge"
+              [class]="'credit-score-' + report.report_type"
+              >{{ report.credit_score }}</span
+            >
+          </td>
           <td>{{ report.status }}</td>
 
           <!-- Downloadable Report -->
@@ -195,7 +209,9 @@
             <span *ngIf="report.aadharcard">Available</span>
           </td> -->
 
-          <td>{{ report.created_at | date }}</td>
+          <td class="text-nowrap">
+            {{ report.created_at | date: dateTimeFormat }}
+          </td>
           <!-- <td>{{ report.updated_at | date : "dd-MM-yyyy HH:mm:ss" }}</td> -->
         </tr>
       </ng-template>

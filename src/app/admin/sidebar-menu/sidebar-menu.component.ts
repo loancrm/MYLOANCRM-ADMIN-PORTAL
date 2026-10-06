@@ -183,10 +183,11 @@ export class SidebarMenuComponent implements OnChanges {
         condition: true,
       },
       {
-        label: 'Cibil Reports',
+        // Credit Reports + CAM Reports + PAN Verifications as tabs.
+        label: 'Credit & CAM Reports',
         icon: 'scroll-text',
-        route: 'cibil-reports',
-        condition: true,
+        route: 'credit-cam-reports',
+        condition: this.loggedInUserRole === 1,
       },
       {
         label: 'Credit Report Banner',
@@ -199,12 +200,6 @@ export class SidebarMenuComponent implements OnChanges {
         icon: 'shield-check',
         route: 'bureau-settings',
         condition: this.loggedInUserRole === 1,
-      },
-      {
-        label: 'CAM Reports',
-        icon: 'file-text',
-        route: 'cam-reports',
-        condition: true,
       },
       {
         label: 'Social Media Leads',

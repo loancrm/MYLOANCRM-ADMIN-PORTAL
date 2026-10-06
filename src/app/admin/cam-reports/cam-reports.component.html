@@ -1,20 +1,20 @@
-<div class="p-1 m-2">
-  <div class="d-flex justify-content-between align-items-center">
-    <div
-      class="d-flex align-items-center justify-content-center pointer-cursor"
-      (click)="goBack()"
-    >
-      <span class="me-2 d-flex align-items-center">
-        <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
-      </span>
-      <b>
-        <span class="back-btn-text">BSA Reports</span>
-      </b>
-    </div>
-    <!-- <button pButton type="button" class="p-button-primary" (click)="goBack()">
-      <i class="pi pi-plus me-2"></i>Create New Report
-    </button> -->
-    <div class="col-md-3 text-end">
+<div>
+  <div class="p-1 m-2" [class.fixed-card]="!embedded">
+    <div class="d-flex justify-content-between">
+      <div
+        *ngIf="!embedded; else embeddedTitle"
+        class="d-flex align-items-center justify-content-center pointer-cursor"
+        (click)="goBack()"
+      >
+        <span class="me-2 d-flex align-items-center">
+          <img src="../../../assets/images/icons/left-arrow.svg" alt="Back" />
+        </span>
+        <b>
+          <span class="back-btn-text">CAM Reports</span>
+        </b>
+      </div>
+      <ng-template #embeddedTitle><span></span></ng-template>
+      <div class="col-md-3 text-end">
         <button
           pButton
           label="Export"
@@ -23,59 +23,45 @@
           (click)="exportBSAReportsToCSV()"
         ></button>
       </div>
-  </div>
-</div>
-
-<div class="container mt-4">
-  <div class="card">
-    <div class="card-header">
-      <h5 class="mb-0">Bank Statement Analysis Reports</h5>
-      <small class="text-muted">View all your BSA reports</small>
     </div>
+  </div>
 
-    <div class="card-body">
-      <div *ngIf="loading" class="text-center p-4">
-        <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
-        <p>Loading reports...</p>
-      </div>
-
-      <div *ngIf="!loading && reports.length === 0" class="text-center p-4">
-        <i class="pi pi-inbox" style="font-size: 3rem; color: #ccc"></i>
-        <p class="text-muted mt-3">
-          No BSA reports found. Create your first report to get started.
-        </p>
-      </div>
-
-      <p-table
-        *ngIf="!loading && reports.length > 0"
-        [value]="reports"
-        [paginator]="true"
-        [rows]="10"
-        [rowsPerPageOptions]="[10, 20, 50]"
-        [responsive]="true"
-        styleClass="p-datatable-striped"
-        [showCurrentPageReport]="true"
-        [globalFilterFields]="[
-          'reportId',
-          'reportName',
-          'accountNumber',
-          'reportStatus'
-        ]"
-        #dt
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} BSA Reports"
-      >
-        <ng-template pTemplate="caption">
-          <div class="d-flex justify-content-between align-items-center">
-            <span class="p-input-icon-left">
-              <!-- <i class="pi pi-search"></i> -->
-              <input
-                pInputText
-                type="text"
-                (input)="onSearchInput($event)"
-                placeholder="Search reports..."
-                class="form-control"
-              />
-            </span>
+  <div class="m-2">
+    <p-table
+      #dt
+      [value]="reports"
+      [sortField]="'createdOn'"
+      [sortOrder]="-1"
+      dataKey="id"
+      [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [paginator]="true"
+      [rows]="10"
+      [loading]="loading"
+      class="p-datatable-striped"
+      responsiveLayout="scroll"
+      scrollHeight="flex"
+      styleClass="p-datatable-customers"
+      [globalFilterFields]="[
+        'reportId',
+        'reportName',
+        'accountNumber',
+        'reportStatus',
+      ]"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} CAM Reports"
+    >
+      <ng-template pTemplate="caption">
+        <div class="row">
+          <div class="col-md-3 mt-2 no-padding-small">
+            <input
+              type="text"
+              pInputText
+              placeholder="Search reports..."
+              class="w-100"
+              (input)="onSearchInput($event)"
+            />
+          </div>
+          <div class="col-md-9 mt-2 text-end no-padding-small">
             <button
               pButton
               type="button"
@@ -83,84 +69,103 @@
               class="p-button-outlined"
               (click)="loadReports()"
               pTooltip="Refresh"
+              tooltipPosition="top"
             ></button>
           </div>
-        </ng-template>
+        </div>
+      </ng-template>
 
-        <ng-template pTemplate="header">
-          <tr>
-            <th pSortableColumn="accountId">
-              Account ID <p-sortIcon field="accountId"></p-sortIcon>
-            </th>
-            <th pSortableColumn="reportId">
-              Report ID <p-sortIcon field="reportId"></p-sortIcon>
-            </th>
-            <th pSortableColumn="reportName">
-              Report Name <p-sortIcon field="reportName"></p-sortIcon>
-            </th>
-            <th>Account Number</th>
-            <th>Account Type</th>
-            <th>Bank ID</th>
-            <th pSortableColumn="reportStatus">
-              Status <p-sortIcon field="reportStatus"></p-sortIcon>
-            </th>
-            <th>Lead ID</th>
-            <th pSortableColumn="createdOn">
-              Created On <p-sortIcon field="createdOn"></p-sortIcon>
-            </th>
-            <th pSortableColumn="updatedOn">
-              Updated On <p-sortIcon field="updatedOn"></p-sortIcon>
-            </th>
-            <th>Created By</th>
-            <th>Actions</th>
-          </tr>
-        </ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="accountId" class="text-nowrap">
+            Account Id <p-sortIcon field="accountId"></p-sortIcon>
+          </th>
+          <th pSortableColumn="reportId" class="text-nowrap">
+            Report Id <p-sortIcon field="reportId"></p-sortIcon>
+          </th>
+          <th pSortableColumn="reportName" class="text-nowrap">
+            Report Name <p-sortIcon field="reportName"></p-sortIcon>
+          </th>
+          <th pSortableColumn="accountNumber" class="text-nowrap">
+            Account Number <p-sortIcon field="accountNumber"></p-sortIcon>
+          </th>
+          <th pSortableColumn="accountType" class="text-nowrap">
+            Account Type <p-sortIcon field="accountType"></p-sortIcon>
+          </th>
+          <th pSortableColumn="bankId" class="text-nowrap">
+            Bank Id <p-sortIcon field="bankId"></p-sortIcon>
+          </th>
+          <th pSortableColumn="reportStatus" class="text-nowrap">
+            Status <p-sortIcon field="reportStatus"></p-sortIcon>
+          </th>
+          <th pSortableColumn="leadId" class="text-nowrap">
+            Lead Id <p-sortIcon field="leadId"></p-sortIcon>
+          </th>
+          <th pSortableColumn="createdBy" class="text-nowrap">
+            Created By <p-sortIcon field="createdBy"></p-sortIcon>
+          </th>
+          <th>View</th>
+          <th pSortableColumn="createdOn" class="text-nowrap">
+            Created On <p-sortIcon field="createdOn"></p-sortIcon>
+          </th>
+          <th pSortableColumn="updatedOn" class="text-nowrap">
+            Updated On <p-sortIcon field="updatedOn"></p-sortIcon>
+          </th>
+        </tr>
+      </ng-template>
 
-        <ng-template pTemplate="body" let-report let-rowIndex="rowIndex">
-          <tr>
-            <td>
-              <strong>{{ report.accountId || "N/A" }}</strong>
-            </td>
-            <td>
-              <strong>{{ report.reportId || "N/A" }}</strong>
-            </td>
-            <td>{{ report.reportName || "N/A" }}</td>
-            <td>{{ report.accountNumber || "N/A" }}</td>
-            <td>{{ getAccountTypeName(report.accountType) }}</td>
-            <td>{{ report.bankId || "N/A" }}</td>
-            <td>
-              <span
-                class="p-tag"
-                [ngClass]="getStatusClass(report.reportStatus)"
-              >
-                {{ report.reportStatus || "PENDING" }}
-              </span>
-            </td>
-            <td>{{ report.leadId || "N/A" }}</td>
-            <td>{{ report.createdOn | date : "short" }}</td>
-            <td>{{ report.updatedOn | date : "short" }}</td>
-            <td>{{ report.createdBy || "N/A" }}</td>
-            <td>
-              <button
-                pButton
-                type="button"
-                icon="pi pi-eye"
-                class="p-button-rounded p-button-text p-button-sm"
-                (click)="viewReport(report.reportId)"
-                pTooltip="View Report"
-                tooltipPosition="top"
-                [disabled]="report.reportStatus !== 'ANALYSED'"
-              ></button>
-            </td>
-          </tr>
-        </ng-template>
+      <ng-template pTemplate="body" let-report>
+        <tr>
+          <td>{{ report.accountId || "-" }}</td>
+          <td>{{ report.reportId || "-" }}</td>
+          <td class="text-capitalize">{{ report.reportName || "-" }}</td>
+          <td>{{ report.accountNumber || "-" }}</td>
+          <td>{{ getAccountTypeName(report.accountType) }}</td>
+          <td>{{ report.bankId || "-" }}</td>
+          <td>
+            <span
+              class="status-badge"
+              [class]="'status-' + getStatusKey(report.reportStatus)"
+            >
+              {{ report.reportStatus || "PENDING" }}
+            </span>
+          </td>
+          <td>{{ report.leadId || "-" }}</td>
+          <td>{{ report.createdBy || "-" }}</td>
+          <td>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-eye"
+              class="p-button-rounded p-button-text p-button-sm"
+              (click)="viewReport(report.reportId)"
+              pTooltip="View Report"
+              tooltipPosition="top"
+              [disabled]="report.reportStatus !== 'ANALYSED'"
+            ></button>
+          </td>
+          <td class="text-nowrap">
+            {{ report.createdOn | date: dateTimeFormat }}
+          </td>
+          <td class="text-nowrap">
+            {{ report.updatedOn | date: dateTimeFormat }}
+          </td>
+        </tr>
+      </ng-template>
 
-        <ng-template pTemplate="emptymessage">
-          <tr>
-            <td colspan="11" class="text-center">No reports found</td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </div>
+      <ng-template pTemplate="emptymessage">
+        <tr class="text-center">
+          <td colspan="12" class="text-center fw-bold">
+            <img
+              alt="No Data"
+              src="../../../assets/images/menu/no-data.gif"
+              width="200"
+              height="200"
+            />
+            <p>No CAM Reports Found</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
   </div>
 </div>

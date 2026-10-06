@@ -1,0 +1,188 @@
+<div class="m-2">
+  <p-table
+    #panTable
+    [value]="verifications"
+    [lazy]="true"
+    [sortField]="'createdOn'"
+    [sortOrder]="-1"
+    (onLazyLoad)="loadVerifications($event)"
+    dataKey="id"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [paginator]="true"
+    [rows]="10"
+    [totalRecords]="totalRecords"
+    [loading]="apiLoading"
+    class="p-datatable-striped"
+    responsiveLayout="scroll"
+    scrollHeight="flex"
+    styleClass="p-datatable-customers"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} PAN Verifications"
+  >
+    <ng-template pTemplate="caption">
+      <div class="row">
+        <div class="col-md-4 mt-2 no-padding-small">
+          <div class="p-inputgroup">
+            <input
+              type="text"
+              pInputText
+              placeholder="Search by Account ID, Business Name or PAN"
+              [(ngModel)]="searchText"
+              (ngModelChange)="onSearchChange($event)"
+              (keyup.enter)="applyFilters()"
+            />
+            <button
+              type="button"
+              pButton
+              class="p-button-primary search-btn"
+              [disabled]="!searchText"
+              (click)="applyFilters()"
+            >
+              <img
+                src="assets/images/icons/search.svg"
+                alt="Search"
+                width="16"
+                height="16"
+                style="vertical-align: middle"
+              />
+            </button>
+          </div>
+        </div>
+        <div class="col-md-3 mt-2 no-padding-small">
+          <p-dropdown
+            [options]="statusOptions"
+            [(ngModel)]="selectedStatus"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Status"
+            (onChange)="applyFilters()"
+            styleClass="w-100"
+          ></p-dropdown>
+        </div>
+        <div class="col-md-5 mt-2 text-end no-padding-small">
+          <button
+            pButton
+            type="button"
+            label="Export"
+            icon="pi pi-file"
+            class="p-button-info"
+            (click)="exportToCSV()"
+          ></button>
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th class="text-nowrap">Account Id</th>
+        <th class="text-nowrap">Business Name</th>
+        <th class="text-nowrap">Reference No</th>
+        <th class="text-nowrap">PAN</th>
+        <th class="text-nowrap">Name</th>
+        <th>Status</th>
+        <th>Message</th>
+        <th>Mobile</th>
+        <th class="text-nowrap">Amount Charged</th>
+        <th class="text-nowrap">Verified By</th>
+        <th>Response</th>
+        <th pSortableColumn="createdOn" class="text-nowrap">
+          Created On <p-sortIcon field="createdOn"></p-sortIcon>
+        </th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-v>
+      <tr>
+        <td>{{ v.accountId }}</td>
+        <td>{{ v.businessName || "-" }}</td>
+        <td>{{ v.referenceNumber || "-" }}</td>
+        <td>
+          <span class="pan-badge">{{ v.pan }}</span>
+        </td>
+        <td class="text-capitalize">{{ v.fullName || "-" }}</td>
+        <td>
+          <span class="status-badge" [class]="'status-' + v.status">
+            {{ v.status }}
+          </span>
+        </td>
+        <td class="message-cell">{{ v.message || "-" }}</td>
+        <td>{{ v.mobile || "-" }}</td>
+        <td>₹{{ v.amountCharged ?? 0 }}</td>
+        <td>{{ v.createdByName || "-" }}</td>
+        <td class="text-center">
+          <button
+            pButton
+            type="button"
+            icon="pi pi-code"
+            class="p-button-rounded p-button-text p-button-sm"
+            pTooltip="View Response"
+            tooltipPosition="top"
+            (click)="viewResponse(v)"
+          ></button>
+        </td>
+        <td class="text-nowrap">{{ v.createdOn | date: dateTimeFormat }}</td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr class="text-center">
+        <td colspan="12" class="text-center fw-bold">
+          <img
+            alt="No Data"
+            src="../../../assets/images/menu/no-data.gif"
+            width="200"
+            height="200"
+          />
+          <p>No PAN Verifications Found</p>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog
+  [(visible)]="responseDialogVisible"
+  [modal]="true"
+  [dismissableMask]="true"
+  [draggable]="false"
+  [style]="{ width: '760px', maxWidth: '95vw' }"
+  header="PAN Verification Response"
+  appendTo="body"
+>
+  <ng-container *ngIf="selectedVerification as v">
+    <div class="response-meta">
+      <div>
+        <span>Account</span>{{ v.accountId
+        }}{{ v.businessName ? " – " + v.businessName : "" }}
+      </div>
+      <div><span>PAN</span>{{ v.pan }}</div>
+      <div><span>Reference No</span>{{ v.referenceNumber || "-" }}</div>
+      <div>
+        <span>Status</span>
+        <span class="status-badge" [class]="'status-' + v.status">{{
+          v.status
+        }}</span>
+      </div>
+      <div><span>Message</span>{{ v.message || "-" }}</div>
+      <div><span>Created On</span>{{ v.createdOn | date: dateTimeFormat }}</div>
+    </div>
+  </ng-container>
+
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <b>Full Response</b>
+    <button
+      pButton
+      type="button"
+      icon="pi pi-copy"
+      label="Copy"
+      class="p-button-outlined p-button-sm"
+      [disabled]="responseLoading || !responseJson"
+      (click)="copyResponse()"
+    ></button>
+  </div>
+
+  <div *ngIf="responseLoading" class="text-center p-4">
+    <i class="pi pi-spin pi-spinner" style="font-size: 1.5rem"></i>
+  </div>
+  <pre *ngIf="!responseLoading" class="response-json">{{ responseJson }}</pre>
+</p-dialog>

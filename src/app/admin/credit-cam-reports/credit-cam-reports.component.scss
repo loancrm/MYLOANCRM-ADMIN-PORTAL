@@ -1,0 +1,14 @@
+.pointer-cursor {
+  cursor: pointer;
+}
+
+.reports-tabs {
+  ::ng-deep .p-tabmenu .p-tabmenu-nav {
+    background: transparent;
+  }
+
+  ::ng-deep .p-tabmenu .p-tabmenu-nav .p-tabmenuitem.p-highlight .p-menuitem-link {
+    color: var(--primary-color, #7571f8);
+    border-color: var(--primary-color, #7571f8);
+  }
+}

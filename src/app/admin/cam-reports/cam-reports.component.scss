@@ -1,18 +1,38 @@
-// BSA Reports List Component Styles
-
-.p-datatable {
-  .p-datatable-thead > tr > th {
-    background-color: #f8f9fa;
-    font-weight: 600;
-  }
-
-  .p-tag {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
-  }
-}
+// CAM (BSA) Reports — same table look as Credit Reports
 
 .pointer-cursor {
   cursor: pointer;
 }
 
+.search-btn {
+  background-color: #fff !important;
+  border-color: lightgray !important;
+  border-bottom-right-radius: 8px !important;
+  border-top-right-radius: 8px !important;
+  border-bottom-left-radius: 0 !important;
+  border-top-left-radius: 0 !important;
+}
+
+.status-badge {
+  color: #fff;
+  background-color: #007bff;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  &.status-success {
+    background-color: #2e7d32;
+  }
+  &.status-progress {
+    background-color: #ef6c00;
+  }
+  &.status-failed {
+    background-color: #c62828;
+  }
+  &.status-pending {
+    background-color: #0277bd;
+  }
+}
