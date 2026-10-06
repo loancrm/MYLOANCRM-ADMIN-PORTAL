@@ -10,6 +10,7 @@ import { LeadsService } from '../leads/leads.service';
 import {
   BureauProvider,
   BureauSettingsService,
+  PanVerificationProvider,
 } from './bureau-settings.service';
 
 type SettingsMode = 'single' | 'all';
@@ -32,6 +33,10 @@ interface BureauFieldConfig {
    * fetchCrifSurepassReport). Experian/Equifax accept the setting so it can
    * be prepped ahead of time, but it has no live effect yet. */
   surepassIsLive: boolean;
+  /** Satmat serves CIBIL (TransUnion), CRIF and Experian. It has no
+   * Equifax API — choosing Satmat for Equifax disables the Equifax card in
+   * the CRM. */
+  satmatIsLive: boolean;
 }
 
 /**
@@ -58,6 +63,12 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
   providerOptions: { label: string; value: BureauProvider }[] = [
     { label: 'Verifyal', value: 'verifyal' },
     { label: 'Surepass', value: 'surepass' },
+    { label: 'Satmat', value: 'satmat' },
+  ];
+
+  panProviderOptions: { label: string; value: PanVerificationProvider }[] = [
+    { label: 'Disabled', value: 'disabled' },
+    { label: 'Satmat', value: 'satmat' },
   ];
 
   bureaus: BureauFieldConfig[] = [
@@ -66,24 +77,28 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
       applyControl: 'applyCibil',
       label: 'CIBIL (TransUnion)',
       surepassIsLive: true,
+      satmatIsLive: true,
     },
     {
       providerControl: 'crifProvider',
       applyControl: 'applyCrif',
       label: 'CRIF High Mark',
       surepassIsLive: true,
+      satmatIsLive: true,
     },
     {
       providerControl: 'experianProvider',
       applyControl: 'applyExperian',
       label: 'Experian',
       surepassIsLive: false,
+      satmatIsLive: true,
     },
     {
       providerControl: 'equifaxProvider',
       applyControl: 'applyEquifax',
       label: 'Equifax',
       surepassIsLive: false,
+      satmatIsLive: false,
     },
   ];
 
@@ -112,10 +127,12 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
       crifProvider: ['verifyal'],
       experianProvider: ['verifyal'],
       equifaxProvider: ['verifyal'],
+      panVerificationProvider: ['disabled'],
       applyCibil: [false],
       applyCrif: [false],
       applyExperian: [false],
       applyEquifax: [false],
+      applyPan: [false],
     });
   }
 
@@ -178,10 +195,12 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
         crifProvider: 'verifyal',
         experianProvider: 'verifyal',
         equifaxProvider: 'verifyal',
+        panVerificationProvider: 'disabled',
         applyCibil: false,
         applyCrif: false,
         applyExperian: false,
         applyEquifax: false,
+        applyPan: false,
       });
     } else {
       this.selectedAccountId = null;
@@ -230,6 +249,7 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
           crifProvider: res?.crifProvider || 'verifyal',
           experianProvider: res?.experianProvider || 'verifyal',
           equifaxProvider: res?.equifaxProvider || 'verifyal',
+          panVerificationProvider: res?.panVerificationProvider || 'disabled',
         });
       },
       error: (err) => {
@@ -262,6 +282,7 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
       crifProvider: raw.crifProvider,
       experianProvider: raw.experianProvider,
       equifaxProvider: raw.equifaxProvider,
+      panVerificationProvider: raw.panVerificationProvider,
     };
     this.saving = true;
     this.bureauSettingsService
@@ -291,6 +312,8 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
     if (raw.applyCrif) payload['crifProvider'] = raw.crifProvider;
     if (raw.applyExperian) payload['experianProvider'] = raw.experianProvider;
     if (raw.applyEquifax) payload['equifaxProvider'] = raw.equifaxProvider;
+    if (raw.applyPan)
+      payload['panVerificationProvider'] = raw.panVerificationProvider;
     return payload;
   }
 
@@ -300,7 +323,8 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
       raw.applyCibil ||
       raw.applyCrif ||
       raw.applyExperian ||
-      raw.applyEquifax
+      raw.applyEquifax ||
+      raw.applyPan
     );
   }
 

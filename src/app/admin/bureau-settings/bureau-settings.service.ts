@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
 import { ServiceMeta } from 'src/app/services/service-meta';
 
-export type BureauProvider = 'verifyal' | 'surepass';
+export type BureauProvider = 'verifyal' | 'surepass' | 'satmat';
+
+/** accounts.panVerificationProvider — 'satmat' enables the CRM's PAN
+ * Verification integration for the account, 'disabled' (stored as NULL)
+ * hides it. */
+export type PanVerificationProvider = 'satmat' | 'disabled';
 
 // Provider only — report costs (accounts.*ReportCost) are managed
 // elsewhere and intentionally not sent from this admin portal page.
@@ -10,6 +15,7 @@ export interface BureauProviderSettings {
   crifProvider?: BureauProvider;
   experianProvider?: BureauProvider;
   equifaxProvider?: BureauProvider;
+  panVerificationProvider?: PanVerificationProvider;
 }
 
 export interface BulkBureauProviderSettings extends BureauProviderSettings {

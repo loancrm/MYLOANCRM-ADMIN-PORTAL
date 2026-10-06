@@ -183,6 +183,15 @@
             <td><span class="badge bg-light text-dark text-capitalize">{{ accountDetails.equifaxProvider }}</span></td>
             <td>{{ accountDetails.equifaxReportCost }}</td>
           </tr>
+          <tr>
+            <td>
+              PAN Verification
+              <span class="badge bg-light text-dark ms-1">{{ accountDetails.panVerificationProvider ? 'Enabled' : 'Disabled' }}</span>
+            </td>
+            <td><span class="badge bg-light text-dark text-capitalize">{{ accountDetails.panVerificationProvider }}</span></td>
+
+            <td>{{ accountDetails.panVerificationCost ?? 'Default' }}</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -269,7 +278,7 @@
         </ng-template>
       </p-dialog>
     </div>
-  
+
   </ng-container>
 
   <!-- Activity Detail Dialog -->

@@ -19,11 +19,13 @@
     <div class="fixed-card p-3">
       <p class="text-muted mb-3">
         Choose whether CIBIL, CRIF, Experian and Equifax report fetches use
-        Verifyal or Surepass — for one account, or applied to every account at
-        once. Surepass is live today for CIBIL and CRIF only; Experian and
-        Equifax can be set now but stay on Verifyal until Surepass support is
-        added for them. Report costs are managed elsewhere and are not changed
-        from this page.
+        Verifyal, Surepass or Satmat — for one account, or applied to every
+        account at once. Surepass is live today for CIBIL and CRIF only;
+        Experian and Equifax can be set now but stay on Verifyal until Surepass
+        support is added for them. Satmat is live for CIBIL (TransUnion), CRIF
+        and Experian; Satmat has no Equifax API, so choosing Satmat for Equifax
+        disables the Equifax card for that account. Report costs are managed
+        elsewhere and are not changed from this page.
       </p>
 
       <div class="mb-4">
@@ -105,11 +107,55 @@
                     <i class="pi pi-info-circle me-1"></i>Surepass not live yet
                     for this bureau
                   </div>
+                  <div
+                    class="small text-danger"
+                    *ngIf="
+                      !bureau.satmatIsLive &&
+                      form.get(bureau.providerControl)?.value === 'satmat'
+                    "
+                  >
+                    <i class="pi pi-ban me-1"></i>Satmat has no
+                    {{ bureau.label }} API — this card will be disabled in the
+                    CRM
+                  </div>
                 </td>
                 <td>
                   <p-dropdown
                     [options]="providerOptions"
                     [formControlName]="bureau.providerControl"
+                    optionLabel="label"
+                    optionValue="value"
+                    styleClass="w-100"
+                    appendTo="body"
+                  ></p-dropdown>
+                </td>
+              </tr>
+              <!-- PAN Verification: provider switches the CRM integration on/off -->
+              <tr>
+                <td *ngIf="mode === 'all'">
+                  <p-checkbox
+                    formControlName="applyPan"
+                    [binary]="true"
+                    inputId="applyPan"
+                  ></p-checkbox>
+                </td>
+                <td>
+                  <label for="applyPan" class="mb-0 fw-semibold">
+                    PAN Verification
+                  </label>
+                  <div class="text-muted small">
+                    <i class="pi pi-info-circle me-1"></i>
+                    {{
+                      form.get('panVerificationProvider')?.value === 'satmat'
+                        ? 'PAN Verification card is shown in the CRM Integrations'
+                        : 'PAN Verification is hidden for this account'
+                    }}
+                  </div>
+                </td>
+                <td>
+                  <p-dropdown
+                    [options]="panProviderOptions"
+                    formControlName="panVerificationProvider"
                     optionLabel="label"
                     optionValue="value"
                     styleClass="w-100"
