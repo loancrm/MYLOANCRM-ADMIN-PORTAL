@@ -34,6 +34,21 @@ export class CibilReportsComponent {
   selectedReportType: string = 'ALL';
   readonly dateTimeFormat = REPORT_DATE_TIME_FORMAT;
 
+  /** API response dialog for FAILED rows. */
+  responseDialogVisible = false;
+  responseLoading = false;
+  responseReport: any = null;
+  responseMessage = '';
+  responseJson = '';
+
+  readonly providerLabels: Record<string, string> = {
+    verifyal: 'Verifyal',
+    verifyal_new: 'Verifyal',
+    surepass: 'Surepass',
+    satmat: 'Satmat',
+    avmanagement: 'AV Management',
+  };
+
     reportTypeOptions = [
       { label: 'All', value: 'ALL' },
       { label: 'Experian', value: 'experian' },
@@ -117,6 +132,57 @@ export class CibilReportsComponent {
   }
   goBack() {
     this.location.back();
+  }
+
+  providerLabel(provider: string): string {
+    return provider ? this.providerLabels[provider] || provider : '-';
+  }
+
+  /** Opens the exact provider response stored for a FAILED row. */
+  viewApiResponse(report: any, event: Event): void {
+    event.stopPropagation();
+    this.responseReport = report;
+    this.responseMessage = '';
+    this.responseJson = '';
+    this.responseDialogVisible = true;
+    this.responseLoading = true;
+    this.leadsService.getCibilReportApiResponse(report.id).subscribe(
+      (res: any) => {
+        const stored = res?.data?.api_response;
+        this.responseMessage = this.extractMessage(stored);
+        this.responseJson =
+          stored == null
+            ? 'No API response was stored for this report.'
+            : typeof stored === 'string'
+              ? stored
+              : JSON.stringify(stored, null, 2);
+        this.responseLoading = false;
+      },
+      (error: any) => {
+        this.responseLoading = false;
+        this.responseDialogVisible = false;
+        this.toastService.showError(error);
+      },
+    );
+  }
+
+  copyApiResponse(): void {
+    navigator.clipboard?.writeText(this.responseJson);
+    this.toastService.showSuccess('Response copied');
+  }
+
+  /** Best-effort headline from the stored record (AV: {http_status,
+   * response, error}; Satmat: {message, response, ...}). */
+  private extractMessage(stored: any): string {
+    if (!stored || typeof stored !== 'object') return '';
+    const body = stored.response;
+    const fromBody =
+      body && typeof body === 'object'
+        ? body.message || body.detail || body.error || body.response?.message
+        : typeof body === 'string'
+          ? body.slice(0, 300)
+          : '';
+    return stored.message || fromBody || stored.error || '';
   }
 
   /** True when shown as a tab inside Credit & CAM Reports — the container

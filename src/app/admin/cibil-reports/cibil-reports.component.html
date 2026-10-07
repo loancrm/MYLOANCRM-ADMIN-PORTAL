@@ -112,7 +112,8 @@
           <th>Gender</th>
           <th>Consent</th>
           <th class="text-nowrap">Credit Score</th>
-          <th>status</th>
+          <th class="text-nowrap">Provider</th>
+          <th>Status</th>
           <th>Download</th>
 
           <th class="text-nowrap">Created on</th>
@@ -166,7 +167,26 @@
               >{{ report.credit_score }}</span
             >
           </td>
-          <td>{{ report.status }}</td>
+          <td class="text-nowrap">
+            {{ providerLabel(report.reportProvider) }}
+          </td>
+          <td class="text-nowrap">
+            <span
+              class="status-badge"
+              [class.status-failed]="report.status === 'FAILED'"
+              >{{ report.status || "-" }}</span
+            >
+            <button
+              *ngIf="report.status === 'FAILED'"
+              pButton
+              type="button"
+              icon="pi pi-eye"
+              class="p-button-text p-button-sm p-button-danger ms-1"
+              pTooltip="View API response"
+              tooltipPosition="top"
+              (click)="viewApiResponse(report, $event)"
+            ></button>
+          </td>
 
           <!-- Downloadable Report -->
           <!-- <td>
@@ -217,7 +237,7 @@
       </ng-template>
       <ng-template pTemplate="emptymessage">
         <tr class="text-center">
-          <td colspan="10" class="text-center fw-bold">
+          <td colspan="15" class="text-center fw-bold">
             <img
               alt="No Data"
               src="../../../assets/images/menu/no-data.gif"
@@ -230,4 +250,53 @@
       </ng-template>
     </p-table>
   </div>
+
+  <p-dialog
+    [(visible)]="responseDialogVisible"
+    [modal]="true"
+    [dismissableMask]="true"
+    [style]="{ width: '760px', maxWidth: '95vw' }"
+    header="Failed Report – API Response"
+    appendTo="body"
+  >
+    <div *ngIf="responseReport" class="response-meta mb-3">
+      <div><b>Name:</b> {{ responseReport.name || "-" }}</div>
+      <div>
+        <b>Bureau:</b>
+        <span class="text-uppercase">{{ responseReport.report_type }}</span>
+        &nbsp;|&nbsp; <b>Provider:</b>
+        {{ providerLabel(responseReport.reportProvider) }}
+      </div>
+      <div>
+        <b>Mobile / PAN:</b> {{ responseReport.mobile }} /
+        {{ responseReport.pan }}
+      </div>
+      <div><b>Reference:</b> {{ responseReport.client_id || "-" }}</div>
+      <div>
+        <b>Date:</b> {{ responseReport.created_at | date: dateTimeFormat }}
+      </div>
+    </div>
+
+    <div *ngIf="responseLoading" class="text-center py-4">
+      <i class="pi pi-spin pi-spinner" style="font-size: 1.5rem"></i>
+    </div>
+
+    <ng-container *ngIf="!responseLoading">
+      <div *ngIf="responseMessage" class="response-message mb-3">
+        <i class="pi pi-exclamation-circle me-2"></i>{{ responseMessage }}
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <b>Exact API response</b>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-copy"
+          label="Copy"
+          class="p-button-text p-button-sm"
+          (click)="copyApiResponse()"
+        ></button>
+      </div>
+      <pre class="response-json">{{ responseJson }}</pre>
+    </ng-container>
+  </p-dialog>
 </div>

@@ -35,3 +35,44 @@
     background-color: #00A6CA;
   }
 }
+
+.status-badge {
+  font-size: 12px;
+  font-weight: 500;
+
+  &.status-failed {
+    color: #d32f2f;
+    background-color: #ffebee;
+    border: 1px solid #d32f2f;
+    border-radius: 4px;
+    padding: 2px 8px;
+  }
+}
+
+.response-meta {
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.response-message {
+  color: #d32f2f;
+  background-color: #ffebee;
+  border-left: 3px solid #d32f2f;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.response-json {
+  max-height: 50vh;
+  overflow: auto;
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  border-radius: 6px;
+  padding: 12px;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}

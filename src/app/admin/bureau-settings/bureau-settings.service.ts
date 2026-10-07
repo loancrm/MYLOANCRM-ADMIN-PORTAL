@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ServiceMeta } from 'src/app/services/service-meta';
 
-export type BureauProvider = 'verifyal' | 'surepass' | 'satmat';
+export type BureauProvider = 'verifyal' | 'surepass' | 'satmat' | 'avmanagement';
 
 /** accounts.panVerificationProvider — 'satmat' enables the CRM's PAN
  * Verification integration for the account, 'disabled' (stored as NULL)

@@ -10,6 +10,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { MenuModule } from 'primeng/menu';
 import { TableModule } from 'primeng/table';
 import { TabMenuModule } from 'primeng/tabmenu';
+import { DialogModule } from 'primeng/dialog';
+import { TooltipModule } from 'primeng/tooltip';
 import { FilterModule } from 'src/app/filter/filter.module';
 import { CapitalizeFirstPipe } from 'src/app/pipes/capitalize.pipe';
 
@@ -34,6 +36,8 @@ const routes: Routes = [
         MenuModule,
         FilterModule,
         TabMenuModule,
+        DialogModule,
+        TooltipModule,
     [RouterModule.forChild(routes)],
   ]
 })

@@ -65,6 +65,7 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
     { label: 'Verifyal', value: 'verifyal' },
     { label: 'Surepass', value: 'surepass' },
     { label: 'Satmat', value: 'satmat' },
+    { label: 'AV Management', value: 'avmanagement' },
   ];
 
   panProviderOptions: { label: string; value: PanVerificationProvider }[] = [

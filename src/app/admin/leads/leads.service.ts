@@ -402,6 +402,12 @@ export class LeadsService {
     return this.serviceMeta.httpGet(url, null, filter);
   }
 
+  /** Super admin only: the stored provider response of one Saved Reports
+   * row (kept for FAILED rows). Returns { data: { ..., api_response } }. */
+  getCibilReportApiResponse(id: number) {
+    return this.serviceMeta.httpGet(`admin/fetched-cibil-reports/${id}/api-response`);
+  }
+
   /** Super admin only: PAN verifications across all accounts.
    * Returns { data, total }. Filters: from, count, accountId, search,
    * status-eq, sort=<field>,<asc|desc>. */

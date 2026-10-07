@@ -20,11 +20,12 @@
       <p class="text-muted mb-3">
         Choose whether CIBIL, CRIF, Experian and Equifax report fetches use
         Verifyal, Surepass or Satmat — for one account, or applied to every
-        account at once. Surepass is live today for CIBIL and CRIF only;
-        Experian and Equifax can be set now but stay on Verifyal until Surepass
-        support is added for them. Satmat is live for CIBIL (TransUnion), CRIF
+        account at once. Surepass is live for CIBIL and CRIF only; choosing
+        Surepass for Experian or Equifax disables that card in the CRM. Satmat is live for CIBIL (TransUnion), CRIF
         and Experian; Satmat has no Equifax API, so choosing Satmat for Equifax
-        disables the Equifax card for that account. Report costs are managed
+        disables the Equifax card for that account. AV Management is live for
+        all four bureaus and charges for every hit (failed requests included).
+        Report costs are managed
         elsewhere and are not changed from this page.
       </p>
 
@@ -103,9 +104,15 @@
                   <label [for]="bureau.applyControl" class="mb-0 fw-semibold">
                     {{ bureau.label }}
                   </label>
-                  <div class="text-muted small" *ngIf="!bureau.surepassIsLive">
-                    <i class="pi pi-info-circle me-1"></i>Surepass not live yet
-                    for this bureau
+                  <div
+                    class="small"
+                    [class.text-danger]="form.get(bureau.providerControl)?.value === 'surepass'"
+                    [class.text-muted]="form.get(bureau.providerControl)?.value !== 'surepass'"
+                    *ngIf="!bureau.surepassIsLive"
+                  >
+                    <i class="pi pi-ban me-1"></i>Surepass has no
+                    {{ bureau.label }} API — choosing it disables this card in
+                    the CRM
                   </div>
                   <div
                     class="small text-danger"
