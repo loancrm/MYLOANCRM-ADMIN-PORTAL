@@ -32,7 +32,72 @@ export class CibilReportsComponent {
   version = projectConstantsLocal.VERSION_DESKTOP;
   @ViewChild('accountTable') accountTable!: Table;
   selectedReportType: string = 'ALL';
+  selectedProvider: string = 'ALL';
+
+  /** Values are cibil_reports.reportProvider lists; Verifyal includes the
+   * newer CRIF flow ('verifyal_new'). */
+  providerOptions = [
+    { label: 'All Providers', value: 'ALL' },
+    { label: 'Verifyal', value: 'verifyal,verifyal_new' },
+    { label: 'Surepass', value: 'surepass' },
+    { label: 'Satmat', value: 'satmat' },
+    { label: 'AV Management', value: 'avmanagement' },
+  ];
   readonly dateTimeFormat = REPORT_DATE_TIME_FORMAT;
+
+  /** Request details dialog — only fields that have a value are listed. */
+  detailsVisible = false;
+  detailRows: { label: string; value: string }[] = [];
+
+  private readonly detailFields: {
+    field: string;
+    label: string;
+    format?: (value: any) => string;
+  }[] = [
+    { field: 'accountId', label: 'Account ID' },
+    { field: 'businessName', label: 'Business Name' },
+    {
+      field: 'report_type',
+      label: 'Report Type',
+      format: (v) => String(v).toUpperCase(),
+    },
+    {
+      field: 'reportProvider',
+      label: 'Provider',
+      format: (v) => this.providerLabel(v),
+    },
+    { field: 'client_id', label: 'Reference' },
+    { field: 'name', label: 'Name' },
+    { field: 'mobile', label: 'Mobile' },
+    { field: 'pan', label: 'PAN' },
+    { field: 'gender', label: 'Gender' },
+    { field: 'dob', label: 'Date of Birth', format: (v) => this.formatDob(v) },
+    { field: 'email', label: 'Email' },
+    { field: 'aadhar_number', label: 'Aadhaar Number' },
+    { field: 'address', label: 'Address' },
+    { field: 'city', label: 'City' },
+    { field: 'state', label: 'State' },
+    { field: 'pincode', label: 'Pincode' },
+    {
+      field: 'consent',
+      label: 'Consent',
+      format: (v) => (v === 'Y' ? 'Yes' : 'No'),
+    },
+    {
+      field: 'credit_score',
+      label: 'Credit Score',
+      format: (v) => (Number(v) > 0 ? String(v) : ''),
+    },
+    { field: 'status', label: 'Status' },
+    { field: 'sourceType', label: 'Source' },
+    { field: 'leadId', label: 'Lead ID' },
+    {
+      field: 'created_at',
+      label: 'Fetched On',
+      format: (v) =>
+        this.datePipe.transform(v, this.dateTimeFormat) || String(v),
+    },
+  ];
 
   /** API response dialog for FAILED rows. */
   responseDialogVisible = false;
@@ -49,13 +114,13 @@ export class CibilReportsComponent {
     avmanagement: 'AV Management',
   };
 
-    reportTypeOptions = [
-      { label: 'All', value: 'ALL' },
-      { label: 'Experian', value: 'experian' },
-      { label: 'CIBIL', value: 'cibil' },
-      { label: 'CRIF', value: 'crif' },
-      { label: 'Equifax', value: 'equifax' }
-    ];
+  reportTypeOptions = [
+    { label: 'All', value: 'ALL' },
+    { label: 'Experian', value: 'experian' },
+    { label: 'CIBIL', value: 'cibil' },
+    { label: 'CRIF', value: 'crif' },
+    { label: 'Equifax', value: 'equifax' },
+  ];
 
   constructor(
     private routingService: RoutingService,
@@ -77,12 +142,7 @@ export class CibilReportsComponent {
     ];
   }
 
-  ngOnInit(): void {
-
-
-  }
-
-
+  ngOnInit(): void {}
 
   actionItems(team: any): MenuItem[] {
     // const menuItems: MenuItem[] = [];
@@ -118,7 +178,7 @@ export class CibilReportsComponent {
     }
     this.localStorageService.setItemOnLocalStorage(
       'teamAppliedFilter',
-      this.appliedFilter
+      this.appliedFilter,
     );
     this.loadCibilReports(null);
   }
@@ -127,7 +187,7 @@ export class CibilReportsComponent {
     this.routingService.handleRoute('team/update/' + accountId, null);
   }
   viewAccount(event) {
-    const user = event.data
+    const user = event.data;
     this.routingService.handleRoute('team/view/' + user.id, null);
   }
   goBack() {
@@ -138,7 +198,41 @@ export class CibilReportsComponent {
     return provider ? this.providerLabels[provider] || provider : '-';
   }
 
-  /** Opens the exact provider response stored for a FAILED row. */
+  openDetails(report: any, event: Event): void {
+    event.stopPropagation();
+    this.detailRows = this.detailFields
+      .map(({ field, label, format }) => {
+        const raw = report?.[field];
+        if (raw === null || raw === undefined || String(raw).trim() === '') {
+          return null;
+        }
+        const value = format ? format(raw) : String(raw).trim();
+        return value ? { label, value } : null;
+      })
+      .filter((r): r is { label: string; value: string } => !!r);
+    this.detailsVisible = true;
+  }
+
+  /** Stored PDF on files.loancrm.org, else the provider's link. */
+  reportLink(report: any): string | null {
+    const url = report?.uploaded_url || report?.report_url;
+    if (!url) return null;
+    return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+  }
+
+  downloadReport(report: any, event: Event): void {
+    event.stopPropagation();
+    const url = this.reportLink(report);
+    if (url) window.open(url, '_blank');
+  }
+
+  /** Stored as YYYY-MM-DD -> DD-MM-YYYY. */
+  private formatDob(value: any): string {
+    const m = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return m ? `${m[3]}-${m[2]}-${m[1]}` : String(value);
+  }
+
+  /** Opens the exact provider response stored for a row. */
   viewApiResponse(report: any, event: Event): void {
     event.stopPropagation();
     this.responseReport = report;
@@ -191,7 +285,6 @@ export class CibilReportsComponent {
     return this.router.url.includes('/credit-cam-reports');
   }
 
-  
   loadCibilReports(event) {
     if (!event) {
       event = {
@@ -208,11 +301,19 @@ export class CibilReportsComponent {
     let api_filter = this.leadsService.setFiltersFromPrimeTable(event);
 
     // Merge search filter
-    api_filter = Object.assign({}, api_filter, this.searchFilter, this.appliedFilter);
+    api_filter = Object.assign(
+      {},
+      api_filter,
+      this.searchFilter,
+      this.appliedFilter,
+    );
 
     // ✅ Apply report type filter HERE (same pattern as accounts)
     if (this.selectedReportType && this.selectedReportType !== 'ALL') {
       api_filter['report_type-eq'] = this.selectedReportType;
+    }
+    if (this.selectedProvider && this.selectedProvider !== 'ALL') {
+      api_filter['reportProvider-in'] = this.selectedProvider;
     }
 
     // Both count and data get the SAME filter
@@ -235,7 +336,7 @@ export class CibilReportsComponent {
       },
       (error: any) => {
         this.toastService.showError(error);
-      }
+      },
     );
   }
 
@@ -249,7 +350,7 @@ export class CibilReportsComponent {
       (error: any) => {
         this.toastService.showError(error);
         this.apiLoading = false;
-      }
+      },
     );
   }
 
@@ -262,37 +363,37 @@ export class CibilReportsComponent {
   //   let searchFilter = { 'name-like': this.userNameToSearch };
   //   this.applyFilters(searchFilter);
   // }
-   filterWithName() {
-  let searchFilter = {};
-  const trimmedInput = this.userNameToSearch?.trim() || '';
+  filterWithName() {
+    let searchFilter = {};
+    const trimmedInput = this.userNameToSearch?.trim() || '';
 
-  if (!trimmedInput) {
-    this.applyFilters({});
-    return;
+    if (!trimmedInput) {
+      this.applyFilters({});
+      return;
+    }
+
+    // ✅ Account ID (numeric but NOT 10-digit mobile)
+    if (this.isNumeric(trimmedInput) && trimmedInput.length !== 10) {
+      searchFilter = { 'accountId-like': trimmedInput };
+    }
+
+    // ✅ Mobile Number (10-digit)
+    else if (this.isPhoneNumber(trimmedInput)) {
+      searchFilter = { 'mobile-like': trimmedInput };
+    }
+
+    // ✅ Business Name
+    else {
+      searchFilter = {
+        'name-like': trimmedInput,
+      };
+    }
+
+    this.applyFilters(searchFilter);
   }
-
-  // ✅ Account ID (numeric but NOT 10-digit mobile)
-  if (this.isNumeric(trimmedInput) && trimmedInput.length !== 10) {
-    searchFilter = { 'accountId-like': trimmedInput };
+  isNumeric(value: string): boolean {
+    return /^\d+$/.test(value);
   }
-
-  // ✅ Mobile Number (10-digit)
-  else if (this.isPhoneNumber(trimmedInput)) {
-    searchFilter = { 'mobile-like': trimmedInput };
-  }
-
-  // ✅ Business Name
-  else {
-    searchFilter = {
-      'name-like': trimmedInput,
-    };
-  }
-
-  this.applyFilters(searchFilter);
-}
- isNumeric(value: string): boolean {
-  return /^\d+$/.test(value);
-}
 
   isPhoneNumber(value: string): boolean {
     const phoneNumberPattern = /^[6-9]\d{9}$/;
@@ -302,133 +403,139 @@ export class CibilReportsComponent {
   statusChange(event) {
     this.localStorageService.setItemOnLocalStorage(
       'selectedTeamStatus',
-      event.value
+      event.value,
     );
     this.loadCibilReports(this.currentTableEvent);
   }
 
   exportCibilReportsToCSV() {
-  const headers = [
-    'Account Id',
-    'Name',
-    'Mobile',
-    'Pan',
-    'City',
-    'Aadhar',
-    'Gender',
-    'Consent',
-    'Credit Score',
-    'Status',
-    'Download URL',
-    'Created On'
-  ];
+    const headers = [
+      'Account Id',
+      'Name',
+      'Mobile',
+      'Pan',
+      'City',
+      'Aadhar',
+      'Gender',
+      'Consent',
+      'Credit Score',
+      'Status',
+      'Download URL',
+      'Created On',
+    ];
 
-  const rows = this.accounts.map((report: any) => [
-    report.accountId || '',
-    report.name || '',
-    report.mobile || '',
-    report.pan || '',
-    report.city || '',
-    report.aadhar_number || '',
-    report.gender || '',
-    report.consent || '',
-    report.credit_score || '',
-    report.status || '',
-    report.uploaded_url ? `https://${report.uploaded_url}` : '',
-    report.created_at
-      ? this.datePipe.transform(report.created_at, this.dateTimeFormat)
-      : ''
-  ]);
+    const rows = this.accounts.map((report: any) => [
+      report.accountId || '',
+      report.name || '',
+      report.mobile || '',
+      report.pan || '',
+      report.city || '',
+      report.aadhar_number || '',
+      report.gender || '',
+      report.consent || '',
+      report.credit_score || '',
+      report.status || '',
+      report.uploaded_url ? `https://${report.uploaded_url}` : '',
+      report.created_at
+        ? this.datePipe.transform(report.created_at, this.dateTimeFormat)
+        : '',
+    ]);
 
-  const csvContent =
-    headers.join(',') +
-    '\n' +
-    rows.map(r => r.map(this.escapeCSVValue).join(',')).join('\n');
+    const csvContent =
+      headers.join(',') +
+      '\n' +
+      rows.map((r) => r.map(this.escapeCSVValue).join(',')).join('\n');
 
-  const blob = new Blob([csvContent], {
-    type: 'text/csv;charset=utf-8;'
-  });
+    const blob = new Blob([csvContent], {
+      type: 'text/csv;charset=utf-8;',
+    });
 
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = 'Cibil_Reports.csv';
-  link.click();
-}
-escapeCSVValue(value: any) {
-  if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
-    value = `"${value.replace(/"/g, '""')}"`;
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'Cibil_Reports.csv';
+    link.click();
   }
-  return value;
-}
-
-onReportTypeChange(event: any) {
-  // remove both filters first
-  delete this.searchFilter['report_type-eq'];
-  delete this.searchFilter['report_type-nin'];
-
-  // apply filter only if NOT ALL
-  if (event.value !== 'ALL') {
-    this.searchFilter['report_type-eq'] = event.value;
+  escapeCSVValue(value: any) {
+    if (
+      typeof value === 'string' &&
+      (value.includes(',') || value.includes('"'))
+    ) {
+      value = `"${value.replace(/"/g, '""')}"`;
+    }
+    return value;
   }
 
-  this.accountTable.reset(); // reload table + API
-}
+  // Applied in loadCibilReports() (like report type) so name/mobile searches,
+  // which replace searchFilter, keep the provider filter.
+  onProviderChange(event: any) {
+    this.accountTable.reset(); // reload table + API
+  }
 
+  onReportTypeChange(event: any) {
+    // remove both filters first
+    delete this.searchFilter['report_type-eq'];
+    delete this.searchFilter['report_type-nin'];
 
-//   exportCibilReportsToCSV() {
-//   const headers = [
-//     'Account Id',
-//     'Name',
-//     'Mobile',
-//     'Pan',
-//     'City',
-//     'Aadhar',
-//     'Gender',
-//     'Consent',
-//     'Credit Score',
-//     'Status',
-//     'Created On'
-//   ];
+    // apply filter only if NOT ALL
+    if (event.value !== 'ALL') {
+      this.searchFilter['report_type-eq'] = event.value;
+    }
 
-//   const rows = this.accounts.map((report: any) => [
-//     report.accountId || '',
-//     report.name || '',
-//     report.mobile || '',
-//     report.pan || '',
-//     report.city || '',
-//     report.aadhar_number || '',
-//     report.gender || '',
-//     report.consent || '',
-//     report.credit_score || '',
-//     report.status || '',
-//     report.created_at
-//       ? new Date(report.created_at).toLocaleDateString()
-//       : ''
-//   ]);
+    this.accountTable.reset(); // reload table + API
+  }
 
-//   const csvContent =
-//     headers.join(',') +
-//     '\n' +
-//     rows.map(row => row.map(this.escapeCSVValue).join(',')).join('\n');
+  //   exportCibilReportsToCSV() {
+  //   const headers = [
+  //     'Account Id',
+  //     'Name',
+  //     'Mobile',
+  //     'Pan',
+  //     'City',
+  //     'Aadhar',
+  //     'Gender',
+  //     'Consent',
+  //     'Credit Score',
+  //     'Status',
+  //     'Created On'
+  //   ];
 
-//   const blob = new Blob([csvContent], {
-//     type: 'text/csv;charset=utf-8;'
-//   });
+  //   const rows = this.accounts.map((report: any) => [
+  //     report.accountId || '',
+  //     report.name || '',
+  //     report.mobile || '',
+  //     report.pan || '',
+  //     report.city || '',
+  //     report.aadhar_number || '',
+  //     report.gender || '',
+  //     report.consent || '',
+  //     report.credit_score || '',
+  //     report.status || '',
+  //     report.created_at
+  //       ? new Date(report.created_at).toLocaleDateString()
+  //       : ''
+  //   ]);
 
-//   const link = document.createElement('a');
-//   link.href = URL.createObjectURL(blob);
-//   link.download = 'Cibil_Reports.csv';
-//   link.click();
-// }
-// escapeCSVValue(value: any) {
-//   if (
-//     typeof value === 'string' &&
-//     (value.includes(',') || value.includes('"'))
-//   ) {
-//     value = `"${value.replace(/"/g, '""')}"`;
-//   }
-//   return value;
-// }
+  //   const csvContent =
+  //     headers.join(',') +
+  //     '\n' +
+  //     rows.map(row => row.map(this.escapeCSVValue).join(',')).join('\n');
 
+  //   const blob = new Blob([csvContent], {
+  //     type: 'text/csv;charset=utf-8;'
+  //   });
 
+  //   const link = document.createElement('a');
+  //   link.href = URL.createObjectURL(blob);
+  //   link.download = 'Cibil_Reports.csv';
+  //   link.click();
+  // }
+  // escapeCSVValue(value: any) {
+  //   if (
+  //     typeof value === 'string' &&
+  //     (value.includes(',') || value.includes('"'))
+  //   ) {
+  //     value = `"${value.replace(/"/g, '""')}"`;
+  //   }
+  //   return value;
+  // }
 }

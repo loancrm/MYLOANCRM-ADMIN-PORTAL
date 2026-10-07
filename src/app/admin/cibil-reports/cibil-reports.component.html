@@ -96,7 +96,18 @@
               styleClass="w-100"
             ></p-dropdown>
           </div>
-          <div class="col-md-6 no-padding-small"></div>
+          <div class="col-md-3 mt-2 no-padding-small">
+            <p-dropdown
+              [options]="providerOptions"
+              [(ngModel)]="selectedProvider"
+              placeholder="Select Provider"
+              optionLabel="label"
+              optionValue="value"
+              (onChange)="onProviderChange($event)"
+              styleClass="w-100"
+            ></p-dropdown>
+          </div>
+          <div class="col-md-3 no-padding-small"></div>
         </div>
       </ng-template>
       <ng-template pTemplate="header" let-columns>
@@ -114,8 +125,7 @@
           <th class="text-nowrap">Credit Score</th>
           <th class="text-nowrap">Provider</th>
           <th>Status</th>
-          <th>Download</th>
-
+          <th class="text-center">Actions</th>
           <th class="text-nowrap">Created on</th>
           <!-- <th pSortableColumn="accountId"  class="text-nowrap">Account Id <p-sortIcon field="accountId"></p-sortIcon></th>
 
@@ -176,16 +186,6 @@
               [class.status-failed]="report.status === 'FAILED'"
               >{{ report.status || "-" }}</span
             >
-            <button
-              *ngIf="report.status === 'FAILED'"
-              pButton
-              type="button"
-              icon="pi pi-eye"
-              class="p-button-text p-button-sm p-button-danger ms-1"
-              pTooltip="View API response"
-              tooltipPosition="top"
-              (click)="viewApiResponse(report, $event)"
-            ></button>
           </td>
 
           <!-- Downloadable Report -->
@@ -203,24 +203,6 @@
             </a>
           </td> -->
 
-          <!-- Uploaded Report -->
-          <td>
-            <a
-              *ngIf="report.uploaded_url"
-              [href]="'//' + report.uploaded_url"
-              target="_blank"
-            >
-              <img
-                src="../../../assets/images/icons/file-download.svg"
-                width="24"
-                height="24"
-                pTooltip="Download Report"
-                class="downloadimg"
-                tooltipPosition="top"
-              />
-            </a>
-          </td>
-
           <!-- <td>
             <span *ngIf="report.pancard">Available</span>
           </td>
@@ -229,6 +211,40 @@
             <span *ngIf="report.aadharcard">Available</span>
           </td> -->
 
+          <td class="text-nowrap text-center">
+            <div class="row-actions">
+              <button
+                pButton
+                type="button"
+                icon="pi pi-file"
+                class="p-button-text p-button-sm p-button-secondary"
+                pTooltip="View Details"
+                tooltipPosition="top"
+                (click)="openDetails(report, $event)"
+              ></button>
+              <button
+                *ngIf="report.hasApiResponse"
+                pButton
+                type="button"
+                icon="pi pi-code"
+                class="p-button-text p-button-sm"
+                [class.p-button-danger]="report.status === 'FAILED'"
+                pTooltip="View API Response"
+                tooltipPosition="top"
+                (click)="viewApiResponse(report, $event)"
+              ></button>
+              <button
+                *ngIf="reportLink(report)"
+                pButton
+                type="button"
+                icon="pi pi-download"
+                class="p-button-text p-button-sm p-button-success"
+                pTooltip="Download Report"
+                tooltipPosition="top"
+                (click)="downloadReport(report, $event)"
+              ></button>
+            </div>
+          </td>
           <td class="text-nowrap">
             {{ report.created_at | date: dateTimeFormat }}
           </td>
@@ -252,11 +268,31 @@
   </div>
 
   <p-dialog
+    [(visible)]="detailsVisible"
+    [modal]="true"
+    [dismissableMask]="true"
+    [draggable]="false"
+    [style]="{ width: '560px', maxWidth: '95vw' }"
+    header="Report Request Details"
+    appendTo="body"
+  >
+    <div class="details-list">
+      <div class="details-row" *ngFor="let item of detailRows">
+        <span class="details-label">{{ item.label }}</span>
+        <span class="details-value">{{ item.value }}</span>
+      </div>
+      <p *ngIf="!detailRows.length" class="details-empty">
+        No details available for this report.
+      </p>
+    </div>
+  </p-dialog>
+
+  <p-dialog
     [(visible)]="responseDialogVisible"
     [modal]="true"
     [dismissableMask]="true"
     [style]="{ width: '760px', maxWidth: '95vw' }"
-    header="Failed Report – API Response"
+    header="API Response"
     appendTo="body"
   >
     <div *ngIf="responseReport" class="response-meta mb-3">
