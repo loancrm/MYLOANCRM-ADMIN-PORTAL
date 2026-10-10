@@ -187,7 +187,7 @@ export class SidebarMenuComponent implements OnChanges {
         label: 'Credit & CAM Reports',
         icon: 'scroll-text',
         route: 'credit-cam-reports',
-        condition: this.loggedInUserRole === 1,
+        condition: this.loggedInUserRole === 1 || this.loggedInUserRole === 2,
       },
       {
         label: 'Credit Report Banner',
