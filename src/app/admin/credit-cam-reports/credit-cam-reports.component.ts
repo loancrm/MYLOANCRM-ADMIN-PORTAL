@@ -5,7 +5,7 @@ import { MenuItem } from 'primeng/api';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 
 /**
- * One sidebar entry ("Credit & CAM Reports", super admin / role 1 only) with
+ * One sidebar entry ("Credit & CAM Reports", roles 1 and 2 only) with
  * tabs for Credit Reports, CAM (BSA) Reports, PAN Verifications and Mobile
  * Prefill (mobile → PAN). Each tab
  * is a child route that lazy-loads the existing page module, so the old
@@ -25,7 +25,8 @@ export class CreditCamReportsComponent implements OnInit {
     { label: 'Prefill (Mobile to PAN)', icon: 'pi pi-mobile', routerLink: 'prefill' },
   ];
 
-  isSuperAdmin = false;
+  /** Roles 1 (super admin) and 2 (admin) only — same rule as the backend. */
+  hasAccess = false;
 
   constructor(
     private location: Location,
@@ -36,8 +37,8 @@ export class CreditCamReportsComponent implements OnInit {
   ngOnInit(): void {
     const adminDetails =
       this.localStorageService.getItemFromLocalStorage('adminDetails');
-    this.isSuperAdmin = Number(adminDetails?.user?.role) === 1;
-    if (!this.isSuperAdmin) {
+    this.hasAccess = [1, 2].includes(Number(adminDetails?.user?.role));
+    if (!this.hasAccess) {
       this.router.navigate(['admin', 'dashboard']);
     }
   }

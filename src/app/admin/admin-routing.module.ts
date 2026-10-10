@@ -87,7 +87,7 @@ const routes: Routes = [
           ),
       },
       {
-        // Tabs: Credit Reports / CAM Reports / PAN Verifications (role 1).
+        // Tabs: Credit Reports / CAM Reports / PAN Verifications / Prefill (roles 1 and 2).
         path: 'credit-cam-reports',
         loadChildren: () =>
           import('./credit-cam-reports/credit-cam-reports.module').then(
