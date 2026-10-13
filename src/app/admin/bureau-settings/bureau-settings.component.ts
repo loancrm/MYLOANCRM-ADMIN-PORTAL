@@ -38,6 +38,10 @@ interface BureauFieldConfig {
    * Equifax API — choosing Satmat for Equifax disables the Equifax card in
    * the CRM. */
   satmatIsLive: boolean;
+  /** Restricts this bureau's dropdown (defaults to providerOptions). */
+  options?: { label: string; value: BureauProvider }[];
+  /** Value used when the account has none / in "All Accounts" mode. */
+  defaultValue?: BureauProvider;
 }
 
 /**
@@ -66,6 +70,7 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
     { label: 'Surepass', value: 'surepass' },
     { label: 'Satmat', value: 'satmat' },
     { label: 'AV Management', value: 'avmanagement' },
+    { label: 'Disabled', value: 'disabled' },
   ];
 
   panProviderOptions: { label: string; value: PanVerificationProvider }[] = [
@@ -108,6 +113,21 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
       surepassIsLive: false,
       satmatIsLive: false,
     },
+    {
+      // Only AV Management offers Advance CIBIL today; add a provider to
+      // `options` (and to BUREAU_PROVIDER_LIMITS in accountController.js)
+      // when another one supports it.
+      providerControl: 'advcibilProvider',
+      applyControl: 'applyAdvcibil',
+      label: 'Advance CIBIL',
+      surepassIsLive: true,
+      satmatIsLive: true,
+      options: [
+        { label: 'AV Management', value: 'avmanagement' },
+        { label: 'Disabled', value: 'disabled' },
+      ],
+      defaultValue: 'disabled',
+    },
   ];
 
   form: FormGroup;
@@ -135,12 +155,14 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
       crifProvider: ['verifyal'],
       experianProvider: ['verifyal'],
       equifaxProvider: ['verifyal'],
+      advcibilProvider: ['disabled'],
       panVerificationProvider: ['disabled'],
       mobilePrefillProvider: ['disabled'],
       applyCibil: [false],
       applyCrif: [false],
       applyExperian: [false],
       applyEquifax: [false],
+      applyAdvcibil: [false],
       applyPan: [false],
       applyPrefill: [false],
     });
@@ -205,12 +227,14 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
         crifProvider: 'verifyal',
         experianProvider: 'verifyal',
         equifaxProvider: 'verifyal',
+        advcibilProvider: 'disabled',
         panVerificationProvider: 'disabled',
         mobilePrefillProvider: 'disabled',
         applyCibil: false,
         applyCrif: false,
         applyExperian: false,
         applyEquifax: false,
+        applyAdvcibil: false,
         applyPan: false,
         applyPrefill: false,
       });
@@ -261,6 +285,7 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
           crifProvider: res?.crifProvider || 'verifyal',
           experianProvider: res?.experianProvider || 'verifyal',
           equifaxProvider: res?.equifaxProvider || 'verifyal',
+          advcibilProvider: res?.advcibilProvider || 'disabled',
           panVerificationProvider: res?.panVerificationProvider || 'disabled',
           mobilePrefillProvider: res?.mobilePrefillProvider || 'disabled',
         });
@@ -295,6 +320,7 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
       crifProvider: raw.crifProvider,
       experianProvider: raw.experianProvider,
       equifaxProvider: raw.equifaxProvider,
+      advcibilProvider: raw.advcibilProvider,
       panVerificationProvider: raw.panVerificationProvider,
       mobilePrefillProvider: raw.mobilePrefillProvider,
     };
@@ -326,6 +352,7 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
     if (raw.applyCrif) payload['crifProvider'] = raw.crifProvider;
     if (raw.applyExperian) payload['experianProvider'] = raw.experianProvider;
     if (raw.applyEquifax) payload['equifaxProvider'] = raw.equifaxProvider;
+    if (raw.applyAdvcibil) payload['advcibilProvider'] = raw.advcibilProvider;
     if (raw.applyPan)
       payload['panVerificationProvider'] = raw.panVerificationProvider;
     if (raw.applyPrefill)
@@ -340,6 +367,7 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
       raw.applyCrif ||
       raw.applyExperian ||
       raw.applyEquifax ||
+      raw.applyAdvcibil ||
       raw.applyPan ||
       raw.applyPrefill
     );

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ServiceMeta } from 'src/app/services/service-meta';
 
-export type BureauProvider = 'verifyal' | 'surepass' | 'satmat' | 'avmanagement';
+export type BureauProvider = 'verifyal' | 'surepass' | 'satmat' | 'avmanagement' | 'disabled';
 
 /** accounts.panVerificationProvider — 'satmat' enables the CRM's PAN
  * Verification integration for the account, 'disabled' (stored as NULL)
@@ -19,6 +19,8 @@ export interface BureauProviderSettings {
   crifProvider?: BureauProvider;
   experianProvider?: BureauProvider;
   equifaxProvider?: BureauProvider;
+  /** Advance CIBIL — 'avmanagement' or 'disabled' only. */
+  advcibilProvider?: BureauProvider;
   panVerificationProvider?: PanVerificationProvider;
   mobilePrefillProvider?: MobilePrefillProvider;
 }

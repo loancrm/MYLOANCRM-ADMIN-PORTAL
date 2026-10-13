@@ -21,12 +21,15 @@
         Choose whether CIBIL, CRIF, Experian and Equifax report fetches use
         Verifyal, Surepass or Satmat — for one account, or applied to every
         account at once. Surepass is live for CIBIL and CRIF only; choosing
-        Surepass for Experian or Equifax disables that card in the CRM. Satmat is live for CIBIL (TransUnion), CRIF
-        and Experian; Satmat has no Equifax API, so choosing Satmat for Equifax
-        disables the Equifax card for that account. AV Management is live for
-        all four bureaus and charges for every hit (failed requests included).
-        Report costs are managed
-        elsewhere and are not changed from this page.
+        Surepass for Experian or Equifax disables that card in the CRM. Satmat
+        is live for CIBIL (TransUnion), CRIF and Experian; Satmat has no Equifax
+        API, so choosing Satmat for Equifax disables the Equifax card for that
+        account. AV Management is live for all four bureaus and charges for
+        every hit (failed requests included). Choose Disabled to switch a bureau
+        off (e.g. when every provider is down) — its card is shown as
+        unavailable in the CRM. Advance CIBIL is offered by AV Management only
+        and is Disabled by default. Report costs are managed elsewhere and are
+        not changed from this page.
       </p>
 
       <div class="mb-4">
@@ -106,13 +109,26 @@
                   </label>
                   <div
                     class="small"
-                    [class.text-danger]="form.get(bureau.providerControl)?.value === 'surepass'"
-                    [class.text-muted]="form.get(bureau.providerControl)?.value !== 'surepass'"
+                    [class.text-danger]="
+                      form.get(bureau.providerControl)?.value === 'surepass'
+                    "
+                    [class.text-muted]="
+                      form.get(bureau.providerControl)?.value !== 'surepass'
+                    "
                     *ngIf="!bureau.surepassIsLive"
                   >
                     <i class="pi pi-ban me-1"></i>Surepass has no
                     {{ bureau.label }} API — choosing it disables this card in
                     the CRM
+                  </div>
+                  <div
+                    class="small text-danger"
+                    *ngIf="
+                      form.get(bureau.providerControl)?.value === 'disabled'
+                    "
+                  >
+                    <i class="pi pi-ban me-1"></i>Disabled — this card is shown
+                    as unavailable in the CRM
                   </div>
                   <div
                     class="small text-danger"
@@ -128,7 +144,7 @@
                 </td>
                 <td>
                   <p-dropdown
-                    [options]="providerOptions"
+                    [options]="bureau.options || providerOptions"
                     [formControlName]="bureau.providerControl"
                     optionLabel="label"
                     optionValue="value"
@@ -153,9 +169,9 @@
                   <div class="text-muted small">
                     <i class="pi pi-info-circle me-1"></i>
                     {{
-                      form.get('panVerificationProvider')?.value === 'satmat'
-                        ? 'PAN Verification card is shown in the CRM Integrations'
-                        : 'PAN Verification is hidden for this account'
+                      form.get("panVerificationProvider")?.value === "satmat"
+                        ? "PAN Verification card is shown in the CRM Integrations"
+                        : "PAN Verification is hidden for this account"
                     }}
                   </div>
                 </td>
@@ -186,11 +202,12 @@
                   <div class="text-muted small">
                     <i class="pi pi-info-circle me-1"></i>
                     {{
-                      form.get('mobilePrefillProvider')?.value === 'satmat'
-                        ? 'Satmat — charged only on HTTP 200 responses'
-                        : form.get('mobilePrefillProvider')?.value === 'avmanagement'
-                          ? 'AV Management — charged for every hit; needs first & last name'
-                          : 'Prefill (Mobile to PAN) is hidden for this account'
+                      form.get("mobilePrefillProvider")?.value === "satmat"
+                        ? "Satmat — charged only on HTTP 200 responses"
+                        : form.get("mobilePrefillProvider")?.value ===
+                            "avmanagement"
+                          ? "AV Management — charged for every hit; needs first & last name"
+                          : "Prefill (Mobile to PAN) is hidden for this account"
                     }}
                   </div>
                 </td>

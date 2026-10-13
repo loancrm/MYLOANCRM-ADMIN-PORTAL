@@ -59,7 +59,7 @@ export class CibilReportsComponent {
     {
       field: 'report_type',
       label: 'Report Type',
-      format: (v) => String(v).toUpperCase(),
+      format: (v) => (v === 'advcibil' ? 'ADVANCE CIBIL' : String(v).toUpperCase()),
     },
     {
       field: 'reportProvider',
@@ -120,6 +120,7 @@ export class CibilReportsComponent {
     { label: 'CIBIL', value: 'cibil' },
     { label: 'CRIF', value: 'crif' },
     { label: 'Equifax', value: 'equifax' },
+    { label: 'Advance CIBIL', value: 'advcibil' },
   ];
 
   constructor(

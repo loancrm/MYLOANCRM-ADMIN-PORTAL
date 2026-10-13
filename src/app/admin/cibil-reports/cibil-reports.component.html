@@ -161,7 +161,11 @@
             <span
               class="report-type-badge"
               [class]="'report-' + report.report_type"
-              >{{ report.report_type }}</span
+              >{{
+                report.report_type === 'advcibil'
+                  ? 'Advance CIBIL'
+                  : report.report_type
+              }}</span
             >
           </td>
           <td>{{ report.mobile }}</td>
