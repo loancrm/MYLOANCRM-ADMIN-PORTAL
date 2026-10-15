@@ -41,6 +41,16 @@ private location: Location
     showUsername: false,
     showPassword: false,
     showMobile:   false,
+    // What we pay Verifyal per report (₹). Each report deducts the price
+    // + 18% GST from the wallet (same as AV Management).
+    pricingGstPercent: 18,
+    pricingNote: 'Each report deducts the report price + 18% GST from the wallet.',
+    pricing: [
+      { service: 'TransUnion (CIBIL)', price: 60 },
+      { service: 'Experian',           price: 25 },
+      { service: 'Equifax',            price: 25 },
+      { service: 'CRIF',               price: 25 },
+    ],
   },
   {
     title:        'Satmat',
@@ -55,6 +65,17 @@ private location: Location
     showUsername: false,
     showPassword: false,
     showMobile:   false,
+    // What we pay Satmat per hit (₹). Only this amount is deducted per hit —
+    // GST is charged on the total wallet recharge, not on each deduction.
+    pricingGstPercent: 0,
+    pricingNote: 'Only the listed amount is deducted from the wallet per hit. GST is charged on the total wallet recharge, not on each deduction.',
+    pricing: [
+      { service: 'TransUnion (CIBIL)',      price: 50 },
+      { service: 'Experian',                price: 9 },
+      { service: 'CRIF',                    price: 9 },
+      { service: 'Prefill (Mobile to PAN)', price: 4.5 },
+      { service: 'PAN Verification',        price: 1 },
+    ],
   },
   {
     title:        'AV Management',
@@ -69,6 +90,18 @@ private location: Location
     showUsername: false,
     showPassword: false,
     showMobile:   false,
+    // What we pay AV Management per hit (₹). Each hit deducts the price
+    // + 18% GST from the wallet.
+    pricingGstPercent: 18,
+    pricingNote: 'Each hit deducts the report price + 18% GST from the wallet.',
+    pricing: [
+      { service: 'TransUnion (CIBIL) Regular', price: 55 },
+      { service: 'TransUnion (CIBIL) Advance', price: 60 },
+      { service: 'Experian',                   price: 12 },
+      { service: 'CRIF',                       price: 28 },
+      { service: 'Equifax',                    price: 30 },
+      { service: 'Prefill (Mobile to PAN)',    price: 2.5 },
+    ],
   },
   {
     title:        'Precisa',
@@ -114,6 +147,11 @@ private location: Location
   },
   
 ];
+
+  /** Amount actually deducted per hit = price + GST (when GST is per hit). */
+  deductedPerHit(price: number, gstPercent: number): number {
+    return +(price + (price * (gstPercent || 0)) / 100).toFixed(2);
+  }
 
   // ── Open link ─────────────────────────────────────────────────────────────
   openLink(link: any): void {

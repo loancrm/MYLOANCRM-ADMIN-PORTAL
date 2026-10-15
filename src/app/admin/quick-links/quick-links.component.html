@@ -113,6 +113,29 @@
               </div>
 
             </div>
+
+          <!-- Pricing (what we pay per hit) — only cards that have it -->
+          <ng-container *ngIf="link.pricing?.length">
+            <div class="card-divider"></div>
+            <div class="pricing">
+              <span class="cred-label">
+                <i class="pi pi-tag me-1"></i>Pricing (per hit)
+              </span>
+              <div class="price-row" *ngFor="let p of link.pricing">
+                <span>{{ p.service }}</span>
+                <span class="price-value">
+                  <strong>₹{{ p.price | number: '1.2-2' }}</strong>
+                  <small *ngIf="link.pricingGstPercent" class="price-gst">
+                    + {{ link.pricingGstPercent }}% GST =
+                    ₹{{ deductedPerHit(p.price, link.pricingGstPercent) | number: '1.2-2' }}
+                  </small>
+                </span>
+              </div>
+              <div class="pricing-note" *ngIf="link.pricingNote">
+                <i class="pi pi-info-circle me-1"></i>{{ link.pricingNote }}
+              </div>
+            </div>
+          </ng-container>
           <!-- Visit Button -->
           <button class="visit-btn" (click)="openLink(link)">
             <i class="pi pi-arrow-up-right me-2"></i>Visit {{ link.title }}
