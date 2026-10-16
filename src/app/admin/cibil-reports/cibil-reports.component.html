@@ -107,7 +107,17 @@
               styleClass="w-100"
             ></p-dropdown>
           </div>
-          <div class="col-md-3 no-padding-small"></div>
+          <div class="col-md-3 mt-2 no-padding-small">
+            <p-dropdown
+              [options]="sourceOptions"
+              [(ngModel)]="selectedSource"
+              placeholder="Select Source"
+              optionLabel="label"
+              optionValue="value"
+              (onChange)="onSourceChange()"
+              styleClass="w-100"
+            ></p-dropdown>
+          </div>
         </div>
       </ng-template>
       <ng-template pTemplate="header" let-columns>
@@ -124,6 +134,7 @@
           <th>Consent</th>
           <th class="text-nowrap">Credit Score</th>
           <th class="text-nowrap">Provider</th>
+          <th class="text-nowrap">Source</th>
           <th>Status</th>
           <th class="text-center">Actions</th>
           <th class="text-nowrap">Created on</th>
@@ -162,8 +173,8 @@
               class="report-type-badge"
               [class]="'report-' + report.report_type"
               >{{
-                report.report_type === 'advcibil'
-                  ? 'Advance CIBIL'
+                report.report_type === "advcibil"
+                  ? "Advance CIBIL"
                   : report.report_type
               }}</span
             >
@@ -183,6 +194,13 @@
           </td>
           <td class="text-nowrap">
             {{ providerLabel(report.reportProvider) }}
+          </td>
+          <td class="text-nowrap">
+            <span
+              class="source-badge"
+              [class.source-mobile]="report.sourceType === 'MOBILE'"
+              >{{ sourceLabel(report.sourceType) }}</span
+            >
           </td>
           <td class="text-nowrap">
             <span
@@ -257,7 +275,7 @@
       </ng-template>
       <ng-template pTemplate="emptymessage">
         <tr class="text-center">
-          <td colspan="15" class="text-center fw-bold">
+          <td colspan="16" class="text-center fw-bold">
             <img
               alt="No Data"
               src="../../../assets/images/menu/no-data.gif"

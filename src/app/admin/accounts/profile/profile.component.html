@@ -244,6 +244,58 @@
       </table>
     </div>
 
+    <!-- Mobile to Credit Report: own switch + per-bureau price (one debit per request, + GST) -->
+    <h6 class="fw-bold mt-3 mb-1">
+      Mobile to Credit Report
+      <span class="badge bg-light text-dark ms-1">{{
+        accountDetails.mobileCreditReportProvider ? "Enabled" : "Disabled"
+      }}</span>
+      <span
+        *ngIf="accountDetails.mobileCreditReportProvider"
+        class="badge bg-light text-dark ms-1"
+        >Prefill:
+        {{
+          accountDetails.mobileCreditReportProvider === "avmanagement"
+            ? "AV Management"
+            : (accountDetails.mobileCreditReportProvider | titlecase)
+        }}</span
+      >
+    </h6>
+    <div class="table-responsive" style="max-width: 560px">
+      <table class="table table-sm align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Bureau</th>
+            <th>Available</th>
+            <th>Price (₹)</th>
+            <th>Deducted incl. 18% GST (₹)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let b of mobileReportPrices">
+            <td>{{ b.label }}</td>
+            <td>
+              <span
+                class="badge"
+                [ngClass]="b.available ? 'bg-success' : 'bg-light text-dark'"
+                >{{ b.available ? "Yes" : "No" }}</span
+              >
+            </td>
+            <td>
+              {{ b.price | number: "1.2-2" }}
+              <small *ngIf="b.isDefault" class="text-muted">(Default)</small>
+            </td>
+            <td>{{ b.total | number: "1.2-2" }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <small class="text-muted d-block mt-1">
+      Available = card enabled and that bureau set to AV Management. Default =
+      no Mobile to Credit Report price set (accounts.mobile&lt;Bureau&gt;ReportCost),
+      so the bureau's normal report cost (or ₹100) is charged.
+    </small>
+
     <div *ngIf="loggedInUserRole === 1">
       <div class="row mt-3" *ngIf="!loading && accountDetails">
         <div class="col-md-4">

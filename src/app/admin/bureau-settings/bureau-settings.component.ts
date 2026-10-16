@@ -11,6 +11,7 @@ import {
   BureauProvider,
   BureauSettingsService,
   MobilePrefillProvider,
+  MobileCreditReportProvider,
   PanVerificationProvider,
 } from './bureau-settings.service';
 
@@ -77,6 +78,20 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
     { label: 'Disabled', value: 'disabled' },
     { label: 'Satmat', value: 'satmat' },
   ];
+
+  /** Mobile to Credit Report: off, or on using this prefill API. */
+  mobileReportProviderOptions: { label: string; value: MobileCreditReportProvider }[] = [
+    { label: 'Disabled', value: 'disabled' },
+    { label: 'Enabled – Satmat prefill', value: 'satmat' },
+    { label: 'Enabled – AV Management prefill', value: 'avmanagement' },
+  ];
+
+  /** True when at least one bureau row is on AV Management — otherwise the
+   * Mobile to Credit Report card has nothing it can fetch. */
+  get hasAvManagementBureau(): boolean {
+    const raw = this.form?.value || {};
+    return this.bureaus.some((b) => raw[b.providerControl] === 'avmanagement');
+  }
 
   prefillProviderOptions: { label: string; value: MobilePrefillProvider }[] = [
     { label: 'Disabled', value: 'disabled' },
@@ -158,6 +173,7 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
       advcibilProvider: ['disabled'],
       panVerificationProvider: ['disabled'],
       mobilePrefillProvider: ['disabled'],
+      mobileCreditReportProvider: ['disabled'],
       applyCibil: [false],
       applyCrif: [false],
       applyExperian: [false],
@@ -165,6 +181,7 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
       applyAdvcibil: [false],
       applyPan: [false],
       applyPrefill: [false],
+      applyMobileReport: [false],
     });
   }
 
@@ -230,6 +247,7 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
         advcibilProvider: 'disabled',
         panVerificationProvider: 'disabled',
         mobilePrefillProvider: 'disabled',
+        mobileCreditReportProvider: 'disabled',
         applyCibil: false,
         applyCrif: false,
         applyExperian: false,
@@ -237,6 +255,7 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
         applyAdvcibil: false,
         applyPan: false,
         applyPrefill: false,
+        applyMobileReport: false,
       });
     } else {
       this.selectedAccountId = null;
@@ -288,6 +307,8 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
           advcibilProvider: res?.advcibilProvider || 'disabled',
           panVerificationProvider: res?.panVerificationProvider || 'disabled',
           mobilePrefillProvider: res?.mobilePrefillProvider || 'disabled',
+          mobileCreditReportProvider:
+            res?.mobileCreditReportProvider || 'disabled',
         });
       },
       error: (err) => {
@@ -323,6 +344,7 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
       advcibilProvider: raw.advcibilProvider,
       panVerificationProvider: raw.panVerificationProvider,
       mobilePrefillProvider: raw.mobilePrefillProvider,
+      mobileCreditReportProvider: raw.mobileCreditReportProvider,
     };
     this.saving = true;
     this.bureauSettingsService
@@ -357,6 +379,8 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
       payload['panVerificationProvider'] = raw.panVerificationProvider;
     if (raw.applyPrefill)
       payload['mobilePrefillProvider'] = raw.mobilePrefillProvider;
+    if (raw.applyMobileReport)
+      payload['mobileCreditReportProvider'] = raw.mobileCreditReportProvider;
     return payload;
   }
 
@@ -369,7 +393,8 @@ export class BureauSettingsComponent implements OnInit, OnDestroy {
       raw.applyEquifax ||
       raw.applyAdvcibil ||
       raw.applyPan ||
-      raw.applyPrefill
+      raw.applyPrefill ||
+      raw.applyMobileReport
     );
   }
 

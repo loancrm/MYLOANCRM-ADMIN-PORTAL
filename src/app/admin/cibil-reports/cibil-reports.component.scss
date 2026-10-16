@@ -121,3 +121,17 @@
   margin: 0;
   color: var(--text-color-secondary, #6b7280);
 }
+
+.source-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  background-color: #90a4ae;
+
+  &.source-mobile {
+    background-color: #7571f8;
+  }
+}

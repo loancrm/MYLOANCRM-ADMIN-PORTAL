@@ -33,6 +33,15 @@ export class CibilReportsComponent {
   @ViewChild('accountTable') accountTable!: Table;
   selectedReportType: string = 'ALL';
   selectedProvider: string = 'ALL';
+  selectedSource: string = 'ALL';
+
+  /** cibil_reports.sourceType — how the report was requested. */
+  sourceOptions = [
+    { label: 'All Sources', value: 'ALL' },
+    { label: 'Form', value: 'CRM' },
+    { label: 'Mobile Number', value: 'MOBILE' },
+    { label: 'API', value: 'web_api' },
+  ];
 
   /** Values are cibil_reports.reportProvider lists; Verifyal includes the
    * newer CRIF flow ('verifyal_new'). */
@@ -65,6 +74,11 @@ export class CibilReportsComponent {
       field: 'reportProvider',
       label: 'Provider',
       format: (v) => this.providerLabel(v),
+    },
+    {
+      field: 'sourceType',
+      label: 'Source',
+      format: (v) => this.sourceLabel(v),
     },
     { field: 'client_id', label: 'Reference' },
     { field: 'name', label: 'Name' },
@@ -195,6 +209,19 @@ export class CibilReportsComponent {
     this.location.back();
   }
 
+  /** 'CRM' (form, default) | 'MOBILE' (Mobile to Credit Report) | 'web_api'. */
+  sourceLabel(value: any): string {
+    const v = String(value || 'CRM').toUpperCase();
+    if (v === 'MOBILE') return 'Mobile Number';
+    if (v === 'WEB_API') return 'API';
+    return 'Form';
+  }
+
+  // Applied in loadCibilReports() like the provider filter.
+  onSourceChange() {
+    this.accountTable.reset();
+  }
+
   providerLabel(provider: string): string {
     return provider ? this.providerLabels[provider] || provider : '-';
   }
@@ -315,6 +342,9 @@ export class CibilReportsComponent {
     }
     if (this.selectedProvider && this.selectedProvider !== 'ALL') {
       api_filter['reportProvider-in'] = this.selectedProvider;
+    }
+    if (this.selectedSource && this.selectedSource !== 'ALL') {
+      api_filter['sourceType-eq'] = this.selectedSource;
     }
 
     // Both count and data get the SAME filter

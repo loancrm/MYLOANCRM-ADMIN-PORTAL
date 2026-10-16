@@ -222,6 +222,52 @@
                   ></p-dropdown>
                 </td>
               </tr>
+              <!-- Mobile to Credit Report: own on/off switch (value = prefill API it uses) -->
+              <tr>
+                <td *ngIf="mode === 'all'">
+                  <p-checkbox
+                    formControlName="applyMobileReport"
+                    [binary]="true"
+                    inputId="applyMobileReport"
+                  ></p-checkbox>
+                </td>
+                <td>
+                  <label for="applyMobileReport" class="mb-0 fw-semibold">
+                    Mobile to Credit Report
+                  </label>
+                  <div class="text-muted small">
+                    <i class="pi pi-info-circle me-1"></i>
+                    {{
+                      form.get("mobileCreditReportProvider")?.value ===
+                      "disabled"
+                        ? "Mobile to Credit Report card is disabled for this account"
+                        : "Card enabled — only bureaus set to AV Management above can be fetched"
+                    }}
+                  </div>
+                  <div
+                    class="small text-danger"
+                    *ngIf="
+                      mode === 'single' &&
+                      form.get('mobileCreditReportProvider')?.value !==
+                        'disabled' &&
+                      !hasAvManagementBureau
+                    "
+                  >
+                    <i class="pi pi-exclamation-triangle me-1"></i>No bureau is
+                    on AV Management, so every bureau will show "Not available"
+                  </div>
+                </td>
+                <td>
+                  <p-dropdown
+                    [options]="mobileReportProviderOptions"
+                    formControlName="mobileCreditReportProvider"
+                    optionLabel="label"
+                    optionValue="value"
+                    styleClass="w-100"
+                    appendTo="body"
+                  ></p-dropdown>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>

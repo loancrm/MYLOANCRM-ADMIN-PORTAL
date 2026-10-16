@@ -12,6 +12,11 @@ export type PanVerificationProvider = 'satmat' | 'disabled';
  * to PAN (prefill) integration; 'disabled' (stored as NULL) hides it. */
 export type MobilePrefillProvider = 'satmat' | 'avmanagement' | 'disabled';
 
+/** accounts.mobileCreditReportProvider — the CRM's Mobile to Credit Report
+ * card on/off (independent of the Prefill card); the value is the prefill API
+ * it uses. 'disabled' (stored as NULL) hides it. */
+export type MobileCreditReportProvider = 'satmat' | 'avmanagement' | 'disabled';
+
 // Provider only — report costs (accounts.*ReportCost) are managed
 // elsewhere and intentionally not sent from this admin portal page.
 export interface BureauProviderSettings {
@@ -23,6 +28,7 @@ export interface BureauProviderSettings {
   advcibilProvider?: BureauProvider;
   panVerificationProvider?: PanVerificationProvider;
   mobilePrefillProvider?: MobilePrefillProvider;
+  mobileCreditReportProvider?: MobileCreditReportProvider;
 }
 
 export interface BulkBureauProviderSettings extends BureauProviderSettings {

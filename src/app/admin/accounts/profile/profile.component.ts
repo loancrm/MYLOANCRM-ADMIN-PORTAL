@@ -844,4 +844,45 @@ onProfileAssignChange(event: any): void {
 }
 
 
+
+  /** Mobile to Credit Report prices for this account — same fallback as
+   * the backend (mobile<Bureau>ReportCost → <bureau>ReportCost → ₹100),
+   * shown with the amount deducted incl. 18% GST. */
+  get mobileReportPrices(): {
+    label: string;
+    available: boolean;
+    price: number;
+    total: number;
+    isDefault: boolean;
+  }[] {
+    const a: any = this.accountDetails || {};
+    const enabled = !!a.mobileCreditReportProvider;
+    const bureaus = [
+      { key: 'cibil', label: 'CIBIL (TransUnion)' },
+      { key: 'advcibil', label: 'Advance CIBIL' },
+      { key: 'experian', label: 'Experian' },
+      { key: 'crif', label: 'CRIF High Mark' },
+      { key: 'equifax', label: 'Equifax' },
+    ];
+    return bureaus.map(({ key, label }) => {
+      const cap = key.charAt(0).toUpperCase() + key.slice(1);
+      const mobileCost = a[`mobile${cap}ReportCost`];
+      const bureauCost = a[`${key}ReportCost`];
+      const hasMobile = mobileCost !== null && mobileCost !== undefined;
+      const price = Number(
+        hasMobile
+          ? mobileCost
+          : bureauCost !== null && bureauCost !== undefined && Number(bureauCost) > 0
+            ? bureauCost
+            : 100,
+      );
+      return {
+        label,
+        available: enabled && a[`${key}Provider`] === 'avmanagement',
+        price,
+        total: +(price * 1.18).toFixed(2),
+        isDefault: !hasMobile,
+      };
+    });
+  }
 }

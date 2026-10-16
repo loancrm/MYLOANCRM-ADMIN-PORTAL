@@ -709,6 +709,26 @@ export class AccountsComponent implements AfterViewInit {
           },
         ],
       },
+      {
+        header: 'Mobile to Credit Report',
+        data: [
+          {
+            field: 'mobileCreditReportProvider',
+            title: 'Mobile to Credit Report',
+            type: 'dropdown',
+            filterType: 'eq',
+            options: [
+              { label: 'All', value: '' },
+              { label: 'Disabled', value: 'disabled' },
+              { label: 'Enabled – Satmat prefill', value: 'satmat' },
+              {
+                label: 'Enabled – AV Management prefill',
+                value: 'avmanagement',
+              },
+            ],
+          },
+        ],
+      },
     ];
   }
   // setFilterConfig() {
