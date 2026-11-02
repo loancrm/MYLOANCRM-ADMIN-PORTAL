@@ -71,6 +71,15 @@ bankLoanTypeOptions = [
 
 walletAmountToAdd: number = 0;
 addingWallet: boolean = false;
+walletAdjustType: 'RECHARGE' | 'REFUND' | 'DEDUCT' = 'RECHARGE';
+walletAdjustTypes = [
+  { label: 'Recharge', value: 'RECHARGE' },
+  { label: 'Refund', value: 'REFUND' },
+  { label: 'Deduct', value: 'DEDUCT' },
+];
+walletDescription = '';
+walletRefundableDebits: any[] = [];
+walletRefundDebits: any[] = [];
 showWalletConfirm: boolean = false;
 adminRemarkOptions: { label: string; value: any }[] = [];
 assignFilterOptions: { label: string; value: any }[] = [];
@@ -712,39 +721,112 @@ formatAmount(amount: number): string {
   if (amount >= 1000)     return '₹' + (amount / 1000).toFixed(1)     + ' K';
   return '₹' + amount;
 }
+// ---- Wallet: recharge / refund / deduct (every change is a ledger row) ----
+get walletAdjustTitle(): string {
+  return { RECHARGE: 'Recharge', REFUND: 'Refund', DEDUCT: 'Deduct' }[
+    this.walletAdjustType
+  ];
+}
+
+get walletBalanceAfter(): number {
+  const balance = Number(this.accountDetails?.walletBalance) || 0;
+  const amount = Number(this.walletAmountToAdd) || 0;
+  return this.walletAdjustType === 'DEDUCT' ? balance - amount : balance + amount;
+}
+
+onWalletAdjustTypeChange(): void {
+  this.walletRefundDebits = [];
+  this.walletAmountToAdd = 0;
+  if (this.walletAdjustType === 'REFUND' && this.accountDetails?.accountId) {
+    this.leadService
+      .getRefundableDebits(this.accountDetails.accountId)
+      .subscribe({
+        next: (res: any) => {
+          this.walletRefundableDebits = (res?.data || []).map((d: any) => ({
+            ...d,
+            label: `#${d.id} · ${String(d.debitCategory || '').replace(/_/g, ' ')} · ₹${d.remaining} · ${new Date(d.createdOn).toLocaleDateString('en-IN')}`,
+          }));
+        },
+        error: () => this.toastService.showError('Failed to load transactions'),
+      });
+  }
+}
+
+/** Most that can be refunded against the selected charges. */
+get walletRefundableTotal(): number {
+  return this.walletRefundDebits.reduce(
+    (sum, d) => sum + (Number(d?.remaining) || 0),
+    0,
+  );
+}
+
+onWalletRefundDebitChange(): void {
+  // Start from the full refundable total; the amount stays editable (lower it
+  // for a partial refund). With nothing selected it is a general refund.
+  this.walletAmountToAdd = Math.round(this.walletRefundableTotal * 100) / 100;
+}
+
 confirmAddWalletBalance(): void {
   if (!this.walletAmountToAdd || this.walletAmountToAdd <= 0) {
     this.toastService.showError('Please enter a valid amount');
     return;
   }
-  this.showWalletConfirm = true;  // ← opens the confirmation popup
+  if (!this.walletDescription.trim()) {
+    this.toastService.showError('Please enter a description');
+    return;
+  }
+  if (
+    this.walletAdjustType === 'REFUND' &&
+    this.walletRefundDebits.length &&
+    this.walletAmountToAdd > this.walletRefundableTotal + 0.001
+  ) {
+    this.toastService.showError(
+      `Refund cannot be more than ₹${this.walletRefundableTotal} for the selected charges`,
+    );
+    return;
+  }
+  if (this.walletAdjustType === 'DEDUCT' && this.walletBalanceAfter < 0) {
+    this.toastService.showError('Cannot deduct more than the wallet balance');
+    return;
+  }
+  this.showWalletConfirm = true;
 }
 
 addWalletBalance(): void {
   this.addingWallet = true;
-
-  this.leadService.addWalletBalance(
-    this.accountDetails.accountId,
-    this.walletAmountToAdd
-  ).subscribe({
-    next: (res: any) => {
-      this.addingWallet = false;
-      this.showWalletConfirm = false;
-
-      // ✅ Update local balance immediately so UI reflects new value
-      this.accountDetails.walletBalance =
-        (this.accountDetails.walletBalance || 0) + this.walletAmountToAdd;
-
-      this.walletAmountToAdd = 0;
-      this.toastService.showSuccess(
-        `Wallet balance added successfully to ${this.accountDetails.businessName}`
-      );
-    },
-    error: () => {
-      this.addingWallet = false;
-      this.toastService.showError('Failed to add wallet balance');
-    }
-  });
+  this.leadService
+    .adjustWallet({
+      accountId: this.accountDetails.accountId,
+      type: this.walletAdjustType,
+      amount: this.walletAmountToAdd,
+      description: this.walletDescription.trim(),
+      referenceTransactionIds:
+        this.walletAdjustType === 'REFUND'
+          ? this.walletRefundDebits.map((d) => d.id)
+          : [],
+    })
+    .subscribe({
+      next: (res: any) => {
+        this.addingWallet = false;
+        this.showWalletConfirm = false;
+        this.accountDetails.walletBalance =
+          res?.data?.walletBalance ?? this.walletBalanceAfter;
+        this.toastService.showSuccess(
+          res?.message || `${this.walletAdjustTitle} saved`,
+        );
+        this.walletAmountToAdd = 0;
+        this.walletDescription = '';
+        this.walletRefundDebits = [];
+        if (this.walletAdjustType === 'REFUND') this.onWalletAdjustTypeChange();
+        this.loadWalletTransactions({ first: 0, rows: 10 });
+      },
+      error: (err: any) => {
+        this.addingWallet = false;
+        this.toastService.showError(
+          err?.error?.message || 'Failed to update wallet',
+        );
+      },
+    });
 }
 // loadAdminRemarks(): void {
 //   const filter = { 'status-eq': 1, 'remarkInternalStatus-eq': 1 };

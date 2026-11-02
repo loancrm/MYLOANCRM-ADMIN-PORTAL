@@ -1494,6 +1494,24 @@ export class LeadsService {
     );
   }
 
+  /** Recharge / refund / deduct; balance and ledger row are saved together. */
+  adjustWallet(body: {
+    accountId: string;
+    type: 'RECHARGE' | 'REFUND' | 'DEDUCT';
+    amount: number;
+    description: string;
+    referenceTransactionIds?: number[];
+  }): Observable<any> {
+    return this.serviceMeta.httpPost('credit-reports-api/wallet/admin-adjust', body);
+  }
+
+  /** Account debits that can still be (partly) refunded. */
+  getRefundableDebits(accountId: string): Observable<any> {
+    return this.serviceMeta.httpGet(
+      `credit-reports-api/wallet/refundable/${accountId}`,
+    );
+  }
+
   addWalletBalance(accountId: string, amount: number): Observable<any> {
     const url = 'credit-reports-api/wallet/add-balance';
     return this.serviceMeta.httpPost(url, { accountId, amount });

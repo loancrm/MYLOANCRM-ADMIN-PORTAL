@@ -19,6 +19,8 @@ import { PreloaderModule } from 'src/app/preloader/preloader.module';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { AnalyticsModule } from '../analytics/analytics.module'
 import { PaginatorModule } from 'primeng/paginator';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { DropdownModule }  from 'primeng/dropdown';
 const routes: Routes = [{ path: "", component: ProfileComponent }];
 
@@ -46,6 +48,8 @@ const routes: Routes = [{ path: "", component: ProfileComponent }];
     AnalyticsModule,
     PaginatorModule,
     DropdownModule,
+    MultiSelectModule,
+    InputNumberModule,
     [RouterModule.forChild(routes)]
   ],
   exports: [
