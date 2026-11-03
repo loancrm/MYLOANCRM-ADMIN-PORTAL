@@ -445,6 +445,11 @@ export class LeadsService {
     return this.serviceMeta.httpGet(url, null, filter);
   }
 
+  /** Today's count per Credit & CAM Reports tab: {credit, cam, pan, prefill}. */
+  getTodayReportCounts() {
+    return this.serviceMeta.httpGet('admin/report-counts-today');
+  }
+
   getFetchedCibilReportsCount(filter = {}) {
     const url = 'admin/fetched-cibil-reports-count';
     return this.serviceMeta.httpGet(url, null, filter);

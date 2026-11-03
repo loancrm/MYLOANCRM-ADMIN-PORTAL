@@ -34,6 +34,14 @@ export class CibilReportsComponent {
   selectedReportType: string = 'ALL';
   selectedProvider: string = 'ALL';
   selectedSource: string = 'ALL';
+  selectedStatus: string = 'ALL';
+
+  /** cibil_reports.status. */
+  statusOptions = [
+    { label: 'All Statuses', value: 'ALL' },
+    { label: 'Success', value: 'SUCCESS' },
+    { label: 'Failed', value: 'FAILED' },
+  ];
 
   /** cibil_reports.sourceType — how the report was requested. */
   sourceOptions = [
@@ -222,6 +230,11 @@ export class CibilReportsComponent {
     this.accountTable.reset();
   }
 
+  // Applied in loadCibilReports() like the provider filter.
+  onStatusFilterChange() {
+    this.accountTable.reset();
+  }
+
   providerLabel(provider: string): string {
     return provider ? this.providerLabels[provider] || provider : '-';
   }
@@ -345,6 +358,9 @@ export class CibilReportsComponent {
     }
     if (this.selectedSource && this.selectedSource !== 'ALL') {
       api_filter['sourceType-eq'] = this.selectedSource;
+    }
+    if (this.selectedStatus && this.selectedStatus !== 'ALL') {
+      api_filter['reportStatus-eq'] = this.selectedStatus;
     }
 
     // Both count and data get the SAME filter

@@ -118,6 +118,17 @@
               styleClass="w-100"
             ></p-dropdown>
           </div>
+          <div class="col-md-3 mt-2 no-padding-small">
+            <p-dropdown
+              [options]="statusOptions"
+              [(ngModel)]="selectedStatus"
+              placeholder="Select Status"
+              optionLabel="label"
+              optionValue="value"
+              (onChange)="onStatusFilterChange()"
+              styleClass="w-100"
+            ></p-dropdown>
+          </div>
         </div>
       </ng-template>
       <ng-template pTemplate="header" let-columns>

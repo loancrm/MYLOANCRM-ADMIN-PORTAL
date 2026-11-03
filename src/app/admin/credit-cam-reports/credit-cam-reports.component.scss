@@ -11,4 +11,15 @@
     color: var(--primary-color, #7571f8);
     border-color: var(--primary-color, #7571f8);
   }
+
+  ::ng-deep .p-tabmenu .p-menuitem-badge.today-count-badge {
+    margin-left: 0.5rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--primary-color, #7571f8);
+    background: rgba(117, 113, 248, 0.12);
+  }
 }

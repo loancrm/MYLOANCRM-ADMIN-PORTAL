@@ -3,6 +3,7 @@ import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { LeadsService } from '../leads/leads.service';
 
 /**
  * One sidebar entry ("Credit & CAM Reports", roles 1 and 2 only) with
@@ -22,7 +23,11 @@ export class CreditCamReportsComponent implements OnInit {
     { label: 'Credit Reports', icon: 'pi pi-chart-line', routerLink: 'credit' },
     { label: 'CAM Reports', icon: 'pi pi-file', routerLink: 'cam' },
     { label: 'PAN Verifications', icon: 'pi pi-id-card', routerLink: 'pan' },
-    { label: 'Prefill (Mobile to PAN)', icon: 'pi pi-mobile', routerLink: 'prefill' },
+    {
+      label: 'Prefill (Mobile to PAN)',
+      icon: 'pi pi-mobile',
+      routerLink: 'prefill',
+    },
   ];
 
   /** Roles 1 (super admin) and 2 (admin) only — same rule as the backend. */
@@ -32,6 +37,7 @@ export class CreditCamReportsComponent implements OnInit {
     private location: Location,
     private router: Router,
     private localStorageService: LocalStorageService,
+    private leadsService: LeadsService,
   ) {}
 
   ngOnInit(): void {
@@ -40,7 +46,30 @@ export class CreditCamReportsComponent implements OnInit {
     this.hasAccess = [1, 2].includes(Number(adminDetails?.user?.role));
     if (!this.hasAccess) {
       this.router.navigate(['admin', 'dashboard']);
+      return;
     }
+    this.loadTodayCounts();
+  }
+
+  /** Today's count as a badge next to each tab heading. */
+  private loadTodayCounts(): void {
+    const keyByTab: Record<string, string> = {
+      credit: 'credit',
+      cam: 'cam',
+      pan: 'pan',
+      prefill: 'prefill',
+    };
+    this.leadsService.getTodayReportCounts().subscribe({
+      next: (counts: any) => {
+        this.tabs = this.tabs.map((tab) => ({
+          ...tab,
+          badge: `Today: ${Number(counts?.[keyByTab[tab.routerLink]]) || 0}`,
+          badgeStyleClass: 'today-count-badge',
+        }));
+      },
+      // Counts are extra info — the tabs still work without them.
+      error: () => {},
+    });
   }
 
   goBack(): void {
